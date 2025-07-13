@@ -97,9 +97,17 @@ async function migrateData() {
   try {
     // Migrate destinations
     console.log("Migrating destinations...");
-    for (const dest of destinationsData) {
-      const existing = await storage.getAllDestinations();
-      if (existing.length === 0) {
+    const existingDestinations = await storage.getAllDestinations();
+    if (existingDestinations.length < destinationsData.length) {
+      // Clear existing data first
+      if (existingDestinations.length > 0) {
+        for (const dest of existingDestinations) {
+          await storage.deleteDestination(dest.id);
+        }
+      }
+      
+      // Insert all destinations
+      for (const dest of destinationsData) {
         await storage.createDestination({
           name: dest.name,
           slug: dest.slug,
@@ -117,9 +125,17 @@ async function migrateData() {
     
     // Migrate guides
     console.log("Migrating guides...");
-    for (const guide of guidesData) {
-      const existing = await storage.getAllGuides();
-      if (existing.length === 0) {
+    const existingGuides = await storage.getAllGuides();
+    if (existingGuides.length < guidesData.length) {
+      // Clear existing data first
+      if (existingGuides.length > 0) {
+        for (const guide of existingGuides) {
+          await storage.deleteGuide(guide.id);
+        }
+      }
+      
+      // Insert all guides
+      for (const guide of guidesData) {
         await storage.createGuide({
           title: guide.title,
           slug: guide.slug,
