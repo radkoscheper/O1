@@ -3,18 +3,38 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Search, Settings } from "lucide-react";
-import { destinations } from "@/data/destinations";
-import { guides } from "@/data/guides";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
+  
+  // Fetch destinations and guides from API
+  const { data: destinations = [], isLoading: destinationsLoading } = useQuery({
+    queryKey: ["/api/destinations"],
+  });
+  
+  const { data: guides = [], isLoading: guidesLoading } = useQuery({
+    queryKey: ["/api/guides"],
+  });
 
   // Filter only published destinations
-  const publishedDestinations = destinations.filter(dest => dest.published);
+  const publishedDestinations = destinations;
   
   // Filter only published guides
-  const publishedGuides = guides.filter(guide => guide.published);
+  const publishedGuides = guides;
+  
+  // Show loading state
+  if (destinationsLoading || guidesLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#f8f6f1" }}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-lg">Laden...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

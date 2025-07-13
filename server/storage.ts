@@ -1,8 +1,14 @@
-import { users, type User, type InsertUser, type UpdateUser } from "@shared/schema";
+import { 
+  users, destinations, guides,
+  type User, type InsertUser, type UpdateUser,
+  type Destination, type InsertDestination, type UpdateDestination,
+  type Guide, type InsertGuide, type UpdateGuide
+} from "@shared/schema";
 import { db } from "./db";
 import { eq, ne } from "drizzle-orm";
 
 export interface IStorage {
+  // User operations
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
@@ -11,6 +17,24 @@ export interface IStorage {
   deleteUser(id: number): Promise<void>;
   getAllUsers(): Promise<User[]>;
   getAllUsersExcept(userId: number): Promise<User[]>;
+  
+  // Destination operations
+  getDestination(id: number): Promise<Destination | undefined>;
+  getDestinationBySlug(slug: string): Promise<Destination | undefined>;
+  getAllDestinations(): Promise<Destination[]>;
+  getPublishedDestinations(): Promise<Destination[]>;
+  createDestination(destination: InsertDestination): Promise<Destination>;
+  updateDestination(id: number, updates: UpdateDestination): Promise<Destination>;
+  deleteDestination(id: number): Promise<void>;
+  
+  // Guide operations
+  getGuide(id: number): Promise<Guide | undefined>;
+  getGuideBySlug(slug: string): Promise<Guide | undefined>;
+  getAllGuides(): Promise<Guide[]>;
+  getPublishedGuides(): Promise<Guide[]>;
+  createGuide(guide: InsertGuide): Promise<Guide>;
+  updateGuide(id: number, updates: UpdateGuide): Promise<Guide>;
+  deleteGuide(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -67,6 +91,98 @@ export class DatabaseStorage implements IStorage {
 
   async getAllUsersExcept(userId: number): Promise<User[]> {
     return await db.select().from(users).where(ne(users.id, userId));
+  }
+
+  // Destination operations
+  async getDestination(id: number): Promise<Destination | undefined> {
+    const [destination] = await db.select().from(destinations).where(eq(destinations.id, id));
+    return destination || undefined;
+  }
+
+  async getDestinationBySlug(slug: string): Promise<Destination | undefined> {
+    const [destination] = await db.select().from(destinations).where(eq(destinations.slug, slug));
+    return destination || undefined;
+  }
+
+  async getAllDestinations(): Promise<Destination[]> {
+    return await db.select().from(destinations);
+  }
+
+  async getPublishedDestinations(): Promise<Destination[]> {
+    return await db.select().from(destinations).where(eq(destinations.published, true));
+  }
+
+  async createDestination(insertDestination: InsertDestination): Promise<Destination> {
+    const [destination] = await db
+      .insert(destinations)
+      .values({
+        ...insertDestination,
+        updatedAt: new Date(),
+      })
+      .returning();
+    return destination;
+  }
+
+  async updateDestination(id: number, updates: UpdateDestination): Promise<Destination> {
+    const [destination] = await db
+      .update(destinations)
+      .set({
+        ...updates,
+        updatedAt: new Date(),
+      })
+      .where(eq(destinations.id, id))
+      .returning();
+    return destination;
+  }
+
+  async deleteDestination(id: number): Promise<void> {
+    await db.delete(destinations).where(eq(destinations.id, id));
+  }
+
+  // Guide operations
+  async getGuide(id: number): Promise<Guide | undefined> {
+    const [guide] = await db.select().from(guides).where(eq(guides.id, id));
+    return guide || undefined;
+  }
+
+  async getGuideBySlug(slug: string): Promise<Guide | undefined> {
+    const [guide] = await db.select().from(guides).where(eq(guides.slug, slug));
+    return guide || undefined;
+  }
+
+  async getAllGuides(): Promise<Guide[]> {
+    return await db.select().from(guides);
+  }
+
+  async getPublishedGuides(): Promise<Guide[]> {
+    return await db.select().from(guides).where(eq(guides.published, true));
+  }
+
+  async createGuide(insertGuide: InsertGuide): Promise<Guide> {
+    const [guide] = await db
+      .insert(guides)
+      .values({
+        ...insertGuide,
+        updatedAt: new Date(),
+      })
+      .returning();
+    return guide;
+  }
+
+  async updateGuide(id: number, updates: UpdateGuide): Promise<Guide> {
+    const [guide] = await db
+      .update(guides)
+      .set({
+        ...updates,
+        updatedAt: new Date(),
+      })
+      .where(eq(guides.id, id))
+      .returning();
+    return guide;
+  }
+
+  async deleteGuide(id: number): Promise<void> {
+    await db.delete(guides).where(eq(guides.id, id));
   }
 }
 

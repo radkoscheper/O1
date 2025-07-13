@@ -59,3 +59,71 @@ export type UpdateUser = z.infer<typeof updateUserSchema>;
 export type ChangePassword = z.infer<typeof changePasswordSchema>;
 export type ResetPassword = z.infer<typeof resetPasswordSchema>;
 export type User = typeof users.$inferSelect;
+
+// Destinations table
+export const destinations = pgTable("destinations", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  slug: text("slug").notNull().unique(),
+  description: text("description").notNull(),
+  image: text("image").notNull(),
+  alt: text("alt").notNull(),
+  content: text("content").notNull(),
+  featured: boolean("featured").default(false),
+  published: boolean("published").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdBy: integer("created_by").references(() => users.id),
+});
+
+export const insertDestinationSchema = createInsertSchema(destinations).pick({
+  name: true,
+  slug: true,
+  description: true,
+  image: true,
+  alt: true,
+  content: true,
+  featured: true,
+  published: true,
+  createdBy: true,
+});
+
+export const updateDestinationSchema = insertDestinationSchema.partial();
+
+export type InsertDestination = z.infer<typeof insertDestinationSchema>;
+export type UpdateDestination = z.infer<typeof updateDestinationSchema>;
+export type Destination = typeof destinations.$inferSelect;
+
+// Guides table
+export const guides = pgTable("guides", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  slug: text("slug").notNull().unique(),
+  description: text("description").notNull(),
+  image: text("image").notNull(),
+  alt: text("alt").notNull(),
+  content: text("content").notNull(),
+  featured: boolean("featured").default(false),
+  published: boolean("published").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdBy: integer("created_by").references(() => users.id),
+});
+
+export const insertGuideSchema = createInsertSchema(guides).pick({
+  title: true,
+  slug: true,
+  description: true,
+  image: true,
+  alt: true,
+  content: true,
+  featured: true,
+  published: true,
+  createdBy: true,
+});
+
+export const updateGuideSchema = insertGuideSchema.partial();
+
+export type InsertGuide = z.infer<typeof insertGuideSchema>;
+export type UpdateGuide = z.infer<typeof updateGuideSchema>;
+export type Guide = typeof guides.$inferSelect;
