@@ -5,7 +5,7 @@ import {
   type Guide, type InsertGuide, type UpdateGuide
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, ne } from "drizzle-orm";
+import { eq, ne, and, gte, lt, gt, lte, sql } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -124,6 +124,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateDestination(id: number, updates: UpdateDestination): Promise<Destination> {
+    // Handle ranking updates with automatic adjustment
+    if (updates.ranking !== undefined && updates.ranking !== null) {
+      await this.adjustDestinationRankings(id, updates.ranking);
+    }
+    
     const [destination] = await db
       .update(destinations)
       .set({
@@ -133,6 +138,44 @@ export class DatabaseStorage implements IStorage {
       .where(eq(destinations.id, id))
       .returning();
     return destination;
+  }
+
+  private async adjustDestinationRankings(targetId: number, newRanking: number): Promise<void> {
+    // Get current ranking of the target destination
+    const [currentDestination] = await db.select().from(destinations).where(eq(destinations.id, targetId));
+    if (!currentDestination) return;
+    
+    const oldRanking = currentDestination.ranking || 0;
+    
+    if (oldRanking === newRanking) return; // No change needed
+    
+    if (newRanking < oldRanking) {
+      // Moving up in ranking (lower number = higher rank)
+      // Shift down all destinations between newRanking and oldRanking
+      await db
+        .update(destinations)
+        .set({ ranking: sql`ranking + 1`, updatedAt: new Date() })
+        .where(
+          and(
+            gte(destinations.ranking, newRanking),
+            lt(destinations.ranking, oldRanking),
+            ne(destinations.id, targetId)
+          )
+        );
+    } else {
+      // Moving down in ranking (higher number = lower rank)
+      // Shift up all destinations between oldRanking and newRanking
+      await db
+        .update(destinations)
+        .set({ ranking: sql`ranking - 1`, updatedAt: new Date() })
+        .where(
+          and(
+            gt(destinations.ranking, oldRanking),
+            lte(destinations.ranking, newRanking),
+            ne(destinations.id, targetId)
+          )
+        );
+    }
   }
 
   async deleteDestination(id: number): Promise<void> {
@@ -170,6 +213,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateGuide(id: number, updates: UpdateGuide): Promise<Guide> {
+    // Handle ranking updates with automatic adjustment
+    if (updates.ranking !== undefined && updates.ranking !== null) {
+      await this.adjustGuideRankings(id, updates.ranking);
+    }
+    
     const [guide] = await db
       .update(guides)
       .set({
@@ -179,6 +227,44 @@ export class DatabaseStorage implements IStorage {
       .where(eq(guides.id, id))
       .returning();
     return guide;
+  }
+
+  private async adjustGuideRankings(targetId: number, newRanking: number): Promise<void> {
+    // Get current ranking of the target guide
+    const [currentGuide] = await db.select().from(guides).where(eq(guides.id, targetId));
+    if (!currentGuide) return;
+    
+    const oldRanking = currentGuide.ranking || 0;
+    
+    if (oldRanking === newRanking) return; // No change needed
+    
+    if (newRanking < oldRanking) {
+      // Moving up in ranking (lower number = higher rank)
+      // Shift down all guides between newRanking and oldRanking
+      await db
+        .update(guides)
+        .set({ ranking: sql`ranking + 1`, updatedAt: new Date() })
+        .where(
+          and(
+            gte(guides.ranking, newRanking),
+            lt(guides.ranking, oldRanking),
+            ne(guides.id, targetId)
+          )
+        );
+    } else {
+      // Moving down in ranking (higher number = lower rank)
+      // Shift up all guides between oldRanking and newRanking
+      await db
+        .update(guides)
+        .set({ ranking: sql`ranking - 1`, updatedAt: new Date() })
+        .where(
+          and(
+            gt(guides.ranking, oldRanking),
+            lte(guides.ranking, newRanking),
+            ne(guides.id, targetId)
+          )
+        );
+    }
   }
 
   async deleteGuide(id: number): Promise<void> {
