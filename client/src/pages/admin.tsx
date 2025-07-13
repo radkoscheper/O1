@@ -825,8 +825,8 @@ export default function Admin() {
             editData={editDestinationData}
             setEditData={setEditDestinationData}
             onSave={() => {
+              destinationsQuery.refetch();
               setShowEditDestination(false);
-              toast({ title: "Succes", description: "Bestemming bijgewerkt" });
             }}
           />
         )}
@@ -849,8 +849,8 @@ export default function Admin() {
             editData={editGuideData}
             setEditData={setEditGuideData}
             onSave={() => {
+              guidesQuery.refetch();
               setShowEditGuide(false);
-              toast({ title: "Succes", description: "Reisgids bijgewerkt" });
             }}
           />
         )}
@@ -1304,7 +1304,6 @@ function EditDestinationDialog({ open, onOpenChange, destination, editData, setE
     try {
       await apiRequest(`/api/destinations/${destination.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editData)
       });
       
@@ -1315,7 +1314,8 @@ function EditDestinationDialog({ open, onOpenChange, destination, editData, setE
       toast({ title: "Succes", description: "Bestemming succesvol bijgewerkt" });
       onSave();
     } catch (error) {
-      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+      console.error('Error updating destination:', error);
+      toast({ title: "Fout", description: "Er is een fout opgetreden bij het bijwerken van de bestemming", variant: "destructive" });
     }
   };
 
@@ -1456,7 +1456,6 @@ function EditGuideDialog({ open, onOpenChange, guide, editData, setEditData, onS
     try {
       await apiRequest(`/api/guides/${guide.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editData)
       });
       
@@ -1467,7 +1466,8 @@ function EditGuideDialog({ open, onOpenChange, guide, editData, setEditData, onS
       toast({ title: "Succes", description: "Reisgids succesvol bijgewerkt" });
       onSave();
     } catch (error) {
-      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+      console.error('Error updating guide:', error);
+      toast({ title: "Fout", description: "Er is een fout opgetreden bij het bijwerken van de reisgids", variant: "destructive" });
     }
   };
 
