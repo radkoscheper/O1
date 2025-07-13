@@ -71,7 +71,7 @@ export default function Admin() {
 
   const handleLogin = async () => {
     try {
-      const response = await apiRequest('/api/login', {
+      const response = await fetch('/api/login', {
         method: 'POST',
         body: JSON.stringify(loginData),
         headers: { 'Content-Type': 'application/json' }
@@ -102,7 +102,7 @@ export default function Admin() {
 
   const handleLogout = async () => {
     try {
-      await apiRequest('/api/logout', { method: 'POST' });
+      await fetch('/api/logout', { method: 'POST' });
       setIsAuthenticated(false);
       toast({
         title: "Uitgelogd",
