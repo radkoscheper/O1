@@ -112,9 +112,152 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Protected route example - all admin routes should use requireAuth
-  app.get("/api/admin/test", requireAuth, (req, res) => {
-    res.json({ message: "You are authenticated!" });
+  // Middleware to check if user can manage users
+  const requireUserManagement = async (req: any, res: any, next: any) => {
+    if (!req.session.isAuthenticated || !req.session.userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    
+    const user = await storage.getUser(req.session.userId);
+    if (!user || !user.canManageUsers) {
+      return res.status(403).json({ message: "Geen toestemming voor gebruikersbeheer" });
+    }
+    
+    req.currentUser = user;
+    next();
+  };
+
+  // USER MANAGEMENT ROUTES
+
+  // Get all users (admin only)
+  app.get("/api/users", requireUserManagement, async (req, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      // Remove passwords from response
+      const safeUsers = users.map(user => {
+        const { password, ...userWithoutPassword } = user;
+        return userWithoutPassword;
+      });
+      res.json(safeUsers);
+    } catch (error) {
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Create new user (admin only)
+  app.post("/api/users", requireUserManagement, async (req, res) => {
+    try {
+      const validation = insertUserSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ message: "Invalid input", errors: validation.error.errors });
+      }
+
+      const { username, password, ...permissions } = validation.data;
+      
+      // Check if username already exists
+      const existingUser = await storage.getUserByUsername(username);
+      if (existingUser) {
+        return res.status(400).json({ message: "Gebruikersnaam bestaat al" });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const newUser = await storage.createUser({
+        username,
+        password: hashedPassword,
+        createdBy: req.currentUser.id,
+        ...permissions
+      });
+      
+      const { password: _, ...userWithoutPassword } = newUser;
+      res.json({ message: "Gebruiker aangemaakt", user: userWithoutPassword });
+    } catch (error) {
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Update user (admin only)
+  app.put("/api/users/:id", requireUserManagement, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const validation = updateUserSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ message: "Invalid input", errors: validation.error.errors });
+      }
+
+      // Don't allow updating your own admin status
+      if (userId === req.currentUser.id && validation.data.canManageUsers === false) {
+        return res.status(400).json({ message: "Je kunt je eigen admin rechten niet intrekken" });
+      }
+
+      const updatedUser = await storage.updateUser(userId, validation.data);
+      const { password, ...userWithoutPassword } = updatedUser;
+      res.json({ message: "Gebruiker bijgewerkt", user: userWithoutPassword });
+    } catch (error) {
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Reset user password (admin only)
+  app.post("/api/users/:id/reset-password", requireUserManagement, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const validation = resetPasswordSchema.omit({ userId: true }).safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ message: "Invalid input", errors: validation.error.errors });
+      }
+
+      const hashedPassword = await bcrypt.hash(validation.data.newPassword, 10);
+      await storage.updateUserPassword(userId, hashedPassword);
+      
+      res.json({ message: "Wachtwoord gereset" });
+    } catch (error) {
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Delete user (admin only)
+  app.delete("/api/users/:id", requireUserManagement, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      
+      // Don't allow deleting yourself
+      if (userId === req.currentUser.id) {
+        return res.status(400).json({ message: "Je kunt jezelf niet verwijderen" });
+      }
+
+      await storage.deleteUser(userId);
+      res.json({ message: "Gebruiker verwijderd" });
+    } catch (error) {
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Change own password (any authenticated user)
+  app.post("/api/auth/change-password", requireAuth, async (req, res) => {
+    try {
+      const validation = changePasswordSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ message: "Invalid input", errors: validation.error.errors });
+      }
+
+      const user = await storage.getUser(req.session.userId);
+      if (!user) {
+        return res.status(404).json({ message: "Gebruiker niet gevonden" });
+      }
+
+      // Verify current password
+      const isValidCurrentPassword = await bcrypt.compare(validation.data.currentPassword, user.password);
+      if (!isValidCurrentPassword) {
+        return res.status(400).json({ message: "Huidig wachtwoord is onjuist" });
+      }
+
+      const hashedNewPassword = await bcrypt.hash(validation.data.newPassword, 10);
+      await storage.updateUserPassword(user.id, hashedNewPassword);
+      
+      res.json({ message: "Wachtwoord succesvol gewijzigd" });
+    } catch (error) {
+      res.status(500).json({ message: "Server error" });
+    }
   });
 
   const httpServer = createServer(app);
