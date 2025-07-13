@@ -1,11 +1,16 @@
-import { users, type User, type InsertUser } from "@shared/schema";
+import { users, type User, type InsertUser, type UpdateUser } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, ne } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  updateUser(id: number, updates: UpdateUser): Promise<User>;
+  updateUserPassword(id: number, newPassword: string): Promise<void>;
+  deleteUser(id: number): Promise<void>;
+  getAllUsers(): Promise<User[]>;
+  getAllUsersExcept(userId: number): Promise<User[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -22,9 +27,46 @@ export class DatabaseStorage implements IStorage {
   async createUser(insertUser: InsertUser): Promise<User> {
     const [user] = await db
       .insert(users)
-      .values(insertUser)
+      .values({
+        ...insertUser,
+        updatedAt: new Date(),
+      })
       .returning();
     return user;
+  }
+
+  async updateUser(id: number, updates: UpdateUser): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({
+        ...updates,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, id))
+      .returning();
+    return user;
+  }
+
+  async updateUserPassword(id: number, newPassword: string): Promise<void> {
+    await db
+      .update(users)
+      .set({
+        password: newPassword,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, id));
+  }
+
+  async deleteUser(id: number): Promise<void> {
+    await db.delete(users).where(eq(users.id, id));
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users);
+  }
+
+  async getAllUsersExcept(userId: number): Promise<User[]> {
+    return await db.select().from(users).where(ne(users.id, userId));
   }
 }
 
