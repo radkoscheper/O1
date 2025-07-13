@@ -9,6 +9,10 @@ This is a full-stack web application for discovering beautiful places in Poland.
 - Implemented multi-user authentication system with role-based permissions
 - Connected Neon PostgreSQL database for secure user management
 - Created web-based admin interface with user management capabilities
+- Completed comprehensive backup/restore system with recycle bin functionality
+- Added soft delete capabilities with is_deleted and deleted_at columns
+- Implemented prullenbak (recycle bin) interface with restore and permanent delete options
+- Added trash/recycle bin icons (🗑️) throughout the admin interface for improved UX
 
 ## User Preferences
 
@@ -71,8 +75,11 @@ Language: Dutch (Nederlands) - User prefers communication in Dutch.
 - **Commands**: `new:destination`, `new:guide`, `list`, `generate`, `build`
 
 ### Data Models
-- **Users**: Basic user management with username/password authentication
+- **Users**: Multi-role user management with permission controls (admin/editor/viewer)
+- **Destinations**: Travel destinations with soft delete support and ranking system
+- **Guides**: Travel guides with soft delete support and ranking system
 - **Schema**: Defined using Drizzle ORM with Zod validation schemas
+- **Backup System**: Soft delete with is_deleted and deleted_at columns for content recovery
 
 ### UI Components
 - Modern, accessible component library based on Radix UI primitives
