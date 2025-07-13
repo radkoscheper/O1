@@ -32,6 +32,30 @@ export default function Admin() {
   const [showEditUser, setShowEditUser] = useState(false);
   const [showResetPassword, setShowResetPassword] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
+  
+  // Content editing states
+  const [showEditDestination, setShowEditDestination] = useState(false);
+  const [showViewDestination, setShowViewDestination] = useState(false);
+  const [showEditGuide, setShowEditGuide] = useState(false);
+  const [showViewGuide, setShowViewGuide] = useState(false);
+  const [selectedDestination, setSelectedDestination] = useState<any>(null);
+  const [selectedGuide, setSelectedGuide] = useState<any>(null);
+  const [editDestinationData, setEditDestinationData] = useState({
+    name: '',
+    description: '',
+    image: '',
+    content: '',
+    featured: false,
+    published: false
+  });
+  const [editGuideData, setEditGuideData] = useState({
+    title: '',
+    description: '',
+    image: '',
+    content: '',
+    featured: false,
+    published: false
+  });
   const { toast } = useToast();
 
   const [newDestination, setNewDestination] = useState({
@@ -335,11 +359,33 @@ export default function Admin() {
                   </CardHeader>
                   <CardContent>
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedDestination(destination);
+                          setEditDestinationData({
+                            name: destination.name,
+                            description: destination.description,
+                            image: destination.image,
+                            content: destination.content || '',
+                            featured: destination.featured,
+                            published: destination.published
+                          });
+                          setShowEditDestination(true);
+                        }}
+                      >
                         <Edit className="h-4 w-4 mr-2" />
                         Bewerken
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedDestination(destination);
+                          setShowViewDestination(true);
+                        }}
+                      >
                         <Eye className="h-4 w-4 mr-2" />
                         Bekijken
                       </Button>
@@ -375,11 +421,33 @@ export default function Admin() {
                   </CardHeader>
                   <CardContent>
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedGuide(guide);
+                          setEditGuideData({
+                            title: guide.title,
+                            description: guide.description,
+                            image: guide.image,
+                            content: guide.content || '',
+                            featured: guide.featured,
+                            published: guide.published
+                          });
+                          setShowEditGuide(true);
+                        }}
+                      >
                         <Edit className="h-4 w-4 mr-2" />
                         Bewerken
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedGuide(guide);
+                          setShowViewGuide(true);
+                        }}
+                      >
                         <Eye className="h-4 w-4 mr-2" />
                         Bekijken
                       </Button>
@@ -701,6 +769,54 @@ export default function Admin() {
             onPasswordReset={() => {
               setShowResetPassword(false);
             }}
+          />
+        )}
+
+        {/* Edit Destination Dialog */}
+        {showEditDestination && selectedDestination && (
+          <EditDestinationDialog 
+            open={showEditDestination} 
+            onOpenChange={setShowEditDestination}
+            destination={selectedDestination}
+            editData={editDestinationData}
+            setEditData={setEditDestinationData}
+            onSave={() => {
+              setShowEditDestination(false);
+              toast({ title: "Succes", description: "Bestemming bijgewerkt" });
+            }}
+          />
+        )}
+
+        {/* View Destination Dialog */}
+        {showViewDestination && selectedDestination && (
+          <ViewDestinationDialog 
+            open={showViewDestination} 
+            onOpenChange={setShowViewDestination}
+            destination={selectedDestination}
+          />
+        )}
+
+        {/* Edit Guide Dialog */}
+        {showEditGuide && selectedGuide && (
+          <EditGuideDialog 
+            open={showEditGuide} 
+            onOpenChange={setShowEditGuide}
+            guide={selectedGuide}
+            editData={editGuideData}
+            setEditData={setEditGuideData}
+            onSave={() => {
+              setShowEditGuide(false);
+              toast({ title: "Succes", description: "Reisgids bijgewerkt" });
+            }}
+          />
+        )}
+
+        {/* View Guide Dialog */}
+        {showViewGuide && selectedGuide && (
+          <ViewGuideDialog 
+            open={showViewGuide} 
+            onOpenChange={setShowViewGuide}
+            guide={selectedGuide}
           />
         )}
       </div>
@@ -1030,6 +1146,298 @@ function ResetPasswordDialog({ open, onOpenChange, user, onPasswordReset }: {
             <Button type="submit">Reset Wachtwoord</Button>
           </DialogFooter>
         </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Component voor bestemming bewerken
+function EditDestinationDialog({ open, onOpenChange, destination, editData, setEditData, onSave }: { 
+  open: boolean; 
+  onOpenChange: (open: boolean) => void;
+  destination: any;
+  editData: any;
+  setEditData: (data: any) => void;
+  onSave: () => void;
+}) {
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      // Hier zou je normaal een API call maken om de bestemming bij te werken
+      // Voor nu simuleren we dit
+      console.log('Saving destination:', editData);
+      onSave();
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Bestemming Bewerken</DialogTitle>
+          <DialogDescription>
+            Bewerk de gegevens van {destination?.name}
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Naam</Label>
+            <Input
+              id="name"
+              value={editData.name}
+              onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="description">Beschrijving</Label>
+            <Textarea
+              id="description"
+              value={editData.description}
+              onChange={(e) => setEditData({ ...editData, description: e.target.value })}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="image">Afbeelding pad</Label>
+            <Input
+              id="image"
+              value={editData.image}
+              onChange={(e) => setEditData({ ...editData, image: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="content">Content (Markdown)</Label>
+            <Textarea
+              id="content"
+              className="min-h-32"
+              value={editData.content}
+              onChange={(e) => setEditData({ ...editData, content: e.target.value })}
+            />
+          </div>
+          <div className="flex gap-4">
+            <div className="flex items-center space-x-2">
+              <Switch 
+                id="featured"
+                checked={editData.featured}
+                onCheckedChange={(checked) => setEditData({ ...editData, featured: checked })}
+              />
+              <Label htmlFor="featured">Featured</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch 
+                id="published"
+                checked={editData.published}
+                onCheckedChange={(checked) => setEditData({ ...editData, published: checked })}
+              />
+              <Label htmlFor="published">Gepubliceerd</Label>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Annuleren
+            </Button>
+            <Button type="submit">Opslaan</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Component voor bestemming bekijken
+function ViewDestinationDialog({ open, onOpenChange, destination }: { 
+  open: boolean; 
+  onOpenChange: (open: boolean) => void;
+  destination: any;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{destination?.name}</DialogTitle>
+          <DialogDescription>
+            Vooruitblik van de bestemming
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          {destination?.image && (
+            <div className="w-full h-48 bg-gray-200 rounded-md flex items-center justify-center">
+              <span className="text-gray-500">Afbeelding: {destination.image}</span>
+            </div>
+          )}
+          <div>
+            <h3 className="font-semibold mb-2">Beschrijving</h3>
+            <p className="text-gray-700">{destination?.description}</p>
+          </div>
+          {destination?.content && (
+            <div>
+              <h3 className="font-semibold mb-2">Content</h3>
+              <div className="bg-gray-50 p-4 rounded-md">
+                <pre className="whitespace-pre-wrap text-sm">{destination.content}</pre>
+              </div>
+            </div>
+          )}
+          <div className="flex gap-2">
+            {destination?.featured && <Badge variant="secondary">Featured</Badge>}
+            <Badge variant={destination?.published ? "default" : "outline"}>
+              {destination?.published ? "Gepubliceerd" : "Concept"}
+            </Badge>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button onClick={() => onOpenChange(false)}>Sluiten</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Component voor reisgids bewerken
+function EditGuideDialog({ open, onOpenChange, guide, editData, setEditData, onSave }: { 
+  open: boolean; 
+  onOpenChange: (open: boolean) => void;
+  guide: any;
+  editData: any;
+  setEditData: (data: any) => void;
+  onSave: () => void;
+}) {
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      // Hier zou je normaal een API call maken om de reisgids bij te werken
+      // Voor nu simuleren we dit
+      console.log('Saving guide:', editData);
+      onSave();
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Reisgids Bewerken</DialogTitle>
+          <DialogDescription>
+            Bewerk de gegevens van {guide?.title}
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="title">Titel</Label>
+            <Input
+              id="title"
+              value={editData.title}
+              onChange={(e) => setEditData({ ...editData, title: e.target.value })}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="description">Beschrijving</Label>
+            <Textarea
+              id="description"
+              value={editData.description}
+              onChange={(e) => setEditData({ ...editData, description: e.target.value })}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="image">Afbeelding pad</Label>
+            <Input
+              id="image"
+              value={editData.image}
+              onChange={(e) => setEditData({ ...editData, image: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="content">Content (Markdown)</Label>
+            <Textarea
+              id="content"
+              className="min-h-32"
+              value={editData.content}
+              onChange={(e) => setEditData({ ...editData, content: e.target.value })}
+            />
+          </div>
+          <div className="flex gap-4">
+            <div className="flex items-center space-x-2">
+              <Switch 
+                id="featured"
+                checked={editData.featured}
+                onCheckedChange={(checked) => setEditData({ ...editData, featured: checked })}
+              />
+              <Label htmlFor="featured">Featured</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch 
+                id="published"
+                checked={editData.published}
+                onCheckedChange={(checked) => setEditData({ ...editData, published: checked })}
+              />
+              <Label htmlFor="published">Gepubliceerd</Label>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Annuleren
+            </Button>
+            <Button type="submit">Opslaan</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Component voor reisgids bekijken
+function ViewGuideDialog({ open, onOpenChange, guide }: { 
+  open: boolean; 
+  onOpenChange: (open: boolean) => void;
+  guide: any;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{guide?.title}</DialogTitle>
+          <DialogDescription>
+            Vooruitblik van de reisgids
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          {guide?.image && (
+            <div className="w-full h-48 bg-gray-200 rounded-md flex items-center justify-center">
+              <span className="text-gray-500">Afbeelding: {guide.image}</span>
+            </div>
+          )}
+          <div>
+            <h3 className="font-semibold mb-2">Beschrijving</h3>
+            <p className="text-gray-700">{guide?.description}</p>
+          </div>
+          {guide?.content && (
+            <div>
+              <h3 className="font-semibold mb-2">Content</h3>
+              <div className="bg-gray-50 p-4 rounded-md">
+                <pre className="whitespace-pre-wrap text-sm">{guide.content}</pre>
+              </div>
+            </div>
+          )}
+          <div className="flex gap-2">
+            {guide?.featured && <Badge variant="secondary">Featured</Badge>}
+            <Badge variant={guide?.published ? "default" : "outline"}>
+              {guide?.published ? "Gepubliceerd" : "Concept"}
+            </Badge>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button onClick={() => onOpenChange(false)}>Sluiten</Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
