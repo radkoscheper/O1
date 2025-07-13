@@ -113,7 +113,7 @@ export default function Home() {
           </div>
           <div className="flex-1 min-w-80">
             <img
-              src="/images/tatra-vallei.svg"
+              src="/images/tatra-vallei.jpg"
               alt="Tatra Valley"
               className="w-full rounded-xl shadow-lg"
             />
