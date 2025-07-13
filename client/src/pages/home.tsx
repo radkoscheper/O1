@@ -19,10 +19,10 @@ export default function Home() {
   });
 
   // Filter only published destinations
-  const publishedDestinations = destinations;
+  const publishedDestinations = destinations.filter((destination: any) => destination.published);
   
   // Filter only published guides
-  const publishedGuides = guides;
+  const publishedGuides = guides.filter((guide: any) => guide.published);
   
   // Show loading state
   if (destinationsLoading || guidesLoading) {
