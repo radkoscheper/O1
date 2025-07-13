@@ -1,0 +1,12 @@
+{
+  "id": 1,
+  "name": "Krakow",
+  "slug": "krakow",
+  "image": "/images/krakow.svg",
+  "alt": "Krakow",
+  "description": "Ontdek de historische stad Krakow met zijn prachtige marktplein en rijke cultuur",
+  "content": "# Krakow\n\nKrakow is een van de mooiste steden van Polen. De historische binnenstad staat op de UNESCO Werelderfgoedlijst en biedt bezoekers een unieke kijk op de Poolse geschiedenis en cultuur.\n\n## Bezienswaardigheden\n\n- **Marktplein (Rynek Główny)** - Een van de grootste middeleeuwse marktpleinen van Europa\n- **Wawel Kasteel** - Het symbool van Polen met zijn koninklijke geschiedenis\n- **Kazimierz** - Het historische Joodse kwartier vol restaurants en cafés\n- **St. Mary's Basiliek** - Beroemd om zijn houten altaar en trompetsignaal\n\n## Tips voor je bezoek\n\n- Bezoek vroeg in de ochtend voor minder drukte\n- Proef traditionele pierogi in een lokaal restaurant\n- Maak een wandeling langs de Wisła rivier\n- Neem deel aan een gratis walking tour",
+  "featured": true,
+  "published": true,
+  "createdAt": "2025-01-13T17:00:00.000Z"
+}
