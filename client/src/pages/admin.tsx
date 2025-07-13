@@ -545,29 +545,34 @@ export default function Admin() {
 
           {/* Bestaande Bestemmingen - alleen voor gebruikers met create/edit permissies */}
           {currentUser?.canCreateContent && (
-            <TabsContent value="destinations" className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold">Bestemmingen ({destinationsQuery.data?.length || 0})</h2>
-            </div>
-            
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <TabsContent value="destinations" className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <div>
+                  <h2 className="text-2xl font-semibold">Bestemmingen ({destinationsQuery.data?.length || 0})</h2>
+                  <p className="text-gray-600">Beheer al je Polish reisbestemmingen</p>
+                </div>
+              </div>
+              
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {(destinationsQuery.data || []).map((destination: any) => (
                 <Card key={destination.id} className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <CardTitle className="text-lg">{destination.name}</CardTitle>
-                      <div className="flex gap-2">
-                        <Badge variant="outline">#{destination.ranking || 0}</Badge>
-                        {destination.featured && <Badge variant="secondary">Featured</Badge>}
-                        <Badge variant={destination.published ? "default" : "outline"}>
-                          {destination.published ? "Gepubliceerd" : "Concept"}
+                  <CardHeader className="pb-3">
+                    <div className="flex flex-col gap-3">
+                      <div className="flex justify-between items-start">
+                        <CardTitle className="text-lg leading-tight">{destination.name}</CardTitle>
+                        <Badge variant="outline" className="text-xs">#{destination.ranking || 0}</Badge>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {destination.featured && <Badge variant="secondary" className="text-xs">⭐ Featured</Badge>}
+                        <Badge variant={destination.published ? "default" : "outline"} className="text-xs">
+                          {destination.published ? "✅ Gepubliceerd" : "📝 Concept"}
                         </Badge>
                       </div>
+                      <CardDescription className="text-sm line-clamp-2">{destination.description}</CardDescription>
                     </div>
-                    <CardDescription>{destination.description}</CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <div className="flex gap-2">
+                  <CardContent className="pt-0">
+                    <div className="flex flex-wrap gap-2">
                       <Button 
                         size="sm" 
                         variant="outline"
@@ -619,31 +624,34 @@ export default function Admin() {
 
           {/* Bestaande Reisgidsen */}
           {currentUser?.canCreateContent && (
-            <TabsContent value="guides" className="space-y-4">
-              <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold">Reisgidsen ({guidesQuery.data?.length || 0})</h2>
-            </div>
-            
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <TabsContent value="guides" className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <div>
+                  <h2 className="text-2xl font-semibold">Reisgidsen ({guidesQuery.data?.length || 0})</h2>
+                  <p className="text-gray-600">Beheer al je Polish reisgidsen en tips</p>
+                </div>
+              </div>
+              
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {(guidesQuery.data || []).map((guide: any) => (
                 <Card key={guide.id} className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-start gap-2">
+                  <CardHeader className="pb-3">
+                    <div className="flex flex-col gap-3">
+                      <div className="flex justify-between items-start">
+                        <CardTitle className="text-lg leading-tight">{guide.title}</CardTitle>
                         <Badge variant="outline" className="text-xs">#{guide.ranking || 0}</Badge>
-                        <CardTitle className="text-lg">{guide.title}</CardTitle>
                       </div>
-                      <div className="flex gap-2">
-                        {guide.featured && <Badge variant="secondary">Featured</Badge>}
-                        <Badge variant={guide.published ? "default" : "outline"}>
-                          {guide.published ? "Gepubliceerd" : "Concept"}
+                      <div className="flex flex-wrap gap-2">
+                        {guide.featured && <Badge variant="secondary" className="text-xs">⭐ Featured</Badge>}
+                        <Badge variant={guide.published ? "default" : "outline"} className="text-xs">
+                          {guide.published ? "✅ Gepubliceerd" : "📝 Concept"}
                         </Badge>
                       </div>
+                      <CardDescription className="text-sm line-clamp-2">{guide.description}</CardDescription>
                     </div>
-                    <CardDescription>{guide.description}</CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <div className="flex gap-2">
+                  <CardContent className="pt-0">
+                    <div className="flex flex-wrap gap-2">
                       <Button 
                         size="sm" 
                         variant="outline"
@@ -867,33 +875,38 @@ export default function Admin() {
 
           {/* Gebruikersbeheer Tab - alleen voor admins */}
           {currentUser?.canManageUsers && (
-            <TabsContent value="users" className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-semibold">Gebruikersbeheer ({usersQuery.data?.length || 0})</h2>
-                <Button onClick={() => setShowCreateUser(true)}>
+            <TabsContent value="users" className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <div>
+                  <h2 className="text-2xl font-semibold">Gebruikersbeheer ({usersQuery.data?.length || 0})</h2>
+                  <p className="text-gray-600">Beheer gebruikers en hun rechten</p>
+                </div>
+                <Button onClick={() => setShowCreateUser(true)} className="bg-blue-600 hover:bg-blue-700">
                   <UserPlus className="h-4 w-4 mr-2" />
                   Nieuwe Gebruiker
                 </Button>
               </div>
               
-              <div className="grid gap-4">
+              <div className="grid gap-6">
                 {usersQuery.data?.map((user) => (
                   <Card key={user.id} className="hover:shadow-lg transition-shadow">
-                    <CardHeader>
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <CardTitle className="text-lg">{user.username}</CardTitle>
-                          <div className="flex gap-2 mt-2">
-                            <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
-                              {user.role === 'admin' ? 'Administrator' : 'Gebruiker'}
+                    <CardContent className="p-6">
+                      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-3">
+                            <CardTitle className="text-lg">{user.username}</CardTitle>
+                            <Badge variant={user.role === 'admin' ? 'destructive' : user.role === 'editor' ? 'default' : 'secondary'}>
+                              {user.role === 'admin' ? '👑 Administrator' : user.role === 'editor' ? '✏️ Editor' : '👤 Gebruiker'}
                             </Badge>
-                            {user.canCreateContent && <Badge variant="outline">Aanmaken</Badge>}
-                            {user.canEditContent && <Badge variant="outline">Bewerken</Badge>}
-                            {user.canDeleteContent && <Badge variant="outline">Verwijderen</Badge>}
-                            {user.canManageUsers && <Badge variant="default">Gebruikersbeheer</Badge>}
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {user.canCreateContent && <Badge variant="outline" className="text-xs">✏️ Aanmaken</Badge>}
+                            {user.canEditContent && <Badge variant="outline" className="text-xs">📝 Bewerken</Badge>}
+                            {user.canDeleteContent && <Badge variant="outline" className="text-xs">🗑️ Verwijderen</Badge>}
+                            {user.canManageUsers && <Badge variant="outline" className="text-xs">👥 Gebruikers</Badge>}
                           </div>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
                           <Button 
                             size="sm" 
                             variant="outline"
@@ -902,7 +915,7 @@ export default function Admin() {
                               setShowEditUser(true);
                             }}
                           >
-                            <Edit className="h-4 w-4 mr-2" />
+                            <Edit className="h-4 w-4 mr-1" />
                             Bewerken
                           </Button>
                           <Button 
@@ -913,8 +926,8 @@ export default function Admin() {
                               setShowResetPassword(true);
                             }}
                           >
-                            <Key className="h-4 w-4 mr-2" />
-                            Reset Wachtwoord
+                            <Key className="h-4 w-4 mr-1" />
+                            Reset
                           </Button>
                           {user.id !== currentUser.id && (
                             <Button 
@@ -922,13 +935,13 @@ export default function Admin() {
                               variant="destructive"
                               onClick={() => handleDeleteUser(user.id)}
                             >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              🗑️ Verwijderen
+                              <Trash2 className="h-4 w-4 mr-1" />
+                              Verwijderen
                             </Button>
                           )}
                         </div>
                       </div>
-                    </CardHeader>
+                    </CardContent>
                   </Card>
                 ))}
               </div>
@@ -936,12 +949,15 @@ export default function Admin() {
           )}
 
           {/* Account Tab - voor alle gebruikers */}
-          <TabsContent value="account" className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold">Mijn Account</h2>
+          <TabsContent value="account" className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+              <div>
+                <h2 className="text-2xl font-semibold">Mijn Account</h2>
+                <p className="text-gray-600">Beheer je persoonlijke account instellingen</p>
+              </div>
             </div>
             
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Account Informatie</CardTitle>
@@ -984,10 +1000,12 @@ export default function Admin() {
 
           {/* Recycle Bin Tab */}
           {(currentUser?.canDeleteContent || currentUser?.canEditContent) && (
-            <TabsContent value="recycle" className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-semibold">Prullenbak</h2>
-                <p className="text-gray-600">Hier kun je verwijderde content bekijken en herstellen</p>
+            <TabsContent value="recycle" className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <div>
+                  <h2 className="text-2xl font-semibold">Prullenbak</h2>
+                  <p className="text-gray-600">Hier kun je verwijderde content bekijken en herstellen</p>
+                </div>
               </div>
               
               <div className="grid gap-6 md:grid-cols-2">
