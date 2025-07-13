@@ -61,16 +61,39 @@ export default function Admin() {
 
   // Image upload helpers
   const handleImageUpload = async (file: File): Promise<string> => {
-    // Simuleer upload - in een echte app zou je dit naar een server uploaden
-    const imageName = `uploaded_${Date.now()}_${file.name}`;
-    const imagePath = `/images/${imageName}`;
-    
-    // Hier zou je normaal de file naar een server uploaden
-    // Voor nu simuleren we dit en retourneren we een pad
-    console.log('Uploading file:', file.name, 'to:', imagePath);
-    toast({ title: "Succes", description: `Afbeelding ${file.name} geüpload` });
-    
-    return imagePath;
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Upload gefaald');
+      }
+
+      if (result.success) {
+        toast({ 
+          title: "Succes", 
+          description: `Afbeelding ${file.name} succesvol geüpload` 
+        });
+        return result.imagePath;
+      } else {
+        throw new Error(result.message || 'Upload gefaald');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({ 
+        title: "Upload fout", 
+        description: error instanceof Error ? error.message : "Er is een fout opgetreden tijdens uploaden",
+        variant: "destructive" 
+      });
+      throw new Error(error instanceof Error ? error.message : "Upload gefaald");
+    }
   };
 
   const [newDestination, setNewDestination] = useState({

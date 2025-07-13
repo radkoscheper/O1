@@ -5,6 +5,9 @@ import session from "express-session";
 import bcrypt from "bcrypt";
 import { z } from "zod";
 import { insertUserSchema, updateUserSchema, changePasswordSchema, resetPasswordSchema } from "@shared/schema";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 
 declare module "express-session" {
   interface SessionData {
@@ -21,6 +24,38 @@ const requireAuth = (req: any, res: any, next: any) => {
     res.status(401).json({ message: "Unauthorized" });
   }
 };
+
+// Configure multer for file uploads
+const uploadsDir = path.join(process.cwd(), 'client/public/uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+const storage_config = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadsDir);
+  },
+  filename: function (req, file, cb) {
+    // Generate unique filename: timestamp-originalname
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ 
+  storage: storage_config,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  },
+  fileFilter: function (req, file, cb) {
+    // Check if file is an image
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(null, false);
+    }
+  }
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Session middleware
@@ -85,6 +120,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     } else {
       res.json({ isAuthenticated: false });
+    }
+  });
+
+  // Image upload route
+  app.post("/api/upload", requireAuth, upload.single('image'), (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Geen afbeelding geüpload of alleen afbeeldingen zijn toegestaan" 
+        });
+      }
+
+      // Return the path that can be used in the frontend
+      const imagePath = `/uploads/${req.file.filename}`;
+      
+      res.json({
+        success: true,
+        message: "Afbeelding succesvol geüpload",
+        imagePath: imagePath
+      });
+    } catch (error) {
+      console.error("Upload error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Er is een fout opgetreden tijdens het uploaden"
+      });
     }
   });
 
