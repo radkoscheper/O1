@@ -38,7 +38,7 @@ export default function Home() {
       <header 
         className="relative bg-cover bg-center text-white py-24 px-5 text-center"
         style={{
-          backgroundImage: "url('/images/header.svg')",
+          backgroundImage: "url('/images/header.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center"
         }}
