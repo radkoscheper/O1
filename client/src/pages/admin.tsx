@@ -227,10 +227,10 @@ export default function Admin() {
         <div className="mb-8 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">CMS Admin Panel</h1>
-            <p className="text-gray-600">
+            <div className="text-gray-600">
               Beheer je content voor Ontdek Polen
               {isSimpleMode && <Badge variant="secondary" className="ml-2">Lokale Modus</Badge>}
-            </p>
+            </div>
           </div>
           <Button onClick={handleLogout} variant="outline">
             <LogOut className="h-4 w-4 mr-2" />
