@@ -23,18 +23,24 @@ export interface IStorage {
   getDestinationBySlug(slug: string): Promise<Destination | undefined>;
   getAllDestinations(): Promise<Destination[]>;
   getPublishedDestinations(): Promise<Destination[]>;
+  getDeletedDestinations(): Promise<Destination[]>;
   createDestination(destination: InsertDestination): Promise<Destination>;
   updateDestination(id: number, updates: UpdateDestination): Promise<Destination>;
   deleteDestination(id: number): Promise<void>;
+  softDeleteDestination(id: number): Promise<void>;
+  restoreDestination(id: number): Promise<Destination>;
   
   // Guide operations
   getGuide(id: number): Promise<Guide | undefined>;
   getGuideBySlug(slug: string): Promise<Guide | undefined>;
   getAllGuides(): Promise<Guide[]>;
   getPublishedGuides(): Promise<Guide[]>;
+  getDeletedGuides(): Promise<Guide[]>;
   createGuide(guide: InsertGuide): Promise<Guide>;
   updateGuide(id: number, updates: UpdateGuide): Promise<Guide>;
   deleteGuide(id: number): Promise<void>;
+  softDeleteGuide(id: number): Promise<void>;
+  restoreGuide(id: number): Promise<Guide>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -112,6 +118,11 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(destinations).where(eq(destinations.published, true)).orderBy(destinations.ranking, destinations.createdAt);
   }
 
+  async getDeletedDestinations(): Promise<Destination[]> {
+    const result = await db.execute(sql`SELECT * FROM destinations WHERE is_deleted = TRUE ORDER BY deleted_at DESC`);
+    return result.rows as Destination[];
+  }
+
   async createDestination(insertDestination: InsertDestination): Promise<Destination> {
     const [destination] = await db
       .insert(destinations)
@@ -182,6 +193,16 @@ export class DatabaseStorage implements IStorage {
     await db.delete(destinations).where(eq(destinations.id, id));
   }
 
+  async softDeleteDestination(id: number): Promise<void> {
+    await db.execute(sql`UPDATE destinations SET is_deleted = TRUE, deleted_at = NOW(), updated_at = NOW() WHERE id = ${id}`);
+  }
+
+  async restoreDestination(id: number): Promise<Destination> {
+    await db.execute(sql`UPDATE destinations SET is_deleted = FALSE, deleted_at = NULL, updated_at = NOW() WHERE id = ${id}`);
+    const result = await db.execute(sql`SELECT * FROM destinations WHERE id = ${id}`);
+    return result.rows[0] as Destination;
+  }
+
   // Guide operations
   async getGuide(id: number): Promise<Guide | undefined> {
     const [guide] = await db.select().from(guides).where(eq(guides.id, id));
@@ -199,6 +220,11 @@ export class DatabaseStorage implements IStorage {
 
   async getPublishedGuides(): Promise<Guide[]> {
     return await db.select().from(guides).where(eq(guides.published, true)).orderBy(guides.ranking, guides.createdAt);
+  }
+
+  async getDeletedGuides(): Promise<Guide[]> {
+    const result = await db.execute(sql`SELECT * FROM guides WHERE is_deleted = TRUE ORDER BY deleted_at DESC`);
+    return result.rows as Guide[];
   }
 
   async createGuide(insertGuide: InsertGuide): Promise<Guide> {
@@ -269,6 +295,16 @@ export class DatabaseStorage implements IStorage {
 
   async deleteGuide(id: number): Promise<void> {
     await db.delete(guides).where(eq(guides.id, id));
+  }
+
+  async softDeleteGuide(id: number): Promise<void> {
+    await db.execute(sql`UPDATE guides SET is_deleted = TRUE, deleted_at = NOW(), updated_at = NOW() WHERE id = ${id}`);
+  }
+
+  async restoreGuide(id: number): Promise<Guide> {
+    await db.execute(sql`UPDATE guides SET is_deleted = FALSE, deleted_at = NULL, updated_at = NOW() WHERE id = ${id}`);
+    const result = await db.execute(sql`SELECT * FROM guides WHERE id = ${id}`);
+    return result.rows[0] as Guide;
   }
 }
 

@@ -39,6 +39,17 @@ export default function Admin() {
     queryKey: ['/api/admin/guides'],
     enabled: isAuthenticated,
   });
+
+  // Recycle bin queries
+  const deletedDestinationsQuery = useQuery({
+    queryKey: ['/api/admin/destinations/deleted'],
+    enabled: isAuthenticated && (currentUser?.canDeleteContent || currentUser?.canEditContent),
+  });
+
+  const deletedGuidesQuery = useQuery({
+    queryKey: ['/api/admin/guides/deleted'],
+    enabled: isAuthenticated && (currentUser?.canDeleteContent || currentUser?.canEditContent),
+  });
   const [showCreateUser, setShowCreateUser] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showEditUser, setShowEditUser] = useState(false);
@@ -191,6 +202,93 @@ export default function Admin() {
       if (response.ok) {
         toast({ title: "Gebruiker verwijderd", description: "De gebruiker is succesvol verwijderd." });
         loadUsers();
+      } else {
+        const error = await response.json();
+        toast({ title: "Fout", description: error.message, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+    }
+  };
+
+  // Handlers voor recycle bin acties
+  const handleRestoreDestination = async (id: number) => {
+    try {
+      const response = await fetch(`/api/destinations/${id}/restore`, {
+        method: 'PATCH',
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        toast({ title: "Succes", description: "Bestemming hersteld" });
+        deletedDestinationsQuery.refetch();
+        destinationsQuery.refetch();
+      } else {
+        const error = await response.json();
+        toast({ title: "Fout", description: error.message, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+    }
+  };
+
+  const handlePermanentDeleteDestination = async (id: number) => {
+    if (!confirm('Weet je zeker dat je deze bestemming permanent wilt verwijderen? Dit kan niet ongedaan worden gemaakt.')) {
+      return;
+    }
+    
+    try {
+      const response = await fetch(`/api/destinations/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        toast({ title: "Succes", description: "Bestemming permanent verwijderd" });
+        deletedDestinationsQuery.refetch();
+      } else {
+        const error = await response.json();
+        toast({ title: "Fout", description: error.message, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+    }
+  };
+
+  const handleRestoreGuide = async (id: number) => {
+    try {
+      const response = await fetch(`/api/guides/${id}/restore`, {
+        method: 'PATCH',
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        toast({ title: "Succes", description: "Reisgids hersteld" });
+        deletedGuidesQuery.refetch();
+        guidesQuery.refetch();
+      } else {
+        const error = await response.json();
+        toast({ title: "Fout", description: error.message, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+    }
+  };
+
+  const handlePermanentDeleteGuide = async (id: number) => {
+    if (!confirm('Weet je zeker dat je deze reisgids permanent wilt verwijderen? Dit kan niet ongedaan worden gemaakt.')) {
+      return;
+    }
+    
+    try {
+      const response = await fetch(`/api/guides/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        toast({ title: "Succes", description: "Reisgids permanent verwijderd" });
+        deletedGuidesQuery.refetch();
       } else {
         const error = await response.json();
         toast({ title: "Fout", description: error.message, variant: "destructive" });
@@ -372,12 +470,13 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="destinations" className="w-full">
-          <TabsList className={`grid w-full ${currentUser?.canManageUsers ? 'grid-cols-6' : 'grid-cols-5'}`}>
+          <TabsList className={`grid w-full ${currentUser?.canManageUsers ? 'grid-cols-7' : 'grid-cols-6'}`}>
             {/* Alleen tonen wat de gebruiker mag doen */}
             {currentUser?.canCreateContent && <TabsTrigger value="destinations">Bestemmingen</TabsTrigger>}
             {currentUser?.canCreateContent && <TabsTrigger value="guides">Reisgidsen</TabsTrigger>}
             {currentUser?.canCreateContent && <TabsTrigger value="new-destination">Nieuwe Bestemming</TabsTrigger>}
             {currentUser?.canCreateContent && <TabsTrigger value="new-guide">Nieuwe Gids</TabsTrigger>}
+            {(currentUser?.canDeleteContent || currentUser?.canEditContent) && <TabsTrigger value="recycle">🗑️ Prullenbak</TabsTrigger>}
             {currentUser?.canManageUsers && (
               <TabsTrigger value="users">
                 <Users className="h-4 w-4 mr-2" />
@@ -808,6 +907,148 @@ export default function Admin() {
               </Card>
             </div>
           </TabsContent>
+
+          {/* Recycle Bin Tab */}
+          {(currentUser?.canDeleteContent || currentUser?.canEditContent) && (
+            <TabsContent value="recycle" className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-semibold">Prullenbak</h2>
+                <p className="text-gray-600">Hier kun je verwijderde content bekijken en herstellen</p>
+              </div>
+              
+              <div className="grid gap-6 md:grid-cols-2">
+                {/* Verwijderde Bestemmingen */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Verwijderde Bestemmingen</CardTitle>
+                    <CardDescription>Items die naar de prullenbak zijn verplaatst</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="text-sm text-gray-500">
+                      Verwijderde bestemmingen verschijnen hier
+                    </div>
+                    <div className="space-y-2">
+                      {deletedDestinationsQuery.data && deletedDestinationsQuery.data.length > 0 ? (
+                        deletedDestinationsQuery.data.map((destination: any) => (
+                          <div key={destination.id} className="border rounded-lg p-3">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <h4 className="font-medium">{destination.name}</h4>
+                                <p className="text-sm text-gray-500 truncate">{destination.description}</p>
+                                <p className="text-xs text-gray-400">
+                                  Verwijderd: {new Date(destination.deleted_at).toLocaleDateString('nl-NL')}
+                                </p>
+                              </div>
+                              <div className="flex gap-1">
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => handleRestoreDestination(destination.id)}
+                                >
+                                  <Plus className="h-3 w-3" />
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="destructive"
+                                  onClick={() => handlePermanentDeleteDestination(destination.id)}
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-8 text-gray-400">
+                          <Trash2 className="h-8 w-8 mx-auto mb-2" />
+                          <p>Geen verwijderde bestemmingen</p>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Verwijderde Reisgidsen */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Verwijderde Reisgidsen</CardTitle>
+                    <CardDescription>Items die naar de prullenbak zijn verplaatst</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="text-sm text-gray-500">
+                      Verwijderde reisgidsen verschijnen hier
+                    </div>
+                    <div className="space-y-2">
+                      {deletedGuidesQuery.data && deletedGuidesQuery.data.length > 0 ? (
+                        deletedGuidesQuery.data.map((guide: any) => (
+                          <div key={guide.id} className="border rounded-lg p-3">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <h4 className="font-medium">{guide.title}</h4>
+                                <p className="text-sm text-gray-500 truncate">{guide.description}</p>
+                                <p className="text-xs text-gray-400">
+                                  Verwijderd: {new Date(guide.deleted_at).toLocaleDateString('nl-NL')}
+                                </p>
+                              </div>
+                              <div className="flex gap-1">
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => handleRestoreGuide(guide.id)}
+                                >
+                                  <Plus className="h-3 w-3" />
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="destructive"
+                                  onClick={() => handlePermanentDeleteGuide(guide.id)}
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-8 text-gray-400">
+                          <Trash2 className="h-8 w-8 mx-auto mb-2" />
+                          <p>Geen verwijderde reisgidsen</p>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Prullenbak Acties</CardTitle>
+                  <CardDescription>Beheer je verwijderde content</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex flex-wrap gap-4">
+                    <Button 
+                      variant="outline" 
+                      disabled={(deletedDestinationsQuery.data?.length || 0) === 0 && (deletedGuidesQuery.data?.length || 0) === 0}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Alles Herstellen ({(deletedDestinationsQuery.data?.length || 0) + (deletedGuidesQuery.data?.length || 0)})
+                    </Button>
+                    <Button 
+                      variant="destructive" 
+                      disabled={(deletedDestinationsQuery.data?.length || 0) === 0 && (deletedGuidesQuery.data?.length || 0) === 0}
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Prullenbak Leegmaken
+                    </Button>
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    Tip: Verwijderde items blijven 30 dagen beschikbaar voor herstel
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
         </Tabs>
 
         {/* Create User Dialog */}

@@ -1,6 +1,8 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { db } from "./db";
+import { sql } from "drizzle-orm";
 import session from "express-session";
 import bcrypt from "bcrypt";
 import { z } from "zod";
@@ -469,6 +471,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Soft delete destination (move to recycle bin)
+  app.patch("/api/destinations/:id/soft-delete", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || !user.canDeleteContent) {
+        return res.status(403).json({ message: "Geen toestemming om content te verwijderen" });
+      }
+
+      const id = parseInt(req.params.id);
+      await db.execute(sql`UPDATE destinations SET is_deleted = TRUE, deleted_at = NOW(), updated_at = NOW() WHERE id = ${id}`);
+      res.json({ message: "Bestemming naar prullenbak verplaatst" });
+    } catch (error) {
+      console.error("Soft delete destination error:", error);
+      res.status(500).json({ message: "Fout bij verplaatsen naar prullenbak" });
+    }
+  });
+
+  // Restore destination from recycle bin
+  app.patch("/api/destinations/:id/restore", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || !user.canEditContent) {
+        return res.status(403).json({ message: "Geen toestemming om content te bewerken" });
+      }
+
+      const id = parseInt(req.params.id);
+      await db.execute(sql`UPDATE destinations SET is_deleted = FALSE, deleted_at = NULL, updated_at = NOW() WHERE id = ${id}`);
+      const result = await db.execute(sql`SELECT * FROM destinations WHERE id = ${id}`);
+      res.json(result.rows[0]);
+    } catch (error) {
+      console.error("Restore destination error:", error);
+      res.status(500).json({ message: "Fout bij herstellen bestemming" });
+    }
+  });
+
+  // Get deleted destinations (recycle bin)
+  app.get("/api/admin/destinations/deleted", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || !user.canEditContent) {
+        return res.status(403).json({ message: "Geen toestemming om content te bekijken" });
+      }
+
+      const result = await db.execute(sql`SELECT * FROM destinations WHERE is_deleted = TRUE ORDER BY deleted_at DESC`);
+      res.json(result.rows);
+    } catch (error) {
+      console.error("Get deleted destinations error:", error);
+      res.status(500).json({ message: "Fout bij ophalen verwijderde bestemmingen" });
+    }
+  });
+
   // GUIDES API ENDPOINTS
   
   // Get all guides
@@ -593,6 +646,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting guide:", error);
       res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Soft delete guide (move to recycle bin)
+  app.patch("/api/guides/:id/soft-delete", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || !user.canDeleteContent) {
+        return res.status(403).json({ message: "Geen toestemming om content te verwijderen" });
+      }
+
+      const id = parseInt(req.params.id);
+      await db.execute(sql`UPDATE guides SET is_deleted = TRUE, deleted_at = NOW(), updated_at = NOW() WHERE id = ${id}`);
+      res.json({ message: "Reisgids naar prullenbak verplaatst" });
+    } catch (error) {
+      console.error("Soft delete guide error:", error);
+      res.status(500).json({ message: "Fout bij verplaatsen naar prullenbak" });
+    }
+  });
+
+  // Restore guide from recycle bin
+  app.patch("/api/guides/:id/restore", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || !user.canEditContent) {
+        return res.status(403).json({ message: "Geen toestemming om content te bewerken" });
+      }
+
+      const id = parseInt(req.params.id);
+      await db.execute(sql`UPDATE guides SET is_deleted = FALSE, deleted_at = NULL, updated_at = NOW() WHERE id = ${id}`);
+      const result = await db.execute(sql`SELECT * FROM guides WHERE id = ${id}`);
+      res.json(result.rows[0]);
+    } catch (error) {
+      console.error("Restore guide error:", error);
+      res.status(500).json({ message: "Fout bij herstellen reisgids" });
+    }
+  });
+
+  // Get deleted guides (recycle bin)
+  app.get("/api/admin/guides/deleted", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || !user.canEditContent) {
+        return res.status(403).json({ message: "Geen toestemming om content te bekijken" });
+      }
+
+      const result = await db.execute(sql`SELECT * FROM guides WHERE is_deleted = TRUE ORDER BY deleted_at DESC`);
+      res.json(result.rows);
+    } catch (error) {
+      console.error("Get deleted guides error:", error);
+      res.status(500).json({ message: "Fout bij ophalen verwijderde reisgidsen" });
     }
   });
 
