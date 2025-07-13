@@ -3,57 +3,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Search } from "lucide-react";
+import { destinations } from "@/data/destinations";
+import { guides } from "@/data/guides";
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
 
-  const destinations = [
-    {
-      id: 1,
-      name: "Krakow",
-      image: "/images/krakow.svg",
-      alt: "Krakow"
-    },
-    {
-      id: 2,
-      name: "Tatra Mountains",
-      image: "/images/tatra.svg",
-      alt: "Tatra Mountains"
-    },
-    {
-      id: 3,
-      name: "Gdansk",
-      image: "/images/gdansk.svg",
-      alt: "Gdansk"
-    },
-    {
-      id: 4,
-      name: "Bialowieza",
-      image: "/images/bialowieza.svg",
-      alt: "Bialowieza"
-    }
-  ];
-
-  const travelGuides = [
-    {
-      id: 1,
-      title: "3 Dagen in Krakau",
-      image: "/images/krakau-dagtrip.svg",
-      alt: "3 Dagen in Krakau"
-    },
-    {
-      id: 2,
-      title: "Roadtrip door het zuiden",
-      image: "/images/roadtrip-zuid.svg",
-      alt: "Roadtrip door het zuiden"
-    },
-    {
-      id: 3,
-      title: "Verborgen Parels aan zee",
-      image: "/images/zee-parels.svg",
-      alt: "Verborgen Parels"
-    }
-  ];
+  // Filter only published destinations
+  const publishedDestinations = destinations.filter(dest => dest.published);
+  
+  // Filter only published guides
+  const publishedGuides = guides.filter(guide => guide.published);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,7 +73,7 @@ export default function Home() {
       {/* Destination Grid */}
       <section className="py-16 px-5 max-w-6xl mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-8">
-          {destinations.map((destination) => (
+          {publishedDestinations.map((destination) => (
             <Card 
               key={destination.id} 
               className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none"
@@ -166,7 +126,7 @@ export default function Home() {
           Reisgidsen en Tips
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {travelGuides.map((guide) => (
+          {publishedGuides.map((guide) => (
             <Card 
               key={guide.id} 
               className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none"

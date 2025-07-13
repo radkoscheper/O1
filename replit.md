@@ -4,6 +4,8 @@
 
 This is a full-stack web application for discovering beautiful places in Poland. It's a travel website that showcases Polish destinations, travel guides, and provides information about various locations throughout the country. The application is built with a modern tech stack using React for the frontend and Express for the backend.
 
+**Latest Update (2025-01-13)**: Added comprehensive CMS (Content Management System) with command-line interface for easy content management. The system uses JSON files for content storage and generates TypeScript data files for the website.
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
@@ -41,7 +43,8 @@ Language: Dutch (Nederlands) - User prefers communication in Dutch.
 │   │   ├── components/ui/  # shadcn/ui components
 │   │   ├── pages/         # Page components
 │   │   ├── lib/           # Utility functions
-│   │   └── hooks/         # Custom React hooks
+│   │   ├── hooks/         # Custom React hooks
+│   │   └── data/          # Generated data files from CMS
 ├── server/          # Express backend application
 │   ├── index.ts     # Main server entry point
 │   ├── routes.ts    # API route definitions
@@ -49,8 +52,19 @@ Language: Dutch (Nederlands) - User prefers communication in Dutch.
 │   └── vite.ts      # Vite integration for development
 ├── shared/          # Code shared between client and server
 │   └── schema.ts    # Database schema and validation
+├── content/         # CMS content storage
+│   ├── destinations/  # Destination JSON files
+│   └── guides/       # Travel guide JSON files
+├── cms/             # Content Management System
+│   └── cli.js       # Command-line interface
 └── migrations/      # Database migration files
 ```
+
+### CMS System
+- **Content Storage**: JSON files in `content/` directory
+- **CLI Interface**: `cms/cli.js` for content management
+- **Auto-generation**: TypeScript data files created from JSON
+- **Commands**: `new:destination`, `new:guide`, `list`, `generate`, `build`
 
 ### Data Models
 - **Users**: Basic user management with username/password authentication
