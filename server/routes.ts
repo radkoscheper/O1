@@ -508,13 +508,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         content: z.string().min(1),
         featured: z.boolean().optional(),
         published: z.boolean().optional(),
+        ranking: z.number().optional(),
       }).safeParse(req.body);
 
       if (!validation.success) {
         return res.status(400).json({ message: "Invalid input", errors: validation.error.errors });
       }
 
-      const { title, description, image, content, featured = false, published = true } = validation.data;
+      const { title, description, image, content, featured = false, published = true, ranking = 0 } = validation.data;
       
       // Generate slug from title
       const slug = title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
@@ -528,6 +529,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         content,
         featured,
         published,
+        ranking,
         createdBy: user.id,
       });
 
@@ -554,6 +556,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         content: z.string().min(1).optional(),
         featured: z.boolean().optional(),
         published: z.boolean().optional(),
+        ranking: z.number().optional(),
       }).safeParse(req.body);
 
       if (!validation.success) {

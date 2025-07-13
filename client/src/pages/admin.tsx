@@ -66,7 +66,8 @@ export default function Admin() {
     image: '',
     content: '',
     featured: false,
-    published: false
+    published: false,
+    ranking: 0
   });
   const { toast } = useToast();
 
@@ -124,7 +125,8 @@ export default function Admin() {
     image: '',
     content: '',
     featured: false,
-    published: false
+    published: false,
+    ranking: 0
   });
 
   // Check authentication status on component mount
@@ -274,7 +276,8 @@ export default function Admin() {
       image: '',
       content: '',
       featured: false,
-      published: false
+      published: false,
+      ranking: 0
     });
   };
 
@@ -463,7 +466,10 @@ export default function Admin() {
                 <Card key={guide.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex justify-between items-start">
-                      <CardTitle className="text-lg">{guide.title}</CardTitle>
+                      <div className="flex items-start gap-2">
+                        <Badge variant="outline" className="text-xs">#{guide.ranking || 0}</Badge>
+                        <CardTitle className="text-lg">{guide.title}</CardTitle>
+                      </div>
                       <div className="flex gap-2">
                         {guide.featured && <Badge variant="secondary">Featured</Badge>}
                         <Badge variant={guide.published ? "default" : "outline"}>
@@ -486,7 +492,8 @@ export default function Admin() {
                             image: guide.image,
                             content: guide.content || '',
                             featured: guide.featured,
-                            published: guide.published
+                            published: guide.published,
+                            ranking: guide.ranking || 0
                           });
                           setShowEditGuide(true);
                         }}
@@ -647,8 +654,18 @@ export default function Admin() {
                   />
                 </div>
 
-                <div className="flex gap-4">
-                  <div className="flex items-center space-x-2">
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div>
+                    <Label htmlFor="guide-ranking">Ranking</Label>
+                    <Input
+                      id="guide-ranking"
+                      type="number"
+                      placeholder="0"
+                      value={newGuide.ranking}
+                      onChange={(e) => setNewGuide({...newGuide, ranking: parseInt(e.target.value) || 0})}
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2 pt-6">
                     <Switch 
                       id="guide-featured"
                       checked={newGuide.featured}
@@ -656,7 +673,7 @@ export default function Admin() {
                     />
                     <Label htmlFor="guide-featured">Featured</Label>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 pt-6">
                     <Switch 
                       id="guide-published"
                       checked={newGuide.published}
