@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Search } from "lucide-react";
+import { Search, Settings } from "lucide-react";
 import { destinations } from "@/data/destinations";
 import { guides } from "@/data/guides";
+import { Link } from "wouter";
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -146,9 +147,21 @@ export default function Home() {
 
       {/* Footer */}
       <footer 
-        className="text-center py-10 px-5 text-white"
+        className="text-center py-10 px-5 text-white relative"
         style={{ backgroundColor: "#2f3e46" }}
       >
+        {/* Admin Link */}
+        <Link href="/admin">
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="absolute top-4 right-4 text-white border-white hover:bg-white hover:text-gray-900"
+          >
+            <Settings className="h-4 w-4 mr-2" />
+            Admin
+          </Button>
+        </Link>
+        
         <p className="font-inter">
           &copy; 2025 Ontdek Polen. Alle rechten voorbehouden.
         </p>
