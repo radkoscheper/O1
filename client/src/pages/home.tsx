@@ -11,26 +11,26 @@ export default function Home() {
     {
       id: 1,
       name: "Krakow",
-      image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-      alt: "Historic market square in Krakow with colorful buildings"
+      image: "/images/krakow.svg",
+      alt: "Krakow"
     },
     {
       id: 2,
       name: "Tatra Mountains",
-      image: "https://images.unsplash.com/photo-1464822759844-d150baec0494?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-      alt: "Snow-capped Tatra Mountains with alpine meadow"
+      image: "/images/tatra.svg",
+      alt: "Tatra Mountains"
     },
     {
       id: 3,
       name: "Gdansk",
-      image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-      alt: "Gdansk harbor with colorful historic buildings along waterfront"
+      image: "/images/gdansk.svg",
+      alt: "Gdansk"
     },
     {
       id: 4,
       name: "Bialowieza",
-      image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-      alt: "Dense primeval forest with tall trees and misty atmosphere"
+      image: "/images/bialowieza.svg",
+      alt: "Bialowieza"
     }
   ];
 
@@ -38,20 +38,20 @@ export default function Home() {
     {
       id: 1,
       title: "3 Dagen in Krakau",
-      image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-      alt: "Krakow Main Market Square with St. Mary's Basilica"
+      image: "/images/krakau-dagtrip.svg",
+      alt: "3 Dagen in Krakau"
     },
     {
       id: 2,
       title: "Roadtrip door het zuiden",
-      image: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-      alt: "Winding mountain road through southern Poland countryside"
+      image: "/images/roadtrip-zuid.svg",
+      alt: "Roadtrip door het zuiden"
     },
     {
       id: 3,
       title: "Verborgen Parels aan zee",
-      image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
-      alt: "Polish Baltic coast with sandy beaches and dunes"
+      image: "/images/zee-parels.svg",
+      alt: "Verborgen Parels"
     }
   ];
 
@@ -77,7 +77,7 @@ export default function Home() {
       <header 
         className="relative bg-cover bg-center text-white py-24 px-5 text-center"
         style={{
-          backgroundImage: "url('https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080')",
+          backgroundImage: "url('/images/header.svg')",
           backgroundSize: "cover",
           backgroundPosition: "center"
         }}
@@ -152,8 +152,8 @@ export default function Home() {
           </div>
           <div className="flex-1 min-w-80">
             <img
-              src="https://images.unsplash.com/photo-1464822759844-d150baec0494?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400"
-              alt="Scenic Tatra valley with mountain peaks and green meadows"
+              src="/images/tatra-vallei.svg"
+              alt="Tatra Valley"
               className="w-full rounded-xl shadow-lg"
             />
           </div>
