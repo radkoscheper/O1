@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import session from "express-session";
 import bcrypt from "bcrypt";
-import { insertUserSchema } from "@shared/schema";
+import { insertUserSchema, updateUserSchema, changePasswordSchema, resetPasswordSchema } from "@shared/schema";
 
 declare module "express-session" {
   interface SessionData {
@@ -67,10 +67,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  // Check auth status
-  app.get("/api/auth/status", (req, res) => {
-    if (req.session.isAuthenticated) {
-      res.json({ isAuthenticated: true, userId: req.session.userId });
+  // Check auth status and get current user info
+  app.get("/api/auth/status", async (req, res) => {
+    if (req.session.isAuthenticated && req.session.userId) {
+      try {
+        const user = await storage.getUser(req.session.userId);
+        if (user) {
+          // Don't send password in response
+          const { password, ...userWithoutPassword } = user;
+          res.json({ isAuthenticated: true, user: userWithoutPassword });
+        } else {
+          res.json({ isAuthenticated: false });
+        }
+      } catch (error) {
+        res.json({ isAuthenticated: false });
+      }
     } else {
       res.json({ isAuthenticated: false });
     }
