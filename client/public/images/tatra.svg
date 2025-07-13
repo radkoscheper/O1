@@ -1,0 +1,13 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="skyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#87CEEB;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#98D8E8;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#skyGradient)"/>
+  <polygon points="50,250 150,120 200,140 250,100 350,200 400,180 400,300 0,300" fill="#8B7355"/>
+  <polygon points="100,200 180,140 220,160 280,120 350,180 400,160 400,300 0,300" fill="#2F4F4F"/>
+  <polygon points="150,180 200,150 250,130 300,140 350,160 400,140 400,300 0,300" fill="#228B22"/>
+  <text x="200" y="280" text-anchor="middle" fill="white" font-family="Inter, sans-serif" font-size="18" font-weight="bold">Tatra Mountains</text>
+</svg>

@@ -1,0 +1,9 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="300" fill="#8B4513"/>
+  <rect x="50" y="80" width="300" height="140" fill="#D2691E"/>
+  <rect x="70" y="100" width="80" height="100" fill="#A0522D"/>
+  <rect x="130" y="100" width="80" height="100" fill="#CD853F"/>
+  <rect x="190" y="100" width="80" height="100" fill="#DEB887"/>
+  <rect x="250" y="100" width="80" height="100" fill="#F4A460"/>
+  <text x="200" y="250" text-anchor="middle" fill="white" font-family="Inter, sans-serif" font-size="24" font-weight="bold">Krakow</text>
+</svg>

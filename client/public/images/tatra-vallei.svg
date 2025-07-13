@@ -1,0 +1,16 @@
+<svg width="600" height="400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="valleyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#87CEEB;stop-opacity:1" />
+      <stop offset="30%" style="stop-color:#98D8E8;stop-opacity:1" />
+      <stop offset="70%" style="stop-color:#228B22;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#32CD32;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="600" height="400" fill="url(#valleyGradient)"/>
+  <polygon points="0,300 100,180 200,200 300,150 400,170 500,140 600,160 600,400 0,400" fill="#2F4F4F"/>
+  <polygon points="0,320 150,220 250,240 350,200 450,220 550,200 600,220 600,400 0,400" fill="#556B2F"/>
+  <polygon points="0,350 200,280 300,300 400,260 500,280 600,270 600,400 0,400" fill="#6B8E23"/>
+  <ellipse cx="300" cy="360" rx="150" ry="30" fill="#4682B4" opacity="0.8"/>
+  <path d="M 100 370 Q 200 350 300 360 Q 400 370 500 365" stroke="#4682B4" stroke-width="8" fill="none" opacity="0.6"/>
+</svg>
