@@ -105,11 +105,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllDestinations(): Promise<Destination[]> {
-    return await db.select().from(destinations);
+    return await db.select().from(destinations).orderBy(destinations.ranking, destinations.createdAt);
   }
 
   async getPublishedDestinations(): Promise<Destination[]> {
-    return await db.select().from(destinations).where(eq(destinations.published, true));
+    return await db.select().from(destinations).where(eq(destinations.published, true)).orderBy(destinations.ranking, destinations.createdAt);
   }
 
   async createDestination(insertDestination: InsertDestination): Promise<Destination> {

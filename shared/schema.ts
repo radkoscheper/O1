@@ -71,6 +71,7 @@ export const destinations = pgTable("destinations", {
   content: text("content").notNull(),
   featured: boolean("featured").default(false),
   published: boolean("published").default(true),
+  ranking: integer("ranking").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
   createdBy: integer("created_by").references(() => users.id),
@@ -85,6 +86,7 @@ export const insertDestinationSchema = createInsertSchema(destinations).pick({
   content: true,
   featured: true,
   published: true,
+  ranking: true,
   createdBy: true,
 });
 
