@@ -151,11 +151,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllGuides(): Promise<Guide[]> {
-    return await db.select().from(guides);
+    return await db.select().from(guides).orderBy(guides.ranking, guides.createdAt);
   }
 
   async getPublishedGuides(): Promise<Guide[]> {
-    return await db.select().from(guides).where(eq(guides.published, true));
+    return await db.select().from(guides).where(eq(guides.published, true)).orderBy(guides.ranking, guides.createdAt);
   }
 
   async createGuide(insertGuide: InsertGuide): Promise<Guide> {
