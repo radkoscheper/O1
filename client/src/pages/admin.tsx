@@ -9,9 +9,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { destinations } from "@/data/destinations";
 import { guides } from "@/data/guides";
-import { Plus, Edit, Eye, Save, LogIn, LogOut, Shield } from "lucide-react";
+import { Plus, Edit, Eye, Save, LogIn, LogOut, Shield, Users, UserPlus, Trash2, Key } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -19,6 +20,11 @@ export default function Admin() {
   const [showLogin, setShowLogin] = useState(false);
   const [loginData, setLoginData] = useState({ username: '', password: '' });
   const [isSimpleMode, setIsSimpleMode] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [users, setUsers] = useState<any[]>([]);
+  const [showCreateUser, setShowCreateUser] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
   const { toast } = useToast();
 
   const [newDestination, setNewDestination] = useState({
@@ -44,12 +50,21 @@ export default function Admin() {
     checkAuthStatus();
   }, []);
 
+  useEffect(() => {
+    if (isAuthenticated && currentUser?.canManageUsers) {
+      loadUsers();
+    }
+  }, [isAuthenticated, currentUser]);
+
   const checkAuthStatus = async () => {
     try {
       const response = await fetch('/api/auth/status');
       if (response.ok) {
         const data = await response.json();
         setIsAuthenticated(data.isAuthenticated);
+        if (data.user) {
+          setCurrentUser(data.user);
+        }
       } else {
         // If API fails, enable simple mode (no database)
         setIsSimpleMode(true);
@@ -66,6 +81,18 @@ export default function Admin() {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadUsers = async () => {
+    try {
+      const response = await fetch('/api/users');
+      if (response.ok) {
+        const userData = await response.json();
+        setUsers(userData);
+      }
+    } catch (error) {
+      console.error('Error loading users:', error);
     }
   };
 
@@ -239,11 +266,23 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="destinations" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className={`grid w-full ${currentUser?.canManageUsers ? 'grid-cols-6' : 'grid-cols-4'}`}>
             <TabsTrigger value="destinations">Bestemmingen</TabsTrigger>
             <TabsTrigger value="guides">Reisgidsen</TabsTrigger>
             <TabsTrigger value="new-destination">Nieuwe Bestemming</TabsTrigger>
             <TabsTrigger value="new-guide">Nieuwe Gids</TabsTrigger>
+            {currentUser?.canManageUsers && (
+              <>
+                <TabsTrigger value="users">
+                  <Users className="h-4 w-4 mr-2" />
+                  Gebruikers
+                </TabsTrigger>
+                <TabsTrigger value="account">Account</TabsTrigger>
+              </>
+            )}
+            {!currentUser?.canManageUsers && (
+              <TabsTrigger value="account">Account</TabsTrigger>
+            )}
           </TabsList>
 
           {/* Bestaande Bestemmingen */}
@@ -475,8 +514,175 @@ export default function Admin() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* Gebruikersbeheer Tab - alleen voor admins */}
+          {currentUser?.canManageUsers && (
+            <TabsContent value="users" className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-semibold">Gebruikersbeheer ({users.length})</h2>
+                <Button onClick={() => setShowCreateUser(true)}>
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Nieuwe Gebruiker
+                </Button>
+              </div>
+              
+              <div className="grid gap-4">
+                {users.map((user) => (
+                  <Card key={user.id} className="hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle className="text-lg">{user.username}</CardTitle>
+                          <div className="flex gap-2 mt-2">
+                            <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
+                              {user.role === 'admin' ? 'Administrator' : 'Gebruiker'}
+                            </Badge>
+                            {user.canCreateContent && <Badge variant="outline">Aanmaken</Badge>}
+                            {user.canEditContent && <Badge variant="outline">Bewerken</Badge>}
+                            {user.canDeleteContent && <Badge variant="outline">Verwijderen</Badge>}
+                            {user.canManageUsers && <Badge variant="default">Gebruikersbeheer</Badge>}
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline">
+                            <Key className="h-4 w-4 mr-2" />
+                            Reset Wachtwoord
+                          </Button>
+                          {user.id !== currentUser.id && (
+                            <Button size="sm" variant="destructive">
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Verwijderen
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </CardHeader>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+          )}
+
+          {/* Account Tab - voor alle gebruikers */}
+          <TabsContent value="account" className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-semibold">Mijn Account</h2>
+            </div>
+            
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Account Informatie</CardTitle>
+                  <CardDescription>Je huidige account gegevens</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Gebruikersnaam</Label>
+                    <div className="font-medium">{currentUser?.username}</div>
+                  </div>
+                  <div>
+                    <Label>Rol</Label>
+                    <div className="font-medium">
+                      {currentUser?.role === 'admin' ? 'Administrator' : 'Gebruiker'}
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Permissies</Label>
+                    <div className="flex gap-2 mt-2">
+                      {currentUser?.canCreateContent && <Badge variant="outline">Aanmaken</Badge>}
+                      {currentUser?.canEditContent && <Badge variant="outline">Bewerken</Badge>}
+                      {currentUser?.canDeleteContent && <Badge variant="outline">Verwijderen</Badge>}
+                      {currentUser?.canManageUsers && <Badge variant="default">Gebruikersbeheer</Badge>}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Wachtwoord Wijzigen</CardTitle>
+                  <CardDescription>Wijzig je huidige wachtwoord</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ChangePasswordForm />
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
         </Tabs>
       </div>
     </div>
+  );
+}
+
+// Component voor wachtwoord wijzigen
+function ChangePasswordForm() {
+  const [formData, setFormData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (formData.newPassword !== formData.confirmPassword) {
+      toast({ title: "Fout", description: "Wachtwoorden komen niet overeen", variant: "destructive" });
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        toast({ title: "Succes", description: "Wachtwoord succesvol gewijzigd" });
+        setFormData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      } else {
+        const error = await response.json();
+        toast({ title: "Fout", description: error.message, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="currentPassword">Huidig Wachtwoord</Label>
+        <Input
+          id="currentPassword"
+          type="password"
+          value={formData.currentPassword}
+          onChange={(e) => setFormData({ ...formData, currentPassword: e.target.value })}
+          required
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="newPassword">Nieuw Wachtwoord</Label>
+        <Input
+          id="newPassword"
+          type="password"
+          value={formData.newPassword}
+          onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
+          required
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="confirmPassword">Bevestig Nieuw Wachtwoord</Label>
+        <Input
+          id="confirmPassword"
+          type="password"
+          value={formData.confirmPassword}
+          onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+          required
+        />
+      </div>
+      <Button type="submit" className="w-full">Wachtwoord Wijzigen</Button>
+    </form>
   );
 }
