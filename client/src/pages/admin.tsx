@@ -68,6 +68,7 @@ export default function Admin() {
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
+        credentials: 'include', // Important for session cookies
       });
 
       const result = await response.json();
