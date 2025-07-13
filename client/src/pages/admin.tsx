@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { destinations } from "@/data/destinations";
 import { guides } from "@/data/guides";
-import { Plus, Edit, Eye, Save, LogIn, LogOut, Shield, Users, UserPlus, Trash2, Key } from "lucide-react";
+import { Plus, Edit, Eye, Save, LogIn, LogOut, Shield, Users, UserPlus, Trash2, Key, Upload, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -57,6 +58,20 @@ export default function Admin() {
     published: false
   });
   const { toast } = useToast();
+
+  // Image upload helpers
+  const handleImageUpload = async (file: File): Promise<string> => {
+    // Simuleer upload - in een echte app zou je dit naar een server uploaden
+    const imageName = `uploaded_${Date.now()}_${file.name}`;
+    const imagePath = `/images/${imageName}`;
+    
+    // Hier zou je normaal de file naar een server uploaden
+    // Voor nu simuleren we dit en retourneren we een pad
+    console.log('Uploading file:', file.name, 'to:', imagePath);
+    toast({ title: "Succes", description: `Afbeelding ${file.name} geüpload` });
+    
+    return imagePath;
+  };
 
   const [newDestination, setNewDestination] = useState({
     name: '',
@@ -478,15 +493,12 @@ export default function Admin() {
                       onChange={(e) => setNewDestination({...newDestination, name: e.target.value})}
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="dest-image">Afbeelding pad</Label>
-                    <Input
-                      id="dest-image"
-                      placeholder="/images/warsaw.jpg"
-                      value={newDestination.image}
-                      onChange={(e) => setNewDestination({...newDestination, image: e.target.value})}
-                    />
-                  </div>
+                  <ImageUploadField
+                    label="Afbeelding"
+                    value={newDestination.image}
+                    onChange={(value) => setNewDestination({...newDestination, image: value})}
+                    placeholder="/images/warsaw.jpg"
+                  />
                 </div>
                 
                 <div>
@@ -557,15 +569,12 @@ export default function Admin() {
                       onChange={(e) => setNewGuide({...newGuide, title: e.target.value})}
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="guide-image">Afbeelding pad</Label>
-                    <Input
-                      id="guide-image"
-                      placeholder="/images/warsaw-guide.jpg"
-                      value={newGuide.image}
-                      onChange={(e) => setNewGuide({...newGuide, image: e.target.value})}
-                    />
-                  </div>
+                  <ImageUploadField
+                    label="Afbeelding"
+                    value={newGuide.image}
+                    onChange={(value) => setNewGuide({...newGuide, image: value})}
+                    placeholder="/images/warsaw-guide.jpg"
+                  />
                 </div>
                 
                 <div>
@@ -820,6 +829,99 @@ export default function Admin() {
           />
         )}
       </div>
+    </div>
+  );
+}
+
+// Herbruikbare afbeelding upload component
+function ImageUploadField({ label, value, onChange, placeholder }: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+}) {
+  const { toast } = useToast();
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Valideer bestandstype
+    if (!file.type.startsWith('image/')) {
+      toast({ title: "Fout", description: "Selecteer een geldig afbeelding bestand", variant: "destructive" });
+      return;
+    }
+
+    // Valideer bestandsgrootte (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "Fout", description: "Afbeelding moet kleiner zijn dan 5MB", variant: "destructive" });
+      return;
+    }
+
+    try {
+      // Simuleer upload
+      const imageName = `uploaded_${Date.now()}_${file.name}`;
+      const imagePath = `/images/${imageName}`;
+      
+      console.log('Uploading file:', file.name, 'to:', imagePath);
+      toast({ title: "Succes", description: `Afbeelding ${file.name} geüpload` });
+      
+      onChange(imagePath);
+    } catch (error) {
+      toast({ title: "Fout", description: "Fout bij uploaden van afbeelding", variant: "destructive" });
+    }
+
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <Label>{label}</Label>
+      <div className="flex gap-2">
+        <Input
+          placeholder={placeholder}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="flex-1"
+        />
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => fileInputRef.current?.click()}
+          className="shrink-0"
+        >
+          <Upload className="h-4 w-4 mr-2" />
+          Upload
+        </Button>
+        {value && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => onChange('')}
+            className="shrink-0"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleFileUpload}
+        className="hidden"
+      />
+      {value && (
+        <div className="text-sm text-gray-500">
+          Huidige afbeelding: {value}
+        </div>
+      )}
     </div>
   );
 }
@@ -1202,14 +1304,12 @@ function EditDestinationDialog({ open, onOpenChange, destination, editData, setE
               required
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="image">Afbeelding pad</Label>
-            <Input
-              id="image"
-              value={editData.image}
-              onChange={(e) => setEditData({ ...editData, image: e.target.value })}
-            />
-          </div>
+          <ImageUploadField
+            label="Afbeelding"
+            value={editData.image}
+            onChange={(value) => setEditData({ ...editData, image: value })}
+            placeholder="/images/bestemming.jpg"
+          />
           <div className="space-y-2">
             <Label htmlFor="content">Content (Markdown)</Label>
             <Textarea
@@ -1348,14 +1448,12 @@ function EditGuideDialog({ open, onOpenChange, guide, editData, setEditData, onS
               required
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="image">Afbeelding pad</Label>
-            <Input
-              id="image"
-              value={editData.image}
-              onChange={(e) => setEditData({ ...editData, image: e.target.value })}
-            />
-          </div>
+          <ImageUploadField
+            label="Afbeelding"
+            value={editData.image}
+            onChange={(value) => setEditData({ ...editData, image: value })}
+            placeholder="/images/reisgids.jpg"
+          />
           <div className="space-y-2">
             <Label htmlFor="content">Content (Markdown)</Label>
             <Textarea
