@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ontdek Polen</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background-color: #f8f6f1;
+      color: #1f1f1f;
+    }
+
+    header {
+      background-image: url('./images/header.jpg');
+      background-size: cover;
+      background-position: center;
+      padding: 100px 20px 60px;
+      text-align: center;
+      color: white;
+      position: relative;
+    }
+
+    .search-bar {
+      margin-top: 20px;
+    }
+
+    .search-bar input {
+      padding: 12px 20px;
+      width: 300px;
+      max-width: 90%;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    h1 {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+
+    .subheader {
+      font-size: 20px;
+    }
+
+    .cta-button {
+      margin-top: 20px;
+      background-color: #2f3e46;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    section {
+      padding: 60px 20px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
+    }
+
+    .card {
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .card img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+    }
+
+    .card-title {
+      padding: 15px;
+      font-weight: 700;
+      background-color: white;
+    }
+
+    .cta-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .cta-section .text {
+      flex: 1 1 300px;
+    }
+
+    .cta-section .image {
+      flex: 1 1 300px;
+    }
+
+    .cta-section img {
+      width: 100%;
+      border-radius: 10px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 40px 20px;
+      background-color: #2f3e46;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Ontdek Polen</h1>
+    <p class="subheader">Mooie plekken in Polen ontdekken</p>
+    <div class="search-bar">
+      <input type="text" placeholder="Zoek bestemming">
+    </div>
+    <button class="cta-button">Plan je reis</button>
+  </header>
+
+  <section>
+    <div class="grid">
+      <div class="card">
+        <img src="./images/krakow.jpg" alt="Krakow">
+        <div class="card-title">Krakow</div>
+      </div>
+      <div class="card">
+        <img src="./images/tatra.jpg" alt="Tatra Mountains">
+        <div class="card-title">Tatra Mountains</div>
+      </div>
+      <div class="card">
+        <img src="./images/gdansk.jpg" alt="Gdansk">
+        <div class="card-title">Gdansk</div>
+      </div>
+      <div class="card">
+        <img src="./images/bialowieza.jpg" alt="Bialowieza">
+        <div class="card-title">Bialowieza</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="text">
+      <h2>Laat je verrassen door het onbekende Polen</h2>
+      <p>Bezoek historische steden, ontdek natuurparken en verborgen parels. Onze reisgidsen helpen je op weg!</p>
+      <button class="cta-button">Lees onze gidsen</button>
+    </div>
+    <div class="image">
+      <img src="./images/tatra-vallei.jpg" alt="Tatra Valley">
+    </div>
+  </section>
+
+  <section>
+    <h2>Reisgidsen en Tips</h2>
+    <div class="grid">
+      <div class="card">
+        <img src="./images/krakau-dagtrip.jpg" alt="3 Dagen in Krakau">
+        <div class="card-title">3 Dagen in Krakau</div>
+      </div>
+      <div class="card">
+        <img src="./images/roadtrip-zuid.jpg" alt="Roadtrip door het zuiden">
+        <div class="card-title">Roadtrip door het zuiden</div>
+      </div>
+      <div class="card">
+        <img src="./images/zee-parels.jpg" alt="Verborgen Parels">
+        <div class="card-title">Verborgen Parels aan zee</div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 Ontdek Polen. Alle rechten voorbehouden.</p>
+  </footer>
+</body>
+</html>
