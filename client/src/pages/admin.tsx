@@ -8,8 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { destinations } from "@/data/destinations";
-import { guides } from "@/data/guides";
+import { apiRequest } from "@/lib/queryClient";
+import { queryClient } from "@/lib/queryClient";
 import { Plus, Edit, Eye, Save, LogIn, LogOut, Shield, Users, UserPlus, Trash2, Key, Upload, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
@@ -27,6 +27,17 @@ export default function Admin() {
   const usersQuery = useQuery({
     queryKey: ['/api/users'],
     enabled: currentUser?.canManageUsers,
+  });
+  
+  // Content queries
+  const destinationsQuery = useQuery({
+    queryKey: ['/api/admin/destinations'],
+    enabled: isAuthenticated,
+  });
+  
+  const guidesQuery = useQuery({
+    queryKey: ['/api/admin/guides'],
+    enabled: isAuthenticated,
   });
   const [showCreateUser, setShowCreateUser] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
@@ -378,11 +389,11 @@ export default function Admin() {
           {currentUser?.canCreateContent && (
             <TabsContent value="destinations" className="space-y-4">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold">Bestemmingen ({destinations.length})</h2>
+              <h2 className="text-2xl font-semibold">Bestemmingen ({destinationsQuery.data?.length || 0})</h2>
             </div>
             
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {destinations.map((destination) => (
+              {(destinationsQuery.data || []).map((destination: any) => (
                 <Card key={destination.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex justify-between items-start">
@@ -440,11 +451,11 @@ export default function Admin() {
           {currentUser?.canCreateContent && (
             <TabsContent value="guides" className="space-y-4">
               <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold">Reisgidsen ({guides.length})</h2>
+              <h2 className="text-2xl font-semibold">Reisgidsen ({guidesQuery.data?.length || 0})</h2>
             </div>
             
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {guides.map((guide) => (
+              {(guidesQuery.data || []).map((guide: any) => (
                 <Card key={guide.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex justify-between items-start">
@@ -1291,9 +1302,17 @@ function EditDestinationDialog({ open, onOpenChange, destination, editData, setE
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // Hier zou je normaal een API call maken om de bestemming bij te werken
-      // Voor nu simuleren we dit
-      console.log('Saving destination:', editData);
+      await apiRequest(`/api/destinations/${destination.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editData)
+      });
+      
+      // Invalidate cache to refresh data
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/destinations'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/destinations'] });
+      
+      toast({ title: "Succes", description: "Bestemming succesvol bijgewerkt" });
       onSave();
     } catch (error) {
       toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
@@ -1435,9 +1454,17 @@ function EditGuideDialog({ open, onOpenChange, guide, editData, setEditData, onS
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // Hier zou je normaal een API call maken om de reisgids bij te werken
-      // Voor nu simuleren we dit
-      console.log('Saving guide:', editData);
+      await apiRequest(`/api/guides/${guide.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editData)
+      });
+      
+      // Invalidate cache to refresh data
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/guides'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/guides'] });
+      
+      toast({ title: "Succes", description: "Reisgids succesvol bijgewerkt" });
       onSave();
     } catch (error) {
       toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });

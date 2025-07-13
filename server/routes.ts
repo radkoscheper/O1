@@ -342,6 +342,254 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // DESTINATIONS API ENDPOINTS
+  
+  // Get all destinations
+  app.get("/api/destinations", async (req, res) => {
+    try {
+      const destinations = await storage.getPublishedDestinations();
+      res.json(destinations);
+    } catch (error) {
+      console.error("Error fetching destinations:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Get all destinations for admin
+  app.get("/api/admin/destinations", requireAuth, async (req, res) => {
+    try {
+      const destinations = await storage.getAllDestinations();
+      res.json(destinations);
+    } catch (error) {
+      console.error("Error fetching destinations:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Create destination
+  app.post("/api/destinations", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || !user.canCreateContent) {
+        return res.status(403).json({ message: "Geen toestemming om content te maken" });
+      }
+
+      const validation = z.object({
+        name: z.string().min(1),
+        description: z.string().min(1),
+        image: z.string().min(1),
+        content: z.string().min(1),
+        featured: z.boolean().optional(),
+        published: z.boolean().optional(),
+      }).safeParse(req.body);
+
+      if (!validation.success) {
+        return res.status(400).json({ message: "Invalid input", errors: validation.error.errors });
+      }
+
+      const { name, description, image, content, featured = false, published = true } = validation.data;
+      
+      // Generate slug from name
+      const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+      
+      const destination = await storage.createDestination({
+        name,
+        slug,
+        description,
+        image,
+        alt: name,
+        content,
+        featured,
+        published,
+        createdBy: user.id,
+      });
+
+      res.json(destination);
+    } catch (error) {
+      console.error("Error creating destination:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Update destination
+  app.put("/api/destinations/:id", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || !user.canEditContent) {
+        return res.status(403).json({ message: "Geen toestemming om content te bewerken" });
+      }
+
+      const id = parseInt(req.params.id);
+      const validation = z.object({
+        name: z.string().min(1).optional(),
+        description: z.string().min(1).optional(),
+        image: z.string().min(1).optional(),
+        content: z.string().min(1).optional(),
+        featured: z.boolean().optional(),
+        published: z.boolean().optional(),
+      }).safeParse(req.body);
+
+      if (!validation.success) {
+        return res.status(400).json({ message: "Invalid input", errors: validation.error.errors });
+      }
+
+      const updates: any = validation.data;
+      
+      // Update slug if name changes
+      if (updates.name) {
+        updates.slug = updates.name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+        updates.alt = updates.name;
+      }
+
+      const destination = await storage.updateDestination(id, updates);
+      res.json(destination);
+    } catch (error) {
+      console.error("Error updating destination:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Delete destination
+  app.delete("/api/destinations/:id", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || !user.canDeleteContent) {
+        return res.status(403).json({ message: "Geen toestemming om content te verwijderen" });
+      }
+
+      const id = parseInt(req.params.id);
+      await storage.deleteDestination(id);
+      res.json({ message: "Destination verwijderd" });
+    } catch (error) {
+      console.error("Error deleting destination:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // GUIDES API ENDPOINTS
+  
+  // Get all guides
+  app.get("/api/guides", async (req, res) => {
+    try {
+      const guides = await storage.getPublishedGuides();
+      res.json(guides);
+    } catch (error) {
+      console.error("Error fetching guides:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Get all guides for admin
+  app.get("/api/admin/guides", requireAuth, async (req, res) => {
+    try {
+      const guides = await storage.getAllGuides();
+      res.json(guides);
+    } catch (error) {
+      console.error("Error fetching guides:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Create guide
+  app.post("/api/guides", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || !user.canCreateContent) {
+        return res.status(403).json({ message: "Geen toestemming om content te maken" });
+      }
+
+      const validation = z.object({
+        title: z.string().min(1),
+        description: z.string().min(1),
+        image: z.string().min(1),
+        content: z.string().min(1),
+        featured: z.boolean().optional(),
+        published: z.boolean().optional(),
+      }).safeParse(req.body);
+
+      if (!validation.success) {
+        return res.status(400).json({ message: "Invalid input", errors: validation.error.errors });
+      }
+
+      const { title, description, image, content, featured = false, published = true } = validation.data;
+      
+      // Generate slug from title
+      const slug = title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+      
+      const guide = await storage.createGuide({
+        title,
+        slug,
+        description,
+        image,
+        alt: title,
+        content,
+        featured,
+        published,
+        createdBy: user.id,
+      });
+
+      res.json(guide);
+    } catch (error) {
+      console.error("Error creating guide:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Update guide
+  app.put("/api/guides/:id", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || !user.canEditContent) {
+        return res.status(403).json({ message: "Geen toestemming om content te bewerken" });
+      }
+
+      const id = parseInt(req.params.id);
+      const validation = z.object({
+        title: z.string().min(1).optional(),
+        description: z.string().min(1).optional(),
+        image: z.string().min(1).optional(),
+        content: z.string().min(1).optional(),
+        featured: z.boolean().optional(),
+        published: z.boolean().optional(),
+      }).safeParse(req.body);
+
+      if (!validation.success) {
+        return res.status(400).json({ message: "Invalid input", errors: validation.error.errors });
+      }
+
+      const updates: any = validation.data;
+      
+      // Update slug if title changes
+      if (updates.title) {
+        updates.slug = updates.title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+        updates.alt = updates.title;
+      }
+
+      const guide = await storage.updateGuide(id, updates);
+      res.json(guide);
+    } catch (error) {
+      console.error("Error updating guide:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Delete guide
+  app.delete("/api/guides/:id", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || !user.canDeleteContent) {
+        return res.status(403).json({ message: "Geen toestemming om content te verwijderen" });
+      }
+
+      const id = parseInt(req.params.id);
+      await storage.deleteGuide(id);
+      res.json({ message: "Guide verwijderd" });
+    } catch (error) {
+      console.error("Error deleting guide:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
