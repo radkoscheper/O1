@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,9 +9,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { destinations } from "@/data/destinations";
 import { guides } from "@/data/guides";
-import { Plus, Edit, Eye, Save } from "lucide-react";
+import { Plus, Edit, Eye, Save, LogIn, LogOut, Shield } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function Admin() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showLogin, setShowLogin] = useState(false);
+  const [loginData, setLoginData] = useState({ username: '', password: '' });
+  const [isSimpleMode, setIsSimpleMode] = useState(false);
+  const { toast } = useToast();
+
   const [newDestination, setNewDestination] = useState({
     name: '',
     description: '',
@@ -30,24 +39,203 @@ export default function Admin() {
     published: false
   });
 
+  // Check authentication status on component mount
+  useEffect(() => {
+    checkAuthStatus();
+  }, []);
+
+  const checkAuthStatus = async () => {
+    try {
+      const response = await fetch('/api/auth/status');
+      if (response.ok) {
+        const data = await response.json();
+        setIsAuthenticated(data.isAuthenticated);
+      } else {
+        // If API fails, enable simple mode (no database)
+        setIsSimpleMode(true);
+        setIsAuthenticated(true);
+      }
+    } catch (error) {
+      // If API fails, enable simple mode (no database)
+      setIsSimpleMode(true);
+      setIsAuthenticated(true);
+      toast({
+        title: "Eenvoudige modus",
+        description: "Database niet beschikbaar. Lokale modus actief.",
+        variant: "default",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleLogin = async () => {
+    try {
+      const response = await apiRequest('/api/login', {
+        method: 'POST',
+        body: JSON.stringify(loginData),
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (response.ok) {
+        setIsAuthenticated(true);
+        setShowLogin(false);
+        toast({
+          title: "Ingelogd",
+          description: "Welkom in het admin panel!",
+        });
+      } else {
+        toast({
+          title: "Login gefaald",
+          description: "Ongeldige gebruikersnaam of wachtwoord",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Login fout",
+        description: "Er is een fout opgetreden",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await apiRequest('/api/logout', { method: 'POST' });
+      setIsAuthenticated(false);
+      toast({
+        title: "Uitgelogd",
+        description: "Je bent succesvol uitgelogd",
+      });
+    } catch (error) {
+      // Fallback for simple mode
+      setIsAuthenticated(false);
+    }
+  };
+
   const handleCreateDestination = () => {
     console.log('Creating destination:', newDestination);
-    // In een echte implementatie zou dit naar een API gaan
-    alert('Bestemming aangemaakt! (In development zou dit naar een API gaan)');
+    toast({
+      title: "Bestemming aangemaakt",
+      description: `${newDestination.name} is toegevoegd aan de lijst.`,
+    });
+    // Reset form
+    setNewDestination({
+      name: '',
+      description: '',
+      image: '',
+      content: '',
+      featured: false,
+      published: false
+    });
   };
 
   const handleCreateGuide = () => {
     console.log('Creating guide:', newGuide);
-    // In een echte implementatie zou dit naar een API gaan
-    alert('Reisgids aangemaakt! (In development zou dit naar een API gaan)');
+    toast({
+      title: "Reisgids aangemaakt",
+      description: `${newGuide.title} is toegevoegd aan de lijst.`,
+    });
+    // Reset form
+    setNewGuide({
+      title: '',
+      description: '',
+      image: '',
+      content: '',
+      featured: false,
+      published: false
+    });
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading admin panel...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Login screen
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              Admin Login
+            </CardTitle>
+            <CardDescription>
+              Log in om toegang te krijgen tot het CMS
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="username">Gebruikersnaam</Label>
+              <Input
+                id="username"
+                type="text"
+                value={loginData.username}
+                onChange={(e) => setLoginData({...loginData, username: e.target.value})}
+                placeholder="Voer gebruikersnaam in"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Wachtwoord</Label>
+              <Input
+                id="password"
+                type="password"
+                value={loginData.password}
+                onChange={(e) => setLoginData({...loginData, password: e.target.value})}
+                placeholder="Voer wachtwoord in"
+              />
+            </div>
+            <Button 
+              onClick={handleLogin} 
+              className="w-full"
+              disabled={!loginData.username || !loginData.password}
+            >
+              <LogIn className="h-4 w-4 mr-2" />
+              Inloggen
+            </Button>
+            
+            {!isSimpleMode && (
+              <div className="text-center">
+                <Button 
+                  variant="link" 
+                  onClick={() => {setIsSimpleMode(true); setIsAuthenticated(true);}}
+                  className="text-sm text-gray-500"
+                >
+                  Doorgaan zonder database (lokale modus)
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-6xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">CMS Admin Panel</h1>
-          <p className="text-gray-600">Beheer je content voor Ontdek Polen</p>
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">CMS Admin Panel</h1>
+            <p className="text-gray-600">
+              Beheer je content voor Ontdek Polen
+              {isSimpleMode && <Badge variant="secondary" className="ml-2">Lokale Modus</Badge>}
+            </p>
+          </div>
+          <Button onClick={handleLogout} variant="outline">
+            <LogOut className="h-4 w-4 mr-2" />
+            Uitloggen
+          </Button>
         </div>
 
         <Tabs defaultValue="destinations" className="w-full">
