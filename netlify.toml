@@ -5,6 +5,7 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  NEON_DATABASE_URL = "postgresql://neondb_owner:npg_pAbda9fC0QTJ@ep-nameless-sound-a2dglih1-pooler.eu-central-1.aws.neon.tech/ontdekpolen?sslmode=require&channel_binding=require"
 
 [[redirects]]
   from = "/api/*"
