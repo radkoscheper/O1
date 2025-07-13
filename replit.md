@@ -7,6 +7,7 @@ This is a full-stack web application for discovering beautiful places in Poland.
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Language: Dutch (Nederlands) - User prefers communication in Dutch.
 
 ## System Architecture
 
