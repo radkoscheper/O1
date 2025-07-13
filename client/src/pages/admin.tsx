@@ -298,6 +298,55 @@ export default function Admin() {
     }
   };
 
+  // Soft delete handlers
+  const handleSoftDeleteDestination = async (id: number) => {
+    if (!confirm('Weet je zeker dat je deze bestemming naar de prullenbak wilt verplaatsen?')) {
+      return;
+    }
+    
+    try {
+      const response = await fetch(`/api/destinations/${id}/soft-delete`, {
+        method: 'PATCH',
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        toast({ title: "Succes", description: "Bestemming naar prullenbak verplaatst" });
+        destinationsQuery.refetch();
+        deletedDestinationsQuery.refetch();
+      } else {
+        const error = await response.json();
+        toast({ title: "Fout", description: error.message, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+    }
+  };
+
+  const handleSoftDeleteGuide = async (id: number) => {
+    if (!confirm('Weet je zeker dat je deze reisgids naar de prullenbak wilt verplaatsen?')) {
+      return;
+    }
+    
+    try {
+      const response = await fetch(`/api/guides/${id}/soft-delete`, {
+        method: 'PATCH',
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        toast({ title: "Succes", description: "Reisgids naar prullenbak verplaatst" });
+        guidesQuery.refetch();
+        deletedGuidesQuery.refetch();
+      } else {
+        const error = await response.json();
+        toast({ title: "Fout", description: error.message, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+    }
+  };
+
   const handleLogin = async () => {
     try {
       const response = await fetch('/api/login', {
@@ -476,7 +525,12 @@ export default function Admin() {
             {currentUser?.canCreateContent && <TabsTrigger value="guides">Reisgidsen</TabsTrigger>}
             {currentUser?.canCreateContent && <TabsTrigger value="new-destination">Nieuwe Bestemming</TabsTrigger>}
             {currentUser?.canCreateContent && <TabsTrigger value="new-guide">Nieuwe Gids</TabsTrigger>}
-            {(currentUser?.canDeleteContent || currentUser?.canEditContent) && <TabsTrigger value="recycle">🗑️ Prullenbak</TabsTrigger>}
+            {(currentUser?.canDeleteContent || currentUser?.canEditContent) && (
+              <TabsTrigger value="recycle">
+                <Trash2 className="h-4 w-4 mr-2" />
+                Prullenbak
+              </TabsTrigger>
+            )}
             {currentUser?.canManageUsers && (
               <TabsTrigger value="users">
                 <Users className="h-4 w-4 mr-2" />
@@ -545,6 +599,16 @@ export default function Admin() {
                         <Eye className="h-4 w-4 mr-2" />
                         Bekijken
                       </Button>
+                      {currentUser?.canDeleteContent && (
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleSoftDeleteDestination(destination.id)}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          🗑️ Naar Prullenbak
+                        </Button>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -611,6 +675,16 @@ export default function Admin() {
                         <Eye className="h-4 w-4 mr-2" />
                         Bekijken
                       </Button>
+                      {currentUser?.canDeleteContent && (
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleSoftDeleteGuide(guide.id)}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          🗑️ Naar Prullenbak
+                        </Button>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -849,7 +923,7 @@ export default function Admin() {
                               onClick={() => handleDeleteUser(user.id)}
                             >
                               <Trash2 className="h-4 w-4 mr-2" />
-                              Verwijderen
+                              🗑️ Verwijderen
                             </Button>
                           )}
                         </div>
@@ -944,6 +1018,7 @@ export default function Admin() {
                                   size="sm" 
                                   variant="outline"
                                   onClick={() => handleRestoreDestination(destination.id)}
+                                  title="Herstellen"
                                 >
                                   <Plus className="h-3 w-3" />
                                 </Button>
@@ -951,6 +1026,7 @@ export default function Admin() {
                                   size="sm" 
                                   variant="destructive"
                                   onClick={() => handlePermanentDeleteDestination(destination.id)}
+                                  title="Permanent verwijderen"
                                 >
                                   <Trash2 className="h-3 w-3" />
                                 </Button>
@@ -995,6 +1071,7 @@ export default function Admin() {
                                   size="sm" 
                                   variant="outline"
                                   onClick={() => handleRestoreGuide(guide.id)}
+                                  title="Herstellen"
                                 >
                                   <Plus className="h-3 w-3" />
                                 </Button>
@@ -1002,6 +1079,7 @@ export default function Admin() {
                                   size="sm" 
                                   variant="destructive"
                                   onClick={() => handlePermanentDeleteGuide(guide.id)}
+                                  title="Permanent verwijderen"
                                 >
                                   <Trash2 className="h-3 w-3" />
                                 </Button>
@@ -1039,7 +1117,7 @@ export default function Admin() {
                       disabled={(deletedDestinationsQuery.data?.length || 0) === 0 && (deletedGuidesQuery.data?.length || 0) === 0}
                     >
                       <Trash2 className="h-4 w-4 mr-2" />
-                      Prullenbak Leegmaken
+                      🗑️ Prullenbak Leegmaken
                     </Button>
                   </div>
                   <div className="text-sm text-gray-600">
