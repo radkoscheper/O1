@@ -114,7 +114,8 @@ export default function Admin() {
     image: '',
     content: '',
     featured: false,
-    published: false
+    published: false,
+    ranking: 0
   });
 
   const [newGuide, setNewGuide] = useState({
@@ -255,7 +256,8 @@ export default function Admin() {
       image: '',
       content: '',
       featured: false,
-      published: false
+      published: false,
+      ranking: 0
     });
   };
 
@@ -399,6 +401,7 @@ export default function Admin() {
                     <div className="flex justify-between items-start">
                       <CardTitle className="text-lg">{destination.name}</CardTitle>
                       <div className="flex gap-2">
+                        <Badge variant="outline">#{destination.ranking || 0}</Badge>
                         {destination.featured && <Badge variant="secondary">Featured</Badge>}
                         <Badge variant={destination.published ? "default" : "outline"}>
                           {destination.published ? "Gepubliceerd" : "Concept"}
@@ -420,7 +423,8 @@ export default function Admin() {
                             image: destination.image,
                             content: destination.content || '',
                             featured: destination.featured,
-                            published: destination.published
+                            published: destination.published,
+                            ranking: destination.ranking || 0
                           });
                           setShowEditDestination(true);
                         }}
@@ -518,7 +522,7 @@ export default function Admin() {
                 <CardDescription>Voeg een nieuwe bestemming toe aan je website</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-4 md:grid-cols-3">
                   <div>
                     <Label htmlFor="dest-name">Naam</Label>
                     <Input
@@ -526,6 +530,16 @@ export default function Admin() {
                       placeholder="Bijv. Warsaw"
                       value={newDestination.name}
                       onChange={(e) => setNewDestination({...newDestination, name: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="dest-ranking">Ranking (volgorde)</Label>
+                    <Input
+                      id="dest-ranking"
+                      type="number"
+                      placeholder="0"
+                      value={newDestination.ranking || 0}
+                      onChange={(e) => setNewDestination({...newDestination, ranking: parseInt(e.target.value) || 0})}
                     />
                   </div>
                   <ImageUploadField
@@ -1358,6 +1372,16 @@ function EditDestinationDialog({ open, onOpenChange, destination, editData, setE
               value={editData.name}
               onChange={(e) => setEditData({ ...editData, name: e.target.value })}
               required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="ranking">Ranking (volgorde - lagere nummers eerst)</Label>
+            <Input
+              id="ranking"
+              type="number"
+              value={editData.ranking || 0}
+              onChange={(e) => setEditData({ ...editData, ranking: parseInt(e.target.value) || 0 })}
+              placeholder="0"
             />
           </div>
           <div className="space-y-2">
