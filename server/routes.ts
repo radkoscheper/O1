@@ -26,7 +26,7 @@ const requireAuth = (req: any, res: any, next: any) => {
 };
 
 // Configure multer for file uploads
-const uploadsDir = path.join(process.cwd(), 'client/public/uploads');
+const uploadsDir = path.join(process.cwd(), 'client', 'public', 'images');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
@@ -153,7 +153,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("File uploaded:", req.file.filename);
       
       // Return the path that can be used in the frontend
-      const imagePath = `/uploads/${req.file.filename}`;
+      const imagePath = `/images/${req.file.filename}`;
       
       res.json({
         success: true,

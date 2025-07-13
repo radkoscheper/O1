@@ -895,16 +895,38 @@ function ImageUploadField({ label, value, onChange, placeholder }: {
     }
 
     try {
-      // Simuleer upload
-      const imageName = `uploaded_${Date.now()}_${file.name}`;
-      const imagePath = `/images/${imageName}`;
-      
-      console.log('Uploading file:', file.name, 'to:', imagePath);
-      toast({ title: "Succes", description: `Afbeelding ${file.name} geüpload` });
-      
-      onChange(imagePath);
+      // Gebruik de echte upload functie
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Upload gefaald');
+      }
+
+      if (result.success) {
+        toast({ 
+          title: "Succes", 
+          description: `Afbeelding ${file.name} succesvol geüpload` 
+        });
+        onChange(result.imagePath);
+      } else {
+        throw new Error(result.message || 'Upload gefaald');
+      }
     } catch (error) {
-      toast({ title: "Fout", description: "Fout bij uploaden van afbeelding", variant: "destructive" });
+      console.error('Upload error:', error);
+      toast({ 
+        title: "Upload fout", 
+        description: error instanceof Error ? error.message : "Er is een fout opgetreden tijdens uploaden",
+        variant: "destructive" 
+      });
     }
 
     // Reset input
