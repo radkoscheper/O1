@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import session from "express-session";
 import bcrypt from "bcrypt";
+import { z } from "zod";
 import { insertUserSchema, updateUserSchema, changePasswordSchema, resetPasswordSchema } from "@shared/schema";
 
 declare module "express-session" {
@@ -95,7 +96,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid input" });
       }
 
-      const { username, password } = validation.data;
+      const { username, password } = validation.data as { username: string; password: string };
       
       // Check if admin already exists
       const existingUser = await storage.getUserByUsername(username);
@@ -152,7 +153,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid input", errors: validation.error.errors });
       }
 
-      const { username, password, ...permissions } = validation.data;
+      const { username, password, ...permissions } = validation.data as any;
       
       // Check if username already exists
       const existingUser = await storage.getUserByUsername(username);
@@ -164,7 +165,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const newUser = await storage.createUser({
         username,
         password: hashedPassword,
-        createdBy: req.currentUser.id,
+        createdBy: (req as any).currentUser.id,
         ...permissions
       });
       
@@ -185,7 +186,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Don't allow updating your own admin status
-      if (userId === req.currentUser.id && validation.data.canManageUsers === false) {
+      if (userId === (req as any).currentUser.id && validation.data.canManageUsers === false) {
         return res.status(400).json({ message: "Je kunt je eigen admin rechten niet intrekken" });
       }
 
@@ -201,7 +202,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/users/:id/reset-password", requireUserManagement, async (req, res) => {
     try {
       const userId = parseInt(req.params.id);
-      const validation = resetPasswordSchema.omit({ userId: true }).safeParse(req.body);
+      const validation = z.object({
+        newPassword: z.string().min(6),
+        confirmPassword: z.string().min(1)
+      }).refine((data) => data.newPassword === data.confirmPassword, {
+        message: "Wachtwoorden komen niet overeen",
+        path: ["confirmPassword"],
+      }).safeParse(req.body);
       if (!validation.success) {
         return res.status(400).json({ message: "Invalid input", errors: validation.error.errors });
       }
@@ -221,7 +228,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = parseInt(req.params.id);
       
       // Don't allow deleting yourself
-      if (userId === req.currentUser.id) {
+      if (userId === (req as any).currentUser.id) {
         return res.status(400).json({ message: "Je kunt jezelf niet verwijderen" });
       }
 
@@ -240,7 +247,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid input", errors: validation.error.errors });
       }
 
-      const user = await storage.getUser(req.session.userId);
+      const user = await storage.getUser(req.session.userId!);
       if (!user) {
         return res.status(404).json({ message: "Gebruiker niet gevonden" });
       }

@@ -13,7 +13,7 @@ export const users = pgTable("users", {
   canManageUsers: boolean("can_manage_users").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-  createdBy: integer("created_by").references(() => users.id),
+  createdBy: integer("created_by").references((): any => users.id),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
@@ -24,6 +24,7 @@ export const insertUserSchema = createInsertSchema(users).pick({
   canEditContent: true,
   canDeleteContent: true,
   canManageUsers: true,
+  createdBy: true,
 });
 
 export const updateUserSchema = createInsertSchema(users).pick({

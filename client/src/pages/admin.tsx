@@ -11,8 +11,9 @@ import { destinations } from "@/data/destinations";
 import { guides } from "@/data/guides";
 import { Plus, Edit, Eye, Save, LogIn, LogOut, Shield, Users, UserPlus, Trash2, Key } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -21,9 +22,15 @@ export default function Admin() {
   const [loginData, setLoginData] = useState({ username: '', password: '' });
   const [isSimpleMode, setIsSimpleMode] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
-  const [users, setUsers] = useState<any[]>([]);
+  // Users query voor admin functionaliteit
+  const usersQuery = useQuery({
+    queryKey: ['/api/users'],
+    enabled: currentUser?.canManageUsers,
+  });
   const [showCreateUser, setShowCreateUser] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
+  const [showEditUser, setShowEditUser] = useState(false);
+  const [showResetPassword, setShowResetPassword] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const { toast } = useToast();
 
@@ -93,6 +100,26 @@ export default function Admin() {
       }
     } catch (error) {
       console.error('Error loading users:', error);
+    }
+  };
+
+  const handleDeleteUser = async (userId: number) => {
+    if (!confirm('Weet je zeker dat je deze gebruiker wilt verwijderen?')) return;
+    
+    try {
+      const response = await fetch(`/api/users/${userId}`, {
+        method: 'DELETE'
+      });
+      
+      if (response.ok) {
+        toast({ title: "Gebruiker verwijderd", description: "De gebruiker is succesvol verwijderd." });
+        loadUsers();
+      } else {
+        const error = await response.json();
+        toast({ title: "Fout", description: error.message, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
     }
   };
 
@@ -266,27 +293,27 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="destinations" className="w-full">
-          <TabsList className={`grid w-full ${currentUser?.canManageUsers ? 'grid-cols-6' : 'grid-cols-4'}`}>
-            <TabsTrigger value="destinations">Bestemmingen</TabsTrigger>
-            <TabsTrigger value="guides">Reisgidsen</TabsTrigger>
-            <TabsTrigger value="new-destination">Nieuwe Bestemming</TabsTrigger>
-            <TabsTrigger value="new-guide">Nieuwe Gids</TabsTrigger>
+          <TabsList className={`grid w-full ${currentUser?.canManageUsers ? 'grid-cols-6' : 'grid-cols-5'}`}>
+            {/* Alleen tonen wat de gebruiker mag doen */}
+            {currentUser?.canCreateContent && <TabsTrigger value="destinations">Bestemmingen</TabsTrigger>}
+            {currentUser?.canCreateContent && <TabsTrigger value="guides">Reisgidsen</TabsTrigger>}
+            {currentUser?.canCreateContent && <TabsTrigger value="new-destination">Nieuwe Bestemming</TabsTrigger>}
+            {currentUser?.canCreateContent && <TabsTrigger value="new-guide">Nieuwe Gids</TabsTrigger>}
             {currentUser?.canManageUsers && (
-              <>
-                <TabsTrigger value="users">
-                  <Users className="h-4 w-4 mr-2" />
-                  Gebruikers
-                </TabsTrigger>
-                <TabsTrigger value="account">Account</TabsTrigger>
-              </>
+              <TabsTrigger value="users">
+                <Users className="h-4 w-4 mr-2" />
+                Gebruikers
+              </TabsTrigger>
             )}
-            {!currentUser?.canManageUsers && (
-              <TabsTrigger value="account">Account</TabsTrigger>
-            )}
+            <TabsTrigger value="account">
+              <Shield className="h-4 w-4 mr-2" />
+              Account
+            </TabsTrigger>
           </TabsList>
 
-          {/* Bestaande Bestemmingen */}
-          <TabsContent value="destinations" className="space-y-4">
+          {/* Bestaande Bestemmingen - alleen voor gebruikers met create/edit permissies */}
+          {currentUser?.canCreateContent && (
+            <TabsContent value="destinations" className="space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-semibold">Bestemmingen ({destinations.length})</h2>
             </div>
@@ -321,11 +348,13 @@ export default function Admin() {
                 </Card>
               ))}
             </div>
-          </TabsContent>
+            </TabsContent>
+          )}
 
           {/* Bestaande Reisgidsen */}
-          <TabsContent value="guides" className="space-y-4">
-            <div className="flex justify-between items-center">
+          {currentUser?.canCreateContent && (
+            <TabsContent value="guides" className="space-y-4">
+              <div className="flex justify-between items-center">
               <h2 className="text-2xl font-semibold">Reisgidsen ({guides.length})</h2>
             </div>
             
@@ -358,12 +387,14 @@ export default function Admin() {
                   </CardContent>
                 </Card>
               ))}
-            </div>
-          </TabsContent>
+              </div>
+            </TabsContent>
+          )}
 
           {/* Nieuwe Bestemming */}
-          <TabsContent value="new-destination" className="space-y-4">
-            <Card>
+          {currentUser?.canCreateContent && (
+            <TabsContent value="new-destination" className="space-y-4">
+              <Card>
               <CardHeader>
                 <CardTitle>Nieuwe Bestemming Toevoegen</CardTitle>
                 <CardDescription>Voeg een nieuwe bestemming toe aan je website</CardDescription>
@@ -435,12 +466,14 @@ export default function Admin() {
                   Bestemming Aanmaken
                 </Button>
               </CardContent>
-            </Card>
-          </TabsContent>
+              </Card>
+            </TabsContent>
+          )}
 
           {/* Nieuwe Reisgids */}
-          <TabsContent value="new-guide" className="space-y-4">
-            <Card>
+          {currentUser?.canCreateContent && (
+            <TabsContent value="new-guide" className="space-y-4">
+              <Card>
               <CardHeader>
                 <CardTitle>Nieuwe Reisgids Toevoegen</CardTitle>
                 <CardDescription>Voeg een nieuwe reisgids toe aan je website</CardDescription>
@@ -512,14 +545,15 @@ export default function Admin() {
                   Reisgids Aanmaken
                 </Button>
               </CardContent>
-            </Card>
-          </TabsContent>
+              </Card>
+            </TabsContent>
+          )}
 
           {/* Gebruikersbeheer Tab - alleen voor admins */}
           {currentUser?.canManageUsers && (
             <TabsContent value="users" className="space-y-4">
               <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-semibold">Gebruikersbeheer ({users.length})</h2>
+                <h2 className="text-2xl font-semibold">Gebruikersbeheer ({usersQuery.data?.length || 0})</h2>
                 <Button onClick={() => setShowCreateUser(true)}>
                   <UserPlus className="h-4 w-4 mr-2" />
                   Nieuwe Gebruiker
@@ -527,7 +561,7 @@ export default function Admin() {
               </div>
               
               <div className="grid gap-4">
-                {users.map((user) => (
+                {usersQuery.data?.map((user) => (
                   <Card key={user.id} className="hover:shadow-lg transition-shadow">
                     <CardHeader>
                       <div className="flex justify-between items-start">
@@ -544,12 +578,34 @@ export default function Admin() {
                           </div>
                         </div>
                         <div className="flex gap-2">
-                          <Button size="sm" variant="outline">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => {
+                              setSelectedUser(user);
+                              setShowEditUser(true);
+                            }}
+                          >
+                            <Edit className="h-4 w-4 mr-2" />
+                            Bewerken
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => {
+                              setSelectedUser(user);
+                              setShowResetPassword(true);
+                            }}
+                          >
                             <Key className="h-4 w-4 mr-2" />
                             Reset Wachtwoord
                           </Button>
                           {user.id !== currentUser.id && (
-                            <Button size="sm" variant="destructive">
+                            <Button 
+                              size="sm" 
+                              variant="destructive"
+                              onClick={() => handleDeleteUser(user.id)}
+                            >
                               <Trash2 className="h-4 w-4 mr-2" />
                               Verwijderen
                             </Button>
@@ -610,8 +666,372 @@ export default function Admin() {
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* Create User Dialog */}
+        {showCreateUser && (
+          <CreateUserDialog 
+            open={showCreateUser} 
+            onOpenChange={setShowCreateUser}
+            onUserCreated={() => {
+              usersQuery.refetch();
+              setShowCreateUser(false);
+            }}
+          />
+        )}
+
+        {/* Edit User Dialog */}
+        {showEditUser && selectedUser && (
+          <EditUserDialog 
+            open={showEditUser} 
+            onOpenChange={setShowEditUser}
+            user={selectedUser}
+            onUserUpdated={() => {
+              usersQuery.refetch();
+              setShowEditUser(false);
+            }}
+          />
+        )}
+
+        {/* Reset Password Dialog */}
+        {showResetPassword && selectedUser && (
+          <ResetPasswordDialog 
+            open={showResetPassword} 
+            onOpenChange={setShowResetPassword}
+            user={selectedUser}
+            onPasswordReset={() => {
+              setShowResetPassword(false);
+            }}
+          />
+        )}
       </div>
     </div>
+  );
+}
+
+// Component voor nieuwe gebruiker aanmaken
+function CreateUserDialog({ open, onOpenChange, onUserCreated }: { 
+  open: boolean; 
+  onOpenChange: (open: boolean) => void;
+  onUserCreated: () => void;
+}) {
+  const [formData, setFormData] = useState({
+    username: '',
+    password: '',
+    role: 'user',
+    canCreateContent: true,
+    canEditContent: true,
+    canDeleteContent: false,
+    canManageUsers: false,
+  });
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        toast({ title: "Succes", description: "Gebruiker succesvol aangemaakt" });
+        onUserCreated();
+      } else {
+        const error = await response.json();
+        toast({ title: "Fout", description: error.message, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Nieuwe Gebruiker Aanmaken</DialogTitle>
+          <DialogDescription>
+            Voeg een nieuwe gebruiker toe aan het systeem
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="username">Gebruikersnaam</Label>
+            <Input
+              id="username"
+              value={formData.username}
+              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Wachtwoord</Label>
+            <Input
+              id="password"
+              type="password"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="role">Rol</Label>
+            <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecteer rol" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="user">Gebruiker</SelectItem>
+                <SelectItem value="admin">Administrator</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-4">
+            <Label>Permissies</Label>
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2">
+                <Switch 
+                  id="canCreateContent"
+                  checked={formData.canCreateContent}
+                  onCheckedChange={(checked) => setFormData({ ...formData, canCreateContent: checked })}
+                />
+                <Label htmlFor="canCreateContent">Content aanmaken</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch 
+                  id="canEditContent"
+                  checked={formData.canEditContent}
+                  onCheckedChange={(checked) => setFormData({ ...formData, canEditContent: checked })}
+                />
+                <Label htmlFor="canEditContent">Content bewerken</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch 
+                  id="canDeleteContent"
+                  checked={formData.canDeleteContent}
+                  onCheckedChange={(checked) => setFormData({ ...formData, canDeleteContent: checked })}
+                />
+                <Label htmlFor="canDeleteContent">Content verwijderen</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch 
+                  id="canManageUsers"
+                  checked={formData.canManageUsers}
+                  onCheckedChange={(checked) => setFormData({ ...formData, canManageUsers: checked })}
+                />
+                <Label htmlFor="canManageUsers">Gebruikers beheren</Label>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Annuleren
+            </Button>
+            <Button type="submit">Aanmaken</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Component voor gebruiker bewerken
+function EditUserDialog({ open, onOpenChange, user, onUserUpdated }: { 
+  open: boolean; 
+  onOpenChange: (open: boolean) => void;
+  user: any;
+  onUserUpdated: () => void;
+}) {
+  const [formData, setFormData] = useState({
+    username: user?.username || '',
+    role: user?.role || 'user',
+    canCreateContent: user?.canCreateContent || false,
+    canEditContent: user?.canEditContent || false,
+    canDeleteContent: user?.canDeleteContent || false,
+    canManageUsers: user?.canManageUsers || false,
+  });
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(`/api/users/${user.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        toast({ title: "Succes", description: "Gebruiker succesvol bijgewerkt" });
+        onUserUpdated();
+      } else {
+        const error = await response.json();
+        toast({ title: "Fout", description: error.message, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Gebruiker Bewerken</DialogTitle>
+          <DialogDescription>
+            Bewerk de gegevens van {user?.username}
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="username">Gebruikersnaam</Label>
+            <Input
+              id="username"
+              value={formData.username}
+              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="role">Rol</Label>
+            <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecteer rol" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="user">Gebruiker</SelectItem>
+                <SelectItem value="admin">Administrator</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-4">
+            <Label>Permissies</Label>
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2">
+                <Switch 
+                  id="canCreateContent"
+                  checked={formData.canCreateContent}
+                  onCheckedChange={(checked) => setFormData({ ...formData, canCreateContent: checked })}
+                />
+                <Label htmlFor="canCreateContent">Content aanmaken</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch 
+                  id="canEditContent"
+                  checked={formData.canEditContent}
+                  onCheckedChange={(checked) => setFormData({ ...formData, canEditContent: checked })}
+                />
+                <Label htmlFor="canEditContent">Content bewerken</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch 
+                  id="canDeleteContent"
+                  checked={formData.canDeleteContent}
+                  onCheckedChange={(checked) => setFormData({ ...formData, canDeleteContent: checked })}
+                />
+                <Label htmlFor="canDeleteContent">Content verwijderen</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch 
+                  id="canManageUsers"
+                  checked={formData.canManageUsers}
+                  onCheckedChange={(checked) => setFormData({ ...formData, canManageUsers: checked })}
+                />
+                <Label htmlFor="canManageUsers">Gebruikers beheren</Label>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Annuleren
+            </Button>
+            <Button type="submit">Bijwerken</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Component voor wachtwoord reset
+function ResetPasswordDialog({ open, onOpenChange, user, onPasswordReset }: { 
+  open: boolean; 
+  onOpenChange: (open: boolean) => void;
+  user: any;
+  onPasswordReset: () => void;
+}) {
+  const [formData, setFormData] = useState({
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (formData.newPassword !== formData.confirmPassword) {
+      toast({ title: "Fout", description: "Wachtwoorden komen niet overeen", variant: "destructive" });
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/users/${user.id}/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        toast({ title: "Succes", description: "Wachtwoord succesvol gereset" });
+        onPasswordReset();
+      } else {
+        const error = await response.json();
+        toast({ title: "Fout", description: error.message, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Wachtwoord Reset</DialogTitle>
+          <DialogDescription>
+            Reset het wachtwoord voor {user?.username}
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="newPassword">Nieuw Wachtwoord</Label>
+            <Input
+              id="newPassword"
+              type="password"
+              value={formData.newPassword}
+              onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">Bevestig Wachtwoord</Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              value={formData.confirmPassword}
+              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+              required
+            />
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Annuleren
+            </Button>
+            <Button type="submit">Reset Wachtwoord</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
 
