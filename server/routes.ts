@@ -123,16 +123,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Image upload route
-  app.post("/api/upload", requireAuth, upload.single('image'), (req, res) => {
-    try {
+  // Image upload route with error handling
+  app.post("/api/upload", requireAuth, (req, res) => {
+    console.log("Upload route hit by user:", req.session.userId);
+    
+    upload.single('image')(req, res, (err) => {
+      if (err) {
+        console.error("Multer error:", err);
+        if (err.code === 'LIMIT_FILE_SIZE') {
+          return res.status(400).json({
+            success: false,
+            message: "Bestand te groot. Maximum 5MB toegestaan."
+          });
+        }
+        return res.status(400).json({
+          success: false,
+          message: err.message || "Upload fout"
+        });
+      }
+
       if (!req.file) {
+        console.log("No file received");
         return res.status(400).json({ 
           success: false, 
           message: "Geen afbeelding geüpload of alleen afbeeldingen zijn toegestaan" 
         });
       }
 
+      console.log("File uploaded:", req.file.filename);
+      
       // Return the path that can be used in the frontend
       const imagePath = `/uploads/${req.file.filename}`;
       
@@ -141,13 +160,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: "Afbeelding succesvol geüpload",
         imagePath: imagePath
       });
-    } catch (error) {
-      console.error("Upload error:", error);
-      res.status(500).json({
-        success: false,
-        message: "Er is een fout opgetreden tijdens het uploaden"
-      });
-    }
+    });
   });
 
   // Create admin user (for initial setup)
