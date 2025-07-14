@@ -393,6 +393,43 @@ export default function Admin() {
   };
 
   const handleCreateDestination = async () => {
+    // Validate required fields
+    if (!newDestination.name.trim()) {
+      toast({
+        title: "Validatie fout",
+        description: "Naam is verplicht",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!newDestination.description.trim()) {
+      toast({
+        title: "Validatie fout", 
+        description: "Beschrijving is verplicht",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!newDestination.image.trim()) {
+      toast({
+        title: "Validatie fout",
+        description: "Afbeelding is verplicht",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!newDestination.content.trim()) {
+      toast({
+        title: "Validatie fout",
+        description: "Content is verplicht",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       console.log('Creating destination:', newDestination);
       
@@ -442,6 +479,43 @@ export default function Admin() {
   };
 
   const handleCreateGuide = async () => {
+    // Validate required fields
+    if (!newGuide.title.trim()) {
+      toast({
+        title: "Validatie fout",
+        description: "Titel is verplicht",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!newGuide.description.trim()) {
+      toast({
+        title: "Validatie fout",
+        description: "Beschrijving is verplicht", 
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!newGuide.image.trim()) {
+      toast({
+        title: "Validatie fout",
+        description: "Afbeelding is verplicht",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!newGuide.content.trim()) {
+      toast({
+        title: "Validatie fout",
+        description: "Content is verplicht",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       console.log('Creating guide:', newGuide);
       
@@ -774,12 +848,13 @@ export default function Admin() {
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-3">
                   <div>
-                    <Label htmlFor="dest-name">Naam</Label>
+                    <Label htmlFor="dest-name">Naam <span className="text-red-500">*</span></Label>
                     <Input
                       id="dest-name"
                       placeholder="Bijv. Warsaw"
                       value={newDestination.name}
                       onChange={(e) => setNewDestination({...newDestination, name: e.target.value})}
+                      className={!newDestination.name.trim() ? "border-red-300" : ""}
                     />
                   </div>
                   <div>
@@ -793,7 +868,7 @@ export default function Admin() {
                     />
                   </div>
                   <ImageUploadField
-                    label="Afbeelding"
+                    label="Afbeelding *"
                     value={newDestination.image}
                     onChange={(value) => setNewDestination({...newDestination, image: value})}
                     placeholder="/images/warsaw.jpg"
@@ -801,21 +876,22 @@ export default function Admin() {
                 </div>
                 
                 <div>
-                  <Label htmlFor="dest-description">Beschrijving</Label>
+                  <Label htmlFor="dest-description">Beschrijving <span className="text-red-500">*</span></Label>
                   <Textarea
                     id="dest-description"
                     placeholder="Korte beschrijving van de bestemming..."
                     value={newDestination.description}
                     onChange={(e) => setNewDestination({...newDestination, description: e.target.value})}
+                    className={!newDestination.description.trim() ? "border-red-300" : ""}
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="dest-content">Content (Markdown)</Label>
+                  <Label htmlFor="dest-content">Content (Markdown) <span className="text-red-500">*</span></Label>
                   <Textarea
                     id="dest-content"
                     placeholder="# Titel&#10;&#10;Volledige beschrijving in Markdown formaat..."
-                    className="min-h-32"
+                    className={`min-h-32 ${!newDestination.content.trim() ? "border-red-300" : ""}`}
                     value={newDestination.content}
                     onChange={(e) => setNewDestination({...newDestination, content: e.target.value})}
                   />
@@ -860,16 +936,17 @@ export default function Admin() {
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
                   <div>
-                    <Label htmlFor="guide-title">Titel</Label>
+                    <Label htmlFor="guide-title">Titel <span className="text-red-500">*</span></Label>
                     <Input
                       id="guide-title"
                       placeholder="Bijv. Weekend in Warsaw"
                       value={newGuide.title}
                       onChange={(e) => setNewGuide({...newGuide, title: e.target.value})}
+                      className={!newGuide.title.trim() ? "border-red-300" : ""}
                     />
                   </div>
                   <ImageUploadField
-                    label="Afbeelding"
+                    label="Afbeelding *"
                     value={newGuide.image}
                     onChange={(value) => setNewGuide({...newGuide, image: value})}
                     placeholder="/images/warsaw-guide.jpg"
@@ -877,21 +954,22 @@ export default function Admin() {
                 </div>
                 
                 <div>
-                  <Label htmlFor="guide-description">Beschrijving</Label>
+                  <Label htmlFor="guide-description">Beschrijving <span className="text-red-500">*</span></Label>
                   <Textarea
                     id="guide-description"
                     placeholder="Korte beschrijving van de reisgids..."
                     value={newGuide.description}
                     onChange={(e) => setNewGuide({...newGuide, description: e.target.value})}
+                    className={!newGuide.description.trim() ? "border-red-300" : ""}
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="guide-content">Content (Markdown)</Label>
+                  <Label htmlFor="guide-content">Content (Markdown) <span className="text-red-500">*</span></Label>
                   <Textarea
                     id="guide-content"
                     placeholder="# Titel&#10;&#10;Volledige reisgids in Markdown formaat..."
-                    className="min-h-32"
+                    className={`min-h-32 ${!newGuide.content.trim() ? "border-red-300" : ""}`}
                     value={newGuide.content}
                     onChange={(e) => setNewGuide({...newGuide, content: e.target.value})}
                   />
