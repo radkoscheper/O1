@@ -38,24 +38,9 @@ const storage_config = multer.diskStorage({
     cb(null, uploadsDir);
   },
   filename: function (req, file, cb) {
-    // Check if custom filename is provided
-    const customFileName = req.body.fileName;
-    console.log("Custom filename received in multer:", customFileName);
-    console.log("Full request body in multer:", req.body);
-    
-    if (customFileName && customFileName.trim()) {
-      // Use custom filename with proper extension
-      const cleanName = customFileName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
-      const finalName = cleanName + path.extname(file.originalname);
-      console.log("Using custom filename:", finalName);
-      cb(null, finalName);
-    } else {
-      // Generate unique filename: timestamp-originalname
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      const finalName = uniqueSuffix + path.extname(file.originalname);
-      console.log("Using generated filename:", finalName);
-      cb(null, finalName);
-    }
+    // Generate temporary filename first
+    const tempName = Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname);
+    cb(null, tempName);
   }
 });
 
@@ -143,9 +128,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Image upload route with error handling
   app.post("/api/upload", requireAuth, (req, res) => {
     console.log("Upload route hit by user:", req.session.userId);
-    console.log("Request body before multer:", req.body);
     
-    upload.single('image')(req, res, (err) => {
+    upload.single('image')(req, res, async (err) => {
       if (err) {
         console.error("Multer error:", err);
         if (err.code === 'LIMIT_FILE_SIZE') {
@@ -171,14 +155,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("File uploaded:", req.file.filename);
       console.log("Request body after multer:", req.body);
       
+      let finalFileName = req.file.filename;
+      
+      // Check if custom filename was provided and rename file
+      if (req.body.fileName && req.body.fileName.trim()) {
+        const customName = req.body.fileName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+        const newFileName = customName + path.extname(req.file.originalname);
+        const oldPath = path.join(uploadsDir, req.file.filename);
+        const newPath = path.join(uploadsDir, newFileName);
+        
+        try {
+          // Rename file to custom name
+          fs.renameSync(oldPath, newPath);
+          finalFileName = newFileName;
+          console.log("File renamed to:", finalFileName);
+        } catch (renameError) {
+          console.error("Error renaming file:", renameError);
+          // Continue with original filename if rename fails
+        }
+      }
+      
       // Return the path that can be used in the frontend
-      const imagePath = `/images/${req.file.filename}`;
+      const imagePath = `/images/${finalFileName}`;
       
       res.json({
         success: true,
         message: "Afbeelding succesvol geüpload",
         imagePath: imagePath,
-        fileName: req.file.filename
+        fileName: finalFileName
       });
     });
   });
