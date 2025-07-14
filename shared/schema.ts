@@ -151,6 +151,17 @@ export const siteSettings = pgTable("site_settings", {
   customCSS: text("custom_css"),
   customJS: text("custom_js"),
   googleAnalyticsId: varchar("google_analytics_id", { length: 50 }),
+  
+  // Index/Home page specific SEO and content settings
+  homePageTitle: varchar("home_page_title", { length: 60 }).default(""),
+  homePageDescription: varchar("home_page_description", { length: 160 }).default(""),
+  homePageKeywords: text("home_page_keywords").default(""),
+  homeHeroTitle: varchar("home_hero_title", { length: 100 }).default("Ontdek Polen"),
+  homeHeroSubtitle: varchar("home_hero_subtitle", { length: 200 }).default("Mooie plekken in Polen ontdekken"),
+  homeCTATitle: varchar("home_cta_title", { length: 100 }).default("Laat je verrassen door het onbekende Polen"),
+  homeCTADescription: text("home_cta_description").default("Bezoek historische steden, ontdek natuurparken en verborgen parels. Onze reisgidsen helpen je op weg!"),
+  homeGuidesTitle: varchar("home_guides_title", { length: 100 }).default("Reisgidsen en Tips"),
+  
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -169,6 +180,14 @@ export const insertSiteSettingsSchema = createInsertSchema(siteSettings).pick({
   customCSS: true,
   customJS: true,
   googleAnalyticsId: true,
+  homePageTitle: true,
+  homePageDescription: true,
+  homePageKeywords: true,
+  homeHeroTitle: true,
+  homeHeroSubtitle: true,
+  homeCTATitle: true,
+  homeCTADescription: true,
+  homeGuidesTitle: true,
   isActive: true,
 });
 
