@@ -795,34 +795,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { trashName, originalName } = req.body;
       const trashDir = path.join(uploadsDir, '.trash');
       const trashPath = path.join(trashDir, trashName);
-      const restorePath = path.join(uploadsDir, originalName);
+      const currentPath = path.join(uploadsDir, originalName);
       
       if (!fs.existsSync(trashPath)) {
         return res.status(404).json({ message: "Afbeelding niet gevonden in prullenbak" });
       }
       
-      // Check if original location is free, if not, create a new name
-      let finalRestorePath = restorePath;
-      if (fs.existsSync(restorePath)) {
+      // If current file exists, move it to trash first
+      if (fs.existsSync(currentPath)) {
         const timestamp = Date.now();
         const ext = path.extname(originalName);
-        const name = path.basename(originalName, ext);
-        finalRestorePath = path.join(uploadsDir, `${name}-restored-${timestamp}${ext}`);
+        const baseName = path.basename(originalName, ext);
+        const newTrashName = `${baseName}-replaced-${timestamp}${ext}`;
+        const newTrashPath = path.join(trashDir, newTrashName);
+        
+        // Move current file to trash
+        fs.renameSync(currentPath, newTrashPath);
+        
+        // Add to trash log
+        const logPath = path.join(trashDir, 'trash.log');
+        const logData = fs.existsSync(logPath) ? fs.readFileSync(logPath, 'utf8') : '[]';
+        const logs = JSON.parse(logData || '[]');
+        
+        const newLogEntry = {
+          originalName: originalName,
+          trashName: newTrashName,
+          movedAt: new Date().toISOString(),
+          canRestore: true,
+          reason: "Replaced during restore"
+        };
+        
+        logs.push(newLogEntry);
+        fs.writeFileSync(logPath, JSON.stringify(logs, null, 2));
+        
+        console.log(`Current file moved to trash: ${newTrashName}`);
       }
       
-      // Move file back
-      fs.renameSync(trashPath, finalRestorePath);
+      // Restore the trashed file to original location
+      fs.renameSync(trashPath, currentPath);
       
-      // Update trash log
+      // Remove from trash log
       const logPath = path.join(trashDir, 'trash.log');
       const logData = fs.readFileSync(logPath, 'utf8');
       const logs = JSON.parse(logData || '[]');
       const updatedLogs = logs.filter((log: any) => log.trashName !== trashName);
       fs.writeFileSync(logPath, JSON.stringify(updatedLogs, null, 2));
       
+      console.log(`File restored to original location: ${originalName}`);
+      
       res.json({ 
         message: "Afbeelding succesvol hersteld",
-        restoredAs: path.basename(finalRestorePath)
+        restoredAs: originalName
       });
     } catch (error) {
       console.error("Error restoring image:", error);
