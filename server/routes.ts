@@ -357,11 +357,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get all destinations for admin
+  // Get all active destinations for admin
   app.get("/api/admin/destinations", requireAuth, async (req, res) => {
     try {
       const destinations = await storage.getAllDestinations();
-      res.json(destinations);
+      // Filter out soft-deleted destinations
+      const activeDestinations = destinations.filter(dest => !dest.is_deleted);
+      res.json(activeDestinations);
     } catch (error) {
       console.error("Error fetching destinations:", error);
       res.status(500).json({ message: "Server error" });
@@ -535,11 +537,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get all guides for admin
+  // Get all active guides for admin
   app.get("/api/admin/guides", requireAuth, async (req, res) => {
     try {
       const guides = await storage.getAllGuides();
-      res.json(guides);
+      // Filter out soft-deleted guides
+      const activeGuides = guides.filter(guide => !guide.is_deleted);
+      res.json(activeGuides);
     } catch (error) {
       console.error("Error fetching guides:", error);
       res.status(500).json({ message: "Server error" });
