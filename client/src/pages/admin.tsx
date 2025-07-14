@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
-import { Plus, Edit, Eye, Save, LogIn, LogOut, Shield, Users, UserPlus, Trash2, Key, Upload, X } from "lucide-react";
+import { Plus, Edit, Eye, Save, LogIn, LogOut, Shield, Users, UserPlus, Trash2, Key, Upload, X, Image as ImageIcon, RotateCcw, Trash } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -48,6 +48,12 @@ export default function Admin() {
 
   const deletedGuidesQuery = useQuery({
     queryKey: ['/api/admin/guides/deleted'],
+    enabled: isAuthenticated && (currentUser?.canDeleteContent || currentUser?.canEditContent),
+  });
+
+  // Images trash query
+  const trashedImagesQuery = useQuery({
+    queryKey: ['/api/admin/images/trash'],
     enabled: isAuthenticated && (currentUser?.canDeleteContent || currentUser?.canEditContent),
   });
   const [showCreateUser, setShowCreateUser] = useState(false);
@@ -298,6 +304,72 @@ export default function Admin() {
         const error = await response.json();
         toast({ title: "Fout", description: error.message, variant: "destructive" });
       }
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+    }
+  };
+
+  // Image trash handlers
+  const handleRestoreImage = async (trashName: string, originalName: string) => {
+    try {
+      const response = await fetch('/api/admin/images/restore', {
+        method: 'POST',
+        body: JSON.stringify({ trashName, originalName }),
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        toast({ title: "Succes", description: "Afbeelding succesvol hersteld" });
+        trashedImagesQuery.refetch();
+      } else {
+        const error = await response.json();
+        toast({ title: "Fout", description: error.message, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+    }
+  };
+
+  const handlePermanentDeleteImage = async (trashName: string) => {
+    if (!confirm('Weet je zeker dat je deze afbeelding permanent wilt verwijderen? Dit kan niet ongedaan worden gemaakt.')) {
+      return;
+    }
+    
+    try {
+      const response = await fetch(`/api/admin/images/trash/${trashName}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        toast({ title: "Succes", description: "Afbeelding permanent verwijderd" });
+        trashedImagesQuery.refetch();
+      } else {
+        const error = await response.json();
+        toast({ title: "Fout", description: error.message, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+    }
+  };
+
+  const handleEmptyImageTrash = async () => {
+    if (!trashedImagesQuery.data || trashedImagesQuery.data.length === 0) return;
+    
+    const confirmDelete = confirm(`Weet je zeker dat je alle ${trashedImagesQuery.data.length} afbeeldingen permanent wilt verwijderen? Dit kan niet ongedaan worden gemaakt.`);
+    if (!confirmDelete) return;
+    
+    try {
+      for (const image of trashedImagesQuery.data) {
+        await fetch(`/api/admin/images/trash/${image.trashName}`, {
+          method: 'DELETE',
+          credentials: 'include',
+        });
+      }
+      
+      toast({ title: "Succes", description: "Alle afbeeldingen permanent verwijderd" });
+      trashedImagesQuery.refetch();
     } catch (error) {
       toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
     }
@@ -680,7 +752,7 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="destinations" className="w-full">
-          <TabsList className={`grid w-full ${currentUser?.canManageUsers ? 'grid-cols-7' : 'grid-cols-6'}`}>
+          <TabsList className={`grid w-full ${currentUser?.canManageUsers ? 'grid-cols-8' : 'grid-cols-7'}`}>
             {/* Alleen tonen wat de gebruiker mag doen */}
             {currentUser?.canCreateContent && <TabsTrigger value="destinations">Bestemmingen</TabsTrigger>}
             {currentUser?.canCreateContent && <TabsTrigger value="guides">Reisgidsen</TabsTrigger>}
@@ -690,6 +762,12 @@ export default function Admin() {
               <TabsTrigger value="recycle">
                 <Trash2 className="h-4 w-4 mr-2" />
                 Prullenbak
+              </TabsTrigger>
+            )}
+            {(currentUser?.canDeleteContent || currentUser?.canEditContent) && (
+              <TabsTrigger value="images-trash">
+                <ImageIcon className="h-4 w-4 mr-2" />
+                Afbeeldingen
               </TabsTrigger>
             )}
             {currentUser?.canManageUsers && (
@@ -1332,6 +1410,79 @@ export default function Admin() {
                   <div className="text-sm text-gray-600">
                     Tip: Verwijderde items blijven 30 dagen beschikbaar voor herstel
                   </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
+
+          {/* Images Trash Tab */}
+          {(currentUser?.canDeleteContent || currentUser?.canEditContent) && (
+            <TabsContent value="images-trash" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Afbeelding Prullenbak</CardTitle>
+                  <CardDescription>Beheer verwijderde afbeeldingen en herstel indien nodig</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    {trashedImagesQuery.data && trashedImagesQuery.data.length > 0 ? (
+                      trashedImagesQuery.data.map((image: any) => (
+                        <div key={image.trashName} className="border rounded-lg p-4">
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <h4 className="font-medium">{image.originalName}</h4>
+                              <p className="text-sm text-gray-500">Prullenbak: {image.trashName}</p>
+                              <p className="text-xs text-gray-400">
+                                Verwijderd: {new Date(image.movedAt).toLocaleDateString('nl-NL', {
+                                  day: 'numeric',
+                                  month: 'long',
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </p>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => handleRestoreImage(image.trashName, image.originalName)}
+                                title="Afbeelding herstellen"
+                              >
+                                <RotateCcw className="h-3 w-3" />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="destructive"
+                                onClick={() => handlePermanentDeleteImage(image.trashName)}
+                                title="Permanent verwijderen"
+                              >
+                                <Trash className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-8 text-gray-400">
+                        <ImageIcon className="h-8 w-8 mx-auto mb-2" />
+                        <p>Geen verwijderde afbeeldingen</p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {trashedImagesQuery.data && trashedImagesQuery.data.length > 0 && (
+                    <div className="flex justify-end pt-4 border-t">
+                      <Button 
+                        variant="destructive" 
+                        onClick={() => handleEmptyImageTrash()}
+                        disabled={!currentUser?.canDeleteContent}
+                      >
+                        <Trash className="h-4 w-4 mr-2" />
+                        Prullenbak Leegmaken
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
