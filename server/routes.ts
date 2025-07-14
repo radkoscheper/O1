@@ -174,7 +174,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Check if ANY file with the same base name already exists (regardless of extension)
           const existingFiles = fs.readdirSync(uploadsDir).filter(file => {
             const baseName = path.parse(file).name;
-            return baseName === customName && !file.startsWith('.') && file !== req.file.filename;
+            return baseName === customName && !file.startsWith('.') && file !== req.file!.filename;
           });
           
           if (existingFiles.length > 0) {
