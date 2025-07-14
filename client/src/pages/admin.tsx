@@ -67,14 +67,17 @@ export default function Admin() {
     name: '',
     description: '',
     image: '',
+    alt: '',
     content: '',
     featured: false,
-    published: false
+    published: false,
+    ranking: 0
   });
   const [editGuideData, setEditGuideData] = useState({
     title: '',
     description: '',
     image: '',
+    alt: '',
     content: '',
     featured: false,
     published: false,
@@ -124,6 +127,7 @@ export default function Admin() {
     name: '',
     description: '',
     image: '',
+    alt: '',
     content: '',
     featured: false,
     published: false,
@@ -134,6 +138,7 @@ export default function Admin() {
     title: '',
     description: '',
     image: '',
+    alt: '',
     content: '',
     featured: false,
     published: false,
@@ -421,6 +426,15 @@ export default function Admin() {
       return;
     }
     
+    if (!newDestination.alt.trim()) {
+      toast({
+        title: "Validatie fout",
+        description: "Alt-tekst is verplicht",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (!newDestination.content.trim()) {
       toast({
         title: "Validatie fout",
@@ -459,6 +473,7 @@ export default function Admin() {
         name: '',
         description: '',
         image: '',
+        alt: '',
         content: '',
         featured: false,
         published: false,
@@ -507,6 +522,15 @@ export default function Admin() {
       return;
     }
     
+    if (!newGuide.alt.trim()) {
+      toast({
+        title: "Validatie fout",
+        description: "Alt-tekst is verplicht",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (!newGuide.content.trim()) {
       toast({
         title: "Validatie fout",
@@ -545,6 +569,7 @@ export default function Admin() {
         title: '',
         description: '',
         image: '',
+        alt: '',
         content: '',
         featured: false,
         published: false,
@@ -718,6 +743,7 @@ export default function Admin() {
                             name: destination.name,
                             description: destination.description,
                             image: destination.image,
+                            alt: destination.alt || '',
                             content: destination.content || '',
                             featured: destination.featured,
                             published: destination.published,
@@ -797,6 +823,7 @@ export default function Admin() {
                             title: guide.title,
                             description: guide.description,
                             image: guide.image,
+                            alt: guide.alt || '',
                             content: guide.content || '',
                             featured: guide.featured,
                             published: guide.published,
@@ -872,6 +899,18 @@ export default function Admin() {
                     value={newDestination.image}
                     onChange={(value) => setNewDestination({...newDestination, image: value})}
                     placeholder="/images/warsaw.jpg"
+                    fileName={newDestination.name}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="dest-alt">Alt-tekst *</Label>
+                  <Input
+                    id="dest-alt"
+                    placeholder="Bijv. Krakow marktplein"
+                    value={newDestination.alt}
+                    onChange={(e) => setNewDestination({...newDestination, alt: e.target.value})}
+                    className={!newDestination.alt.trim() ? "border-red-300" : ""}
                   />
                 </div>
                 
@@ -950,6 +989,18 @@ export default function Admin() {
                     value={newGuide.image}
                     onChange={(value) => setNewGuide({...newGuide, image: value})}
                     placeholder="/images/warsaw-guide.jpg"
+                    fileName={newGuide.title}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="guide-alt">Alt-tekst *</Label>
+                  <Input
+                    id="guide-alt"
+                    placeholder="Bijv. Krakow marktplein reisgids"
+                    value={newGuide.alt}
+                    onChange={(e) => setNewGuide({...newGuide, alt: e.target.value})}
+                    className={!newGuide.alt.trim() ? "border-red-300" : ""}
                   />
                 </div>
                 
@@ -1377,11 +1428,12 @@ export default function Admin() {
 }
 
 // Herbruikbare afbeelding upload component
-function ImageUploadField({ label, value, onChange, placeholder }: {
+function ImageUploadField({ label, value, onChange, placeholder, fileName }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   placeholder: string;
+  fileName?: string;
 }) {
   const { toast } = useToast();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -1406,6 +1458,11 @@ function ImageUploadField({ label, value, onChange, placeholder }: {
       // Gebruik de echte upload functie
       const formData = new FormData();
       formData.append('image', file);
+      
+      // Voeg de gewenste bestandsnaam toe als het beschikbaar is
+      if (fileName && fileName.trim()) {
+        formData.append('fileName', fileName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-'));
+      }
 
       const response = await fetch('/api/upload', {
         method: 'POST',
@@ -1422,7 +1479,7 @@ function ImageUploadField({ label, value, onChange, placeholder }: {
       if (result.success) {
         toast({ 
           title: "Succes", 
-          description: `Afbeelding ${file.name} succesvol geüpload` 
+          description: `Afbeelding succesvol geüpload als ${result.fileName || file.name}` 
         });
         onChange(result.imagePath);
       } else {
@@ -1892,7 +1949,18 @@ function EditDestinationDialog({ open, onOpenChange, destination, editData, setE
             value={editData.image}
             onChange={(value) => setEditData({ ...editData, image: value })}
             placeholder="/images/bestemming.jpg"
+            fileName={editData.name}
           />
+          <div className="space-y-2">
+            <Label htmlFor="alt">Alt-tekst</Label>
+            <Input
+              id="alt"
+              value={editData.alt}
+              onChange={(e) => setEditData({ ...editData, alt: e.target.value })}
+              placeholder="Beschrijving van de afbeelding"
+              required
+            />
+          </div>
           <div className="space-y-2">
             <Label htmlFor="content">Content (Markdown)</Label>
             <Textarea
@@ -2058,7 +2126,18 @@ function EditGuideDialog({ open, onOpenChange, guide, editData, setEditData, onS
             value={editData.image}
             onChange={(value) => setEditData({ ...editData, image: value })}
             placeholder="/images/reisgids.jpg"
+            fileName={editData.title}
           />
+          <div className="space-y-2">
+            <Label htmlFor="alt">Alt-tekst</Label>
+            <Input
+              id="alt"
+              value={editData.alt}
+              onChange={(e) => setEditData({ ...editData, alt: e.target.value })}
+              placeholder="Beschrijving van de afbeelding"
+              required
+            />
+          </div>
           <div className="space-y-2">
             <Label htmlFor="content">Content (Markdown)</Label>
             <Textarea

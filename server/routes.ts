@@ -38,9 +38,17 @@ const storage_config = multer.diskStorage({
     cb(null, uploadsDir);
   },
   filename: function (req, file, cb) {
-    // Generate unique filename: timestamp-originalname
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
+    // Check if custom filename is provided
+    const customFileName = req.body.fileName;
+    if (customFileName && customFileName.trim()) {
+      // Use custom filename with proper extension
+      const cleanName = customFileName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+      cb(null, cleanName + path.extname(file.originalname));
+    } else {
+      // Generate unique filename: timestamp-originalname
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      cb(null, uniqueSuffix + path.extname(file.originalname));
+    }
   }
 });
 
@@ -160,7 +168,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({
         success: true,
         message: "Afbeelding succesvol geüpload",
-        imagePath: imagePath
+        imagePath: imagePath,
+        fileName: req.file.filename
       });
     });
   });
@@ -382,6 +391,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         name: z.string().min(1),
         description: z.string().min(1),
         image: z.string().min(1),
+        alt: z.string().min(1),
         content: z.string().min(1),
         featured: z.boolean().optional(),
         published: z.boolean().optional(),
@@ -392,7 +402,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid input", errors: validation.error.errors });
       }
 
-      const { name, description, image, content, featured = false, published = true, ranking = 0 } = validation.data;
+      const { name, description, image, alt, content, featured = false, published = true, ranking = 0 } = validation.data;
       
       // Generate slug from name
       const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
@@ -402,7 +412,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         slug,
         description,
         image,
-        alt: name,
+        alt,
         content,
         featured,
         published,
@@ -430,6 +440,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         name: z.string().min(1).optional(),
         description: z.string().min(1).optional(),
         image: z.string().min(1).optional(),
+        alt: z.string().min(1).optional(),
         content: z.string().min(1).optional(),
         featured: z.boolean().optional(),
         published: z.boolean().optional(),
@@ -445,7 +456,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update slug if name changes
       if (updates.name) {
         updates.slug = updates.name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
-        updates.alt = updates.name;
       }
 
       const destination = await storage.updateDestination(id, updates);
@@ -562,6 +572,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         title: z.string().min(1),
         description: z.string().min(1),
         image: z.string().min(1),
+        alt: z.string().min(1),
         content: z.string().min(1),
         featured: z.boolean().optional(),
         published: z.boolean().optional(),
@@ -572,7 +583,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid input", errors: validation.error.errors });
       }
 
-      const { title, description, image, content, featured = false, published = true, ranking = 0 } = validation.data;
+      const { title, description, image, alt, content, featured = false, published = true, ranking = 0 } = validation.data;
       
       // Generate slug from title
       const slug = title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
@@ -582,7 +593,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         slug,
         description,
         image,
-        alt: title,
+        alt,
         content,
         featured,
         published,
@@ -610,6 +621,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         title: z.string().min(1).optional(),
         description: z.string().min(1).optional(),
         image: z.string().min(1).optional(),
+        alt: z.string().min(1).optional(),
         content: z.string().min(1).optional(),
         featured: z.boolean().optional(),
         published: z.boolean().optional(),
@@ -625,7 +637,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update slug if title changes
       if (updates.title) {
         updates.slug = updates.title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
-        updates.alt = updates.title;
       }
 
       const guide = await storage.updateGuide(id, updates);
