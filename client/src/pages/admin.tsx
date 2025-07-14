@@ -118,6 +118,10 @@ export default function Admin() {
         // Refresh trash query in case an image was moved to trash
         trashedImagesQuery.refetch();
         
+        // Also refresh destination and guide queries to show updated images
+        destinationsQuery.refetch();
+        guidesQuery.refetch();
+        
         return result.imagePath;
       } else {
         throw new Error(result.message || 'Upload gefaald');
