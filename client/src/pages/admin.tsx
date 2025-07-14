@@ -114,6 +114,10 @@ export default function Admin() {
           title: "Succes", 
           description: `Afbeelding ${file.name} succesvol geüpload` 
         });
+        
+        // Refresh trash query in case an image was moved to trash
+        trashedImagesQuery.refetch();
+        
         return result.imagePath;
       } else {
         throw new Error(result.message || 'Upload gefaald');
