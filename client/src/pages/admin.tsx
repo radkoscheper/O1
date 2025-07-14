@@ -56,6 +56,12 @@ export default function Admin() {
     queryKey: ['/api/admin/images/trash'],
     enabled: isAuthenticated && (currentUser?.canDeleteContent || currentUser?.canEditContent),
   });
+
+  // Site settings query
+  const siteSettingsQuery = useQuery({
+    queryKey: ['/api/site-settings'],
+    enabled: isAuthenticated && currentUser?.role === 'admin',
+  });
   const [showCreateUser, setShowCreateUser] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showEditUser, setShowEditUser] = useState(false);
@@ -159,6 +165,22 @@ export default function Admin() {
     ranking: 0
   });
 
+  // Site settings state
+  const [siteSettings, setSiteSettings] = useState({
+    siteName: '',
+    siteDescription: '',
+    metaKeywords: '',
+    favicon: '',
+    backgroundImage: '',
+    backgroundImageAlt: '',
+    logoImage: '',
+    logoImageAlt: '',
+    socialMediaImage: '',
+    customCSS: '',
+    customJS: '',
+    googleAnalyticsId: '',
+  });
+
   // Check authentication status on component mount
   useEffect(() => {
     checkAuthStatus();
@@ -169,6 +191,26 @@ export default function Admin() {
       loadUsers();
     }
   }, [isAuthenticated, currentUser]);
+
+  // Load site settings when query data changes
+  useEffect(() => {
+    if (siteSettingsQuery.data) {
+      setSiteSettings({
+        siteName: siteSettingsQuery.data.siteName || '',
+        siteDescription: siteSettingsQuery.data.siteDescription || '',
+        metaKeywords: siteSettingsQuery.data.metaKeywords || '',
+        favicon: siteSettingsQuery.data.favicon || '',
+        backgroundImage: siteSettingsQuery.data.backgroundImage || '',
+        backgroundImageAlt: siteSettingsQuery.data.backgroundImageAlt || '',
+        logoImage: siteSettingsQuery.data.logoImage || '',
+        logoImageAlt: siteSettingsQuery.data.logoImageAlt || '',
+        socialMediaImage: siteSettingsQuery.data.socialMediaImage || '',
+        customCSS: siteSettingsQuery.data.customCSS || '',
+        customJS: siteSettingsQuery.data.customJS || '',
+        googleAnalyticsId: siteSettingsQuery.data.googleAnalyticsId || '',
+      });
+    }
+  }, [siteSettingsQuery.data]);
 
   const checkAuthStatus = async () => {
     try {
@@ -669,6 +711,34 @@ export default function Admin() {
     }
   };
 
+  const handleSaveSiteSettings = async () => {
+    try {
+      const response = await apiRequest('/api/admin/site-settings', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(siteSettings),
+      });
+
+      toast({
+        title: "Succes",
+        description: "Site-instellingen zijn opgeslagen!",
+      });
+
+      // Refresh site settings query
+      siteSettingsQuery.refetch();
+      
+    } catch (error) {
+      console.error('Error saving site settings:', error);
+      toast({
+        title: "Fout",
+        description: error instanceof Error ? error.message : "Er is een fout opgetreden bij het opslaan",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Loading state
   if (isLoading) {
     return (
@@ -760,7 +830,7 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="destinations" className="w-full">
-          <TabsList className={`grid w-full ${currentUser?.canManageUsers ? 'grid-cols-7' : 'grid-cols-6'}`}>
+          <TabsList className={`grid w-full ${currentUser?.canManageUsers && currentUser?.role === 'admin' ? 'grid-cols-8' : currentUser?.canManageUsers ? 'grid-cols-7' : 'grid-cols-6'}`}>
             {/* Alleen tonen wat de gebruiker mag doen */}
             {currentUser?.canCreateContent && <TabsTrigger value="destinations">Bestemmingen</TabsTrigger>}
             {currentUser?.canCreateContent && <TabsTrigger value="guides">Reisgidsen</TabsTrigger>}
@@ -776,6 +846,12 @@ export default function Admin() {
               <TabsTrigger value="users">
                 <Users className="h-4 w-4 mr-2" />
                 Gebruikers
+              </TabsTrigger>
+            )}
+            {currentUser?.role === 'admin' && (
+              <TabsTrigger value="site-settings">
+                <Shield className="h-4 w-4 mr-2" />
+                Site Instellingen
               </TabsTrigger>
             )}
             <TabsTrigger value="account">
@@ -1503,6 +1579,184 @@ export default function Admin() {
             </TabsContent>
           )}
 
+          {/* Site Settings - alleen voor admins */}
+          {currentUser?.role === 'admin' && (
+            <TabsContent value="site-settings" className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <div>
+                  <h2 className="text-2xl font-semibold">Site Instellingen</h2>
+                  <p className="text-gray-600">Beheer de algemene instellingen van je website</p>
+                </div>
+                <Button onClick={handleSaveSiteSettings} className="flex items-center gap-2">
+                  <Save className="h-4 w-4" />
+                  Instellingen Opslaan
+                </Button>
+              </div>
+
+              <div className="grid gap-6 lg:grid-cols-2">
+                {/* Basis Site Informatie */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Basis Informatie</CardTitle>
+                    <CardDescription>Algemene site instellingen en metadata</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="siteName">Site Naam</Label>
+                      <Input
+                        id="siteName"
+                        value={siteSettings.siteName}
+                        onChange={(e) => setSiteSettings({...siteSettings, siteName: e.target.value})}
+                        placeholder="Ontdek Polen"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="siteDescription">Site Beschrijving</Label>
+                      <Textarea
+                        id="siteDescription"
+                        value={siteSettings.siteDescription}
+                        onChange={(e) => setSiteSettings({...siteSettings, siteDescription: e.target.value})}
+                        placeholder="Ontdek de mooiste plekken van Polen"
+                        rows={3}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="metaKeywords">Meta Keywords</Label>
+                      <Input
+                        id="metaKeywords"
+                        value={siteSettings.metaKeywords}
+                        onChange={(e) => setSiteSettings({...siteSettings, metaKeywords: e.target.value})}
+                        placeholder="Polen, reizen, vakantie, bestemmingen"
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Afbeeldingen */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Site Afbeeldingen</CardTitle>
+                    <CardDescription>Logo, achtergrond en social media afbeeldingen</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <ImageUploadField
+                      label="Achtergrond Afbeelding"
+                      value={siteSettings.backgroundImage}
+                      onChange={(imagePath) => setSiteSettings({...siteSettings, backgroundImage: imagePath})}
+                      placeholder="Header achtergrond afbeelding"
+                      fileName="header-background"
+                    />
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="backgroundImageAlt">Achtergrond Alt Tekst</Label>
+                      <Input
+                        id="backgroundImageAlt"
+                        value={siteSettings.backgroundImageAlt}
+                        onChange={(e) => setSiteSettings({...siteSettings, backgroundImageAlt: e.target.value})}
+                        placeholder="Beschrijving van de achtergrond afbeelding"
+                      />
+                    </div>
+                    
+                    <ImageUploadField
+                      label="Logo Afbeelding"
+                      value={siteSettings.logoImage}
+                      onChange={(imagePath) => setSiteSettings({...siteSettings, logoImage: imagePath})}
+                      placeholder="Site logo"
+                      fileName="site-logo"
+                    />
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="logoImageAlt">Logo Alt Tekst</Label>
+                      <Input
+                        id="logoImageAlt"
+                        value={siteSettings.logoImageAlt}
+                        onChange={(e) => setSiteSettings({...siteSettings, logoImageAlt: e.target.value})}
+                        placeholder="Logo beschrijving"
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Social Media & SEO */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Social Media & SEO</CardTitle>
+                    <CardDescription>Instellingen voor social media sharing en SEO</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <ImageUploadField
+                      label="Social Media Afbeelding"
+                      value={siteSettings.socialMediaImage}
+                      onChange={(imagePath) => setSiteSettings({...siteSettings, socialMediaImage: imagePath})}
+                      placeholder="Afbeelding voor social media sharing"
+                      fileName="social-media-image"
+                    />
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="favicon">Favicon URL</Label>
+                      <Input
+                        id="favicon"
+                        value={siteSettings.favicon}
+                        onChange={(e) => setSiteSettings({...siteSettings, favicon: e.target.value})}
+                        placeholder="/favicon.ico"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="googleAnalyticsId">Google Analytics ID</Label>
+                      <Input
+                        id="googleAnalyticsId"
+                        value={siteSettings.googleAnalyticsId}
+                        onChange={(e) => setSiteSettings({...siteSettings, googleAnalyticsId: e.target.value})}
+                        placeholder="G-XXXXXXXXXX"
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Custom Code */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Custom Code</CardTitle>
+                    <CardDescription>Aangepaste CSS en JavaScript code</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="customCSS">Custom CSS</Label>
+                      <Textarea
+                        id="customCSS"
+                        value={siteSettings.customCSS}
+                        onChange={(e) => setSiteSettings({...siteSettings, customCSS: e.target.value})}
+                        placeholder="/* Aangepaste CSS styling */"
+                        rows={5}
+                        className="font-mono text-sm"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="customJS">Custom JavaScript</Label>
+                      <Textarea
+                        id="customJS"
+                        value={siteSettings.customJS}
+                        onChange={(e) => setSiteSettings({...siteSettings, customJS: e.target.value})}
+                        placeholder="// Aangepaste JavaScript code"
+                        rows={5}
+                        className="font-mono text-sm"
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              <div className="text-sm text-gray-600 pt-4 border-t">
+                <p>💡 Tip: Gebruik de achtergrond afbeelding voor een mooie header op je website</p>
+                <p>🎨 Custom CSS en JavaScript worden automatisch geladen op alle pagina's</p>
+                <p>📊 Google Analytics tracking wordt actief zodra je een geldig tracking ID invult</p>
+              </div>
+            </TabsContent>
+          )}
 
         </Tabs>
 

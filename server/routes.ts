@@ -909,6 +909,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Site settings routes
+  app.get("/api/site-settings", async (req, res) => {
+    try {
+      const settings = await storage.getSiteSettings();
+      if (!settings) {
+        // Create default settings if none exist
+        const newSettings = await storage.createDefaultSiteSettings();
+        return res.json(newSettings);
+      }
+      res.json(settings);
+    } catch (error) {
+      console.error("Error fetching site settings:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  app.put("/api/admin/site-settings", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Alleen admins kunnen site-instellingen wijzigen" });
+      }
+
+      const updates = req.body;
+      const updatedSettings = await storage.updateSiteSettings(updates);
+      
+      res.json(updatedSettings);
+    } catch (error) {
+      console.error("Error updating site settings:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
