@@ -171,19 +171,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         
         try {
-          // Check if a file with the same name already exists
-          if (fs.existsSync(newPath)) {
-            // Move existing file to trash with timestamp
+          // Check if ANY file with the same base name already exists (regardless of extension)
+          const existingFiles = fs.readdirSync(uploadsDir).filter(file => {
+            const baseName = path.parse(file).name;
+            return baseName === customName && !file.startsWith('.') && file !== req.file.filename;
+          });
+          
+          if (existingFiles.length > 0) {
+            // Move the first matching existing file to trash
+            const existingFile = existingFiles[0];
+            const existingPath = path.join(uploadsDir, existingFile);
             const timestamp = Date.now();
-            const trashFileName = `${customName}-backup-${timestamp}${path.extname(req.file.originalname)}`;
+            const existingExt = path.extname(existingFile);
+            const trashFileName = `${customName}-backup-${timestamp}${existingExt}`;
             const trashPath = path.join(trashDir, trashFileName);
             
-            fs.renameSync(newPath, trashPath);
+            fs.renameSync(existingPath, trashPath);
             console.log("Existing file moved to trash:", trashFileName);
             
             // Log this action for potential recovery
             const logEntry = {
-              originalName: newFileName,
+              originalName: existingFile,
               trashName: trashFileName,
               movedAt: new Date().toISOString(),
               canRestore: true
