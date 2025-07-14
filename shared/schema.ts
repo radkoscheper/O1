@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -135,3 +135,45 @@ export const updateGuideSchema = insertGuideSchema.partial();
 export type InsertGuide = z.infer<typeof insertGuideSchema>;
 export type UpdateGuide = z.infer<typeof updateGuideSchema>;
 export type Guide = typeof guides.$inferSelect;
+
+// Site settings table for managing global site configuration
+export const siteSettings = pgTable("site_settings", {
+  id: serial("id").primaryKey(),
+  siteName: varchar("site_name", { length: 255 }).notNull().default("Ontdek Polen"),
+  siteDescription: text("site_description").notNull().default("Ontdek de mooiste plekken van Polen"),
+  metaKeywords: text("meta_keywords").default("Polen, reizen, vakantie, bestemmingen"),
+  favicon: varchar("favicon", { length: 255 }).default("/favicon.ico"),
+  backgroundImage: varchar("background_image", { length: 255 }),
+  backgroundImageAlt: varchar("background_image_alt", { length: 255 }),
+  logoImage: varchar("logo_image", { length: 255 }),
+  logoImageAlt: varchar("logo_image_alt", { length: 255 }),
+  socialMediaImage: varchar("social_media_image", { length: 255 }),
+  customCSS: text("custom_css"),
+  customJS: text("custom_js"),
+  googleAnalyticsId: varchar("google_analytics_id", { length: 50 }),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertSiteSettingsSchema = createInsertSchema(siteSettings).pick({
+  siteName: true,
+  siteDescription: true,
+  metaKeywords: true,
+  favicon: true,
+  backgroundImage: true,
+  backgroundImageAlt: true,
+  logoImage: true,
+  logoImageAlt: true,
+  socialMediaImage: true,
+  customCSS: true,
+  customJS: true,
+  googleAnalyticsId: true,
+  isActive: true,
+});
+
+export const updateSiteSettingsSchema = insertSiteSettingsSchema.partial();
+
+export type InsertSiteSettings = z.infer<typeof insertSiteSettingsSchema>;
+export type UpdateSiteSettings = z.infer<typeof updateSiteSettingsSchema>;
+export type SiteSettings = typeof siteSettings.$inferSelect;

@@ -1,8 +1,9 @@
 import { 
-  users, destinations, guides,
+  users, destinations, guides, siteSettings,
   type User, type InsertUser, type UpdateUser,
   type Destination, type InsertDestination, type UpdateDestination,
-  type Guide, type InsertGuide, type UpdateGuide
+  type Guide, type InsertGuide, type UpdateGuide,
+  type SiteSettings, type InsertSiteSettings, type UpdateSiteSettings
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, ne, and, gte, lt, gt, lte, sql } from "drizzle-orm";
@@ -41,6 +42,11 @@ export interface IStorage {
   deleteGuide(id: number): Promise<void>;
   softDeleteGuide(id: number): Promise<void>;
   restoreGuide(id: number): Promise<Guide>;
+  
+  // Site settings operations
+  getSiteSettings(): Promise<SiteSettings | undefined>;
+  updateSiteSettings(updates: UpdateSiteSettings): Promise<SiteSettings>;
+  createDefaultSiteSettings(): Promise<SiteSettings>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -315,6 +321,45 @@ export class DatabaseStorage implements IStorage {
     await db.execute(sql`UPDATE guides SET is_deleted = FALSE, deleted_at = NULL, updated_at = NOW() WHERE id = ${id}`);
     const result = await db.execute(sql`SELECT * FROM guides WHERE id = ${id}`);
     return result.rows[0] as Guide;
+  }
+
+  // Site settings operations
+  async getSiteSettings(): Promise<SiteSettings | undefined> {
+    const [settings] = await db.select().from(siteSettings).where(eq(siteSettings.isActive, true)).limit(1);
+    return settings;
+  }
+
+  async updateSiteSettings(updates: UpdateSiteSettings): Promise<SiteSettings> {
+    const updatedData = { ...updates, updatedAt: new Date() };
+    
+    // First check if settings exist
+    const existing = await this.getSiteSettings();
+    
+    if (existing) {
+      const [updated] = await db
+        .update(siteSettings)
+        .set(updatedData)
+        .where(eq(siteSettings.id, existing.id))
+        .returning();
+      return updated;
+    } else {
+      // Create new settings if none exist
+      return await this.createDefaultSiteSettings();
+    }
+  }
+
+  async createDefaultSiteSettings(): Promise<SiteSettings> {
+    const [settings] = await db
+      .insert(siteSettings)
+      .values({
+        siteName: "Ontdek Polen",
+        siteDescription: "Ontdek de mooiste plekken van Polen",
+        metaKeywords: "Polen, reizen, vakantie, bestemmingen",
+        favicon: "/favicon.ico",
+        isActive: true
+      })
+      .returning();
+    return settings;
   }
 }
 
