@@ -195,6 +195,7 @@ export default function Admin() {
   // Load site settings when query data changes
   useEffect(() => {
     if (siteSettingsQuery.data) {
+      console.log('Loading site settings from query:', siteSettingsQuery.data);
       setSiteSettings({
         siteName: siteSettingsQuery.data.siteName || '',
         siteDescription: siteSettingsQuery.data.siteDescription || '',
@@ -713,6 +714,8 @@ export default function Admin() {
 
   const handleSaveSiteSettings = async () => {
     try {
+      console.log('Saving site settings:', siteSettings);
+      
       const response = await apiRequest('/api/admin/site-settings', {
         method: 'PUT',
         headers: {
@@ -721,13 +724,16 @@ export default function Admin() {
         body: JSON.stringify(siteSettings),
       });
 
+      const result = await response.json();
+      console.log('Site settings saved successfully:', result);
+
       toast({
         title: "Succes",
         description: "Site-instellingen zijn opgeslagen!",
       });
 
       // Refresh site settings query
-      siteSettingsQuery.refetch();
+      await siteSettingsQuery.refetch();
       
     } catch (error) {
       console.error('Error saving site settings:', error);
@@ -1587,9 +1593,13 @@ export default function Admin() {
                   <h2 className="text-2xl font-semibold">Site Instellingen</h2>
                   <p className="text-gray-600">Beheer de algemene instellingen van je website</p>
                 </div>
-                <Button onClick={handleSaveSiteSettings} className="flex items-center gap-2">
+                <Button 
+                  onClick={handleSaveSiteSettings} 
+                  className="flex items-center gap-2"
+                  disabled={siteSettingsQuery.isLoading}
+                >
                   <Save className="h-4 w-4" />
-                  Instellingen Opslaan
+                  {siteSettingsQuery.isLoading ? 'Laden...' : 'Instellingen Opslaan'}
                 </Button>
               </div>
 
