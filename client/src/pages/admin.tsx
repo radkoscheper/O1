@@ -1386,8 +1386,8 @@ export default function Admin() {
               {/* Verwijderde Afbeeldingen */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Verwijderde Afbeeldingen</CardTitle>
-                  <CardDescription>Afbeeldingen die zijn overschreven en naar de prullenbak verplaatst</CardDescription>
+                  <CardTitle>Gearchiveerde & Verwijderde Afbeeldingen</CardTitle>
+                  <CardDescription>Afbeeldingen die automatisch gearchiveerd zijn bij upload of handmatig verwijderd</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -1397,9 +1397,9 @@ export default function Admin() {
                           <div className="flex justify-between items-start">
                             <div className="flex-1">
                               <h4 className="font-medium">{image.originalName}</h4>
-                              <p className="text-sm text-gray-500">Backup: {image.trashName}</p>
+                              <p className="text-sm text-gray-500">{image.trashName}</p>
                               <p className="text-xs text-gray-400">
-                                Verwijderd: {new Date(image.movedAt).toLocaleDateString('nl-NL', {
+                                {image.reason === "Auto-archived before new upload" ? "Gearchiveerd" : "Verwijderd"}: {new Date(image.movedAt).toLocaleDateString('nl-NL', {
                                   day: 'numeric',
                                   month: 'long',
                                   year: 'numeric',
@@ -1492,7 +1492,7 @@ export default function Admin() {
                   </div>
                   <div className="text-sm text-gray-600 pt-2 border-t">
                     <p>💡 Tip: Verwijderde content en afbeeldingen blijven beschikbaar voor herstel</p>
-                    <p>🔄 Afbeeldingen worden automatisch naar prullenbak verplaatst bij overschrijven</p>
+                    <p>🔄 Afbeeldingen worden automatisch gearchiveerd voordat nieuwe uploads conflicten veroorzaken</p>
                   </div>
                 </CardContent>
               </Card>
