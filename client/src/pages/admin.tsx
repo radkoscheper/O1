@@ -196,7 +196,7 @@ export default function Admin() {
   useEffect(() => {
     if (siteSettingsQuery.data) {
       console.log('Loading site settings from query:', siteSettingsQuery.data);
-      setSiteSettings({
+      const newSettings = {
         siteName: siteSettingsQuery.data.siteName || '',
         siteDescription: siteSettingsQuery.data.siteDescription || '',
         metaKeywords: siteSettingsQuery.data.metaKeywords || '',
@@ -209,7 +209,9 @@ export default function Admin() {
         customCSS: siteSettingsQuery.data.customCSS || '',
         customJS: siteSettingsQuery.data.customJS || '',
         googleAnalyticsId: siteSettingsQuery.data.googleAnalyticsId || '',
-      });
+      };
+      console.log('Setting new site settings state:', newSettings);
+      setSiteSettings(newSettings);
     }
   }, [siteSettingsQuery.data]);
 
@@ -727,12 +729,31 @@ export default function Admin() {
       const result = await response.json();
       console.log('Site settings saved successfully:', result);
 
+      // Update local state immediately with saved values
+      const updatedSettings = {
+        siteName: result.siteName || '',
+        siteDescription: result.siteDescription || '',
+        metaKeywords: result.metaKeywords || '',
+        favicon: result.favicon || '',
+        backgroundImage: result.backgroundImage || '',
+        backgroundImageAlt: result.backgroundImageAlt || '',
+        logoImage: result.logoImage || '',
+        logoImageAlt: result.logoImageAlt || '',
+        socialMediaImage: result.socialMediaImage || '',
+        customCSS: result.customCSS || '',
+        customJS: result.customJS || '',
+        googleAnalyticsId: result.googleAnalyticsId || '',
+      };
+      console.log('Updating local state with:', updatedSettings);
+      setSiteSettings(updatedSettings);
+
       toast({
         title: "Succes",
         description: "Site-instellingen zijn opgeslagen!",
       });
 
-      // Refresh site settings query
+      // Refresh site settings query and invalidate cache
+      queryClient.invalidateQueries({ queryKey: ['/api/site-settings'] });
       await siteSettingsQuery.refetch();
       
     } catch (error) {
