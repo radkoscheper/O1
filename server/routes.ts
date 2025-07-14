@@ -164,8 +164,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const oldPath = path.join(uploadsDir, req.file.filename);
         const newPath = path.join(uploadsDir, newFileName);
         
+        // Create trash directory if it doesn't exist
+        const trashDir = path.join(uploadsDir, '.trash');
+        if (!fs.existsSync(trashDir)) {
+          fs.mkdirSync(trashDir, { recursive: true });
+        }
+        
         try {
-          // Rename file to custom name
+          // Check if a file with the same name already exists
+          if (fs.existsSync(newPath)) {
+            // Move existing file to trash with timestamp
+            const timestamp = Date.now();
+            const trashFileName = `${customName}-backup-${timestamp}${path.extname(req.file.originalname)}`;
+            const trashPath = path.join(trashDir, trashFileName);
+            
+            fs.renameSync(newPath, trashPath);
+            console.log("Existing file moved to trash:", trashFileName);
+            
+            // Log this action for potential recovery
+            const logEntry = {
+              originalName: newFileName,
+              trashName: trashFileName,
+              movedAt: new Date().toISOString(),
+              canRestore: true
+            };
+            
+            const logPath = path.join(trashDir, 'trash.log');
+            const logData = fs.existsSync(logPath) ? fs.readFileSync(logPath, 'utf8') : '[]';
+            const logs = JSON.parse(logData || '[]');
+            logs.push(logEntry);
+            fs.writeFileSync(logPath, JSON.stringify(logs, null, 2));
+          }
+          
+          // Rename new file to custom name
           fs.renameSync(oldPath, newPath);
           finalFileName = newFileName;
           console.log("File renamed to:", finalFileName);
@@ -725,6 +756,110 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Get deleted guides error:", error);
       res.status(500).json({ message: "Fout bij ophalen verwijderde reisgidsen" });
+    }
+  });
+
+  // Get trashed images
+  app.get("/api/admin/images/trash", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || (!user.canDeleteContent && !user.canEditContent)) {
+        return res.status(403).json({ message: "Geen toestemming om verwijderde afbeeldingen te bekijken" });
+      }
+
+      const trashDir = path.join(uploadsDir, '.trash');
+      const logPath = path.join(trashDir, 'trash.log');
+      
+      if (!fs.existsSync(logPath)) {
+        return res.json([]);
+      }
+      
+      const logData = fs.readFileSync(logPath, 'utf8');
+      const trashedImages = JSON.parse(logData || '[]');
+      
+      res.json(trashedImages);
+    } catch (error) {
+      console.error("Error getting trashed images:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Restore trashed image
+  app.post("/api/admin/images/restore", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || !user.canEditContent) {
+        return res.status(403).json({ message: "Geen toestemming om afbeeldingen te herstellen" });
+      }
+
+      const { trashName, originalName } = req.body;
+      const trashDir = path.join(uploadsDir, '.trash');
+      const trashPath = path.join(trashDir, trashName);
+      const restorePath = path.join(uploadsDir, originalName);
+      
+      if (!fs.existsSync(trashPath)) {
+        return res.status(404).json({ message: "Afbeelding niet gevonden in prullenbak" });
+      }
+      
+      // Check if original location is free, if not, create a new name
+      let finalRestorePath = restorePath;
+      if (fs.existsSync(restorePath)) {
+        const timestamp = Date.now();
+        const ext = path.extname(originalName);
+        const name = path.basename(originalName, ext);
+        finalRestorePath = path.join(uploadsDir, `${name}-restored-${timestamp}${ext}`);
+      }
+      
+      // Move file back
+      fs.renameSync(trashPath, finalRestorePath);
+      
+      // Update trash log
+      const logPath = path.join(trashDir, 'trash.log');
+      const logData = fs.readFileSync(logPath, 'utf8');
+      const logs = JSON.parse(logData || '[]');
+      const updatedLogs = logs.filter((log: any) => log.trashName !== trashName);
+      fs.writeFileSync(logPath, JSON.stringify(updatedLogs, null, 2));
+      
+      res.json({ 
+        message: "Afbeelding succesvol hersteld",
+        restoredAs: path.basename(finalRestorePath)
+      });
+    } catch (error) {
+      console.error("Error restoring image:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Permanently delete trashed image
+  app.delete("/api/admin/images/trash/:trashName", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || !user.canDeleteContent) {
+        return res.status(403).json({ message: "Geen toestemming om afbeeldingen permanent te verwijderen" });
+      }
+
+      const { trashName } = req.params;
+      const trashDir = path.join(uploadsDir, '.trash');
+      const trashPath = path.join(trashDir, trashName);
+      
+      if (!fs.existsSync(trashPath)) {
+        return res.status(404).json({ message: "Afbeelding niet gevonden in prullenbak" });
+      }
+      
+      // Delete file permanently
+      fs.unlinkSync(trashPath);
+      
+      // Update trash log
+      const logPath = path.join(trashDir, 'trash.log');
+      const logData = fs.readFileSync(logPath, 'utf8');
+      const logs = JSON.parse(logData || '[]');
+      const updatedLogs = logs.filter((log: any) => log.trashName !== trashName);
+      fs.writeFileSync(logPath, JSON.stringify(updatedLogs, null, 2));
+      
+      res.json({ message: "Afbeelding permanent verwijderd" });
+    } catch (error) {
+      console.error("Error permanently deleting image:", error);
+      res.status(500).json({ message: "Server error" });
     }
   });
 
