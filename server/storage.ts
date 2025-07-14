@@ -115,7 +115,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getPublishedDestinations(): Promise<Destination[]> {
-    return await db.select().from(destinations).where(eq(destinations.published, true)).orderBy(destinations.ranking, destinations.createdAt);
+    return await db.select().from(destinations).where(
+      and(
+        eq(destinations.published, true),
+        eq(destinations.is_deleted, false)
+      )
+    ).orderBy(destinations.ranking, destinations.createdAt);
   }
 
   async getDeletedDestinations(): Promise<Destination[]> {
@@ -219,7 +224,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getPublishedGuides(): Promise<Guide[]> {
-    return await db.select().from(guides).where(eq(guides.published, true)).orderBy(guides.ranking, guides.createdAt);
+    return await db.select().from(guides).where(
+      and(
+        eq(guides.published, true),
+        eq(guides.is_deleted, false)
+      )
+    ).orderBy(guides.ranking, guides.createdAt);
   }
 
   async getDeletedGuides(): Promise<Guide[]> {

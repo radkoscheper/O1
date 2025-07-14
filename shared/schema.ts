@@ -75,6 +75,8 @@ export const destinations = pgTable("destinations", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
   createdBy: integer("created_by").references(() => users.id),
+  is_deleted: boolean("is_deleted").default(false),
+  deleted_at: timestamp("deleted_at"),
 });
 
 export const insertDestinationSchema = createInsertSchema(destinations).pick({
@@ -111,6 +113,8 @@ export const guides = pgTable("guides", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
   createdBy: integer("created_by").references(() => users.id),
+  is_deleted: boolean("is_deleted").default(false),
+  deleted_at: timestamp("deleted_at"),
 });
 
 export const insertGuideSchema = createInsertSchema(guides).pick({
