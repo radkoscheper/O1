@@ -756,7 +756,7 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="destinations" className="w-full">
-          <TabsList className={`grid w-full ${currentUser?.canManageUsers ? 'grid-cols-8' : 'grid-cols-7'}`}>
+          <TabsList className={`grid w-full ${currentUser?.canManageUsers ? 'grid-cols-7' : 'grid-cols-6'}`}>
             {/* Alleen tonen wat de gebruiker mag doen */}
             {currentUser?.canCreateContent && <TabsTrigger value="destinations">Bestemmingen</TabsTrigger>}
             {currentUser?.canCreateContent && <TabsTrigger value="guides">Reisgidsen</TabsTrigger>}
@@ -766,12 +766,6 @@ export default function Admin() {
               <TabsTrigger value="recycle">
                 <Trash2 className="h-4 w-4 mr-2" />
                 Prullenbak
-              </TabsTrigger>
-            )}
-            {(currentUser?.canDeleteContent || currentUser?.canEditContent) && (
-              <TabsTrigger value="images-trash">
-                <ImageIcon className="h-4 w-4 mr-2" />
-                Afbeeldingen
               </TabsTrigger>
             )}
             {currentUser?.canManageUsers && (
@@ -1389,53 +1383,21 @@ export default function Admin() {
                 </Card>
               </div>
 
+              {/* Verwijderde Afbeeldingen */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Prullenbak Acties</CardTitle>
-                  <CardDescription>Beheer je verwijderde content</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex flex-wrap gap-4">
-                    <Button 
-                      variant="outline" 
-                      disabled={(deletedDestinationsQuery.data?.length || 0) === 0 && (deletedGuidesQuery.data?.length || 0) === 0}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Alles Herstellen ({(deletedDestinationsQuery.data?.length || 0) + (deletedGuidesQuery.data?.length || 0)})
-                    </Button>
-                    <Button 
-                      variant="destructive" 
-                      disabled={(deletedDestinationsQuery.data?.length || 0) === 0 && (deletedGuidesQuery.data?.length || 0) === 0}
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      🗑️ Prullenbak Leegmaken
-                    </Button>
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    Tip: Verwijderde items blijven 30 dagen beschikbaar voor herstel
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          )}
-
-          {/* Images Trash Tab */}
-          {(currentUser?.canDeleteContent || currentUser?.canEditContent) && (
-            <TabsContent value="images-trash" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Afbeelding Prullenbak</CardTitle>
-                  <CardDescription>Beheer verwijderde afbeeldingen en herstel indien nodig</CardDescription>
+                  <CardTitle>Verwijderde Afbeeldingen</CardTitle>
+                  <CardDescription>Afbeeldingen die zijn overschreven en naar de prullenbak verplaatst</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     {trashedImagesQuery.data && trashedImagesQuery.data.length > 0 ? (
                       trashedImagesQuery.data.map((image: any) => (
-                        <div key={image.trashName} className="border rounded-lg p-4">
+                        <div key={image.trashName} className="border rounded-lg p-3">
                           <div className="flex justify-between items-start">
                             <div className="flex-1">
                               <h4 className="font-medium">{image.originalName}</h4>
-                              <p className="text-sm text-gray-500">Prullenbak: {image.trashName}</p>
+                              <p className="text-sm text-gray-500">Backup: {image.trashName}</p>
                               <p className="text-xs text-gray-400">
                                 Verwijderd: {new Date(image.movedAt).toLocaleDateString('nl-NL', {
                                   day: 'numeric',
@@ -1446,7 +1408,7 @@ export default function Admin() {
                                 })}
                               </p>
                             </div>
-                            <div className="flex gap-2">
+                            <div className="flex gap-1">
                               <Button 
                                 size="sm" 
                                 variant="outline"
@@ -1474,23 +1436,70 @@ export default function Admin() {
                       </div>
                     )}
                   </div>
-                  
-                  {trashedImagesQuery.data && trashedImagesQuery.data.length > 0 && (
-                    <div className="flex justify-end pt-4 border-t">
-                      <Button 
-                        variant="destructive" 
-                        onClick={() => handleEmptyImageTrash()}
-                        disabled={!currentUser?.canDeleteContent}
-                      >
-                        <Trash className="h-4 w-4 mr-2" />
-                        Prullenbak Leegmaken
-                      </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Prullenbak Acties</CardTitle>
+                  <CardDescription>Beheer je verwijderde content en afbeeldingen</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <h4 className="font-medium mb-2">Content Acties</h4>
+                      <div className="flex flex-col gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          disabled={(deletedDestinationsQuery.data?.length || 0) === 0 && (deletedGuidesQuery.data?.length || 0) === 0}
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Alle Content Herstellen ({(deletedDestinationsQuery.data?.length || 0) + (deletedGuidesQuery.data?.length || 0)})
+                        </Button>
+                        <Button 
+                          variant="destructive" 
+                          size="sm"
+                          disabled={(deletedDestinationsQuery.data?.length || 0) === 0 && (deletedGuidesQuery.data?.length || 0) === 0}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Content Prullenbak Leegmaken
+                        </Button>
+                      </div>
                     </div>
-                  )}
+                    <div>
+                      <h4 className="font-medium mb-2">Afbeelding Acties</h4>
+                      <div className="flex flex-col gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          disabled={!trashedImagesQuery.data || trashedImagesQuery.data.length === 0}
+                        >
+                          <RotateCcw className="h-4 w-4 mr-2" />
+                          Alle Afbeeldingen Herstellen ({trashedImagesQuery.data?.length || 0})
+                        </Button>
+                        <Button 
+                          variant="destructive" 
+                          size="sm"
+                          onClick={() => handleEmptyImageTrash()}
+                          disabled={!trashedImagesQuery.data || trashedImagesQuery.data.length === 0 || !currentUser?.canDeleteContent}
+                        >
+                          <Trash className="h-4 w-4 mr-2" />
+                          Afbeelding Prullenbak Leegmaken
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-sm text-gray-600 pt-2 border-t">
+                    <p>💡 Tip: Verwijderde content en afbeeldingen blijven beschikbaar voor herstel</p>
+                    <p>🔄 Afbeeldingen worden automatisch naar prullenbak verplaatst bij overschrijven</p>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
           )}
+
+
         </Tabs>
 
         {/* Create User Dialog */}
