@@ -1949,8 +1949,22 @@ function ViewDestinationDialog({ open, onOpenChange, destination }: {
         </DialogHeader>
         <div className="space-y-4">
           {destination?.image && (
-            <div className="w-full h-48 bg-gray-200 rounded-md flex items-center justify-center">
-              <span className="text-gray-500">Afbeelding: {destination.image}</span>
+            <div className="w-full">
+              <h3 className="font-semibold mb-2">Afbeelding</h3>
+              <div className="relative h-48 w-full rounded-md overflow-hidden border">
+                <img 
+                  src={destination.image} 
+                  alt={destination.name || 'Bestemming afbeelding'}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling.style.display = 'flex';
+                  }}
+                />
+                <div className="hidden w-full h-full bg-gray-200 items-center justify-center">
+                  <span className="text-gray-500">Afbeelding kon niet geladen worden: {destination.image}</span>
+                </div>
+              </div>
             </div>
           )}
           <div>
@@ -2101,8 +2115,22 @@ function ViewGuideDialog({ open, onOpenChange, guide }: {
         </DialogHeader>
         <div className="space-y-4">
           {guide?.image && (
-            <div className="w-full h-48 bg-gray-200 rounded-md flex items-center justify-center">
-              <span className="text-gray-500">Afbeelding: {guide.image}</span>
+            <div className="w-full">
+              <h3 className="font-semibold mb-2">Afbeelding</h3>
+              <div className="relative h-48 w-full rounded-md overflow-hidden border">
+                <img 
+                  src={guide.image} 
+                  alt={guide.title || 'Reisgids afbeelding'}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling.style.display = 'flex';
+                  }}
+                />
+                <div className="hidden w-full h-full bg-gray-200 items-center justify-center">
+                  <span className="text-gray-500">Afbeelding kon niet geladen worden: {guide.image}</span>
+                </div>
+              </div>
             </div>
           )}
           <div>
