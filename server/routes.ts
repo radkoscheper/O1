@@ -877,17 +877,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Afbeelding niet gevonden in prullenbak" });
       }
       
-      // Delete file permanently
-      fs.unlinkSync(trashPath);
-      
-      // Update trash log
+      // Get the original name from trash log to check if there's a file in main images folder
       const logPath = path.join(trashDir, 'trash.log');
       const logData = fs.readFileSync(logPath, 'utf8');
       const logs = JSON.parse(logData || '[]');
+      const logEntry = logs.find((log: any) => log.trashName === trashName);
+      
+      // Delete file from trash
+      fs.unlinkSync(trashPath);
+      console.log(`Trashed file deleted: ${trashName}`);
+      
+      // If we found the log entry, also check and delete from main images folder
+      if (logEntry && logEntry.originalName) {
+        const mainImagePath = path.join(uploadsDir, logEntry.originalName);
+        if (fs.existsSync(mainImagePath)) {
+          fs.unlinkSync(mainImagePath);
+          console.log(`Main image file also deleted: ${logEntry.originalName}`);
+        }
+      }
+      
+      // Update trash log
       const updatedLogs = logs.filter((log: any) => log.trashName !== trashName);
       fs.writeFileSync(logPath, JSON.stringify(updatedLogs, null, 2));
       
-      res.json({ message: "Afbeelding permanent verwijderd" });
+      res.json({ message: "Afbeelding permanent verwijderd uit prullenbak en images map" });
     } catch (error) {
       console.error("Error permanently deleting image:", error);
       res.status(500).json({ message: "Server error" });
