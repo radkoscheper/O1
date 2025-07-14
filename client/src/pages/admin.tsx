@@ -179,6 +179,14 @@ export default function Admin() {
     customCSS: '',
     customJS: '',
     googleAnalyticsId: '',
+    homePageTitle: '',
+    homePageDescription: '',
+    homePageKeywords: '',
+    homeHeroTitle: '',
+    homeHeroSubtitle: '',
+    homeCTATitle: '',
+    homeCTADescription: '',
+    homeGuidesTitle: '',
   });
 
   // Check authentication status on component mount
@@ -209,6 +217,14 @@ export default function Admin() {
         customCSS: siteSettingsQuery.data.customCSS || '',
         customJS: siteSettingsQuery.data.customJS || '',
         googleAnalyticsId: siteSettingsQuery.data.googleAnalyticsId || '',
+        homePageTitle: siteSettingsQuery.data.homePageTitle || '',
+        homePageDescription: siteSettingsQuery.data.homePageDescription || '',
+        homePageKeywords: siteSettingsQuery.data.homePageKeywords || '',
+        homeHeroTitle: siteSettingsQuery.data.homeHeroTitle || '',
+        homeHeroSubtitle: siteSettingsQuery.data.homeHeroSubtitle || '',
+        homeCTATitle: siteSettingsQuery.data.homeCTATitle || '',
+        homeCTADescription: siteSettingsQuery.data.homeCTADescription || '',
+        homeGuidesTitle: siteSettingsQuery.data.homeGuidesTitle || '',
       };
       console.log('Setting new site settings state:', newSettings);
       setSiteSettings(newSettings);
@@ -743,6 +759,14 @@ export default function Admin() {
         customCSS: result.customCSS || '',
         customJS: result.customJS || '',
         googleAnalyticsId: result.googleAnalyticsId || '',
+        homePageTitle: result.homePageTitle || '',
+        homePageDescription: result.homePageDescription || '',
+        homePageKeywords: result.homePageKeywords || '',
+        homeHeroTitle: result.homeHeroTitle || '',
+        homeHeroSubtitle: result.homeHeroSubtitle || '',
+        homeCTATitle: result.homeCTATitle || '',
+        homeCTADescription: result.homeCTADescription || '',
+        homeGuidesTitle: result.homeGuidesTitle || '',
       };
       console.log('Updating local state with:', updatedSettings);
       setSiteSettings(updatedSettings);
@@ -1779,12 +1803,126 @@ export default function Admin() {
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* Index/Home Page Settings */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Index Pagina Instellingen</CardTitle>
+                    <CardDescription>Specifieke SEO en content instellingen voor de hoofdpagina</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {/* SEO Section */}
+                    <div className="space-y-4">
+                      <h4 className="font-medium text-sm text-gray-700 uppercase tracking-wide">SEO Instellingen</h4>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="homePageTitle">Homepage Titel (SEO) *</Label>
+                          <Input
+                            id="homePageTitle"
+                            value={siteSettings.homePageTitle}
+                            onChange={(e) => setSiteSettings({...siteSettings, homePageTitle: e.target.value})}
+                            placeholder="Ontdek Polen - Mooie bestemmingen"
+                            maxLength={60}
+                          />
+                          <p className="text-xs text-gray-500">Max 60 tekens voor optimale SEO</p>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="homePageDescription">Homepage Meta Beschrijving *</Label>
+                          <Input
+                            id="homePageDescription"
+                            value={siteSettings.homePageDescription}
+                            onChange={(e) => setSiteSettings({...siteSettings, homePageDescription: e.target.value})}
+                            placeholder="Ontdek de mooiste plekken in Polen..."
+                            maxLength={160}
+                          />
+                          <p className="text-xs text-gray-500">Max 160 tekens voor optimale SEO</p>
+                        </div>
+
+                        <div className="md:col-span-2 space-y-2">
+                          <Label htmlFor="homePageKeywords">Homepage Meta Keywords</Label>
+                          <Input
+                            id="homePageKeywords"
+                            value={siteSettings.homePageKeywords}
+                            onChange={(e) => setSiteSettings({...siteSettings, homePageKeywords: e.target.value})}
+                            placeholder="Polen, reizen, vakantie, Krakow, Warschau"
+                          />
+                          <p className="text-xs text-gray-500">Komma gescheiden zoekwoorden</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Content Section */}
+                    <div className="space-y-4 pt-4 border-t">
+                      <h4 className="font-medium text-sm text-gray-700 uppercase tracking-wide">Pagina Content</h4>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="homeHeroTitle">Hero Sectie Titel</Label>
+                          <Input
+                            id="homeHeroTitle"
+                            value={siteSettings.homeHeroTitle}
+                            onChange={(e) => setSiteSettings({...siteSettings, homeHeroTitle: e.target.value})}
+                            placeholder="Ontdek Polen"
+                            maxLength={100}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="homeHeroSubtitle">Hero Sectie Ondertitel</Label>
+                          <Input
+                            id="homeHeroSubtitle"
+                            value={siteSettings.homeHeroSubtitle}
+                            onChange={(e) => setSiteSettings({...siteSettings, homeHeroSubtitle: e.target.value})}
+                            placeholder="Mooie plekken in Polen ontdekken"
+                            maxLength={200}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="homeCTATitle">CTA Sectie Titel</Label>
+                          <Input
+                            id="homeCTATitle"
+                            value={siteSettings.homeCTATitle}
+                            onChange={(e) => setSiteSettings({...siteSettings, homeCTATitle: e.target.value})}
+                            placeholder="Laat je verrassen door het onbekende Polen"
+                            maxLength={100}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="homeGuidesTitle">Gidsen Sectie Titel</Label>
+                          <Input
+                            id="homeGuidesTitle"
+                            value={siteSettings.homeGuidesTitle}
+                            onChange={(e) => setSiteSettings({...siteSettings, homeGuidesTitle: e.target.value})}
+                            placeholder="Reisgidsen en Tips"
+                            maxLength={100}
+                          />
+                        </div>
+
+                        <div className="md:col-span-2 space-y-2">
+                          <Label htmlFor="homeCTADescription">CTA Sectie Beschrijving</Label>
+                          <Textarea
+                            id="homeCTADescription"
+                            value={siteSettings.homeCTADescription}
+                            onChange={(e) => setSiteSettings({...siteSettings, homeCTADescription: e.target.value})}
+                            placeholder="Bezoek historische steden, ontdek natuurparken en verborgen parels..."
+                            rows={3}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
               
               <div className="text-sm text-gray-600 pt-4 border-t">
-                <p>💡 Tip: Gebruik de achtergrond afbeelding voor een mooie header op je website</p>
+                <p>💡 Tip: Gebruik specifieke pagina titels en beschrijvingen voor betere SEO rankings</p>
                 <p>🎨 Custom CSS en JavaScript worden automatisch geladen op alle pagina's</p>
                 <p>📊 Google Analytics tracking wordt actief zodra je een geldig tracking ID invult</p>
+                <p>🏠 Index pagina instellingen overschrijven de algemene site instellingen</p>
               </div>
             </TabsContent>
           )}

@@ -26,25 +26,29 @@ export default function Home() {
   // Update document title and meta tags when site settings change
   useEffect(() => {
     if (siteSettings) {
-      document.title = siteSettings.siteName || "Ontdek Polen";
+      // Use home page specific title if available, otherwise fall back to site name
+      const pageTitle = siteSettings.homePageTitle || siteSettings.siteName || "Ontdek Polen";
+      document.title = pageTitle;
       
-      // Update meta description
+      // Update meta description (use home page specific if available)
       let metaDescription = document.querySelector('meta[name="description"]');
       if (!metaDescription) {
         metaDescription = document.createElement('meta');
         metaDescription.setAttribute('name', 'description');
         document.head.appendChild(metaDescription);
       }
-      metaDescription.setAttribute('content', siteSettings.siteDescription || "Ontdek de mooiste plekken van Polen");
+      const description = siteSettings.homePageDescription || siteSettings.siteDescription || "Ontdek de mooiste plekken van Polen";
+      metaDescription.setAttribute('content', description);
       
-      // Update meta keywords
+      // Update meta keywords (use home page specific if available)
       let metaKeywords = document.querySelector('meta[name="keywords"]');
       if (!metaKeywords) {
         metaKeywords = document.createElement('meta');
         metaKeywords.setAttribute('name', 'keywords');
         document.head.appendChild(metaKeywords);
       }
-      metaKeywords.setAttribute('content', siteSettings.metaKeywords || "Polen, reizen, vakantie, bestemmingen");
+      const keywords = siteSettings.homePageKeywords || siteSettings.metaKeywords || "Polen, reizen, vakantie, bestemmingen";
+      metaKeywords.setAttribute('content', keywords);
       
       // Update favicon
       if (siteSettings.favicon) {
@@ -152,10 +156,10 @@ export default function Home() {
         <div className="absolute inset-0 bg-black bg-opacity-30"></div>
         <div className="relative z-10 max-w-4xl mx-auto">
           <h1 className="text-5xl font-bold mb-3 font-inter">
-            {siteSettings?.siteName || "Ontdek Polen"}
+            {siteSettings?.homeHeroTitle || siteSettings?.siteName || "Ontdek Polen"}
           </h1>
           <p className="text-xl mb-8 font-inter">
-            {siteSettings?.siteDescription || "Mooie plekken in Polen ontdekken"}
+            {siteSettings?.homeHeroSubtitle || siteSettings?.siteDescription || "Mooie plekken in Polen ontdekken"}
           </p>
           
           <form onSubmit={handleSearch} className="mt-5 mb-5">
@@ -207,11 +211,10 @@ export default function Home() {
         <div className="flex flex-wrap gap-8 items-center justify-between">
           <div className="flex-1 min-w-80">
             <h2 className="text-3xl font-bold mb-4 font-inter text-gray-900">
-              Laat je verrassen door het onbekende Polen
+              {siteSettings?.homeCTATitle || "Laat je verrassen door het onbekende Polen"}
             </h2>
             <p className="text-lg mb-6 font-inter text-gray-700">
-              Bezoek historische steden, ontdek natuurparken en verborgen parels. 
-              Onze reisgidsen helpen je op weg!
+              {siteSettings?.homeCTADescription || "Bezoek historische steden, ontdek natuurparken en verborgen parels. Onze reisgidsen helpen je op weg!"}
             </p>
             <Button
               onClick={handleReadGuides}
@@ -234,7 +237,7 @@ export default function Home() {
       {/* Travel Guides */}
       <section className="py-16 px-5 max-w-6xl mx-auto">
         <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
-          Reisgidsen en Tips
+          {siteSettings?.homeGuidesTitle || "Reisgidsen en Tips"}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {publishedGuides.map((guide) => (
