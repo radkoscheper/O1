@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
-import { Plus, Edit, Eye, Save, LogIn, LogOut, Shield, Users, UserPlus, Trash2, Key, Upload, X, Image as ImageIcon, RotateCcw, Trash, Home, Search, Globe, Share2, Code, FileText } from "lucide-react";
+import { Plus, Edit, Eye, Save, LogIn, LogOut, Shield, Users, UserPlus, Trash2, Key, Upload, X, ImageIcon, RotateCcw, Trash, Home, Search, Globe, Share2, Code, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -1830,7 +1830,7 @@ export default function Admin() {
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
-                        <Image className="h-5 w-5 text-purple-600" />
+                        <ImageIcon className="h-5 w-5 text-purple-600" />
                         🖼️ Site Afbeeldingen
                       </CardTitle>
                       <CardDescription>Logo, achtergrond en social media afbeeldingen</CardDescription>
