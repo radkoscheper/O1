@@ -178,30 +178,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
           
           if (existingFiles.length > 0) {
-            // Move the first matching existing file to trash
-            const existingFile = existingFiles[0];
-            const existingPath = path.join(uploadsDir, existingFile);
-            const timestamp = Date.now();
-            const existingExt = path.extname(existingFile);
-            const trashFileName = `${customName}-backup-${timestamp}${existingExt}`;
-            const trashPath = path.join(trashDir, trashFileName);
-            
-            fs.renameSync(existingPath, trashPath);
-            console.log("Existing file moved to trash:", trashFileName);
-            
-            // Log this action for potential recovery
-            const logEntry = {
-              originalName: existingFile,
-              trashName: trashFileName,
-              movedAt: new Date().toISOString(),
-              canRestore: true
-            };
-            
-            const logPath = path.join(trashDir, 'trash.log');
-            const logData = fs.existsSync(logPath) ? fs.readFileSync(logPath, 'utf8') : '[]';
-            const logs = JSON.parse(logData || '[]');
-            logs.push(logEntry);
-            fs.writeFileSync(logPath, JSON.stringify(logs, null, 2));
+            // Move ALL matching existing files to archive before new upload
+            existingFiles.forEach(existingFile => {
+              const existingPath = path.join(uploadsDir, existingFile);
+              const timestamp = Date.now();
+              const existingExt = path.extname(existingFile);
+              const archiveFileName = `${customName}-archived-${timestamp}${existingExt}`;
+              const archivePath = path.join(trashDir, archiveFileName);
+              
+              fs.renameSync(existingPath, archivePath);
+              console.log("Existing file archived before upload:", archiveFileName);
+              
+              // Log this action for potential recovery
+              const logEntry = {
+                originalName: existingFile,
+                trashName: archiveFileName,
+                movedAt: new Date().toISOString(),
+                canRestore: true,
+                reason: "Auto-archived before new upload"
+              };
+              
+              const logPath = path.join(trashDir, 'trash.log');
+              const logData = fs.existsSync(logPath) ? fs.readFileSync(logPath, 'utf8') : '[]';
+              const logs = JSON.parse(logData || '[]');
+              logs.push(logEntry);
+              fs.writeFileSync(logPath, JSON.stringify(logs, null, 2));
+            });
           }
           
           // Rename new file to custom name
