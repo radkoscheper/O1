@@ -40,14 +40,21 @@ const storage_config = multer.diskStorage({
   filename: function (req, file, cb) {
     // Check if custom filename is provided
     const customFileName = req.body.fileName;
+    console.log("Custom filename received in multer:", customFileName);
+    console.log("Full request body in multer:", req.body);
+    
     if (customFileName && customFileName.trim()) {
       // Use custom filename with proper extension
       const cleanName = customFileName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
-      cb(null, cleanName + path.extname(file.originalname));
+      const finalName = cleanName + path.extname(file.originalname);
+      console.log("Using custom filename:", finalName);
+      cb(null, finalName);
     } else {
       // Generate unique filename: timestamp-originalname
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      cb(null, uniqueSuffix + path.extname(file.originalname));
+      const finalName = uniqueSuffix + path.extname(file.originalname);
+      console.log("Using generated filename:", finalName);
+      cb(null, finalName);
     }
   }
 });
@@ -136,6 +143,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Image upload route with error handling
   app.post("/api/upload", requireAuth, (req, res) => {
     console.log("Upload route hit by user:", req.session.userId);
+    console.log("Request body before multer:", req.body);
     
     upload.single('image')(req, res, (err) => {
       if (err) {
@@ -161,6 +169,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       console.log("File uploaded:", req.file.filename);
+      console.log("Request body after multer:", req.body);
       
       // Return the path that can be used in the frontend
       const imagePath = `/images/${req.file.filename}`;
