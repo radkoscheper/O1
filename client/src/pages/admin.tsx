@@ -392,40 +392,102 @@ export default function Admin() {
     }
   };
 
-  const handleCreateDestination = () => {
-    console.log('Creating destination:', newDestination);
-    toast({
-      title: "Bestemming aangemaakt",
-      description: `${newDestination.name} is toegevoegd aan de lijst.`,
-    });
-    // Reset form
-    setNewDestination({
-      name: '',
-      description: '',
-      image: '',
-      content: '',
-      featured: false,
-      published: false,
-      ranking: 0
-    });
+  const handleCreateDestination = async () => {
+    try {
+      console.log('Creating destination:', newDestination);
+      
+      const response = await fetch('/api/destinations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(newDestination),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Fout bij aanmaken bestemming');
+      }
+
+      const result = await response.json();
+      
+      toast({
+        title: "Succes",
+        description: `Bestemming "${newDestination.name}" is succesvol aangemaakt!`,
+      });
+      
+      // Reset form
+      setNewDestination({
+        name: '',
+        description: '',
+        image: '',
+        content: '',
+        featured: false,
+        published: false,
+        ranking: 0
+      });
+
+      // Refresh data
+      destinationsQuery.refetch();
+      
+    } catch (error) {
+      console.error('Error creating destination:', error);
+      toast({
+        title: "Fout",
+        description: error instanceof Error ? error.message : "Er is een fout opgetreden bij het aanmaken van de bestemming",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleCreateGuide = () => {
-    console.log('Creating guide:', newGuide);
-    toast({
-      title: "Reisgids aangemaakt",
-      description: `${newGuide.title} is toegevoegd aan de lijst.`,
-    });
-    // Reset form
-    setNewGuide({
-      title: '',
-      description: '',
-      image: '',
-      content: '',
-      featured: false,
-      published: false,
-      ranking: 0
-    });
+  const handleCreateGuide = async () => {
+    try {
+      console.log('Creating guide:', newGuide);
+      
+      const response = await fetch('/api/guides', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(newGuide),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Fout bij aanmaken reisgids');
+      }
+
+      const result = await response.json();
+      
+      toast({
+        title: "Succes",
+        description: `Reisgids "${newGuide.title}" is succesvol aangemaakt!`,
+      });
+      
+      // Reset form
+      setNewGuide({
+        title: '',
+        description: '',
+        image: '',
+        content: '',
+        featured: false,
+        published: false,
+        ranking: 0
+      });
+
+      // Refresh data
+      guidesQuery.refetch();
+      
+    } catch (error) {
+      console.error('Error creating guide:', error);
+      toast({
+        title: "Fout",
+        description: error instanceof Error ? error.message : "Er is een fout opgetreden bij het aanmaken van de reisgids",
+        variant: "destructive",
+      });
+    }
   };
 
   // Loading state
