@@ -1,9 +1,10 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { db } from "./db";
+import { db, pool } from "./db";
 import { sql } from "drizzle-orm";
 import session from "express-session";
+import connectPgSimple from "connect-pg-simple";
 import bcrypt from "bcrypt";
 import { z } from "zod";
 import { insertUserSchema, updateUserSchema, changePasswordSchema, resetPasswordSchema } from "@shared/schema";
@@ -60,9 +61,16 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Session middleware
+  // Configure PostgreSQL session store
+  const PgStore = connectPgSimple(session);
+  
+  // Session middleware with PostgreSQL storage
   app.use(session({
-    secret: 'your-secret-key', // In production, use environment variable
+    store: new PgStore({
+      pool: pool,
+      createTableIfMissing: true,
+    }),
+    secret: process.env.SESSION_SECRET || 'your-secret-key', // In production, use environment variable
     resave: false,
     saveUninitialized: false,
     cookie: { 
