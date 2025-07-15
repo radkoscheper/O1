@@ -155,13 +155,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getHomepageDestinations(): Promise<Destination[]> {
-    return await db.select().from(destinations).where(
-      and(
-        eq(destinations.published, true),
-        eq(destinations.is_deleted, false),
-        eq(destinations.show_on_homepage, true)
-      )
-    ).orderBy(destinations.ranking, destinations.createdAt);
+    const result = await db.execute(sql`SELECT * FROM destinations WHERE published = true AND is_deleted = false AND show_on_homepage = true ORDER BY ranking, created_at`);
+    return result.rows as Destination[];
   }
 
   async getDeletedDestinations(): Promise<Destination[]> {
@@ -274,13 +269,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getHomepageGuides(): Promise<Guide[]> {
-    return await db.select().from(guides).where(
-      and(
-        eq(guides.published, true),
-        eq(guides.is_deleted, false),
-        eq(guides.show_on_homepage, true)
-      )
-    ).orderBy(guides.ranking, guides.createdAt);
+    const result = await db.execute(sql`SELECT * FROM guides WHERE published = true AND is_deleted = false AND show_on_homepage = true ORDER BY ranking, created_at`);
+    return result.rows as Guide[];
   }
 
   async getDeletedGuides(): Promise<Guide[]> {
