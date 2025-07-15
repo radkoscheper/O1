@@ -447,6 +447,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         image: z.string().min(1),
         alt: z.string().min(1),
         content: z.string().min(1),
+        link: z.string().optional(),
         featured: z.boolean().optional(),
         published: z.boolean().optional(),
         ranking: z.number().optional(),
@@ -456,7 +457,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid input", errors: validation.error.errors });
       }
 
-      const { name, description, image, alt, content, featured = false, published = true, ranking = 0 } = validation.data;
+      const { name, description, image, alt, content, link, featured = false, published = true, ranking = 0 } = validation.data;
       
       // Generate slug from name
       const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
@@ -468,6 +469,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         image,
         alt,
         content,
+        link,
         featured,
         published,
         ranking,
@@ -496,6 +498,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         image: z.string().min(1).optional(),
         alt: z.string().min(1).optional(),
         content: z.string().min(1).optional(),
+        link: z.string().optional(),
         featured: z.boolean().optional(),
         published: z.boolean().optional(),
         ranking: z.number().optional(),
@@ -628,6 +631,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         image: z.string().min(1),
         alt: z.string().min(1),
         content: z.string().min(1),
+        link: z.string().optional(),
         featured: z.boolean().optional(),
         published: z.boolean().optional(),
         ranking: z.number().optional(),
@@ -637,7 +641,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid input", errors: validation.error.errors });
       }
 
-      const { title, description, image, alt, content, featured = false, published = true, ranking = 0 } = validation.data;
+      const { title, description, image, alt, content, link, featured = false, published = true, ranking = 0 } = validation.data;
       
       // Generate slug from title
       const slug = title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
@@ -649,6 +653,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         image,
         alt,
         content,
+        link,
         featured,
         published,
         ranking,
@@ -677,6 +682,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         image: z.string().min(1).optional(),
         alt: z.string().min(1).optional(),
         content: z.string().min(1).optional(),
+        link: z.string().optional(),
         featured: z.boolean().optional(),
         published: z.boolean().optional(),
         ranking: z.number().optional(),
