@@ -69,6 +69,7 @@ export const destinations = pgTable("destinations", {
   image: text("image").notNull(),
   alt: text("alt").notNull(),
   content: text("content").notNull(),
+  link: text("link"), // Optional link URL for the destination
   featured: boolean("featured").default(false),
   published: boolean("published").default(true),
   ranking: integer("ranking").default(0),
@@ -86,6 +87,7 @@ export const insertDestinationSchema = createInsertSchema(destinations).pick({
   image: true,
   alt: true,
   content: true,
+  link: true,
   featured: true,
   published: true,
   ranking: true,
@@ -107,6 +109,7 @@ export const guides = pgTable("guides", {
   image: text("image").notNull(),
   alt: text("alt").notNull(),
   content: text("content").notNull(),
+  link: text("link"), // Optional link URL for the guide
   featured: boolean("featured").default(false),
   published: boolean("published").default(true),
   ranking: integer("ranking").default(0),
@@ -124,6 +127,7 @@ export const insertGuideSchema = createInsertSchema(guides).pick({
   image: true,
   alt: true,
   content: true,
+  link: true,
   featured: true,
   published: true,
   ranking: true,

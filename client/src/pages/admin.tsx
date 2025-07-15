@@ -98,6 +98,7 @@ export default function Admin() {
     image: '',
     alt: '',
     content: '',
+    link: '',
     featured: false,
     published: false,
     ranking: 0
@@ -108,6 +109,7 @@ export default function Admin() {
     image: '',
     alt: '',
     content: '',
+    link: '',
     featured: false,
     published: false,
     ranking: 0
@@ -181,6 +183,7 @@ export default function Admin() {
     image: '',
     alt: '',
     content: '',
+    link: '',
     featured: false,
     published: false,
     ranking: 0
@@ -192,6 +195,7 @@ export default function Admin() {
     image: '',
     alt: '',
     content: '',
+    link: '',
     featured: false,
     published: false,
     ranking: 0
@@ -632,6 +636,7 @@ export default function Admin() {
         image: '',
         alt: '',
         content: '',
+        link: '',
         featured: false,
         published: false,
         ranking: 0
@@ -728,6 +733,7 @@ export default function Admin() {
         image: '',
         alt: '',
         content: '',
+        link: '',
         featured: false,
         published: false,
         ranking: 0
@@ -962,6 +968,7 @@ export default function Admin() {
                             image: destination.image,
                             alt: destination.alt || '',
                             content: destination.content || '',
+                            link: destination.link || '',
                             featured: destination.featured,
                             published: destination.published,
                             ranking: destination.ranking || 0
@@ -1042,6 +1049,7 @@ export default function Admin() {
                             image: guide.image,
                             alt: guide.alt || '',
                             content: guide.content || '',
+                            link: guide.link || '',
                             featured: guide.featured,
                             published: guide.published,
                             ranking: guide.ranking || 0
@@ -1153,6 +1161,19 @@ export default function Admin() {
                   />
                 </div>
 
+                <div>
+                  <Label htmlFor="dest-link">Link (optioneel)</Label>
+                  <Input
+                    id="dest-link"
+                    placeholder="Bijv. /krakow-bezoeken of https://example.com"
+                    value={newDestination.link}
+                    onChange={(e) => setNewDestination({...newDestination, link: e.target.value})}
+                  />
+                  <p className="text-sm text-gray-500 mt-1">
+                    Link waar de afbeelding naartoe moet leiden. Gebruik interne links (bijv. /pagina) of externe links (bijv. https://website.com)
+                  </p>
+                </div>
+
                 <div className="flex gap-4">
                   <div className="flex items-center space-x-2">
                     <Switch 
@@ -1241,6 +1262,19 @@ export default function Admin() {
                     value={newGuide.content}
                     onChange={(e) => setNewGuide({...newGuide, content: e.target.value})}
                   />
+                </div>
+
+                <div>
+                  <Label htmlFor="guide-link">Link (optioneel)</Label>
+                  <Input
+                    id="guide-link"
+                    placeholder="Bijv. /krakow-gids of https://example.com"
+                    value={newGuide.link}
+                    onChange={(e) => setNewGuide({...newGuide, link: e.target.value})}
+                  />
+                  <p className="text-sm text-gray-500 mt-1">
+                    Link waar de afbeelding naartoe moet leiden. Gebruik interne links (bijv. /pagina) of externe links (bijv. https://website.com)
+                  </p>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-3">
@@ -2559,6 +2593,18 @@ function EditDestinationDialog({ open, onOpenChange, destination, editData, setE
               onChange={(e) => setEditData({ ...editData, content: e.target.value })}
             />
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="link">Link (optioneel)</Label>
+            <Input
+              id="link"
+              value={editData.link || ''}
+              onChange={(e) => setEditData({ ...editData, link: e.target.value })}
+              placeholder="Bijv. /krakow-bezoeken of https://example.com"
+            />
+            <p className="text-sm text-gray-500">
+              Link waar de afbeelding naartoe moet leiden. Gebruik interne links (bijv. /pagina) of externe links (bijv. https://website.com)
+            </p>
+          </div>
           <div className="flex gap-4">
             <div className="flex items-center space-x-2">
               <Switch 
@@ -2735,6 +2781,18 @@ function EditGuideDialog({ open, onOpenChange, guide, editData, setEditData, onS
               value={editData.content}
               onChange={(e) => setEditData({ ...editData, content: e.target.value })}
             />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="link">Link (optioneel)</Label>
+            <Input
+              id="link"
+              value={editData.link || ''}
+              onChange={(e) => setEditData({ ...editData, link: e.target.value })}
+              placeholder="Bijv. /krakow-bezoeken of https://example.com"
+            />
+            <p className="text-sm text-gray-500">
+              Link waar de afbeelding naartoe moet leiden. Gebruik interne links (bijv. /pagina) of externe links (bijv. https://website.com)
+            </p>
           </div>
           <div className="flex gap-4">
             <div className="flex items-center space-x-2">
