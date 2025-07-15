@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -18,94 +18,6 @@ export default function Home() {
     queryKey: ["/api/guides"],
   });
 
-  // Fetch site settings
-  const { data: siteSettings, isLoading: settingsLoading } = useQuery({
-    queryKey: ["/api/site-settings"],
-  });
-
-  // Update document title and meta tags when site settings change
-  useEffect(() => {
-    if (siteSettings) {
-      // Use home page specific title if available, otherwise fall back to site name
-      const pageTitle = siteSettings.homePageTitle || siteSettings.siteName || "Ontdek Polen";
-      document.title = pageTitle;
-      
-      // Update meta description (use home page specific if available)
-      let metaDescription = document.querySelector('meta[name="description"]');
-      if (!metaDescription) {
-        metaDescription = document.createElement('meta');
-        metaDescription.setAttribute('name', 'description');
-        document.head.appendChild(metaDescription);
-      }
-      const description = siteSettings.homePageDescription || siteSettings.siteDescription || "Ontdek de mooiste plekken van Polen";
-      metaDescription.setAttribute('content', description);
-      
-      // Update meta keywords (use home page specific if available)
-      let metaKeywords = document.querySelector('meta[name="keywords"]');
-      if (!metaKeywords) {
-        metaKeywords = document.createElement('meta');
-        metaKeywords.setAttribute('name', 'keywords');
-        document.head.appendChild(metaKeywords);
-      }
-      const keywords = siteSettings.homePageKeywords || siteSettings.metaKeywords || "Polen, reizen, vakantie, bestemmingen";
-      metaKeywords.setAttribute('content', keywords);
-      
-      // Update favicon
-      if (siteSettings.favicon) {
-        let favicon = document.querySelector('link[rel="icon"]');
-        if (!favicon) {
-          favicon = document.createElement('link');
-          favicon.setAttribute('rel', 'icon');
-          document.head.appendChild(favicon);
-        }
-        favicon.setAttribute('href', siteSettings.favicon);
-      }
-      
-      // Add custom CSS
-      if (siteSettings.customCSS) {
-        let customStyle = document.querySelector('#custom-site-css');
-        if (!customStyle) {
-          customStyle = document.createElement('style');
-          customStyle.id = 'custom-site-css';
-          document.head.appendChild(customStyle);
-        }
-        customStyle.textContent = siteSettings.customCSS;
-      }
-      
-      // Add custom JavaScript
-      if (siteSettings.customJS) {
-        let customScript = document.querySelector('#custom-site-js');
-        if (!customScript) {
-          customScript = document.createElement('script');
-          customScript.id = 'custom-site-js';
-          document.head.appendChild(customScript);
-        }
-        customScript.textContent = siteSettings.customJS;
-      }
-      
-      // Add Google Analytics
-      if (siteSettings.googleAnalyticsId) {
-        let gaScript = document.querySelector('#google-analytics');
-        if (!gaScript) {
-          gaScript = document.createElement('script');
-          gaScript.id = 'google-analytics';
-          gaScript.async = true;
-          gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${siteSettings.googleAnalyticsId}`;
-          document.head.appendChild(gaScript);
-          
-          const gaConfig = document.createElement('script');
-          gaConfig.textContent = `
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${siteSettings.googleAnalyticsId}');
-          `;
-          document.head.appendChild(gaConfig);
-        }
-      }
-    }
-  }, [siteSettings]);
-
   // Filter only published destinations
   const publishedDestinations = destinations.filter((destination: any) => destination.published);
   
@@ -113,7 +25,7 @@ export default function Home() {
   const publishedGuides = guides.filter((guide: any) => guide.published);
   
   // Show loading state
-  if (destinationsLoading || guidesLoading || settingsLoading) {
+  if (destinationsLoading || guidesLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#f8f6f1" }}>
         <div className="text-center">
@@ -146,21 +58,15 @@ export default function Home() {
       <header 
         className="relative bg-cover bg-center text-white py-24 px-5 text-center"
         style={{
-          backgroundImage: siteSettings?.backgroundImage 
-            ? `url('${siteSettings.backgroundImage}')` 
-            : "url('/images/header.jpg')",
+          backgroundImage: "url('/images/header.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center"
         }}
       >
         <div className="absolute inset-0 bg-black bg-opacity-30"></div>
         <div className="relative z-10 max-w-4xl mx-auto">
-          <h1 className="text-5xl font-bold mb-3 font-inter">
-            {siteSettings?.homeHeroTitle || siteSettings?.siteName || "Ontdek Polen"}
-          </h1>
-          <p className="text-xl mb-8 font-inter">
-            {siteSettings?.homeHeroSubtitle || siteSettings?.siteDescription || "Mooie plekken in Polen ontdekken"}
-          </p>
+          <h1 className="text-5xl font-bold mb-3 font-inter">Ontdek Polen</h1>
+          <p className="text-xl mb-8 font-inter">Mooie plekken in Polen ontdekken</p>
           
           <form onSubmit={handleSearch} className="mt-5 mb-5">
             <div className="relative inline-block">
@@ -211,10 +117,11 @@ export default function Home() {
         <div className="flex flex-wrap gap-8 items-center justify-between">
           <div className="flex-1 min-w-80">
             <h2 className="text-3xl font-bold mb-4 font-inter text-gray-900">
-              {siteSettings?.homeCTATitle || "Laat je verrassen door het onbekende Polen"}
+              Laat je verrassen door het onbekende Polen
             </h2>
             <p className="text-lg mb-6 font-inter text-gray-700">
-              {siteSettings?.homeCTADescription || "Bezoek historische steden, ontdek natuurparken en verborgen parels. Onze reisgidsen helpen je op weg!"}
+              Bezoek historische steden, ontdek natuurparken en verborgen parels. 
+              Onze reisgidsen helpen je op weg!
             </p>
             <Button
               onClick={handleReadGuides}
@@ -237,7 +144,7 @@ export default function Home() {
       {/* Travel Guides */}
       <section className="py-16 px-5 max-w-6xl mx-auto">
         <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
-          {siteSettings?.homeGuidesTitle || "Reisgidsen en Tips"}
+          Reisgidsen en Tips
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {publishedGuides.map((guide) => (
@@ -276,7 +183,7 @@ export default function Home() {
         </Link>
         
         <p className="font-inter">
-          &copy; 2025 {siteSettings?.siteName || "Ontdek Polen"}. Alle rechten voorbehouden.
+          &copy; 2025 Ontdek Polen. Alle rechten voorbehouden.
         </p>
       </footer>
     </div>
