@@ -909,7 +909,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Site settings routes
+  // Site settings routes (public - no auth required)
   app.get("/api/site-settings", async (req, res) => {
     try {
       const settings = await storage.getSiteSettings();
