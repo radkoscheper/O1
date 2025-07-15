@@ -141,7 +141,7 @@ export default function Page() {
           
           <Button
             asChild
-            className="mt-2 py-3 px-6 text-base font-inter hover:opacity-90 transition-all duration-200 mr-4"
+            className="mt-2 py-3 px-6 text-base font-inter hover:opacity-90 transition-all duration-200"
             style={{ backgroundColor: "#2f3e46" }}
           >
             <Link href="/">
