@@ -470,6 +470,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         link: z.string().optional(),
         featured: z.boolean().optional(),
         published: z.boolean().optional(),
+        showOnHomepage: z.boolean().optional(),
         ranking: z.number().optional(),
       }).safeParse(req.body);
 
@@ -477,7 +478,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid input", errors: validation.error.errors });
       }
 
-      const { name, description, image, alt, content, link, featured = false, published = true, ranking = 0 } = validation.data;
+      const { name, description, image, alt, content, link, featured = false, published = true, showOnHomepage = true, ranking = 0 } = validation.data;
       
       // Generate slug from name
       const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
@@ -492,6 +493,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         link,
         featured,
         published,
+        showOnHomepage,
         ranking,
         createdBy: user.id,
       });
@@ -521,6 +523,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         link: z.string().optional(),
         featured: z.boolean().optional(),
         published: z.boolean().optional(),
+        showOnHomepage: z.boolean().optional(),
         ranking: z.number().optional(),
       }).safeParse(req.body);
 
@@ -665,6 +668,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         link: z.string().optional(),
         featured: z.boolean().optional(),
         published: z.boolean().optional(),
+        showOnHomepage: z.boolean().optional(),
         ranking: z.number().optional(),
       }).safeParse(req.body);
 
@@ -672,7 +676,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid input", errors: validation.error.errors });
       }
 
-      const { title, description, image, alt, content, link, featured = false, published = true, ranking = 0 } = validation.data;
+      const { title, description, image, alt, content, link, featured = false, published = true, showOnHomepage = true, ranking = 0 } = validation.data;
       
       // Generate slug from title
       const slug = title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
@@ -687,6 +691,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         link,
         featured,
         published,
+        showOnHomepage,
         ranking,
         createdBy: user.id,
       });
@@ -716,6 +721,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         link: z.string().optional(),
         featured: z.boolean().optional(),
         published: z.boolean().optional(),
+        showOnHomepage: z.boolean().optional(),
         ranking: z.number().optional(),
       }).safeParse(req.body);
 

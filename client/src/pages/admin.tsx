@@ -101,6 +101,7 @@ export default function Admin() {
     link: '',
     featured: false,
     published: false,
+    showOnHomepage: false,
     ranking: 0
   });
   const [editGuideData, setEditGuideData] = useState({
@@ -112,6 +113,7 @@ export default function Admin() {
     link: '',
     featured: false,
     published: false,
+    showOnHomepage: false,
     ranking: 0
   });
 
@@ -971,6 +973,7 @@ export default function Admin() {
                             link: destination.link || '',
                             featured: destination.featured,
                             published: destination.published,
+                            showOnHomepage: destination.showOnHomepage || false,
                             ranking: destination.ranking || 0
                           });
                           setShowEditDestination(true);
@@ -1052,6 +1055,7 @@ export default function Admin() {
                             link: guide.link || '',
                             featured: guide.featured,
                             published: guide.published,
+                            showOnHomepage: guide.showOnHomepage || false,
                             ranking: guide.ranking || 0
                           });
                           setShowEditGuide(true);
@@ -2820,6 +2824,7 @@ function EditGuideDialog({ open, onOpenChange, guide, editData, setEditData, onS
                 onCheckedChange={(checked) => setEditData({ ...editData, published: checked })}
               />
               <Label htmlFor="published">Gepubliceerd</Label>
+            </div>
             <div className="flex items-center space-x-2">
               <Switch 
                 id="showOnHomepage"
@@ -2827,7 +2832,6 @@ function EditGuideDialog({ open, onOpenChange, guide, editData, setEditData, onS
                 onCheckedChange={(checked) => setEditData({ ...editData, showOnHomepage: checked })}
               />
               <Label htmlFor="showOnHomepage">Toon op Homepage</Label>
-            </div>
             </div>
           </div>
           <DialogFooter>
