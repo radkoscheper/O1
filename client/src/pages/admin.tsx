@@ -62,6 +62,23 @@ export default function Admin() {
     queryKey: ['/api/site-settings'],
     enabled: isAuthenticated && currentUser?.role === 'admin',
   });
+
+  // Template queries (admin only)
+  const templatesQuery = useQuery({
+    queryKey: ['/api/admin/templates'],
+    enabled: isAuthenticated && currentUser?.role === 'admin',
+  });
+
+  // Pages queries
+  const pagesQuery = useQuery({
+    queryKey: ['/api/admin/pages'],
+    enabled: isAuthenticated && currentUser?.canCreateContent,
+  });
+
+  const deletedPagesQuery = useQuery({
+    queryKey: ['/api/admin/pages/deleted'],
+    enabled: isAuthenticated && (currentUser?.canDeleteContent || currentUser?.canEditContent),
+  });
   const [showCreateUser, setShowCreateUser] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showEditUser, setShowEditUser] = useState(false);
@@ -95,6 +112,21 @@ export default function Admin() {
     published: false,
     ranking: 0
   });
+
+  // Template management state
+  const [showCreateTemplate, setShowCreateTemplate] = useState(false);
+  const [showEditTemplate, setShowEditTemplate] = useState(false);
+  const [showViewTemplate, setShowViewTemplate] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
+  const [editTemplateData, setEditTemplateData] = useState<any>({});
+
+  // Page management state
+  const [showCreatePage, setShowCreatePage] = useState(false);
+  const [showEditPage, setShowEditPage] = useState(false);
+  const [showViewPage, setShowViewPage] = useState(false);
+  const [selectedPage, setSelectedPage] = useState<any>(null);
+  const [editPageData, setEditPageData] = useState<any>({});
+
   const { toast } = useToast();
 
   // Image upload helpers
@@ -1791,6 +1823,42 @@ export default function Admin() {
             </TabsContent>
           )}
 
+          {/* Pages Tab Content */}
+          {currentUser?.canCreateContent && (
+            <TabsContent value="pages" className="space-y-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-2xl font-semibold">Pagina's</h2>
+                  <p className="text-gray-600">Beheer je statische pagina's</p>
+                </div>
+                <Button variant="outline" onClick={() => setShowCreatePage(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nieuwe Pagina
+                </Button>
+              </div>
+              
+              <PageManagement />
+            </TabsContent>
+          )}
+
+          {/* Templates Tab Content - Admin Only */}
+          {currentUser?.role === 'admin' && (
+            <TabsContent value="templates" className="space-y-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-2xl font-semibold">Templates</h2>
+                  <p className="text-gray-600">Beheer templates voor pagina's en content</p>
+                </div>
+                <Button variant="outline" onClick={() => setShowCreateTemplate(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nieuwe Template
+                </Button>
+              </div>
+              
+              <TemplateManagement />
+            </TabsContent>
+          )}
+
         </Tabs>
 
         {/* Create User Dialog */}
@@ -2768,49 +2836,250 @@ function ChangePasswordForm() {
 
 // Template Management Components (placeholder voor toekomstige implementatie)
 function TemplateManagement() {
-  return (
-    <Card>
-      <CardContent className="p-6">
-        <div className="text-center py-8">
-          <h3 className="text-lg font-medium text-gray-600 mb-2">Template Systeem Actief</h3>
-          <p className="text-gray-500">Het template-systeem is volledig geïmplementeerd in de backend met API endpoints voor CRUD operaties.</p>
-          <div className="mt-4 p-4 bg-green-50 rounded-lg">
-            <h4 className="font-medium text-green-900 mb-2">Beschikbare Features:</h4>
-            <ul className="text-sm text-green-800 space-y-1 text-left max-w-md mx-auto">
-              <li>✅ Template CRUD operaties</li>
-              <li>✅ Variabelen ondersteuning (&#123;&#123;title&#125;&#125;, &#123;&#123;description&#125;&#125;)</li>
-              <li>✅ SEO meta templates</li>
-              <li>✅ Actief/inactief status</li>
-              <li>✅ Pages systeem geïntegreerd</li>
-              <li>✅ Database schema gemigreerd</li>
-            </ul>
+  const templatesQuery = useQuery({ queryKey: ['/api/admin/templates'] });
+
+  if (templatesQuery.isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center py-8">
+            <p>Templates laden...</p>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const templates = templatesQuery.data || [];
+
+  return (
+    <div className="space-y-6">
+      {/* Statistics */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-center">
+              <p className="text-2xl font-bold text-blue-600">{templates.length}</p>
+              <p className="text-sm text-gray-600">Totaal Templates</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-center">
+              <p className="text-2xl font-bold text-green-600">{templates.filter(t => t.isActive).length}</p>
+              <p className="text-sm text-gray-600">Actieve Templates</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-center">
+              <p className="text-2xl font-bold text-orange-600">{templates.filter(t => !t.isActive).length}</p>
+              <p className="text-sm text-gray-600">Inactieve Templates</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Templates List */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Templates</CardTitle>
+          <CardDescription>Beheer je content templates met variabelen ondersteuning</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {templates.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <p>Nog geen templates aangemaakt</p>
+              </div>
+            ) : (
+              templates.map((template: any) => (
+                <div key={template.id} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex-1">
+                    <h3 className="font-medium">{template.name}</h3>
+                    <p className="text-sm text-gray-600">{template.description}</p>
+                    <div className="flex gap-2 mt-2">
+                      <Badge variant={template.isActive ? "default" : "outline"}>
+                        {template.isActive ? "Actief" : "Inactief"}
+                      </Badge>
+                      <Badge variant="outline">
+                        Gebruikt door {template.pageCount || 0} pagina's
+                      </Badge>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm">
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Template Variables Info */}
+          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+            <h4 className="font-medium text-blue-900 mb-2">Beschikbare Variabelen:</h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm text-blue-800">
+              <code>&#123;&#123;title&#125;&#125;</code>
+              <code>&#123;&#123;description&#125;&#125;</code>
+              <code>&#123;&#123;metaTitle&#125;&#125;</code>
+              <code>&#123;&#123;metaDescription&#125;&#125;</code>
+              <code>&#123;&#123;metaKeywords&#125;&#125;</code>
+              <code>&#123;&#123;slug&#125;&#125;</code>
+              <code>&#123;&#123;author&#125;&#125;</code>
+              <code>&#123;&#123;date&#125;&#125;</code>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
 function PageManagement() {
-  return (
-    <Card>
-      <CardContent className="p-6">
-        <div className="text-center py-8">
-          <h3 className="text-lg font-medium text-gray-600 mb-2">Pagina Systeem Actief</h3>
-          <p className="text-gray-500">Het pagina-systeem is volledig geïmplementeerd met template ondersteuning.</p>
-          <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-            <h4 className="font-medium text-blue-900 mb-2">Beschikbare Features:</h4>
-            <ul className="text-sm text-blue-800 space-y-1 text-left max-w-md mx-auto">
-              <li>✅ Pagina CRUD operaties</li>
-              <li>✅ Template selectie</li>
-              <li>✅ SEO meta velden</li>
-              <li>✅ Publicatie status</li>
-              <li>✅ Soft delete support</li>
-              <li>✅ Ranking systeem</li>
-            </ul>
+  const pagesQuery = useQuery({ queryKey: ['/api/admin/pages'] });
+  const deletedPagesQuery = useQuery({ queryKey: ['/api/admin/pages/deleted'] });
+  const [showRecycleBin, setShowRecycleBin] = useState(false);
+
+  if (pagesQuery.isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center py-8">
+            <p>Pagina's laden...</p>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const pages = pagesQuery.data || [];
+  const deletedPages = deletedPagesQuery.data || [];
+
+  return (
+    <div className="space-y-6">
+      {/* Statistics */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-center">
+              <p className="text-2xl font-bold text-blue-600">{pages.length}</p>
+              <p className="text-sm text-gray-600">Actieve Pagina's</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-center">
+              <p className="text-2xl font-bold text-green-600">{pages.filter(p => p.published).length}</p>
+              <p className="text-sm text-gray-600">Gepubliceerd</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-center">
+              <p className="text-2xl font-bold text-orange-600">{deletedPages.length}</p>
+              <p className="text-sm text-gray-600">In Prullenbak</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Pages List */}
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <CardTitle>Pagina's</CardTitle>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setShowRecycleBin(!showRecycleBin)}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                {showRecycleBin ? 'Actieve Pagina\'s' : 'Prullenbak'}
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {!showRecycleBin ? (
+            <div className="space-y-4">
+              {pages.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <p>Nog geen pagina's aangemaakt</p>
+                </div>
+              ) : (
+                pages.map((page: any) => (
+                  <div key={page.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex-1">
+                      <h3 className="font-medium">{page.title}</h3>
+                      <p className="text-sm text-gray-600">/{page.slug}</p>
+                      <div className="flex gap-2 mt-2">
+                        <Badge variant={page.published ? "default" : "outline"}>
+                          {page.published ? "Gepubliceerd" : "Concept"}
+                        </Badge>
+                        {page.featured && <Badge variant="secondary">Featured</Badge>}
+                        <Badge variant="outline">{page.template}</Badge>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {deletedPages.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <p>Prullenbak is leeg</p>
+                </div>
+              ) : (
+                deletedPages.map((page: any) => (
+                  <div key={page.id} className="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
+                    <div className="flex-1">
+                      <h3 className="font-medium text-gray-700">{page.title}</h3>
+                      <p className="text-sm text-gray-500">Verwijderd op {new Date(page.deletedAt).toLocaleDateString('nl-NL')}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm">
+                        <RotateCcw className="h-4 w-4 mr-2" />
+                        Herstel
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
