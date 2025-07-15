@@ -984,7 +984,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { id } = req.params;
-      const page = await storage.getPage(parseInt(id));
+      const pageId = parseInt(id);
+      if (isNaN(pageId)) {
+        return res.status(400).json({ message: "Invalid page ID" });
+      }
+      const page = await storage.getPage(pageId);
       
       if (!page) {
         return res.status(404).json({ message: "Page not found" });
