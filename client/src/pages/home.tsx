@@ -191,21 +191,49 @@ export default function Home() {
       {/* Destination Grid */}
       <section className="py-16 px-5 max-w-6xl mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-8">
-          {publishedDestinations.map((destination) => (
-            <Card 
-              key={destination.id} 
-              className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none"
-            >
-              <img
-                src={destination.image}
-                alt={destination.alt}
-                className="w-full h-40 object-cover"
-              />
-              <div className="p-4 font-bold font-inter text-gray-900">
-                {destination.name}
-              </div>
-            </Card>
-          ))}
+          {publishedDestinations.map((destination) => {
+            const CardContent = (
+              <Card 
+                className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer"
+              >
+                <img
+                  src={destination.image}
+                  alt={destination.alt}
+                  className="w-full h-40 object-cover"
+                />
+                <div className="p-4 font-bold font-inter text-gray-900">
+                  {destination.name}
+                </div>
+              </Card>
+            );
+
+            // If destination has a link, wrap in Link component or external link
+            if (destination.link) {
+              // Check if it's an external link (starts with http)
+              if (destination.link.startsWith('http')) {
+                return (
+                  <a
+                    key={destination.id}
+                    href={destination.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {CardContent}
+                  </a>
+                );
+              } else {
+                // Internal link
+                return (
+                  <Link key={destination.id} href={destination.link}>
+                    {CardContent}
+                  </Link>
+                );
+              }
+            }
+
+            // No link, just return the card
+            return <div key={destination.id}>{CardContent}</div>;
+          })}
         </div>
       </section>
 
@@ -284,21 +312,49 @@ export default function Home() {
           Reisgidsen en Tips
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {publishedGuides.map((guide) => (
-            <Card 
-              key={guide.id} 
-              className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none"
-            >
-              <img
-                src={guide.image}
-                alt={guide.alt}
-                className="w-full h-40 object-cover"
-              />
-              <div className="p-4 font-bold font-inter text-gray-900">
-                {guide.title}
-              </div>
-            </Card>
-          ))}
+          {publishedGuides.map((guide) => {
+            const CardContent = (
+              <Card 
+                className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer"
+              >
+                <img
+                  src={guide.image}
+                  alt={guide.alt}
+                  className="w-full h-40 object-cover"
+                />
+                <div className="p-4 font-bold font-inter text-gray-900">
+                  {guide.title}
+                </div>
+              </Card>
+            );
+
+            // If guide has a link, wrap in Link component or external link
+            if (guide.link) {
+              // Check if it's an external link (starts with http)
+              if (guide.link.startsWith('http')) {
+                return (
+                  <a
+                    key={guide.id}
+                    href={guide.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {CardContent}
+                  </a>
+                );
+              } else {
+                // Internal link
+                return (
+                  <Link key={guide.id} href={guide.link}>
+                    {CardContent}
+                  </Link>
+                );
+              }
+            }
+
+            // No link, just return the card
+            return <div key={guide.id}>{CardContent}</div>;
+          })}
         </div>
       </section>
 
