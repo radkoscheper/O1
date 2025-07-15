@@ -944,35 +944,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // PAGES ROUTES
 
-  // Get all published pages (public)
-  app.get("/api/pages", async (req, res) => {
-    try {
-      const pages = await storage.getPublishedPages();
-      res.json(pages);
-    } catch (error) {
-      console.error("Error fetching pages:", error);
-      res.status(500).json({ message: "Server error" });
-    }
-  });
-
-  // Get page by slug (public)
-  app.get("/api/pages/:slug", async (req, res) => {
-    try {
-      const { slug } = req.params;
-      const page = await storage.getPageBySlug(slug);
-      
-      if (!page || !page.published || page.is_deleted) {
-        return res.status(404).json({ message: "Page not found" });
-      }
-      
-      res.json(page);
-    } catch (error) {
-      console.error("Error fetching page:", error);
-      res.status(500).json({ message: "Server error" });
-    }
-  });
-
-  // Get all pages (admin)
+  // Get all pages (admin) - PUT ADMIN ROUTES FIRST
   app.get("/api/admin/pages", requireAuth, async (req, res) => {
     try {
       const user = await storage.getUser(req.session.userId!);
@@ -984,6 +956,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(pages);
     } catch (error) {
       console.error("Error fetching pages:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Get single page (admin)
+  app.get("/api/admin/pages/:id", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || (!user.canEditContent && !user.canCreateContent)) {
+        return res.status(403).json({ message: "Geen toestemming om pagina's te bekijken" });
+      }
+
+      const { id } = req.params;
+      const page = await storage.getPage(parseInt(id));
+      
+      if (!page) {
+        return res.status(404).json({ message: "Page not found" });
+      }
+      
+      res.json(page);
+    } catch (error) {
+      console.error("Error fetching page:", error);
       res.status(500).json({ message: "Server error" });
     }
   });
@@ -1022,7 +1016,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update page
-  app.patch("/api/admin/pages/:id", requireAuth, async (req, res) => {
+  app.put("/api/admin/pages/:id", requireAuth, async (req, res) => {
     try {
       const user = await storage.getUser(req.session.userId!);
       if (!user?.canEditContent) {
@@ -1085,6 +1079,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Pagina definitief verwijderd" });
     } catch (error) {
       console.error("Error deleting page:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // PUBLIC PAGES ROUTES - ADD THESE AFTER ADMIN ROUTES
+
+  // Get all published pages (public)
+  app.get("/api/pages", async (req, res) => {
+    try {
+      const pages = await storage.getPublishedPages();
+      res.json(pages);
+    } catch (error) {
+      console.error("Error fetching pages:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Get page by slug (public)
+  app.get("/api/pages/:slug", async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const page = await storage.getPageBySlug(slug);
+      
+      if (!page || !page.published || page.is_deleted) {
+        return res.status(404).json({ message: "Page not found" });
+      }
+      
+      res.json(page);
+    } catch (error) {
+      console.error("Error fetching page:", error);
       res.status(500).json({ message: "Server error" });
     }
   });
