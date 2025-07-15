@@ -26,28 +26,28 @@ export default function Home() {
   // Update document title and meta tags when site settings change
   useEffect(() => {
     if (siteSettings) {
-      // Use home page specific title if available, otherwise fall back to site name
-      const pageTitle = siteSettings.homePageTitle || siteSettings.siteName || "Ontdek Polen";
+      // Use site name for page title (no more duplicate title fields!)
+      const pageTitle = siteSettings.siteName || "Ontdek Polen";
       document.title = pageTitle;
       
-      // Update meta description (use home page specific if available)
+      // Update meta description
       let metaDescription = document.querySelector('meta[name="description"]');
       if (!metaDescription) {
         metaDescription = document.createElement('meta');
         metaDescription.setAttribute('name', 'description');
         document.head.appendChild(metaDescription);
       }
-      const description = siteSettings.homePageDescription || siteSettings.siteDescription || "Ontdek de mooiste plekken van Polen";
+      const description = siteSettings.siteDescription || "Ontdek de mooiste plekken van Polen";
       metaDescription.setAttribute('content', description);
       
-      // Update meta keywords (use home page specific if available)
+      // Update meta keywords
       let metaKeywords = document.querySelector('meta[name="keywords"]');
       if (!metaKeywords) {
         metaKeywords = document.createElement('meta');
         metaKeywords.setAttribute('name', 'keywords');
         document.head.appendChild(metaKeywords);
       }
-      const keywords = siteSettings.homePageKeywords || siteSettings.metaKeywords || "Polen, reizen, vakantie, bestemmingen";
+      const keywords = siteSettings.metaKeywords || "Polen, reizen, vakantie, bestemmingen";
       metaKeywords.setAttribute('content', keywords);
       
       // Update favicon

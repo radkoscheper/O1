@@ -139,28 +139,31 @@ export type Guide = typeof guides.$inferSelect;
 // Site settings table for managing global site configuration
 export const siteSettings = pgTable("site_settings", {
   id: serial("id").primaryKey(),
+  
+  // Global site settings (gebruikt voor alle pagina's en als fallback)
   siteName: varchar("site_name", { length: 255 }).notNull().default("Ontdek Polen"),
   siteDescription: text("site_description").notNull().default("Ontdek de mooiste plekken van Polen"),
   metaKeywords: text("meta_keywords").default("Polen, reizen, vakantie, bestemmingen"),
+  
+  // Homepage specifieke content (overschrijft globale instellingen indien gevuld)
+  homeHeroTitle: varchar("home_hero_title", { length: 100 }),
+  homeHeroSubtitle: varchar("home_hero_subtitle", { length: 200 }),
+  homeCTATitle: varchar("home_cta_title", { length: 100 }),
+  homeCTADescription: text("home_cta_description"),
+  homeGuidesTitle: varchar("home_guides_title", { length: 100 }),
+  
+  // Site afbeeldingen en branding
   favicon: varchar("favicon", { length: 255 }).default("/favicon.ico"),
   backgroundImage: varchar("background_image", { length: 255 }),
   backgroundImageAlt: varchar("background_image_alt", { length: 255 }),
   logoImage: varchar("logo_image", { length: 255 }),
   logoImageAlt: varchar("logo_image_alt", { length: 255 }),
   socialMediaImage: varchar("social_media_image", { length: 255 }),
+  
+  // Technical en custom code
   customCSS: text("custom_css"),
   customJS: text("custom_js"),
   googleAnalyticsId: varchar("google_analytics_id", { length: 50 }),
-  
-  // Index/Home page specific SEO and content settings
-  homePageTitle: varchar("home_page_title", { length: 60 }).default(""),
-  homePageDescription: varchar("home_page_description", { length: 160 }).default(""),
-  homePageKeywords: text("home_page_keywords").default(""),
-  homeHeroTitle: varchar("home_hero_title", { length: 100 }).default("Ontdek Polen"),
-  homeHeroSubtitle: varchar("home_hero_subtitle", { length: 200 }).default("Mooie plekken in Polen ontdekken"),
-  homeCTATitle: varchar("home_cta_title", { length: 100 }).default("Laat je verrassen door het onbekende Polen"),
-  homeCTADescription: text("home_cta_description").default("Bezoek historische steden, ontdek natuurparken en verborgen parels. Onze reisgidsen helpen je op weg!"),
-  homeGuidesTitle: varchar("home_guides_title", { length: 100 }).default("Reisgidsen en Tips"),
   
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow(),
@@ -171,6 +174,11 @@ export const insertSiteSettingsSchema = createInsertSchema(siteSettings).pick({
   siteName: true,
   siteDescription: true,
   metaKeywords: true,
+  homeHeroTitle: true,
+  homeHeroSubtitle: true,
+  homeCTATitle: true,
+  homeCTADescription: true,
+  homeGuidesTitle: true,
   favicon: true,
   backgroundImage: true,
   backgroundImageAlt: true,
@@ -180,14 +188,6 @@ export const insertSiteSettingsSchema = createInsertSchema(siteSettings).pick({
   customCSS: true,
   customJS: true,
   googleAnalyticsId: true,
-  homePageTitle: true,
-  homePageDescription: true,
-  homePageKeywords: true,
-  homeHeroTitle: true,
-  homeHeroSubtitle: true,
-  homeCTATitle: true,
-  homeCTADescription: true,
-  homeGuidesTitle: true,
   isActive: true,
 });
 
