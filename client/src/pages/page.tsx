@@ -1,14 +1,15 @@
 import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Calendar, Tag } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { Search, Settings, ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Page() {
   const { slug } = useParams<{ slug: string }>();
+  const [searchQuery, setSearchQuery] = useState("");
   
   const { data: page, isLoading, error } = useQuery({
     queryKey: ['/api/pages', slug],
@@ -19,6 +20,11 @@ export default function Page() {
       }
       return response.json();
     },
+  });
+
+  // Fetch site settings for consistent styling
+  const { data: siteSettings } = useQuery({
+    queryKey: ["/api/site-settings"],
   });
 
   // Update document title and meta tags
@@ -52,17 +58,10 @@ export default function Page() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
-        <div className="container mx-auto px-4 py-8">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
-            <div className="space-y-4">
-              <div className="h-4 bg-gray-200 rounded"></div>
-              <div className="h-4 bg-gray-200 rounded"></div>
-              <div className="h-4 bg-gray-200 rounded"></div>
-            </div>
-          </div>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#f8f6f1" }}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-lg">Laden...</p>
         </div>
       </div>
     );
@@ -70,83 +69,131 @@ export default function Page() {
 
   if (error || !page) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
+      <div className="min-h-screen" style={{ backgroundColor: "#f8f6f1" }}>
         <div className="container mx-auto px-4 py-8">
-          <Card className="max-w-2xl mx-auto">
-            <CardHeader>
-              <CardTitle className="text-red-600">Pagina niet gevonden</CardTitle>
-              <CardDescription>
-                De pagina die je zoekt bestaat niet of is niet beschikbaar.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button asChild>
-                <Link href="/">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Terug naar home
-                </Link>
-              </Button>
-            </CardContent>
+          <Card className="max-w-2xl mx-auto p-8 text-center">
+            <h1 className="text-2xl font-bold text-red-600 mb-4">Pagina niet gevonden</h1>
+            <p className="text-gray-600 mb-6">
+              De pagina die je zoekt bestaat niet of is niet beschikbaar.
+            </p>
+            <Button asChild>
+              <Link href="/">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Terug naar home
+              </Link>
+            </Button>
           </Card>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="mb-8">
-            <Button variant="ghost" asChild className="mb-4">
-              <Link href="/">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Terug naar home
-              </Link>
-            </Button>
-            
-            <div className="flex items-center gap-2 mb-4">
-              {page.featured && (
-                <Badge variant="secondary">
-                  <Tag className="mr-1 h-3 w-3" />
-                  Uitgelicht
-                </Badge>
-              )}
-              <Badge variant="outline">
-                <Calendar className="mr-1 h-3 w-3" />
-                {new Date(page.createdAt).toLocaleDateString('nl-NL')}
-              </Badge>
-              {page.template && (
-                <Badge variant="outline">
-                  Template: {page.template}
-                </Badge>
-              )}
-            </div>
-          </div>
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Searching for:", searchQuery);
+    // TODO: Implement search functionality
+  };
 
-          {/* Main content */}
-          <Card className="shadow-lg">
-            <CardContent className="p-8">
-              <div 
-                className="prose prose-lg max-w-none"
-                dangerouslySetInnerHTML={{
-                  __html: page.content
-                    .replace(/\n/g, '<br>')
-                    .replace(/# (.*)/g, '<h1 class="text-3xl font-bold mb-4 text-blue-800">$1</h1>')
-                    .replace(/## (.*)/g, '<h2 class="text-2xl font-semibold mb-3 text-blue-700">$1</h2>')
-                    .replace(/### (.*)/g, '<h3 class="text-xl font-medium mb-2 text-blue-600">$1</h3>')
-                    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-blue-800">$1</strong>')
-                    .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
-                    .replace(/- (.*)/g, '<li class="mb-1">$1</li>')
-                    .replace(/(<li.*<\/li>)/g, '<ul class="list-disc list-inside mb-4 space-y-1">$1</ul>')
-                    .replace(/---/g, '<hr class="my-8 border-gray-200">')
-                }}
+  // Get the background image based on the page slug
+  const getBackgroundImage = (slug: string) => {
+    const images = {
+      'krakow': '/images/krakow.jpg',
+      'warschau-citytrip': '/images/krakau-dagtrip.jpg', 
+      'tatra-mountains': '/images/tatra.jpg',
+      'gdansk': '/images/gdansk.jpg',
+      'bialowieza': '/images/bialowieza.jpg'
+    };
+    return images[slug as keyof typeof images] || '/images/header.jpg';
+  };
+
+  return (
+    <div className="min-h-screen" style={{ backgroundColor: "#f8f6f1" }}>
+      {/* Hero Section - exact same as homepage */}
+      <header 
+        className="relative bg-cover bg-center text-white py-24 px-5 text-center"
+        style={{
+          backgroundImage: `url('${getBackgroundImage(slug)}')`,
+          backgroundSize: "cover",
+          backgroundPosition: "center"
+        }}
+      >
+        <div className="absolute inset-0 bg-black bg-opacity-30"></div>
+        <div className="relative z-10 max-w-4xl mx-auto">
+          <h1 className="text-5xl font-bold mb-3 font-inter">
+            {page.title}
+          </h1>
+          <p className="text-xl mb-8 font-inter">
+            {page.metaDescription || "Ontdek meer over deze bestemming"}
+          </p>
+          
+          <form onSubmit={handleSearch} className="mt-5 mb-5">
+            <div className="relative inline-block">
+              <Input
+                type="text"
+                placeholder="Zoek bestemming"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="py-3 px-5 w-80 max-w-full border-none rounded-lg text-base text-gray-900 font-inter"
               />
-            </CardContent>
-          </Card>
+              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
+            </div>
+          </form>
+          
+          <Button
+            asChild
+            className="mt-2 py-3 px-6 text-base font-inter hover:opacity-90 transition-all duration-200 mr-4"
+            style={{ backgroundColor: "#2f3e46" }}
+          >
+            <Link href="/">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Terug naar home
+            </Link>
+          </Button>
         </div>
-      </div>
+      </header>
+
+      {/* Content Section */}
+      <section className="py-16 px-5 max-w-6xl mx-auto">
+        <Card className="bg-white rounded-xl shadow-lg border-none p-8">
+          <div 
+            className="prose prose-lg max-w-none font-inter"
+            dangerouslySetInnerHTML={{
+              __html: page.content
+                .replace(/\n/g, '<br>')
+                .replace(/# (.*)/g, '<h1 class="text-3xl font-bold mb-6 text-gray-900 font-inter">$1</h1>')
+                .replace(/## (.*)/g, '<h2 class="text-2xl font-semibold mb-4 text-gray-800 font-inter">$1</h2>')
+                .replace(/### (.*)/g, '<h3 class="text-xl font-medium mb-3 text-gray-700 font-inter">$1</h3>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em class="italic text-gray-700">$1</em>')
+                .replace(/- (.*)/g, '<li class="mb-2 text-gray-700">$1</li>')
+                .replace(/(<li.*<\/li>)/gs, '<ul class="list-disc list-inside mb-6 space-y-2 ml-4">$1</ul>')
+                .replace(/---/g, '<hr class="my-8 border-gray-200">')
+            }}
+          />
+        </Card>
+      </section>
+
+      {/* Footer - exact same as homepage */}
+      <footer 
+        className="text-center py-10 px-5 text-white relative"
+        style={{ backgroundColor: "#2f3e46" }}
+      >
+        {/* Admin Link */}
+        <Link href="/admin">
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="absolute top-4 right-4 text-white border-white hover:bg-white hover:text-gray-900"
+          >
+            <Settings className="h-4 w-4 mr-2" />
+            Admin
+          </Button>
+        </Link>
+        
+        <p className="font-inter">
+          &copy; 2025 {siteSettings?.siteName || "Ontdek Polen"}. Alle rechten voorbehouden.
+        </p>
+      </footer>
     </div>
   );
 }
