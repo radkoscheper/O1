@@ -1,9 +1,11 @@
 import { 
-  users, destinations, guides, siteSettings,
+  users, destinations, guides, siteSettings, pages, templates,
   type User, type InsertUser, type UpdateUser,
   type Destination, type InsertDestination, type UpdateDestination,
   type Guide, type InsertGuide, type UpdateGuide,
-  type SiteSettings, type InsertSiteSettings, type UpdateSiteSettings
+  type SiteSettings, type InsertSiteSettings, type UpdateSiteSettings,
+  type Page, type InsertPage, type UpdatePage,
+  type Template, type InsertTemplate, type UpdateTemplate
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, ne, and, gte, lt, gt, lte, sql } from "drizzle-orm";
@@ -42,6 +44,27 @@ export interface IStorage {
   deleteGuide(id: number): Promise<void>;
   softDeleteGuide(id: number): Promise<void>;
   restoreGuide(id: number): Promise<Guide>;
+  
+  // Page operations
+  getPage(id: number): Promise<Page | undefined>;
+  getPageBySlug(slug: string): Promise<Page | undefined>;
+  getAllPages(): Promise<Page[]>;
+  getPublishedPages(): Promise<Page[]>;
+  getDeletedPages(): Promise<Page[]>;
+  createPage(page: InsertPage): Promise<Page>;
+  updatePage(id: number, updates: UpdatePage): Promise<Page>;
+  deletePage(id: number): Promise<void>;
+  softDeletePage(id: number): Promise<void>;
+  restorePage(id: number): Promise<Page>;
+  
+  // Template operations
+  getTemplate(id: number): Promise<Template | undefined>;
+  getTemplateByName(name: string): Promise<Template | undefined>;
+  getAllTemplates(): Promise<Template[]>;
+  getActiveTemplates(): Promise<Template[]>;
+  createTemplate(template: InsertTemplate): Promise<Template>;
+  updateTemplate(id: number, updates: UpdateTemplate): Promise<Template>;
+  deleteTemplate(id: number): Promise<void>;
   
   // Site settings operations
   getSiteSettings(): Promise<SiteSettings | undefined>;
@@ -360,6 +383,162 @@ export class DatabaseStorage implements IStorage {
       })
       .returning();
     return settings;
+  }
+
+  // PAGE OPERATIONS
+  async getPage(id: number): Promise<Page | undefined> {
+    const [page] = await db.select().from(pages).where(eq(pages.id, id));
+    return page;
+  }
+
+  async getPageBySlug(slug: string): Promise<Page | undefined> {
+    const [page] = await db.select().from(pages).where(eq(pages.slug, slug));
+    return page;
+  }
+
+  async getAllPages(): Promise<Page[]> {
+    return await db.select().from(pages).where(eq(pages.is_deleted, false)).orderBy(pages.ranking);
+  }
+
+  async getPublishedPages(): Promise<Page[]> {
+    return await db.select().from(pages)
+      .where(and(eq(pages.published, true), eq(pages.is_deleted, false)))
+      .orderBy(pages.ranking);
+  }
+
+  async getDeletedPages(): Promise<Page[]> {
+    return await db.select().from(pages).where(eq(pages.is_deleted, true)).orderBy(pages.deleted_at);
+  }
+
+  async createPage(insertPage: InsertPage): Promise<Page> {
+    const [page] = await db
+      .insert(pages)
+      .values({
+        ...insertPage,
+        updatedAt: new Date(),
+      })
+      .returning();
+    return page;
+  }
+
+  async updatePage(id: number, updates: UpdatePage): Promise<Page> {
+    // Handle ranking adjustment if needed
+    if (updates.ranking !== undefined) {
+      await this.adjustPageRankings(id, updates.ranking);
+    }
+
+    const [page] = await db
+      .update(pages)
+      .set({
+        ...updates,
+        updatedAt: new Date(),
+      })
+      .where(eq(pages.id, id))
+      .returning();
+    return page;
+  }
+
+  private async adjustPageRankings(targetId: number, newRanking: number): Promise<void> {
+    const targetPage = await this.getPage(targetId);
+    if (!targetPage) return;
+
+    const oldRanking = targetPage.ranking;
+    
+    if (newRanking > oldRanking) {
+      await db
+        .update(pages)
+        .set({ ranking: sql`${pages.ranking} - 1` })
+        .where(and(
+          gt(pages.ranking, oldRanking),
+          lte(pages.ranking, newRanking),
+          ne(pages.id, targetId),
+          eq(pages.is_deleted, false)
+        ));
+    } else if (newRanking < oldRanking) {
+      await db
+        .update(pages)
+        .set({ ranking: sql`${pages.ranking} + 1` })
+        .where(and(
+          gte(pages.ranking, newRanking),
+          lt(pages.ranking, oldRanking),
+          ne(pages.id, targetId),
+          eq(pages.is_deleted, false)
+        ));
+    }
+  }
+
+  async deletePage(id: number): Promise<void> {
+    await db.delete(pages).where(eq(pages.id, id));
+  }
+
+  async softDeletePage(id: number): Promise<void> {
+    await db
+      .update(pages)
+      .set({
+        is_deleted: true,
+        deleted_at: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(pages.id, id));
+  }
+
+  async restorePage(id: number): Promise<Page> {
+    const [page] = await db
+      .update(pages)
+      .set({
+        is_deleted: false,
+        deleted_at: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(pages.id, id))
+      .returning();
+    return page;
+  }
+
+  // TEMPLATE OPERATIONS
+  async getTemplate(id: number): Promise<Template | undefined> {
+    const [template] = await db.select().from(templates).where(eq(templates.id, id));
+    return template;
+  }
+
+  async getTemplateByName(name: string): Promise<Template | undefined> {
+    const [template] = await db.select().from(templates).where(eq(templates.name, name));
+    return template;
+  }
+
+  async getAllTemplates(): Promise<Template[]> {
+    return await db.select().from(templates).orderBy(templates.name);
+  }
+
+  async getActiveTemplates(): Promise<Template[]> {
+    return await db.select().from(templates).where(eq(templates.isActive, true)).orderBy(templates.name);
+  }
+
+  async createTemplate(insertTemplate: InsertTemplate): Promise<Template> {
+    const [template] = await db
+      .insert(templates)
+      .values({
+        ...insertTemplate,
+        updatedAt: new Date(),
+      })
+      .returning();
+    return template;
+  }
+
+  async updateTemplate(id: number, updates: UpdateTemplate): Promise<Template> {
+    const [template] = await db
+      .update(templates)
+      .set({
+        ...updates,
+        updatedAt: new Date(),
+      })
+      .where(eq(templates.id, id))
+      .returning();
+    return template;
+  }
+
+  async deleteTemplate(id: number): Promise<void> {
+    await db.delete(templates).where(eq(templates.id, id));
   }
 }
 
