@@ -429,6 +429,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get homepage destinations (only those with showOnHomepage = true)
+  app.get("/api/destinations/homepage", async (req, res) => {
+    try {
+      const destinations = await storage.getHomepageDestinations();
+      res.json(destinations);
+    } catch (error) {
+      console.error("Error fetching homepage destinations:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
   // Get all active destinations for admin
   app.get("/api/admin/destinations", requireAuth, async (req, res) => {
     try {
@@ -609,6 +620,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(guides);
     } catch (error) {
       console.error("Error fetching guides:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Get homepage guides (only those with showOnHomepage = true)
+  app.get("/api/guides/homepage", async (req, res) => {
+    try {
+      const guides = await storage.getHomepageGuides();
+      res.json(guides);
+    } catch (error) {
+      console.error("Error fetching homepage guides:", error);
       res.status(500).json({ message: "Server error" });
     }
   });

@@ -26,6 +26,7 @@ export interface IStorage {
   getDestinationBySlug(slug: string): Promise<Destination | undefined>;
   getAllDestinations(): Promise<Destination[]>;
   getPublishedDestinations(): Promise<Destination[]>;
+  getHomepageDestinations(): Promise<Destination[]>;
   getDeletedDestinations(): Promise<Destination[]>;
   createDestination(destination: InsertDestination): Promise<Destination>;
   updateDestination(id: number, updates: UpdateDestination): Promise<Destination>;
@@ -38,6 +39,7 @@ export interface IStorage {
   getGuideBySlug(slug: string): Promise<Guide | undefined>;
   getAllGuides(): Promise<Guide[]>;
   getPublishedGuides(): Promise<Guide[]>;
+  getHomepageGuides(): Promise<Guide[]>;
   getDeletedGuides(): Promise<Guide[]>;
   createGuide(guide: InsertGuide): Promise<Guide>;
   updateGuide(id: number, updates: UpdateGuide): Promise<Guide>;
@@ -152,6 +154,16 @@ export class DatabaseStorage implements IStorage {
     ).orderBy(destinations.ranking, destinations.createdAt);
   }
 
+  async getHomepageDestinations(): Promise<Destination[]> {
+    return await db.select().from(destinations).where(
+      and(
+        eq(destinations.published, true),
+        eq(destinations.is_deleted, false),
+        eq(destinations.showOnHomepage, true)
+      )
+    ).orderBy(destinations.ranking, destinations.createdAt);
+  }
+
   async getDeletedDestinations(): Promise<Destination[]> {
     const result = await db.execute(sql`SELECT * FROM destinations WHERE is_deleted = TRUE ORDER BY deleted_at DESC`);
     return result.rows as Destination[];
@@ -257,6 +269,16 @@ export class DatabaseStorage implements IStorage {
       and(
         eq(guides.published, true),
         eq(guides.is_deleted, false)
+      )
+    ).orderBy(guides.ranking, guides.createdAt);
+  }
+
+  async getHomepageGuides(): Promise<Guide[]> {
+    return await db.select().from(guides).where(
+      and(
+        eq(guides.published, true),
+        eq(guides.is_deleted, false),
+        eq(guides.showOnHomepage, true)
       )
     ).orderBy(guides.ranking, guides.createdAt);
   }
