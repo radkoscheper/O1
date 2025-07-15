@@ -942,6 +942,238 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // PAGES ROUTES
+
+  // Get all published pages (public)
+  app.get("/api/pages", async (req, res) => {
+    try {
+      const pages = await storage.getPublishedPages();
+      res.json(pages);
+    } catch (error) {
+      console.error("Error fetching pages:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Get page by slug (public)
+  app.get("/api/pages/:slug", async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const page = await storage.getPageBySlug(slug);
+      
+      if (!page || !page.published || page.is_deleted) {
+        return res.status(404).json({ message: "Page not found" });
+      }
+      
+      res.json(page);
+    } catch (error) {
+      console.error("Error fetching page:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Get all pages (admin)
+  app.get("/api/admin/pages", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || (!user.canEditContent && !user.canCreateContent)) {
+        return res.status(403).json({ message: "Geen toestemming om pagina's te bekijken" });
+      }
+
+      const pages = await storage.getAllPages();
+      res.json(pages);
+    } catch (error) {
+      console.error("Error fetching pages:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Get deleted pages (admin)
+  app.get("/api/admin/pages/deleted", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || (!user.canEditContent && !user.canDeleteContent)) {
+        return res.status(403).json({ message: "Geen toestemming om verwijderde pagina's te bekijken" });
+      }
+
+      const pages = await storage.getDeletedPages();
+      res.json(pages);
+    } catch (error) {
+      console.error("Error fetching deleted pages:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Create page
+  app.post("/api/admin/pages", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user?.canCreateContent) {
+        return res.status(403).json({ message: "Geen toestemming om pagina's aan te maken" });
+      }
+
+      const pageData = { ...req.body, createdBy: user.id };
+      const page = await storage.createPage(pageData);
+      res.json(page);
+    } catch (error) {
+      console.error("Error creating page:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Update page
+  app.patch("/api/admin/pages/:id", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user?.canEditContent) {
+        return res.status(403).json({ message: "Geen toestemming om pagina's te bewerken" });
+      }
+
+      const { id } = req.params;
+      const page = await storage.updatePage(parseInt(id), req.body);
+      res.json(page);
+    } catch (error) {
+      console.error("Error updating page:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Soft delete page
+  app.patch("/api/admin/pages/:id/soft-delete", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user?.canDeleteContent) {
+        return res.status(403).json({ message: "Geen toestemming om pagina's te verwijderen" });
+      }
+
+      const { id } = req.params;
+      await storage.softDeletePage(parseInt(id));
+      res.json({ message: "Pagina naar prullenbak verplaatst" });
+    } catch (error) {
+      console.error("Error soft deleting page:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Restore page
+  app.patch("/api/admin/pages/:id/restore", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user?.canEditContent) {
+        return res.status(403).json({ message: "Geen toestemming om pagina's te herstellen" });
+      }
+
+      const { id } = req.params;
+      const page = await storage.restorePage(parseInt(id));
+      res.json(page);
+    } catch (error) {
+      console.error("Error restoring page:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Permanently delete page
+  app.delete("/api/admin/pages/:id", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user?.canDeleteContent) {
+        return res.status(403).json({ message: "Geen toestemming om pagina's definitief te verwijderen" });
+      }
+
+      const { id } = req.params;
+      await storage.deletePage(parseInt(id));
+      res.json({ message: "Pagina definitief verwijderd" });
+    } catch (error) {
+      console.error("Error deleting page:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // TEMPLATES ROUTES
+
+  // Get all active templates (for page creation)
+  app.get("/api/templates", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || (!user.canCreateContent && !user.canEditContent)) {
+        return res.status(403).json({ message: "Geen toestemming om templates te bekijken" });
+      }
+
+      const templates = await storage.getActiveTemplates();
+      res.json(templates);
+    } catch (error) {
+      console.error("Error fetching templates:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Get all templates (admin)
+  app.get("/api/admin/templates", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Alleen admins kunnen templates beheren" });
+      }
+
+      const templates = await storage.getAllTemplates();
+      res.json(templates);
+    } catch (error) {
+      console.error("Error fetching templates:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Create template (admin)
+  app.post("/api/admin/templates", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Alleen admins kunnen templates aanmaken" });
+      }
+
+      const templateData = { ...req.body, createdBy: user.id };
+      const template = await storage.createTemplate(templateData);
+      res.json(template);
+    } catch (error) {
+      console.error("Error creating template:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Update template (admin)
+  app.patch("/api/admin/templates/:id", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Alleen admins kunnen templates bewerken" });
+      }
+
+      const { id } = req.params;
+      const template = await storage.updateTemplate(parseInt(id), req.body);
+      res.json(template);
+    } catch (error) {
+      console.error("Error updating template:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Delete template (admin)
+  app.delete("/api/admin/templates/:id", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Alleen admins kunnen templates verwijderen" });
+      }
+
+      const { id } = req.params;
+      await storage.deleteTemplate(parseInt(id));
+      res.json({ message: "Template verwijderd" });
+    } catch (error) {
+      console.error("Error deleting template:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

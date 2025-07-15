@@ -177,3 +177,73 @@ export const updateSiteSettingsSchema = insertSiteSettingsSchema.partial();
 export type InsertSiteSettings = z.infer<typeof insertSiteSettingsSchema>;
 export type UpdateSiteSettings = z.infer<typeof updateSiteSettingsSchema>;
 export type SiteSettings = typeof siteSettings.$inferSelect;
+
+// Pages table for dynamic page management
+export const pages = pgTable("pages", {
+  id: serial("id").primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  content: text("content").notNull(),
+  metaTitle: varchar("meta_title", { length: 255 }),
+  metaDescription: varchar("meta_description", { length: 500 }),
+  metaKeywords: varchar("meta_keywords", { length: 500 }),
+  template: varchar("template", { length: 100 }).default("default").notNull(),
+  published: boolean("published").default(false).notNull(),
+  featured: boolean("featured").default(false).notNull(),
+  ranking: integer("ranking").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdBy: integer("created_by").references(() => users.id),
+  is_deleted: boolean("is_deleted").default(false).notNull(),
+  deleted_at: timestamp("deleted_at"),
+});
+
+export const insertPageSchema = createInsertSchema(pages).pick({
+  title: true,
+  slug: true,
+  content: true,
+  metaTitle: true,
+  metaDescription: true,
+  metaKeywords: true,
+  template: true,
+  published: true,
+  featured: true,
+  ranking: true,
+});
+
+export const updatePageSchema = insertPageSchema.partial();
+
+export type InsertPage = z.infer<typeof insertPageSchema>;
+export type UpdatePage = z.infer<typeof updatePageSchema>;
+export type Page = typeof pages.$inferSelect;
+
+// Templates table for reusable page templates
+export const templates = pgTable("templates", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull().unique(),
+  description: varchar("description", { length: 500 }),
+  content: text("content").notNull(),
+  defaultMetaTitle: varchar("default_meta_title", { length: 255 }),
+  defaultMetaDescription: varchar("default_meta_description", { length: 500 }),
+  defaultMetaKeywords: varchar("default_meta_keywords", { length: 500 }),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdBy: integer("created_by").references(() => users.id),
+});
+
+export const insertTemplateSchema = createInsertSchema(templates).pick({
+  name: true,
+  description: true,
+  content: true,
+  defaultMetaTitle: true,
+  defaultMetaDescription: true,
+  defaultMetaKeywords: true,
+  isActive: true,
+});
+
+export const updateTemplateSchema = insertTemplateSchema.partial();
+
+export type InsertTemplate = z.infer<typeof insertTemplateSchema>;
+export type UpdateTemplate = z.infer<typeof updateTemplateSchema>;
+export type Template = typeof templates.$inferSelect;
