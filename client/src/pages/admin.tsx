@@ -26,7 +26,7 @@ export default function Admin() {
   // Users query voor admin functionaliteit
   const usersQuery = useQuery({
     queryKey: ['/api/users'],
-    enabled: currentUser?.canManageUsers,
+    enabled: isAuthenticated && currentUser?.canManageUsers,
   });
   
   // Content queries
