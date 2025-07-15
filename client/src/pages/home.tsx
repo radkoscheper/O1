@@ -18,6 +18,10 @@ export default function Home() {
     queryKey: ["/api/guides"],
   });
 
+  const { data: pages = [], isLoading: pagesLoading } = useQuery({
+    queryKey: ["/api/pages"],
+  });
+
   // Fetch site settings
   const { data: siteSettings, isLoading: settingsLoading } = useQuery({
     queryKey: ["/api/site-settings"],
@@ -108,8 +112,11 @@ export default function Home() {
   // Filter only published guides
   const publishedGuides = guides.filter((guide: any) => guide.published);
   
+  // Filter only published pages
+  const publishedPages = pages.filter((page: any) => page.published);
+  
   // Show loading state
-  if (destinationsLoading || guidesLoading || settingsLoading) {
+  if (destinationsLoading || guidesLoading || pagesLoading || settingsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#f8f6f1" }}>
         <div className="text-center">
@@ -230,6 +237,46 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Published Pages */}
+      {publishedPages.length > 0 && (
+        <section className="py-16 px-5 max-w-6xl mx-auto">
+          <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
+            Ontdek Meer
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {publishedPages.map((page) => (
+              <Link href={`/${page.slug}`} key={page.id}>
+                <Card className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer">
+                  <div className="p-6">
+                    <div className="flex items-start justify-between mb-3">
+                      <h3 className="text-xl font-bold font-inter text-gray-900">
+                        {page.title}
+                      </h3>
+                      {page.featured && (
+                        <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                          Uitgelicht
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-gray-600 text-sm mb-4 font-inter">
+                      {page.metaDescription}
+                    </p>
+                    <div className="flex items-center text-xs text-gray-500">
+                      <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded">
+                        {page.template}
+                      </span>
+                      <span className="ml-2">
+                        {new Date(page.createdAt).toLocaleDateString('nl-NL')}
+                      </span>
+                    </div>
+                  </div>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Travel Guides */}
       <section className="py-16 px-5 max-w-6xl mx-auto">
