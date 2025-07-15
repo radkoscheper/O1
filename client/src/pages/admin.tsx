@@ -1837,7 +1837,7 @@ export default function Admin() {
                 </Button>
               </div>
               
-              <PageManagement />
+              <PageManagement templates={templatesQuery.data || []} />
             </TabsContent>
           )}
 
@@ -1943,6 +1943,72 @@ export default function Admin() {
             open={showViewGuide} 
             onOpenChange={setShowViewGuide}
             guide={selectedGuide}
+          />
+        )}
+
+        {/* Template Dialogs */}
+        {showCreateTemplate && (
+          <CreateTemplateDialog 
+            open={showCreateTemplate} 
+            onOpenChange={setShowCreateTemplate}
+            onTemplateCreated={() => {
+              templatesQuery.refetch();
+              setShowCreateTemplate(false);
+            }}
+          />
+        )}
+
+        {showEditTemplate && selectedTemplate && (
+          <EditTemplateDialog 
+            open={showEditTemplate} 
+            onOpenChange={setShowEditTemplate}
+            template={selectedTemplate}
+            onTemplateUpdated={() => {
+              templatesQuery.refetch();
+              setShowEditTemplate(false);
+            }}
+          />
+        )}
+
+        {showViewTemplate && selectedTemplate && (
+          <ViewTemplateDialog 
+            open={showViewTemplate} 
+            onOpenChange={setShowViewTemplate}
+            template={selectedTemplate}
+          />
+        )}
+
+        {/* Page Dialogs */}
+        {showCreatePage && (
+          <CreatePageDialog 
+            open={showCreatePage} 
+            onOpenChange={setShowCreatePage}
+            templates={templatesQuery.data || []}
+            onPageCreated={() => {
+              pagesQuery.refetch();
+              setShowCreatePage(false);
+            }}
+          />
+        )}
+
+        {showEditPage && selectedPage && (
+          <EditPageDialog 
+            open={showEditPage} 
+            onOpenChange={setShowEditPage}
+            page={selectedPage}
+            templates={templatesQuery.data || []}
+            onPageUpdated={() => {
+              pagesQuery.refetch();
+              setShowEditPage(false);
+            }}
+          />
+        )}
+
+        {showViewPage && selectedPage && (
+          <ViewPageDialog 
+            open={showViewPage} 
+            onOpenChange={setShowViewPage}
+            page={selectedPage}
           />
         )}
       </div>
@@ -2837,6 +2903,10 @@ function ChangePasswordForm() {
 // Template Management Components (placeholder voor toekomstige implementatie)
 function TemplateManagement() {
   const templatesQuery = useQuery({ queryKey: ['/api/admin/templates'] });
+  const [showViewTemplate, setShowViewTemplate] = useState(false);
+  const [showEditTemplate, setShowEditTemplate] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
+  const { toast } = useToast();
 
   if (templatesQuery.isLoading) {
     return (
@@ -2910,16 +2980,64 @@ function TemplateManagement() {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        setSelectedTemplate(template);
+                        setShowViewTemplate(true);
+                      }}
+                    >
                       <Eye className="h-4 w-4" />
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        setSelectedTemplate(template);
+                        setShowEditTemplate(true);
+                      }}
+                    >
                       <Edit className="h-4 w-4" />
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={async () => {
+                        try {
+                          const newTemplate = {
+                            ...template,
+                            name: `${template.name} (Kopie)`,
+                            id: undefined
+                          };
+                          await apiRequest('/api/admin/templates', {
+                            method: 'POST',
+                            body: JSON.stringify(newTemplate)
+                          });
+                          toast({ title: "Succes", description: "Template gekopieerd" });
+                          templatesQuery.refetch();
+                        } catch (error) {
+                          toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+                        }
+                      }}
+                    >
                       <Copy className="h-4 w-4" />
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={async () => {
+                        if (confirm('Weet je zeker dat je deze template wilt verwijderen?')) {
+                          try {
+                            await apiRequest(`/api/admin/templates/${template.id}`, { method: 'DELETE' });
+                            toast({ title: "Succes", description: "Template verwijderd" });
+                            templatesQuery.refetch();
+                          } catch (error) {
+                            toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+                          }
+                        }
+                      }}
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -2944,14 +3062,825 @@ function TemplateManagement() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Template View Dialog */}
+      {showViewTemplate && selectedTemplate && (
+        <ViewTemplateDialog 
+          open={showViewTemplate} 
+          onOpenChange={setShowViewTemplate}
+          template={selectedTemplate}
+        />
+      )}
+
+      {/* Template Edit Dialog */}
+      {showEditTemplate && selectedTemplate && (
+        <EditTemplateDialog 
+          open={showEditTemplate} 
+          onOpenChange={setShowEditTemplate}
+          template={selectedTemplate}
+          onTemplateUpdated={() => {
+            templatesQuery.refetch();
+            setShowEditTemplate(false);
+          }}
+        />
+      )}
     </div>
   );
 }
 
-function PageManagement() {
+// Template Dialog Components
+function CreateTemplateDialog({ open, onOpenChange, onTemplateCreated }: { 
+  open: boolean; 
+  onOpenChange: (open: boolean) => void; 
+  onTemplateCreated: () => void; 
+}) {
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    content: '',
+    defaultMetaTitle: '',
+    defaultMetaDescription: '',
+    defaultMetaKeywords: '',
+    isActive: true
+  });
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await apiRequest('/api/admin/templates', {
+        method: 'POST',
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        toast({ title: "Succes", description: "Template succesvol aangemaakt" });
+        onTemplateCreated();
+        setFormData({
+          name: '',
+          description: '',
+          content: '',
+          defaultMetaTitle: '',
+          defaultMetaDescription: '',
+          defaultMetaKeywords: '',
+          isActive: true
+        });
+      }
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Nieuwe Template Aanmaken</DialogTitle>
+          <DialogDescription>
+            Maak een nieuwe template aan met variabelen ondersteuning
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="templateName">Template Naam</Label>
+              <Input
+                id="templateName"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="Bijv. Travel Destination Template"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="templateDescription">Beschrijving</Label>
+              <Input
+                id="templateDescription"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                placeholder="Beschrijf het doel van deze template"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="templateContent">Template Content</Label>
+            <Textarea
+              id="templateContent"
+              value={formData.content}
+              onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+              placeholder="# {{title}}&#10;&#10;{{description}}&#10;&#10;## Inhoud&#10;&#10;Gebruik variabelen zoals {{title}}, {{description}}, {{metaDescription}}"
+              rows={12}
+              className="font-mono text-sm"
+              required
+            />
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="space-y-2">
+              <Label htmlFor="defaultMetaTitle">Standaard Meta Title</Label>
+              <Input
+                id="defaultMetaTitle"
+                value={formData.defaultMetaTitle}
+                onChange={(e) => setFormData({ ...formData, defaultMetaTitle: e.target.value })}
+                placeholder="{{title}} - Site Naam"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="defaultMetaDescription">Standaard Meta Description</Label>
+              <Input
+                id="defaultMetaDescription"
+                value={formData.defaultMetaDescription}
+                onChange={(e) => setFormData({ ...formData, defaultMetaDescription: e.target.value })}
+                placeholder="{{description}}"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="defaultMetaKeywords">Standaard Meta Keywords</Label>
+              <Input
+                id="defaultMetaKeywords"
+                value={formData.defaultMetaKeywords}
+                onChange={(e) => setFormData({ ...formData, defaultMetaKeywords: e.target.value })}
+                placeholder="{{title}}, polen, reizen"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="isActive"
+              checked={formData.isActive}
+              onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
+            />
+            <Label htmlFor="isActive">Template actief maken</Label>
+          </div>
+
+          <div className="p-4 bg-blue-50 rounded-lg">
+            <h4 className="font-medium text-blue-900 mb-2">Beschikbare Variabelen:</h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm text-blue-800">
+              <code>&#123;&#123;title&#125;&#125;</code>
+              <code>&#123;&#123;description&#125;&#125;</code>
+              <code>&#123;&#123;metaTitle&#125;&#125;</code>
+              <code>&#123;&#123;metaDescription&#125;&#125;</code>
+              <code>&#123;&#123;metaKeywords&#125;&#125;</code>
+              <code>&#123;&#123;slug&#125;&#125;</code>
+              <code>&#123;&#123;author&#125;&#125;</code>
+              <code>&#123;&#123;date&#125;&#125;</code>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Annuleren
+            </Button>
+            <Button type="submit">Template Aanmaken</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function EditTemplateDialog({ open, onOpenChange, template, onTemplateUpdated }: { 
+  open: boolean; 
+  onOpenChange: (open: boolean) => void; 
+  template: any;
+  onTemplateUpdated: () => void; 
+}) {
+  const [formData, setFormData] = useState({
+    name: template?.name || '',
+    description: template?.description || '',
+    content: template?.content || '',
+    defaultMetaTitle: template?.defaultMetaTitle || '',
+    defaultMetaDescription: template?.defaultMetaDescription || '',
+    defaultMetaKeywords: template?.defaultMetaKeywords || '',
+    isActive: template?.isActive || false
+  });
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (template) {
+      setFormData({
+        name: template.name || '',
+        description: template.description || '',
+        content: template.content || '',
+        defaultMetaTitle: template.defaultMetaTitle || '',
+        defaultMetaDescription: template.defaultMetaDescription || '',
+        defaultMetaKeywords: template.defaultMetaKeywords || '',
+        isActive: template.isActive || false
+      });
+    }
+  }, [template]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await apiRequest(`/api/admin/templates/${template.id}`, {
+        method: 'PUT',
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        toast({ title: "Succes", description: "Template succesvol bijgewerkt" });
+        onTemplateUpdated();
+      }
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Template Bewerken</DialogTitle>
+          <DialogDescription>
+            Bewerk de template "{template?.name}"
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="editTemplateName">Template Naam</Label>
+              <Input
+                id="editTemplateName"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="editTemplateDescription">Beschrijving</Label>
+              <Input
+                id="editTemplateDescription"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                required
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="editTemplateContent">Template Content</Label>
+            <Textarea
+              id="editTemplateContent"
+              value={formData.content}
+              onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+              rows={12}
+              className="font-mono text-sm"
+              required
+            />
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="space-y-2">
+              <Label htmlFor="editDefaultMetaTitle">Standaard Meta Title</Label>
+              <Input
+                id="editDefaultMetaTitle"
+                value={formData.defaultMetaTitle}
+                onChange={(e) => setFormData({ ...formData, defaultMetaTitle: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="editDefaultMetaDescription">Standaard Meta Description</Label>
+              <Input
+                id="editDefaultMetaDescription"
+                value={formData.defaultMetaDescription}
+                onChange={(e) => setFormData({ ...formData, defaultMetaDescription: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="editDefaultMetaKeywords">Standaard Meta Keywords</Label>
+              <Input
+                id="editDefaultMetaKeywords"
+                value={formData.defaultMetaKeywords}
+                onChange={(e) => setFormData({ ...formData, defaultMetaKeywords: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="editIsActive"
+              checked={formData.isActive}
+              onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
+            />
+            <Label htmlFor="editIsActive">Template actief</Label>
+          </div>
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Annuleren
+            </Button>
+            <Button type="submit">Wijzigingen Opslaan</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ViewTemplateDialog({ open, onOpenChange, template }: { 
+  open: boolean; 
+  onOpenChange: (open: boolean) => void; 
+  template: any; 
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{template?.name}</DialogTitle>
+          <DialogDescription>{template?.description}</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="flex gap-2">
+            <Badge variant={template?.isActive ? "default" : "outline"}>
+              {template?.isActive ? "Actief" : "Inactief"}
+            </Badge>
+          </div>
+
+          <div>
+            <h3 className="font-semibold mb-2">Template Content</h3>
+            <div className="bg-gray-50 p-4 rounded-md">
+              <pre className="whitespace-pre-wrap text-sm font-mono">{template?.content}</pre>
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <div>
+              <h4 className="font-medium mb-1">Meta Title</h4>
+              <p className="text-sm text-gray-600">{template?.defaultMetaTitle || 'Geen standaard waarde'}</p>
+            </div>
+            <div>
+              <h4 className="font-medium mb-1">Meta Description</h4>
+              <p className="text-sm text-gray-600">{template?.defaultMetaDescription || 'Geen standaard waarde'}</p>
+            </div>
+            <div>
+              <h4 className="font-medium mb-1">Meta Keywords</h4>
+              <p className="text-sm text-gray-600">{template?.defaultMetaKeywords || 'Geen standaard waarde'}</p>
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button onClick={() => onOpenChange(false)}>Sluiten</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Page Dialog Components
+function CreatePageDialog({ open, onOpenChange, templates, onPageCreated }: { 
+  open: boolean; 
+  onOpenChange: (open: boolean) => void; 
+  templates: any[];
+  onPageCreated: () => void; 
+}) {
+  const [formData, setFormData] = useState({
+    title: '',
+    slug: '',
+    content: '',
+    metaTitle: '',
+    metaDescription: '',
+    metaKeywords: '',
+    template: '',
+    published: false,
+    featured: false,
+    ranking: 0
+  });
+  const { toast } = useToast();
+
+  const generateSlug = (title: string) => {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
+  };
+
+  const handleTitleChange = (title: string) => {
+    setFormData(prev => ({
+      ...prev,
+      title,
+      slug: generateSlug(title)
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await apiRequest('/api/admin/pages', {
+        method: 'POST',
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        toast({ title: "Succes", description: "Pagina succesvol aangemaakt" });
+        onPageCreated();
+        setFormData({
+          title: '',
+          slug: '',
+          content: '',
+          metaTitle: '',
+          metaDescription: '',
+          metaKeywords: '',
+          template: '',
+          published: false,
+          featured: false,
+          ranking: 0
+        });
+      }
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Nieuwe Pagina Aanmaken</DialogTitle>
+          <DialogDescription>
+            Maak een nieuwe pagina aan met template ondersteuning
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="pageTitle">Pagina Titel</Label>
+              <Input
+                id="pageTitle"
+                value={formData.title}
+                onChange={(e) => handleTitleChange(e.target.value)}
+                placeholder="Bijv. Amsterdam Bezoeken"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="pageSlug">URL Slug</Label>
+              <Input
+                id="pageSlug"
+                value={formData.slug}
+                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                placeholder="amsterdam-bezoeken"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="pageTemplate">Template</Label>
+            <Select value={formData.template} onValueChange={(value) => setFormData({ ...formData, template: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecteer een template" />
+              </SelectTrigger>
+              <SelectContent>
+                {templates.filter(t => t.isActive).map((template) => (
+                  <SelectItem key={template.id} value={template.name}>
+                    {template.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="pageContent">Pagina Content</Label>
+            <Textarea
+              id="pageContent"
+              value={formData.content}
+              onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+              placeholder="Schrijf je pagina content hier. Als je een template gebruikt, wordt deze content samengevoegd met de template."
+              rows={12}
+              required
+            />
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="space-y-2">
+              <Label htmlFor="pageMetaTitle">Meta Title</Label>
+              <Input
+                id="pageMetaTitle"
+                value={formData.metaTitle}
+                onChange={(e) => setFormData({ ...formData, metaTitle: e.target.value })}
+                placeholder="SEO titel voor deze pagina"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="pageMetaDescription">Meta Description</Label>
+              <Input
+                id="pageMetaDescription"
+                value={formData.metaDescription}
+                onChange={(e) => setFormData({ ...formData, metaDescription: e.target.value })}
+                placeholder="SEO beschrijving voor deze pagina"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="pageMetaKeywords">Meta Keywords</Label>
+              <Input
+                id="pageMetaKeywords"
+                value={formData.metaKeywords}
+                onChange={(e) => setFormData({ ...formData, metaKeywords: e.target.value })}
+                placeholder="SEO keywords, gescheiden door komma's"
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="published"
+                checked={formData.published}
+                onCheckedChange={(checked) => setFormData({ ...formData, published: checked })}
+              />
+              <Label htmlFor="published">Pagina publiceren</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="featured"
+                checked={formData.featured}
+                onCheckedChange={(checked) => setFormData({ ...formData, featured: checked })}
+              />
+              <Label htmlFor="featured">Featured</Label>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="pageRanking">Volgorde (ranking)</Label>
+            <Input
+              id="pageRanking"
+              type="number"
+              value={formData.ranking}
+              onChange={(e) => setFormData({ ...formData, ranking: parseInt(e.target.value) || 0 })}
+              placeholder="0"
+            />
+          </div>
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Annuleren
+            </Button>
+            <Button type="submit">Pagina Aanmaken</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function EditPageDialog({ open, onOpenChange, page, templates, onPageUpdated }: { 
+  open: boolean; 
+  onOpenChange: (open: boolean) => void; 
+  page: any;
+  templates: any[];
+  onPageUpdated: () => void; 
+}) {
+  const [formData, setFormData] = useState({
+    title: page?.title || '',
+    slug: page?.slug || '',
+    content: page?.content || '',
+    metaTitle: page?.metaTitle || '',
+    metaDescription: page?.metaDescription || '',
+    metaKeywords: page?.metaKeywords || '',
+    template: page?.template || '',
+    published: page?.published || false,
+    featured: page?.featured || false,
+    ranking: page?.ranking || 0
+  });
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (page) {
+      setFormData({
+        title: page.title || '',
+        slug: page.slug || '',
+        content: page.content || '',
+        metaTitle: page.metaTitle || '',
+        metaDescription: page.metaDescription || '',
+        metaKeywords: page.metaKeywords || '',
+        template: page.template || '',
+        published: page.published || false,
+        featured: page.featured || false,
+        ranking: page.ranking || 0
+      });
+    }
+  }, [page]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await apiRequest(`/api/admin/pages/${page.id}`, {
+        method: 'PUT',
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        toast({ title: "Succes", description: "Pagina succesvol bijgewerkt" });
+        onPageUpdated();
+      }
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Pagina Bewerken</DialogTitle>
+          <DialogDescription>
+            Bewerk de pagina "{page?.title}"
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="editPageTitle">Pagina Titel</Label>
+              <Input
+                id="editPageTitle"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="editPageSlug">URL Slug</Label>
+              <Input
+                id="editPageSlug"
+                value={formData.slug}
+                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                required
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="editPageTemplate">Template</Label>
+            <Select value={formData.template} onValueChange={(value) => setFormData({ ...formData, template: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecteer een template" />
+              </SelectTrigger>
+              <SelectContent>
+                {templates.filter(t => t.isActive).map((template) => (
+                  <SelectItem key={template.id} value={template.name}>
+                    {template.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="editPageContent">Pagina Content</Label>
+            <Textarea
+              id="editPageContent"
+              value={formData.content}
+              onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+              rows={12}
+              required
+            />
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="space-y-2">
+              <Label htmlFor="editPageMetaTitle">Meta Title</Label>
+              <Input
+                id="editPageMetaTitle"
+                value={formData.metaTitle}
+                onChange={(e) => setFormData({ ...formData, metaTitle: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="editPageMetaDescription">Meta Description</Label>
+              <Input
+                id="editPageMetaDescription"
+                value={formData.metaDescription}
+                onChange={(e) => setFormData({ ...formData, metaDescription: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="editPageMetaKeywords">Meta Keywords</Label>
+              <Input
+                id="editPageMetaKeywords"
+                value={formData.metaKeywords}
+                onChange={(e) => setFormData({ ...formData, metaKeywords: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="editPublished"
+                checked={formData.published}
+                onCheckedChange={(checked) => setFormData({ ...formData, published: checked })}
+              />
+              <Label htmlFor="editPublished">Pagina publiceren</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="editFeatured"
+                checked={formData.featured}
+                onCheckedChange={(checked) => setFormData({ ...formData, featured: checked })}
+              />
+              <Label htmlFor="editFeatured">Featured</Label>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="editPageRanking">Volgorde (ranking)</Label>
+            <Input
+              id="editPageRanking"
+              type="number"
+              value={formData.ranking}
+              onChange={(e) => setFormData({ ...formData, ranking: parseInt(e.target.value) || 0 })}
+            />
+          </div>
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Annuleren
+            </Button>
+            <Button type="submit">Wijzigingen Opslaan</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ViewPageDialog({ open, onOpenChange, page }: { 
+  open: boolean; 
+  onOpenChange: (open: boolean) => void; 
+  page: any; 
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{page?.title}</DialogTitle>
+          <DialogDescription>/{page?.slug}</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="flex gap-2">
+            <Badge variant={page?.published ? "default" : "outline"}>
+              {page?.published ? "Gepubliceerd" : "Concept"}
+            </Badge>
+            {page?.featured && <Badge variant="secondary">Featured</Badge>}
+            <Badge variant="outline">{page?.template}</Badge>
+          </div>
+
+          <div>
+            <h3 className="font-semibold mb-2">Content</h3>
+            <div className="bg-gray-50 p-4 rounded-md">
+              <pre className="whitespace-pre-wrap text-sm">{page?.content}</pre>
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <div>
+              <h4 className="font-medium mb-1">Meta Title</h4>
+              <p className="text-sm text-gray-600">{page?.metaTitle || 'Geen meta title'}</p>
+            </div>
+            <div>
+              <h4 className="font-medium mb-1">Meta Description</h4>
+              <p className="text-sm text-gray-600">{page?.metaDescription || 'Geen meta description'}</p>
+            </div>
+            <div>
+              <h4 className="font-medium mb-1">Meta Keywords</h4>
+              <p className="text-sm text-gray-600">{page?.metaKeywords || 'Geen meta keywords'}</p>
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <h4 className="font-medium mb-1">Template</h4>
+              <p className="text-sm text-gray-600">{page?.template}</p>
+            </div>
+            <div>
+              <h4 className="font-medium mb-1">Ranking</h4>
+              <p className="text-sm text-gray-600">{page?.ranking}</p>
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button onClick={() => onOpenChange(false)}>Sluiten</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function PageManagement({ templates }: { templates: any[] }) {
   const pagesQuery = useQuery({ queryKey: ['/api/admin/pages'] });
   const deletedPagesQuery = useQuery({ queryKey: ['/api/admin/pages/deleted'] });
   const [showRecycleBin, setShowRecycleBin] = useState(false);
+  const [showViewPage, setShowViewPage] = useState(false);
+  const [showEditPage, setShowEditPage] = useState(false);
+  const [selectedPage, setSelectedPage] = useState<any>(null);
+  const { toast } = useToast();
 
   if (pagesQuery.isLoading) {
     return (
@@ -3037,13 +3966,40 @@ function PageManagement() {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          setSelectedPage(page);
+                          setShowViewPage(true);
+                        }}
+                      >
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          setSelectedPage(page);
+                          setShowEditPage(true);
+                        }}
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={async () => {
+                          try {
+                            await apiRequest(`/api/admin/pages/${page.id}`, { method: 'DELETE' });
+                            toast({ title: "Succes", description: "Pagina verplaatst naar prullenbak" });
+                            pagesQuery.refetch();
+                            deletedPagesQuery.refetch();
+                          } catch (error) {
+                            toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+                          }
+                        }}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -3065,11 +4021,38 @@ function PageManagement() {
                       <p className="text-sm text-gray-500">Verwijderd op {new Date(page.deletedAt).toLocaleDateString('nl-NL')}</p>
                     </div>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={async () => {
+                          try {
+                            await apiRequest(`/api/admin/pages/${page.id}/restore`, { method: 'POST' });
+                            toast({ title: "Succes", description: "Pagina hersteld" });
+                            pagesQuery.refetch();
+                            deletedPagesQuery.refetch();
+                          } catch (error) {
+                            toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+                          }
+                        }}
+                      >
                         <RotateCcw className="h-4 w-4 mr-2" />
                         Herstel
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={async () => {
+                          if (confirm('Weet je zeker dat je deze pagina permanent wilt verwijderen?')) {
+                            try {
+                              await apiRequest(`/api/admin/pages/${page.id}/permanent`, { method: 'DELETE' });
+                              toast({ title: "Succes", description: "Pagina permanent verwijderd" });
+                              deletedPagesQuery.refetch();
+                            } catch (error) {
+                              toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+                            }
+                          }
+                        }}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -3080,6 +4063,29 @@ function PageManagement() {
           )}
         </CardContent>
       </Card>
+
+      {/* Page View Dialog */}
+      {showViewPage && selectedPage && (
+        <ViewPageDialog 
+          open={showViewPage} 
+          onOpenChange={setShowViewPage}
+          page={selectedPage}
+        />
+      )}
+
+      {/* Page Edit Dialog */}
+      {showEditPage && selectedPage && (
+        <EditPageDialog 
+          open={showEditPage} 
+          onOpenChange={setShowEditPage}
+          page={selectedPage}
+          templates={templates}
+          onPageUpdated={() => {
+            pagesQuery.refetch();
+            setShowEditPage(false);
+          }}
+        />
+      )}
     </div>
   );
 }
