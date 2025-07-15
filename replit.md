@@ -80,6 +80,22 @@ This is a full-stack web application for discovering beautiful places in Poland.
 - Location-specific descriptions for better SEO
 - Enhanced admin panel stability with proper ID validation
 
+**Stadium 5 Progress (2025-01-15)**: ✅ HOMEPAGE VISIBILITY CONTROLS FULLY IMPLEMENTED
+✅ **HOMEPAGE VISIBILITY SYSTEM COMPLETED**:
+- Complete homepage visibility toggle system with database backend support
+- API endpoints for homepage-filtered content (/api/destinations/homepage, /api/guides/homepage)
+- Frontend validation schemas updated to support showOnHomepage property
+- Admin interface enhanced with working "Toon op Homepage" switches
+- Visual indication badges added for homepage visibility status
+- Real-time cache invalidation ensures immediate UI updates
+- Comprehensive data initialization and mapping between frontend/backend
+
+**Stadium 5 Status**: ✅ COMPLETE AND FUNCTIONAL
+- Homepage visibility controls working end-to-end with database persistence
+- Visual feedback system with green "🏠 Homepage" badges in admin interface
+- Seamless integration between admin toggles and homepage content display
+- Cache invalidation system ensures real-time updates across all components
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.

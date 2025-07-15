@@ -953,6 +953,7 @@ export default function Admin() {
                         <Badge variant={destination.published ? "default" : "outline"} className="text-xs">
                           {destination.published ? "✅ Gepubliceerd" : "📝 Concept"}
                         </Badge>
+                        {destination.showOnHomepage && <Badge variant="default" className="text-xs bg-green-600 hover:bg-green-700">🏠 Homepage</Badge>}
                       </div>
                       <CardDescription className="text-sm line-clamp-2">{destination.description}</CardDescription>
                     </div>
@@ -1035,6 +1036,7 @@ export default function Admin() {
                         <Badge variant={guide.published ? "default" : "outline"} className="text-xs">
                           {guide.published ? "✅ Gepubliceerd" : "📝 Concept"}
                         </Badge>
+                        {guide.showOnHomepage && <Badge variant="default" className="text-xs bg-green-600 hover:bg-green-700">🏠 Homepage</Badge>}
                       </div>
                       <CardDescription className="text-sm line-clamp-2">{guide.description}</CardDescription>
                     </div>
