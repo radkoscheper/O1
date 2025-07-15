@@ -159,7 +159,7 @@ export class DatabaseStorage implements IStorage {
       and(
         eq(destinations.published, true),
         eq(destinations.is_deleted, false),
-        eq(destinations.showOnHomepage, true)
+        eq(destinations.show_on_homepage, true)
       )
     ).orderBy(destinations.ranking, destinations.createdAt);
   }
@@ -278,7 +278,7 @@ export class DatabaseStorage implements IStorage {
       and(
         eq(guides.published, true),
         eq(guides.is_deleted, false),
-        eq(guides.showOnHomepage, true)
+        eq(guides.show_on_homepage, true)
       )
     ).orderBy(guides.ranking, guides.createdAt);
   }
