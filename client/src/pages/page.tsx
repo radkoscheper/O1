@@ -120,10 +120,10 @@ export default function Page() {
         <div className="absolute inset-0 bg-black bg-opacity-30"></div>
         <div className="relative z-10 max-w-4xl mx-auto">
           <h1 className="text-5xl font-bold mb-3 font-inter">
-            {page.title}
+            Ontdek Polen
           </h1>
           <p className="text-xl mb-8 font-inter">
-            {page.metaDescription || "Ontdek meer over deze bestemming"}
+            Mooie plekken in {page.title} ontdekken
           </p>
           
           <form onSubmit={handleSearch} className="mt-5 mb-5">
