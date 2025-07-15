@@ -72,6 +72,7 @@ export const destinations = pgTable("destinations", {
   link: text("link"), // Optional link URL for the destination
   featured: boolean("featured").default(false),
   published: boolean("published").default(true),
+  showOnHomepage: boolean("show_on_homepage").default(true).notNull(), // Controls if shown on homepage
   ranking: integer("ranking").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -90,6 +91,7 @@ export const insertDestinationSchema = createInsertSchema(destinations).pick({
   link: true,
   featured: true,
   published: true,
+  showOnHomepage: true,
   ranking: true,
   createdBy: true,
 });
@@ -112,6 +114,7 @@ export const guides = pgTable("guides", {
   link: text("link"), // Optional link URL for the guide
   featured: boolean("featured").default(false),
   published: boolean("published").default(true),
+  showOnHomepage: boolean("show_on_homepage").default(true).notNull(), // Controls if shown on homepage
   ranking: integer("ranking").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -130,6 +133,7 @@ export const insertGuideSchema = createInsertSchema(guides).pick({
   link: true,
   featured: true,
   published: true,
+  showOnHomepage: true,
   ranking: true,
   createdBy: true,
 });

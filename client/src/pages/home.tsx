@@ -9,13 +9,13 @@ import { Link } from "wouter";
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   
-  // Fetch destinations and guides from API
+  // Fetch destinations and guides from API (homepage specific)
   const { data: destinations = [], isLoading: destinationsLoading } = useQuery({
-    queryKey: ["/api/destinations"],
+    queryKey: ["/api/destinations/homepage"],
   });
   
   const { data: guides = [], isLoading: guidesLoading } = useQuery({
-    queryKey: ["/api/guides"],
+    queryKey: ["/api/guides/homepage"],
   });
 
   const { data: pages = [], isLoading: pagesLoading } = useQuery({

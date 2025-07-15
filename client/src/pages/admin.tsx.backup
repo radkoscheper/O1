@@ -2623,14 +2623,6 @@ function EditDestinationDialog({ open, onOpenChange, destination, editData, setE
               />
               <Label htmlFor="published">Gepubliceerd</Label>
             </div>
-            <div className="flex items-center space-x-2">
-              <Switch 
-                id="showOnHomepage"
-                checked={editData.showOnHomepage !== false}
-                onCheckedChange={(checked) => setEditData({ ...editData, showOnHomepage: checked })}
-              />
-              <Label htmlFor="showOnHomepage">Toon op Homepage</Label>
-            </div>
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
@@ -2820,14 +2812,6 @@ function EditGuideDialog({ open, onOpenChange, guide, editData, setEditData, onS
                 onCheckedChange={(checked) => setEditData({ ...editData, published: checked })}
               />
               <Label htmlFor="published">Gepubliceerd</Label>
-            <div className="flex items-center space-x-2">
-              <Switch 
-                id="showOnHomepage"
-                checked={editData.showOnHomepage !== false}
-                onCheckedChange={(checked) => setEditData({ ...editData, showOnHomepage: checked })}
-              />
-              <Label htmlFor="showOnHomepage">Toon op Homepage</Label>
-            </div>
             </div>
           </div>
           <DialogFooter>
