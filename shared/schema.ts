@@ -192,6 +192,8 @@ export const pages = pgTable("pages", {
   metaDescription: varchar("meta_description", { length: 500 }),
   metaKeywords: varchar("meta_keywords", { length: 500 }),
   template: varchar("template", { length: 100 }).default("default").notNull(),
+  // Location-specific highlight sections (JSON array)
+  highlightSections: text("highlight_sections"), // JSON string of highlight objects
   published: boolean("published").default(false).notNull(),
   featured: boolean("featured").default(false).notNull(),
   ranking: integer("ranking").default(0).notNull(),
@@ -210,6 +212,7 @@ export const insertPageSchema = createInsertSchema(pages).pick({
   metaDescription: true,
   metaKeywords: true,
   template: true,
+  highlightSections: true,
   published: true,
   featured: true,
   ranking: true,
