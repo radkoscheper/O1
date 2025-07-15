@@ -152,6 +152,38 @@ export default function Page() {
         </div>
       </header>
 
+      {/* Highlight Section - same style as homepage destination grid */}
+      {page.highlightSections && (
+        <section className="py-16 px-5 max-w-6xl mx-auto">
+          <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
+            Hoogtepunten van {page.title}
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {JSON.parse(page.highlightSections).map((highlight: any, index: number) => (
+              <div key={index} className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer">
+                <img
+                  src={highlight.image}
+                  alt={highlight.alt}
+                  className="w-full h-40 object-cover"
+                  onError={(e) => {
+                    // Fallback to a default image if the specific image doesn't exist
+                    e.currentTarget.src = '/images/placeholder.jpg';
+                  }}
+                />
+                <div className="p-4">
+                  <h3 className="font-bold font-inter text-gray-900 mb-2">
+                    {highlight.title}
+                  </h3>
+                  <p className="text-sm text-gray-600 font-inter">
+                    {highlight.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Content Section */}
       <section className="py-16 px-5 max-w-6xl mx-auto">
         <Card className="bg-white rounded-xl shadow-lg border-none p-8">

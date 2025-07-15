@@ -3703,6 +3703,7 @@ function EditPageDialog({ open, onOpenChange, page, templates, onPageUpdated }: 
     metaDescription: page?.metaDescription || '',
     metaKeywords: page?.metaKeywords || '',
     template: page?.template || '',
+    highlightSections: page?.highlightSections || '[]',
     published: page?.published || false,
     featured: page?.featured || false,
     ranking: page?.ranking || 0
@@ -3719,6 +3720,7 @@ function EditPageDialog({ open, onOpenChange, page, templates, onPageUpdated }: 
         metaDescription: page.metaDescription || '',
         metaKeywords: page.metaKeywords || '',
         template: page.template || '',
+        highlightSections: page.highlightSections || '[]',
         published: page.published || false,
         featured: page.featured || false,
         ranking: page.ranking || 0
@@ -3799,6 +3801,30 @@ function EditPageDialog({ open, onOpenChange, page, templates, onPageUpdated }: 
               rows={12}
               required
             />
+          </div>
+
+          {/* Highlight Secties */}
+          <div className="space-y-2">
+            <Label>Hoogtepunten Secties</Label>
+            <p className="text-sm text-gray-600">
+              Voeg hoogtepunten toe die getoond worden onder de header (zoals op de homepage)
+            </p>
+            <Textarea
+              value={formData.highlightSections}
+              onChange={(e) => setFormData({ ...formData, highlightSections: e.target.value })}
+              className="min-h-[150px] font-mono text-sm"
+              placeholder={`[
+  {
+    "title": "Voorbeeld Locatie",
+    "description": "Beschrijving van deze mooie plek",
+    "image": "/images/example.jpg",
+    "alt": "Alternatieve tekst voor afbeelding"
+  }
+]`}
+            />
+            <p className="text-xs text-gray-500">
+              JSON format: Array van objecten met title, description, image en alt velden
+            </p>
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
