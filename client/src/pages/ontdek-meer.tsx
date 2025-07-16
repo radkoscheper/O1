@@ -27,7 +27,7 @@ export default function OntdekMeer() {
     queryKey: ["/api/site-settings"],
   });
 
-  // Update document title and meta tags
+  // Update document title and meta tags + debug
   useEffect(() => {
     document.title = "Ontdek Meer - Ontdek Polen";
     
@@ -40,9 +40,20 @@ export default function OntdekMeer() {
     }
     metaDescription.setAttribute('content', "Ontdek alle bestemmingen, reisgidsen en tips voor je reis naar Polen op één plek");
     
-    // Force refresh to ensure all changes are visible
-    console.log("Ontdek Meer pagina geladen met alle highlights");
-  }, []);
+    // Debug logging
+    console.log("Ontdek Meer pagina geladen");
+    console.log("Destinations:", destinations);
+    console.log("Guides:", guides); 
+    console.log("Pages:", pages);
+    console.log("Published destinations:", publishedDestinations);
+    console.log("Published guides:", publishedGuides);
+    console.log("Loading states:", {
+      destinationsLoading,
+      guidesLoading,
+      pagesLoading,
+      settingsLoading
+    });
+  }, [destinations, guides, pages, publishedDestinations, publishedGuides, destinationsLoading, guidesLoading, pagesLoading, settingsLoading]);
 
   // Filter only published destinations
   const publishedDestinations = destinations.filter((destination: any) => destination.published);
