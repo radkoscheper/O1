@@ -123,7 +123,12 @@ export default function Page() {
         role="banner"
         aria-label={page?.headerImageAlt || `${page?.title} header afbeelding`}
       >
-        <div className="absolute inset-0 bg-black bg-opacity-30"></div>
+        {siteSettings?.headerOverlayEnabled && (
+          <div 
+            className="absolute inset-0 bg-black" 
+            style={{ opacity: (siteSettings?.headerOverlayOpacity || 30) / 100 }}
+          ></div>
+        )}
         <div className="relative z-10 max-w-4xl mx-auto">
           <h1 className="text-5xl font-bold mb-3 font-inter">
             Ontdek Polen

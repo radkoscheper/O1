@@ -216,6 +216,8 @@ export default function Admin() {
     logoImage: '',
     logoImageAlt: '',
     socialMediaImage: '',
+    headerOverlayEnabled: false,
+    headerOverlayOpacity: 30,
     customCSS: '',
     customJS: '',
     googleAnalyticsId: '',
@@ -246,6 +248,8 @@ export default function Admin() {
         logoImage: siteSettingsQuery.data.logoImage || '',
         logoImageAlt: siteSettingsQuery.data.logoImageAlt || '',
         socialMediaImage: siteSettingsQuery.data.socialMediaImage || '',
+        headerOverlayEnabled: siteSettingsQuery.data.headerOverlayEnabled || false,
+        headerOverlayOpacity: siteSettingsQuery.data.headerOverlayOpacity || 30,
         customCSS: siteSettingsQuery.data.customCSS || '',
         customJS: siteSettingsQuery.data.customJS || '',
         googleAnalyticsId: siteSettingsQuery.data.googleAnalyticsId || '',
@@ -1738,6 +1742,52 @@ export default function Admin() {
                         placeholder="Polen, reizen, vakantie, bestemmingen"
                       />
                     </div>
+                  </CardContent>
+                </Card>
+
+                {/* Header Display Settings */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Header Weergave</CardTitle>
+                    <CardDescription>Instellingen voor header overlay en weergave</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label htmlFor="headerOverlayEnabled">Header Overlay</Label>
+                        <p className="text-sm text-gray-600">
+                          Voeg een donkere overlay toe over alle header afbeeldingen voor betere tekstleesbaarheid
+                        </p>
+                      </div>
+                      <Switch
+                        id="headerOverlayEnabled"
+                        checked={siteSettings.headerOverlayEnabled}
+                        onCheckedChange={(checked) => setSiteSettings({...siteSettings, headerOverlayEnabled: checked})}
+                      />
+                    </div>
+                    
+                    {siteSettings.headerOverlayEnabled && (
+                      <div className="space-y-2">
+                        <Label htmlFor="headerOverlayOpacity">Overlay Intensiteit: {siteSettings.headerOverlayOpacity}%</Label>
+                        <input
+                          type="range"
+                          id="headerOverlayOpacity"
+                          min="10"
+                          max="70"
+                          step="5"
+                          value={siteSettings.headerOverlayOpacity}
+                          onChange={(e) => setSiteSettings({...siteSettings, headerOverlayOpacity: parseInt(e.target.value)})}
+                          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                        />
+                        <div className="flex justify-between text-xs text-gray-500">
+                          <span>Licht (10%)</span>
+                          <span>Donker (70%)</span>
+                        </div>
+                        <p className="text-xs text-gray-600">
+                          💡 Tip: Lagere waarden voor lichtere afbeeldingen, hogere waarden voor donkere afbeeldingen
+                        </p>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
 
