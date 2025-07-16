@@ -151,7 +151,8 @@ export default function Admin() {
     iconPath: '',
     category: 'general',
     ranking: 0,
-    active: true
+    active: true,
+    showOnHomepage: true
   });
 
   const { toast } = useToast();
@@ -528,6 +529,32 @@ export default function Admin() {
       
       if (response.ok) {
         toast({ title: "Succes", description: "Highlight verwijderd" });
+        highlightsQuery.refetch();
+      } else {
+        const error = await response.json();
+        toast({ title: "Fout", description: error.message, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+    }
+  };
+
+  const handleToggleHighlightHomepage = async (id: number, showOnHomepage: boolean) => {
+    try {
+      const response = await fetch(`/api/admin/highlights/${id}/homepage`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ showOnHomepage }),
+      });
+      
+      if (response.ok) {
+        toast({ 
+          title: "Succes", 
+          description: showOnHomepage ? "Highlight toegevoegd aan homepage" : "Highlight verwijderd van homepage" 
+        });
         highlightsQuery.refetch();
       } else {
         const error = await response.json();
@@ -1147,6 +1174,9 @@ export default function Admin() {
                           <Badge variant={highlight.active ? "default" : "outline"} className="text-xs">
                             {highlight.active ? "✅ Actief" : "❌ Inactief"}
                           </Badge>
+                          <Badge variant={highlight.showOnHomepage ? "default" : "outline"} className="text-xs">
+                            {highlight.showOnHomepage ? "🏠 Homepage" : "🚫 Niet homepage"}
+                          </Badge>
                           {highlight.category !== 'general' && (
                             <Badge variant="secondary" className="text-xs capitalize">
                               {highlight.category}
@@ -1166,25 +1196,37 @@ export default function Admin() {
                       </div>
                     </CardHeader>
                     <CardContent className="pt-0">
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-col gap-3">
+                        {/* Quick Homepage Toggle */}
                         <Button 
                           size="sm" 
-                          variant="outline"
-                          onClick={() => {
-                            setSelectedHighlight(highlight);
-                            setEditHighlightData({
-                              name: highlight.name,
-                              iconPath: highlight.iconPath,
-                              category: highlight.category || 'general',
-                              ranking: highlight.ranking || 0,
-                              active: highlight.active
-                            });
-                            setShowEditHighlight(true);
-                          }}
+                          variant={highlight.showOnHomepage ? "default" : "outline"}
+                          onClick={() => handleToggleHighlightHomepage(highlight.id, !highlight.showOnHomepage)}
+                          className="w-full"
                         >
-                          <Edit className="h-4 w-4 mr-2" />
-                          Bewerken
+                          {highlight.showOnHomepage ? "🏠 Op Homepage" : "➕ Naar Homepage"}
                         </Button>
+                        
+                        <div className="flex flex-wrap gap-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => {
+                              setSelectedHighlight(highlight);
+                              setEditHighlightData({
+                                name: highlight.name,
+                                iconPath: highlight.iconPath,
+                                category: highlight.category || 'general',
+                                ranking: highlight.ranking || 0,
+                                active: highlight.active,
+                                showOnHomepage: highlight.showOnHomepage
+                              });
+                              setShowEditHighlight(true);
+                            }}
+                          >
+                            <Edit className="h-4 w-4 mr-2" />
+                            Bewerken
+                          </Button>
                         <Button 
                           size="sm" 
                           variant="outline"
@@ -1196,14 +1238,15 @@ export default function Admin() {
                           <Eye className="h-4 w-4 mr-2" />
                           Bekijken
                         </Button>
-                        <Button 
-                          size="sm" 
-                          variant="destructive"
-                          onClick={() => handleDeleteHighlight(highlight.id)}
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Verwijderen
-                        </Button>
+                          <Button 
+                            size="sm" 
+                            variant="destructive"
+                            onClick={() => handleDeleteHighlight(highlight.id)}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Verwijderen
+                          </Button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>

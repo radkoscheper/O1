@@ -1502,13 +1502,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         category: z.string().optional(),
         ranking: z.number().optional(),
         active: z.boolean().optional(),
+        showOnHomepage: z.boolean().optional(),
       }).safeParse(req.body);
 
       if (!validation.success) {
         return res.status(400).json({ message: "Invalid input", errors: validation.error.errors });
       }
 
-      const { name, iconPath, category = "general", ranking = 0, active = true } = validation.data;
+      const { name, iconPath, category = "general", ranking = 0, active = true, showOnHomepage = true } = validation.data;
       
       const highlight = await storage.createHighlight({
         name,
@@ -1516,6 +1517,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         category,
         ranking,
         active,
+        showOnHomepage,
         createdBy: user.id,
       });
 
@@ -1599,6 +1601,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Ranking bijgewerkt" });
     } catch (error) {
       console.error("Error updating highlight ranking:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Toggle homepage visibility for highlight
+  app.patch("/api/admin/highlights/:id/homepage", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Alleen admins kunnen homepage zichtbaarheid wijzigen" });
+      }
+
+      const id = parseInt(req.params.id);
+      const { showOnHomepage } = req.body;
+
+      if (isNaN(id) || typeof showOnHomepage !== 'boolean') {
+        return res.status(400).json({ message: "Invalid input" });
+      }
+
+      await storage.updateHighlight(id, { showOnHomepage });
+      res.json({ message: showOnHomepage ? "Highlight toegevoegd aan homepage" : "Highlight verwijderd van homepage" });
+    } catch (error) {
+      console.error("Error toggling highlight homepage visibility:", error);
       res.status(500).json({ message: "Server error" });
     }
   });

@@ -19,7 +19,8 @@ export function CreateHighlightDialog({ open, onOpenChange, onHighlightCreated }
     iconPath: '',
     category: 'general',
     ranking: 0,
-    active: true
+    active: true,
+    showOnHomepage: true
   });
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -59,7 +60,7 @@ export function CreateHighlightDialog({ open, onOpenChange, onHighlightCreated }
       if (response.ok) {
         toast({ title: "Succes", description: "Highlight succesvol aangemaakt" });
         onHighlightCreated();
-        setFormData({ name: '', iconPath: '', category: 'general', ranking: 0, active: true });
+        setFormData({ name: '', iconPath: '', category: 'general', ranking: 0, active: true, showOnHomepage: true });
       } else {
         const error = await response.json();
         toast({ title: "Fout", description: error.message, variant: "destructive" });
@@ -130,6 +131,15 @@ export function CreateHighlightDialog({ open, onOpenChange, onHighlightCreated }
               />
               <Label htmlFor="highlight-active">Actief</Label>
             </div>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="highlight-homepage"
+              checked={formData.showOnHomepage}
+              onCheckedChange={(checked) => setFormData({...formData, showOnHomepage: checked})}
+            />
+            <Label htmlFor="highlight-homepage">Toon op Homepage</Label>
           </div>
 
           <div>
@@ -294,6 +304,15 @@ export function EditHighlightDialog({ open, onOpenChange, highlight, editData, s
             </div>
           </div>
 
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="edit-highlight-homepage"
+              checked={editData.showOnHomepage}
+              onCheckedChange={(checked) => setEditData({...editData, showOnHomepage: checked})}
+            />
+            <Label htmlFor="edit-highlight-homepage">Toon op Homepage</Label>
+          </div>
+
           <div>
             <Label>Icon selecteren <span className="text-red-500">*</span></Label>
             <div className="grid grid-cols-6 gap-3 mt-2 p-4 border rounded-lg max-h-48 overflow-y-auto">
@@ -395,6 +414,9 @@ export function ViewHighlightDialog({ open, onOpenChange, highlight }: {
               <div className="flex gap-2 mt-1">
                 <Badge variant={highlight.active ? "default" : "outline"}>
                   {highlight.active ? "✅ Actief" : "❌ Inactief"}
+                </Badge>
+                <Badge variant={highlight.showOnHomepage ? "default" : "outline"}>
+                  {highlight.showOnHomepage ? "🏠 Homepage" : "🚫 Niet homepage"}
                 </Badge>
               </div>
             </div>
