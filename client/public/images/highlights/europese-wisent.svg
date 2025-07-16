@@ -1,0 +1,99 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bisonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8b4513;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#654321;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="forestGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#228b22;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2d5016;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Sky -->
+  <rect width="400" height="300" fill="#87CEEB"/>
+  
+  <!-- Forest background -->
+  <rect x="0" y="150" width="400" height="150" fill="url(#forestGradient)"/>
+  
+  <!-- Trees -->
+  <polygon points="50,150 70,100 90,150" fill="#228b22"/>
+  <rect x="67" y="150" width="6" height="40" fill="#8b4513"/>
+  
+  <polygon points="320,150 350,80 380,150" fill="#228b22"/>
+  <rect x="347" y="150" width="6" height="50" fill="#8b4513"/>
+  
+  <polygon points="100,150 120,120 140,150" fill="#228b22"/>
+  <rect x="117" y="150" width="6" height="30" fill="#8b4513"/>
+  
+  <polygon points="280,150 300,110 320,150" fill="#228b22"/>
+  <rect x="297" y="150" width="6" height="40" fill="#8b4513"/>
+  
+  <!-- European Bison (Wisent) -->
+  <ellipse cx="200" cy="200" rx="60" ry="35" fill="url(#bisonGradient)"/>
+  
+  <!-- Bison head -->
+  <ellipse cx="140" cy="185" rx="25" ry="20" fill="url(#bisonGradient)"/>
+  
+  <!-- Bison hump -->
+  <ellipse cx="180" cy="170" rx="20" ry="15" fill="#8b4513"/>
+  
+  <!-- Bison legs -->
+  <rect x="160" y="225" width="8" height="25" fill="#654321"/>
+  <rect x="180" y="225" width="8" height="25" fill="#654321"/>
+  <rect x="200" y="225" width="8" height="25" fill="#654321"/>
+  <rect x="220" y="225" width="8" height="25" fill="#654321"/>
+  
+  <!-- Bison hooves -->
+  <ellipse cx="164" cy="255" rx="6" ry="3" fill="#2f2f2f"/>
+  <ellipse cx="184" cy="255" rx="6" ry="3" fill="#2f2f2f"/>
+  <ellipse cx="204" cy="255" rx="6" ry="3" fill="#2f2f2f"/>
+  <ellipse cx="224" cy="255" rx="6" ry="3" fill="#2f2f2f"/>
+  
+  <!-- Bison tail -->
+  <ellipse cx="250" cy="200" rx="15" ry="5" fill="#654321"/>
+  
+  <!-- Bison horns -->
+  <path d="M 125 175 Q 120 165 115 170" stroke="#2f2f2f" stroke-width="3" fill="none"/>
+  <path d="M 155 175 Q 160 165 165 170" stroke="#2f2f2f" stroke-width="3" fill="none"/>
+  
+  <!-- Bison eyes -->
+  <circle cx="130" cy="180" r="2" fill="#000000"/>
+  <circle cx="150" cy="180" r="2" fill="#000000"/>
+  
+  <!-- Bison nose -->
+  <ellipse cx="140" cy="190" rx="3" ry="2" fill="#2f2f2f"/>
+  
+  <!-- Bison mane -->
+  <ellipse cx="140" cy="170" rx="15" ry="10" fill="#654321"/>
+  
+  <!-- Ground vegetation -->
+  <rect x="0" y="250" width="400" height="50" fill="#4a7c59"/>
+  
+  <!-- Grass -->
+  <line x1="80" y1="250" x2="80" y2="270" stroke="#228b22" stroke-width="2"/>
+  <line x1="85" y1="250" x2="85" y2="265" stroke="#228b22" stroke-width="2"/>
+  <line x1="90" y1="250" x2="90" y2="275" stroke="#228b22" stroke-width="2"/>
+  
+  <line x1="300" y1="250" x2="300" y2="270" stroke="#228b22" stroke-width="2"/>
+  <line x1="305" y1="250" x2="305" y2="265" stroke="#228b22" stroke-width="2"/>
+  <line x1="310" y1="250" x2="310" y2="275" stroke="#228b22" stroke-width="2"/>
+  
+  <!-- Small plants -->
+  <circle cx="120" cy="260" r="3" fill="#90ee90"/>
+  <circle cx="280" cy="265" r="4" fill="#90ee90"/>
+  <circle cx="60" cy="270" r="2" fill="#90ee90"/>
+  <circle cx="340" cy="260" r="3" fill="#90ee90"/>
+  
+  <!-- Mushrooms -->
+  <circle cx="100" cy="255" r="3" fill="#daa520"/>
+  <rect x="98" y="255" width="4" height="8" fill="#f5deb3"/>
+  
+  <circle cx="320" cy="258" r="2" fill="#daa520"/>
+  <rect x="319" y="258" width="2" height="5" fill="#f5deb3"/>
+  
+  <!-- Fallen log -->
+  <ellipse cx="260" cy="260" rx="25" ry="5" fill="#8b4513"/>
+  
+  <text x="200" y="290" text-anchor="middle" fill="#4a3728" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Europese Wisent</text>
+</svg>
