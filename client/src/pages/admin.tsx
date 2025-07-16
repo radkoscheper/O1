@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
-import { Plus, Edit, Eye, Save, LogIn, LogOut, Shield, Users, UserPlus, Trash2, Key, Upload, X, Image as ImageIcon, RotateCcw, Trash, Copy, Crop as CropIcon, Move, RotateCw, Check, RefreshCw } from "lucide-react";
+import { Plus, Edit, Eye, Save, LogIn, LogOut, Shield, Users, UserPlus, Trash2, Key, Upload, X, Image as ImageIcon, RotateCcw, Trash, Copy, Crop as CropIcon, Move, RotateCw, Check, RefreshCw, FolderOpen } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -3039,7 +3039,17 @@ function FaviconUploadField({ label, value, onChange }: {
           onClick={() => setShowFaviconList(!showFaviconList)}
           className="shrink-0"
         >
-          {showFaviconList ? 'Verberg' : 'Bekijk'} ({faviconFiles.length})
+          {showFaviconList ? (
+            <>
+              <Eye className="h-4 w-4 mr-1" />
+              Verberg
+            </>
+          ) : (
+            <>
+              <FolderOpen className="h-4 w-4 mr-1" />
+              Bekijk ({faviconFiles.length})
+            </>
+          )}
         </Button>
       </div>
       <input
@@ -3052,27 +3062,53 @@ function FaviconUploadField({ label, value, onChange }: {
 
       {showFaviconList && (
         <div className="mt-4 p-4 border rounded-lg bg-gray-50">
-          <h4 className="font-medium mb-3">Beschikbare Favicon Bestanden</h4>
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="font-medium">Beschikbare Favicon Bestanden</h4>
+            <span className="text-sm text-gray-500">{faviconFiles.length} bestand(en)</span>
+          </div>
           {faviconFiles.length === 0 ? (
-            <p className="text-gray-500">Geen favicon bestanden gevonden</p>
+            <div className="text-center py-8">
+              <div className="w-12 h-12 mx-auto mb-3 border-2 border-dashed border-gray-300 rounded flex items-center justify-center">
+                <span className="text-gray-400 text-xs font-bold">ICO</span>
+              </div>
+              <p className="text-gray-500 mb-2">Geen favicon bestanden gevonden</p>
+              <p className="text-xs text-gray-400">Upload een .ico bestand om te beginnen</p>
+            </div>
           ) : (
             <div className="space-y-2">
               {faviconFiles.map((file: any) => (
-                <div key={file.name} className="flex items-center justify-between p-2 bg-white rounded border">
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={file.path}
-                      alt={file.name}
-                      className="w-4 h-4"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                      }}
-                    />
+                <div key={file.name} className="flex items-center justify-between p-3 bg-white rounded border hover:border-blue-300 transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div className="w-8 h-8 border rounded flex items-center justify-center bg-gray-50">
+                      <img
+                        src={file.path}
+                        alt={file.name}
+                        className="w-6 h-6 object-contain"
+                        onError={(e) => {
+                          // Fallback: toon een bestand icoon als de favicon niet kan worden geladen
+                          e.currentTarget.style.display = 'none';
+                          const parent = e.currentTarget.parentNode as HTMLElement;
+                          if (parent && !parent.querySelector('.fallback-icon')) {
+                            const fallbackIcon = document.createElement('div');
+                            fallbackIcon.className = 'fallback-icon text-gray-400 text-xs font-bold';
+                            fallbackIcon.textContent = 'ICO';
+                            parent.appendChild(fallbackIcon);
+                          }
+                        }}
+                      />
+                    </div>
                     <div>
-                      <p className="font-medium">{file.name}</p>
+                      <p className="font-medium text-gray-900">{file.name}</p>
                       <p className="text-sm text-gray-500">
-                        {formatFileSize(file.size)} • {new Date(file.lastModified).toLocaleDateString('nl-NL')}
+                        {formatFileSize(file.size)} • {new Date(file.lastModified).toLocaleDateString('nl-NL', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
                       </p>
+                      <p className="text-xs text-blue-600">{file.path}</p>
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -3080,6 +3116,7 @@ function FaviconUploadField({ label, value, onChange }: {
                       size="sm"
                       variant="outline"
                       onClick={() => onChange(file.path)}
+                      className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                     >
                       Selecteer
                     </Button>
@@ -3087,6 +3124,7 @@ function FaviconUploadField({ label, value, onChange }: {
                       size="sm"
                       variant="destructive"
                       onClick={() => handleDeleteFavicon(file.name)}
+                      className="hover:bg-red-600"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -3099,16 +3137,30 @@ function FaviconUploadField({ label, value, onChange }: {
       )}
 
       {value && (
-        <div className="mt-2 flex items-center gap-2">
-          <img
-            src={value}
-            alt="Current favicon"
-            className="w-4 h-4"
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-            }}
-          />
-          <span className="text-sm text-gray-600">Huidige favicon: {value}</span>
+        <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 border rounded flex items-center justify-center bg-white">
+              <img
+                src={value}
+                alt="Current favicon"
+                className="w-6 h-6 object-contain"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  const parent = e.currentTarget.parentNode as HTMLElement;
+                  if (parent && !parent.querySelector('.fallback-current')) {
+                    const fallbackIcon = document.createElement('div');
+                    fallbackIcon.className = 'fallback-current text-gray-400 text-xs font-bold';
+                    fallbackIcon.textContent = 'ICO';
+                    parent.appendChild(fallbackIcon);
+                  }
+                }}
+              />
+            </div>
+            <div>
+              <p className="font-medium text-blue-900">Huidige favicon</p>
+              <p className="text-sm text-blue-700">{value}</p>
+            </div>
+          </div>
         </div>
       )}
     </div>
