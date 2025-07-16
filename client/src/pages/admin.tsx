@@ -211,6 +211,7 @@ export default function Admin() {
     siteDescription: '',
     metaKeywords: '',
     favicon: '',
+    faviconEnabled: true,
     backgroundImage: '',
     backgroundImageAlt: '',
     logoImage: '',
@@ -243,6 +244,7 @@ export default function Admin() {
         siteDescription: siteSettingsQuery.data.siteDescription || '',
         metaKeywords: siteSettingsQuery.data.metaKeywords || '',
         favicon: siteSettingsQuery.data.favicon || '',
+        faviconEnabled: siteSettingsQuery.data.faviconEnabled ?? true,
         backgroundImage: siteSettingsQuery.data.backgroundImage || '',
         backgroundImageAlt: siteSettingsQuery.data.backgroundImageAlt || '',
         logoImage: siteSettingsQuery.data.logoImage || '',
@@ -1851,11 +1853,32 @@ export default function Admin() {
                       fileName="social-media-image"
                     />
                     
-                    <FaviconUploadField
-                      label="Favicon"
-                      value={siteSettings.favicon}
-                      onChange={(faviconPath) => setSiteSettings({...siteSettings, favicon: faviconPath})}
-                    />
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id="faviconEnabled"
+                          checked={siteSettings.faviconEnabled ?? true}
+                          onCheckedChange={(checked) => setSiteSettings({...siteSettings, faviconEnabled: checked})}
+                        />
+                        <Label htmlFor="faviconEnabled">Favicon inschakelen</Label>
+                      </div>
+                      
+                      {siteSettings.faviconEnabled && (
+                        <FaviconUploadField
+                          label="Favicon"
+                          value={siteSettings.favicon}
+                          onChange={(faviconPath) => setSiteSettings({...siteSettings, favicon: faviconPath})}
+                        />
+                      )}
+                      
+                      {!siteSettings.faviconEnabled && (
+                        <div className="p-3 bg-gray-100 border border-gray-200 rounded-lg">
+                          <p className="text-sm text-gray-600">
+                            Favicon is uitgeschakeld. Schakel in om een favicon te uploaden en te beheren.
+                          </p>
+                        </div>
+                      )}
+                    </div>
                     
                     <div className="space-y-2">
                       <Label htmlFor="googleAnalyticsId">Google Analytics ID</Label>

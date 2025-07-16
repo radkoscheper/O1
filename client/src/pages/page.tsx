@@ -55,16 +55,21 @@ export default function Page() {
       }
     }
     
-    // Apply site-wide favicon from settings
-    if (siteSettings?.favicon) {
-      const favicon = document.querySelector('link[rel="icon"]');
-      if (favicon) {
-        favicon.setAttribute('href', siteSettings.favicon);
+    // Apply site-wide favicon from settings - only if enabled and has a valid path
+    const favicon = document.querySelector('link[rel="icon"]');
+    if (siteSettings?.faviconEnabled && siteSettings?.favicon && siteSettings.favicon.trim()) {
+      if (!favicon) {
+        const newFavicon = document.createElement('link');
+        newFavicon.rel = 'icon';
+        newFavicon.href = siteSettings.favicon;
+        document.head.appendChild(newFavicon);
       } else {
-        const link = document.createElement('link');
-        link.rel = 'icon';
-        link.href = siteSettings.favicon;
-        document.head.appendChild(link);
+        favicon.setAttribute('href', siteSettings.favicon);
+      }
+    } else {
+      // Remove favicon if disabled or empty
+      if (favicon) {
+        favicon.remove();
       }
     }
   }, [page, siteSettings]);
