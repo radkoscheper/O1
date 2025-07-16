@@ -27,7 +27,7 @@ export default function OntdekMeer() {
     queryKey: ["/api/site-settings"],
   });
 
-  // Update document title and meta tags when site settings change
+  // Update document title and meta tags when site settings change - CHANGED FOR ONTDEK MEER
   useEffect(() => {
     // Changed title for Ontdek Meer page
     document.title = "Ontdek Meer - Ontdek Polen";
@@ -76,64 +76,46 @@ export default function OntdekMeer() {
         document.head.appendChild(emptyFavicon);
       }
       
-      // Inject custom CSS if provided
-      const existingCustomCSS = document.querySelector('#custom-css');
+      // Add custom CSS
       if (siteSettings.customCSS) {
-        if (existingCustomCSS) {
-          existingCustomCSS.textContent = siteSettings.customCSS;
-        } else {
-          const customCSSElement = document.createElement('style');
-          customCSSElement.id = 'custom-css';
-          customCSSElement.textContent = siteSettings.customCSS;
-          document.head.appendChild(customCSSElement);
+        let customStyle = document.querySelector('#custom-site-css');
+        if (!customStyle) {
+          customStyle = document.createElement('style');
+          customStyle.id = 'custom-site-css';
+          document.head.appendChild(customStyle);
         }
-      } else {
-        if (existingCustomCSS) {
-          existingCustomCSS.remove();
-        }
+        customStyle.textContent = siteSettings.customCSS;
       }
       
-      // Inject custom JS if provided
-      const existingCustomJS = document.querySelector('#custom-js');
+      // Add custom JavaScript
       if (siteSettings.customJS) {
-        if (existingCustomJS) {
-          existingCustomJS.textContent = siteSettings.customJS;
-        } else {
-          const customJSElement = document.createElement('script');
-          customJSElement.id = 'custom-js';
-          customJSElement.textContent = siteSettings.customJS;
-          document.head.appendChild(customJSElement);
+        let customScript = document.querySelector('#custom-site-js');
+        if (!customScript) {
+          customScript = document.createElement('script');
+          customScript.id = 'custom-site-js';
+          document.head.appendChild(customScript);
         }
-      } else {
-        if (existingCustomJS) {
-          existingCustomJS.remove();
-        }
+        customScript.textContent = siteSettings.customJS;
       }
       
-      // Inject Google Analytics if provided
-      const existingGA = document.querySelector('#google-analytics');
+      // Add Google Analytics
       if (siteSettings.googleAnalyticsId) {
-        if (!existingGA) {
-          // Create Google Analytics script
-          const gtagScript = document.createElement('script');
-          gtagScript.id = 'google-analytics';
-          gtagScript.async = true;
-          gtagScript.src = `https://www.googletagmanager.com/gtag/js?id=${siteSettings.googleAnalyticsId}`;
-          document.head.appendChild(gtagScript);
+        let gaScript = document.querySelector('#google-analytics');
+        if (!gaScript) {
+          gaScript = document.createElement('script');
+          gaScript.id = 'google-analytics';
+          gaScript.async = true;
+          gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${siteSettings.googleAnalyticsId}`;
+          document.head.appendChild(gaScript);
           
-          // Create gtag config script
-          const gtagConfig = document.createElement('script');
-          gtagConfig.textContent = `
+          const gaConfig = document.createElement('script');
+          gaConfig.textContent = `
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             gtag('config', '${siteSettings.googleAnalyticsId}');
           `;
-          document.head.appendChild(gtagConfig);
-        }
-      } else {
-        if (existingGA) {
-          existingGA.remove();
+          document.head.appendChild(gaConfig);
         }
       }
     }
@@ -145,8 +127,8 @@ export default function OntdekMeer() {
   // Filter only published guides
   const publishedGuides = guides.filter((guide: any) => guide.published);
   
-  // Filter only published pages (exclude current page)
-  const publishedPages = pages.filter((page: any) => page.published && page.slug !== 'ontdek-meer');
+  // Filter only published pages
+  const publishedPages = pages.filter((page: any) => page.published);
   
   // Show loading state
   if (destinationsLoading || guidesLoading || pagesLoading || settingsLoading) {
@@ -166,16 +148,19 @@ export default function OntdekMeer() {
     // TODO: Implement search functionality
   };
 
+  const handlePlanTrip = () => {
+    console.log("Planning trip...");
+    // TODO: Implement trip planning logic
+  };
+
   const handleReadGuides = () => {
-    // Simple scroll to guides section or navigate to first guide
-    if (publishedGuides.length > 0) {
-      window.location.href = publishedGuides[0].link || `/${publishedGuides[0].slug}`;
-    }
+    console.log("Reading guides...");
+    // TODO: Implement guide reading functionality
   };
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#f8f6f1" }}>
-      {/* Hero Section */}
+      {/* Hero Section - CHANGED TITLE AND BUTTON */}
       <header 
         className="relative bg-cover bg-center text-white py-24 px-5 text-center"
         style={{
@@ -224,12 +209,9 @@ export default function OntdekMeer() {
         </div>
       </header>
 
-      {/* Destinations Section */}
+      {/* Destination Grid - EXACT SAME AS HOMEPAGE */}
       <section className="py-16 px-5 max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
-          Populaire Bestemmingen
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-8">
           {publishedDestinations.map((destination) => {
             const CardContent = (
               <Card 
@@ -276,105 +258,7 @@ export default function OntdekMeer() {
         </div>
       </section>
 
-      {/* Highlights Section */}
-      <section className="py-16 px-5 max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
-          Populaire Bezienswaardigheden
-        </h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {/* Krakow Highlights */}
-          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-            <img src="/images/highlights/wawel-castle.svg" alt="Wawel Castle" className="w-12 h-12 mx-auto mb-3" />
-            <h3 className="font-bold text-sm font-inter text-gray-900">Wawel Kasteel</h3>
-          </div>
-          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-            <img src="/images/highlights/krakow-market.svg" alt="Krakow Market" className="w-12 h-12 mx-auto mb-3" />
-            <h3 className="font-bold text-sm font-inter text-gray-900">Marktplein</h3>
-          </div>
-          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-            <img src="/images/highlights/st-marys.svg" alt="St Mary's Basilica" className="w-12 h-12 mx-auto mb-3" />
-            <h3 className="font-bold text-sm font-inter text-gray-900">St. Mary's</h3>
-          </div>
-          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-            <img src="/images/highlights/kazimierz.svg" alt="Kazimierz District" className="w-12 h-12 mx-auto mb-3" />
-            <h3 className="font-bold text-sm font-inter text-gray-900">Kazimierz</h3>
-          </div>
-          
-          {/* Tatra Mountains Highlights */}
-          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-            <img src="/images/highlights/morskie-oko.svg" alt="Morskie Oko Lake" className="w-12 h-12 mx-auto mb-3" />
-            <h3 className="font-bold text-sm font-inter text-gray-900">Morskie Oko</h3>
-          </div>
-          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-            <img src="/images/highlights/zakopane.svg" alt="Zakopane" className="w-12 h-12 mx-auto mb-3" />
-            <h3 className="font-bold text-sm font-inter text-gray-900">Zakopane</h3>
-          </div>
-          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-            <img src="/images/highlights/gubalowka.svg" alt="Gubalowka Hill" className="w-12 h-12 mx-auto mb-3" />
-            <h3 className="font-bold text-sm font-inter text-gray-900">Gubalówka</h3>
-          </div>
-          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-            <img src="/images/highlights/rysy-peak.svg" alt="Rysy Peak" className="w-12 h-12 mx-auto mb-3" />
-            <h3 className="font-bold text-sm font-inter text-gray-900">Rysy Peak</h3>
-          </div>
-
-          {/* Gdansk Highlights */}
-          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-            <img src="/images/highlights/gdansk-market.svg" alt="Gdansk Long Market" className="w-12 h-12 mx-auto mb-3" />
-            <h3 className="font-bold text-sm font-inter text-gray-900">Długi Targ</h3>
-          </div>
-          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-            <img src="/images/highlights/artus-court.svg" alt="Artus Court" className="w-12 h-12 mx-auto mb-3" />
-            <h3 className="font-bold text-sm font-inter text-gray-900">Artus Court</h3>
-          </div>
-          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-            <img src="/images/highlights/gdansk-church.svg" alt="St Mary's Church Gdansk" className="w-12 h-12 mx-auto mb-3" />
-            <h3 className="font-bold text-sm font-inter text-gray-900">St. Mary's</h3>
-          </div>
-          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-            <img src="/images/highlights/amber-museum.svg" alt="Amber Museum" className="w-12 h-12 mx-auto mb-3" />
-            <h3 className="font-bold text-sm font-inter text-gray-900">Amber Museum</h3>
-          </div>
-
-          {/* Bialowieza Highlights */}
-          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-            <img src="/images/highlights/europese-wisent.svg" alt="European Bison" className="w-12 h-12 mx-auto mb-3" />
-            <h3 className="font-bold text-sm font-inter text-gray-900">Europese Bizon</h3>
-          </div>
-          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-            <img src="/images/highlights/forest-paths.svg" alt="Forest Paths" className="w-12 h-12 mx-auto mb-3" />
-            <h3 className="font-bold text-sm font-inter text-gray-900">Bospaden</h3>
-          </div>
-          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-            <img src="/images/highlights/bird-watching.svg" alt="Bird Watching" className="w-12 h-12 mx-auto mb-3" />
-            <h3 className="font-bold text-sm font-inter text-gray-900">Vogel Spotten</h3>
-          </div>
-          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-            <img src="/images/highlights/nature-museum.svg" alt="Nature Museum" className="w-12 h-12 mx-auto mb-3" />
-            <h3 className="font-bold text-sm font-inter text-gray-900">Natuurmuseum</h3>
-          </div>
-
-          {/* Warsaw Highlights */}
-          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-            <img src="/images/highlights/warsaw-oldtown.svg" alt="Warsaw Old Town" className="w-12 h-12 mx-auto mb-3" />
-            <h3 className="font-bold text-sm font-inter text-gray-900">Oude Stad</h3>
-          </div>
-          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-            <img src="/images/highlights/warsaw-castle.svg" alt="Royal Castle Warsaw" className="w-12 h-12 mx-auto mb-3" />
-            <h3 className="font-bold text-sm font-inter text-gray-900">Koninklijk Kasteel</h3>
-          </div>
-          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-            <img src="/images/highlights/lazienki.svg" alt="Lazienki Park" className="w-12 h-12 mx-auto mb-3" />
-            <h3 className="font-bold text-sm font-inter text-gray-900">Lazienki Park</h3>
-          </div>
-          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
-            <img src="/images/highlights/wilanow.svg" alt="Wilanow Palace" className="w-12 h-12 mx-auto mb-3" />
-            <h3 className="font-bold text-sm font-inter text-gray-900">Wilanów Paleis</h3>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
+      {/* CTA Section - EXACT SAME AS HOMEPAGE */}
       <section className="py-16 px-5 max-w-6xl mx-auto">
         <div className="flex flex-wrap gap-8 items-center justify-between">
           <div className="flex-1 min-w-80">
@@ -395,7 +279,7 @@ export default function OntdekMeer() {
           </div>
           <div className="flex-1 min-w-80">
             <img
-              src="/images/guides/tatra-vallei.jpg"
+              src="/images/tatra-vallei.jpg"
               alt="Tatra Valley"
               className="w-full rounded-xl shadow-lg"
             />
@@ -403,19 +287,19 @@ export default function OntdekMeer() {
         </div>
       </section>
 
-      {/* Published Pages */}
+      {/* Published Pages - EXACT SAME AS HOMEPAGE */}
       {publishedPages.length > 0 && (
         <section className="py-16 px-5 max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl font-bold font-inter text-gray-900">
               Ontdek Meer
             </h2>
-            <Link href="/">
+            <Link href="/ontdek-meer">
               <Button
                 variant="outline"
                 className="text-gray-900 border-gray-300 hover:bg-gray-100"
               >
-                Terug naar Home
+                Bekijk Alles
               </Button>
             </Link>
           </div>
@@ -453,7 +337,7 @@ export default function OntdekMeer() {
         </section>
       )}
 
-      {/* Travel Guides */}
+      {/* Travel Guides - EXACT SAME AS HOMEPAGE */}
       <section className="py-16 px-5 max-w-6xl mx-auto">
         <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
           Reisgidsen en Tips
@@ -505,7 +389,7 @@ export default function OntdekMeer() {
         </div>
       </section>
 
-      {/* Footer */}
+      {/* Footer - EXACT SAME AS HOMEPAGE */}
       <footer 
         className="text-center py-10 px-5 text-white relative"
         style={{ backgroundColor: "#2f3e46" }}
