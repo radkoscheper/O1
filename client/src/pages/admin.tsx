@@ -2069,14 +2069,21 @@ function HeaderImageSelector({ destination, currentImage, onImageSelect }: {
   useEffect(() => {
     if (destination && showGallery) {
       setIsLoading(true);
-      fetch(`/api/admin/header-images/${destination}`)
+      fetch(`/api/admin/header-images/${destination}`, {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
         .then(res => res.json())
         .then(data => {
-          setAvailableImages(data);
+          // Ensure data is an array
+          setAvailableImages(Array.isArray(data) ? data : []);
           setIsLoading(false);
         })
         .catch(error => {
           console.error('Error fetching header images:', error);
+          setAvailableImages([]);
           setIsLoading(false);
         });
     }
