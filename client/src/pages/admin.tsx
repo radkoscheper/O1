@@ -2120,41 +2120,46 @@ function ImageCropperDialog({ imagePath, onCroppedImage, destination }: {
       throw new Error('No 2d context');
     }
     
-    // Stel een minimale breedte in voor kwaliteit (bijv. 1920px voor headers)
-    const minWidth = 1920;
-    const scaleFactor = Math.max(1, minWidth / crop.width);
+    // Vaste afmetingen voor header afbeeldingen (2.2:1 ratio)
+    const HEADER_WIDTH = 1920;
+    const HEADER_HEIGHT = Math.round(HEADER_WIDTH / 2.2); // ≈ 873px
 
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
 
-    const pixelRatio = window.devicePixelRatio || 1;
-    canvas.width = Math.floor(crop.width * scaleX * pixelRatio);
-    canvas.height = Math.floor(crop.height * scaleY * pixelRatio);
+    // Stel canvas in op vaste header afmetingen
+    canvas.width = HEADER_WIDTH;
+    canvas.height = HEADER_HEIGHT;
 
-    ctx.scale(pixelRatio, pixelRatio);
     ctx.imageSmoothingQuality = 'high';
 
     const cropX = crop.x * scaleX;
     const cropY = crop.y * scaleY;
-    const centerX = image.naturalWidth / 2;
-    const centerY = image.naturalHeight / 2;
+    const cropWidth = crop.width * scaleX;
+    const cropHeight = crop.height * scaleY;
+    
+    const centerX = cropX + cropWidth / 2;
+    const centerY = cropY + cropHeight / 2;
 
     ctx.save();
-    ctx.translate(-cropX, -cropY);
-    ctx.translate(centerX, centerY);
+    
+    // Transformaties toepassen
+    ctx.translate(HEADER_WIDTH / 2, HEADER_HEIGHT / 2);
     ctx.rotate((rotate * Math.PI) / 180);
     ctx.scale(scale, scale);
     ctx.translate(-centerX, -centerY);
+    
+    // Tekenen van de gecroppte sectie, geschaald naar vaste header afmetingen
     ctx.drawImage(
       image,
+      cropX,
+      cropY,
+      cropWidth,
+      cropHeight,
       0,
       0,
-      image.naturalWidth,
-      image.naturalHeight,
-      0,
-      0,
-      image.naturalWidth,
-      image.naturalHeight
+      HEADER_WIDTH / scale,
+      HEADER_HEIGHT / scale
     );
     ctx.restore();
 
@@ -2268,7 +2273,8 @@ function ImageCropperDialog({ imagePath, onCroppedImage, destination }: {
         <DialogHeader>
           <DialogTitle>Afbeelding Croppen & Bewerken</DialogTitle>
           <DialogDescription>
-            Selecteer het gewenste gebied van de afbeelding en pas indien nodig de instellingen aan voor optimale header weergave.
+            Selecteer het gewenste gebied van de afbeelding. De uitvoer wordt altijd 1920x873 pixels (2.2:1) voor perfecte header weergave.
+            Gebruik de crop, scale en rotate tools om de afbeelding optimaal uit te lijnen.
           </DialogDescription>
         </DialogHeader>
 
@@ -2301,19 +2307,23 @@ function ImageCropperDialog({ imagePath, onCroppedImage, destination }: {
             {/* Preview */}
             {completedCrop && (
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Preview (optimaal voor headers)</Label>
+                <Label className="text-sm font-medium">Preview (vaste header afmetingen: 1920x873px)</Label>
                 <div className="border rounded-lg p-2 bg-white">
                   <div 
                     className="w-full bg-gray-100 rounded overflow-hidden"
                     style={{ 
-                      aspectRatio: aspect > 0 ? aspect : 'auto',
+                      aspectRatio: '2.2',
                       height: '120px'
                     }}
                   >
                     <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm">
-                      Header Preview Area
+                      Uitvoer: 1920x873px (2.2:1)
                     </div>
                   </div>
+                </div>
+                <div className="text-xs text-gray-600 bg-blue-50 p-2 rounded">
+                  💡 <strong>Vaste afmetingen:</strong> De gecroppte afbeelding wordt altijd opgeslagen als 1920x873 pixels, 
+                  perfect voor header weergave. Gebruik de crop, scale en rotate tools om de afbeelding optimaal uit te lijnen.
                 </div>
               </div>
             )}
