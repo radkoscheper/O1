@@ -277,6 +277,7 @@ export const highlights = pgTable("highlights", {
   category: varchar("category", { length: 50 }).default("general"),
   ranking: integer("ranking").default(0),
   active: boolean("active").default(true),
+  showOnHomepage: boolean("show_on_homepage").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
   createdBy: integer("created_by").references(() => users.id),
@@ -288,6 +289,7 @@ export const insertHighlightSchema = createInsertSchema(highlights).pick({
   category: true,
   ranking: true,
   active: true,
+  showOnHomepage: true,
 });
 
 export const updateHighlightSchema = insertHighlightSchema.partial();
