@@ -196,6 +196,8 @@ export const pages = pgTable("pages", {
   metaDescription: varchar("meta_description", { length: 500 }),
   metaKeywords: varchar("meta_keywords", { length: 500 }),
   template: varchar("template", { length: 100 }).default("default").notNull(),
+  headerImage: varchar("header_image", { length: 255 }), // Header image for the page
+  headerImageAlt: varchar("header_image_alt", { length: 255 }), // Alt text for header image
   // Location-specific highlight sections (JSON array)
   highlightSections: text("highlight_sections"), // JSON string of highlight objects
   published: boolean("published").default(false).notNull(),
@@ -216,6 +218,8 @@ export const insertPageSchema = createInsertSchema(pages).pick({
   metaDescription: true,
   metaKeywords: true,
   template: true,
+  headerImage: true,
+  headerImageAlt: true,
   highlightSections: true,
   published: true,
   featured: true,
