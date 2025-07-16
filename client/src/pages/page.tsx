@@ -56,7 +56,8 @@ export default function Page() {
     }
     
     // Apply site-wide favicon from settings - only if enabled and has a valid path
-    const favicon = document.querySelector('link[rel="icon"]');
+    let favicon = document.querySelector('link[rel="icon"]');
+    
     if (siteSettings?.faviconEnabled && siteSettings?.favicon && siteSettings.favicon.trim()) {
       if (!favicon) {
         const newFavicon = document.createElement('link');
@@ -67,10 +68,15 @@ export default function Page() {
         favicon.setAttribute('href', siteSettings.favicon);
       }
     } else {
-      // Remove favicon if disabled or empty
+      // Remove favicon if disabled or empty - also add a dummy href to override browser defaults
       if (favicon) {
         favicon.remove();
       }
+      // Add a dummy favicon to prevent browser from trying to load default favicon.ico
+      const dummyFavicon = document.createElement('link');
+      dummyFavicon.rel = 'icon';
+      dummyFavicon.href = 'data:,'; // Empty data URL to prevent any favicon
+      document.head.appendChild(dummyFavicon);
     }
   }, [page, siteSettings]);
 

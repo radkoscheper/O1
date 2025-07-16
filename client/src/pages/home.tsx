@@ -51,7 +51,8 @@ export default function Home() {
       metaKeywords.setAttribute('content', siteSettings.metaKeywords || "Polen, reizen, vakantie, bestemmingen");
       
       // Update favicon - only if enabled and has a valid path
-      const favicon = document.querySelector('link[rel="icon"]');
+      let favicon = document.querySelector('link[rel="icon"]');
+      
       if (siteSettings.faviconEnabled && siteSettings.favicon && siteSettings.favicon.trim()) {
         if (!favicon) {
           const newFavicon = document.createElement('link');
@@ -62,10 +63,15 @@ export default function Home() {
           favicon.setAttribute('href', siteSettings.favicon);
         }
       } else {
-        // Remove favicon if disabled or empty
+        // Remove favicon if disabled or empty - also add a dummy href to override browser defaults
         if (favicon) {
           favicon.remove();
         }
+        // Add a dummy favicon to prevent browser from trying to load default favicon.ico
+        const dummyFavicon = document.createElement('link');
+        dummyFavicon.setAttribute('rel', 'icon');
+        dummyFavicon.setAttribute('href', 'data:,'); // Empty data URL to prevent any favicon
+        document.head.appendChild(dummyFavicon);
       }
       
       // Add custom CSS
