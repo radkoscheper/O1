@@ -180,7 +180,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if custom filename was provided and rename file
       if (req.body.fileName && req.body.fileName.trim()) {
         const customName = req.body.fileName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
-        const newFileName = customName + path.extname(req.file.originalname);
+        // Voor gecroppte afbeeldingen, altijd .jpg gebruiken
+        const newFileName = customName + '.jpg';
         
         // Use the correct destination directory (could be headers subfolder)
         const currentDirectory = path.dirname(req.file.path);
