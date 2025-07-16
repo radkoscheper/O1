@@ -4388,22 +4388,45 @@ function EditPageDialog({ open, onOpenChange, page, templates, onPageUpdated }: 
               <h3 className="font-semibold">Header Afbeelding</h3>
             </div>
             
-            {/* Current Header Image Preview */}
+            {/* Current Header Image Preview - Exacte header weergave */}
             {formData.headerImage && (
               <div className="space-y-2">
-                <div className="relative h-32 w-full rounded-md overflow-hidden border">
+                <div className="text-sm font-medium text-gray-700 mb-2">Header Voorbeeld (exacte weergave):</div>
+                <div 
+                  className="relative h-40 w-full rounded-md overflow-hidden border"
+                  style={{
+                    backgroundImage: `url('${formData.headerImage}')`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                  }}
+                >
+                  {/* Exacte overlay zoals in echte header */}
+                  <div className="absolute inset-0 bg-black bg-opacity-30"></div>
+                  
+                  {/* Exacte tekst zoals in echte header */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center z-10">
+                    <h1 className="text-xl font-bold mb-2 font-inter">
+                      Ontdek Polen
+                    </h1>
+                    <p className="text-base opacity-90 font-inter">
+                      Mooie plekken in {formData.title} ontdekken
+                    </p>
+                  </div>
+                  
+                  {/* Verborgen img voor error handling */}
                   <img 
                     src={formData.headerImage} 
                     alt={formData.headerImageAlt || 'Header afbeelding'}
-                    className="w-full h-full object-cover"
+                    className="hidden"
                     onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                      e.currentTarget.nextElementSibling.style.display = 'flex';
+                      const parent = e.currentTarget.parentElement;
+                      if (parent) {
+                        parent.style.backgroundImage = 'none';
+                        parent.style.backgroundColor = '#e5e7eb';
+                        parent.innerHTML = `<div class="flex items-center justify-center h-full text-gray-500 text-sm">Afbeelding niet gevonden: ${formData.headerImage}</div>`;
+                      }
                     }}
                   />
-                  <div className="hidden w-full h-full bg-gray-200 items-center justify-center">
-                    <span className="text-gray-500 text-sm">Afbeelding niet gevonden: {formData.headerImage}</span>
-                  </div>
                 </div>
                 <Button 
                   type="button"
