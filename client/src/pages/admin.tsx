@@ -12,6 +12,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
 import { Plus, Edit, Eye, Save, LogIn, LogOut, Shield, Users, UserPlus, Trash2, Key, Upload, X, Image as ImageIcon, RotateCcw, Trash, Copy, Crop as CropIcon, Move, RotateCw, Check, RefreshCw, FolderOpen } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { uploadFile } from "@/lib/uploadUtils";
 import { useQuery } from "@tanstack/react-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -138,46 +139,16 @@ export default function Admin() {
   // Image upload helpers
   const handleImageUpload = async (file: File): Promise<string> => {
     try {
-      const formData = new FormData();
-      formData.append('image', file);
-
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-        credentials: 'include', // Important for session cookies
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || 'Upload gefaald');
-      }
-
-      if (result.success) {
-        toast({ 
-          title: "Succes", 
-          description: `Afbeelding ${file.name} succesvol geüpload` 
-        });
-        
-        // Refresh trash query in case an image was moved to trash
-        trashedImagesQuery.refetch();
-        
-        // Also refresh destination and guide queries to show updated images
-        destinationsQuery.refetch();
-        guidesQuery.refetch();
-        
-        return result.imagePath;
-      } else {
-        throw new Error(result.message || 'Upload gefaald');
-      }
+      const result = await uploadFile({ file, type: 'image' });
+      
+      // Refresh queries when upload succeeds
+      trashedImagesQuery.refetch();
+      destinationsQuery.refetch();
+      guidesQuery.refetch();
+      
+      return result.imagePath || '';
     } catch (error) {
-      console.error('Upload error:', error);
-      toast({ 
-        title: "Upload fout", 
-        description: error instanceof Error ? error.message : "Er is een fout opgetreden tijdens uploaden",
-        variant: "destructive" 
-      });
-      throw new Error(error instanceof Error ? error.message : "Upload gefaald");
+      throw error; // Error handling is done in uploadFile utility
     }
   };
 
@@ -2813,63 +2784,21 @@ function ImageUploadField({ label, value, onChange, placeholder, fileName }: {
   placeholder: string;
   fileName?: string;
 }) {
-  const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Valideer bestandstype
-    if (!file.type.startsWith('image/')) {
-      toast({ title: "Fout", description: "Selecteer een geldig afbeelding bestand", variant: "destructive" });
-      return;
-    }
-
-    // Valideer bestandsgrootte (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ title: "Fout", description: "Afbeelding moet kleiner zijn dan 5MB", variant: "destructive" });
-      return;
-    }
-
     try {
-      // Gebruik de echte upload functie
-      const formData = new FormData();
-      formData.append('image', file);
-      
-      // Voeg de gewenste bestandsnaam toe als het beschikbaar is
-      if (fileName && fileName.trim()) {
-        formData.append('fileName', fileName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-'));
-      }
-
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
+      const result = await uploadFile({ 
+        file, 
+        fileName, 
+        type: 'image' 
       });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || 'Upload gefaald');
-      }
-
-      if (result.success) {
-        toast({ 
-          title: "Succes", 
-          description: `Afbeelding succesvol geüpload als ${result.fileName || file.name}` 
-        });
-        onChange(result.imagePath);
-      } else {
-        throw new Error(result.message || 'Upload gefaald');
-      }
+      onChange(result.imagePath || '');
     } catch (error) {
-      console.error('Upload error:', error);
-      toast({ 
-        title: "Upload fout", 
-        description: error instanceof Error ? error.message : "Er is een fout opgetreden tijdens uploaden",
-        variant: "destructive" 
-      });
+      // Error handling is done in uploadFile utility
     }
 
     // Reset input
@@ -2944,47 +2873,18 @@ function FaviconUploadField({ label, value, onChange }: {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (!file.name.toLowerCase().endsWith('.ico')) {
-      toast({
-        title: "Ongeldige bestandstype",
-        description: "Alleen .ico bestanden zijn toegestaan voor favicons",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
-      const formData = new FormData();
-      formData.append('favicon', file);
-      formData.append('fileName', file.name.replace('.ico', ''));
-
-      const response = await fetch('/api/upload/favicon', {
-        method: 'POST',
-        credentials: 'include',
-        body: formData,
+      const result = await uploadFile({ 
+        file, 
+        fileName: file.name.replace('.ico', ''), 
+        type: 'favicon' 
       });
-
-      if (!response.ok) {
-        throw new Error('Favicon upload failed');
-      }
-
-      const result = await response.json();
-      onChange(result.faviconPath);
+      onChange(result.faviconPath || '');
       
       // Refresh favicon list
       faviconQuery.refetch();
-      
-      toast({
-        title: "Succes",
-        description: "Favicon succesvol geüpload!",
-      });
     } catch (error) {
-      console.error('Favicon upload error:', error);
-      toast({
-        title: "Upload fout",
-        description: "Er is een fout opgetreden bij het uploaden van de favicon",
-        variant: "destructive",
-      });
+      // Error handling is done in uploadFile utility
     }
 
     // Reset input
