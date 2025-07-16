@@ -2095,16 +2095,43 @@ function ImageCropperDialog({ imagePath, onCroppedImage, destination }: {
     { name: 'Vrije vorm', value: 0 }
   ];
 
+  const updateCropForAspectRatio = (newAspect: number, imageWidth?: number, imageHeight?: number) => {
+    const imgWidth = imageWidth || imgRef.current?.width || 800;
+    const imgHeight = imageHeight || imgRef.current?.height || 600;
+    
+    if (newAspect > 0) {
+      const cropWidth = 90;
+      const cropHeight = (cropWidth / newAspect) * (imgWidth / imgHeight);
+      const cropY = Math.max(0, (100 - cropHeight) / 2);
+      
+      const newCrop: Crop = {
+        unit: '%',
+        width: cropWidth,
+        height: Math.min(cropHeight, 95),
+        x: 5,
+        y: cropY
+      };
+      setCrop(newCrop);
+    } else {
+      // Vrije vorm
+      setCrop({
+        unit: '%',
+        width: 50,
+        height: 50,
+        x: 25,
+        y: 25
+      });
+    }
+  };
+
   const onImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const { width, height } = e.currentTarget;
-    const defaultCrop: Crop = {
-      unit: '%',
-      width: 90,
-      height: aspect > 0 ? (90 / aspect) * (width / height) : 50,
-      x: 5,
-      y: Math.max(0, (100 - (aspect > 0 ? (90 / aspect) * (width / height) : 50)) / 2)
-    };
-    setCrop(defaultCrop);
+    updateCropForAspectRatio(aspect, width, height);
+  };
+
+  const handleAspectChange = (newAspect: number) => {
+    setAspect(newAspect);
+    updateCropForAspectRatio(newAspect);
   };
 
   const getCroppedImg = async (
@@ -2245,15 +2272,9 @@ function ImageCropperDialog({ imagePath, onCroppedImage, destination }: {
   };
 
   const resetCrop = () => {
-    setCrop({
-      unit: '%',
-      width: 90,
-      height: aspect > 0 ? 36 : 50,
-      x: 5,
-      y: aspect > 0 ? 32 : 25
-    });
     setScale(1);
     setRotate(0);
+    updateCropForAspectRatio(aspect);
   };
 
   return (
@@ -2305,20 +2326,63 @@ function ImageCropperDialog({ imagePath, onCroppedImage, destination }: {
             </div>
 
             {/* Preview */}
-            {completedCrop && (
+            {completedCrop && imgRef.current && (
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Preview (vaste header afmetingen: 1920x873px)</Label>
                 <div className="border rounded-lg p-2 bg-white">
                   <div 
-                    className="w-full bg-gray-100 rounded overflow-hidden"
+                    className="w-full bg-gray-100 rounded overflow-hidden relative"
                     style={{ 
                       aspectRatio: '2.2',
                       height: '120px'
                     }}
                   >
-                    <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm">
-                      Uitvoer: 1920x873px (2.2:1)
-                    </div>
+                    <canvas
+                      ref={(canvas) => {
+                        if (canvas && completedCrop && imgRef.current) {
+                          const ctx = canvas.getContext('2d');
+                          if (ctx) {
+                            const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
+                            const scaleY = imgRef.current.naturalHeight / imgRef.current.height;
+                            
+                            canvas.width = 240; // Preview width
+                            canvas.height = Math.round(240 / 2.2); // Preview height voor 2.2:1 ratio
+                            
+                            ctx.imageSmoothingQuality = 'high';
+                            
+                            const sourceX = completedCrop.x * scaleX;
+                            const sourceY = completedCrop.y * scaleY;
+                            const sourceWidth = completedCrop.width * scaleX;
+                            const sourceHeight = completedCrop.height * scaleY;
+                            
+                            ctx.drawImage(
+                              imgRef.current,
+                              sourceX,
+                              sourceY,
+                              sourceWidth,
+                              sourceHeight,
+                              0,
+                              0,
+                              canvas.width,
+                              canvas.height
+                            );
+                            
+                            // Overlay voor realistische preview
+                            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                            
+                            // Tekst overlay
+                            ctx.fillStyle = 'white';
+                            ctx.font = 'bold 12px Arial';
+                            ctx.textAlign = 'center';
+                            ctx.fillText('Ontdek Polen', canvas.width / 2, canvas.height / 2 - 8);
+                            ctx.font = '10px Arial';
+                            ctx.fillText('Header Preview', canvas.width / 2, canvas.height / 2 + 8);
+                          }
+                        }
+                      }}
+                      className="w-full h-full rounded"
+                    />
                   </div>
                 </div>
                 <div className="text-xs text-gray-600 bg-blue-50 p-2 rounded">
@@ -2333,7 +2397,7 @@ function ImageCropperDialog({ imagePath, onCroppedImage, destination }: {
           <div className="space-y-6">
             <div className="space-y-3">
               <Label className="text-sm font-medium">Aspect Ratio</Label>
-              <Select value={aspect.toString()} onValueChange={(value) => setAspect(Number(value))}>
+              <Select value={aspect.toString()} onValueChange={(value) => handleAspectChange(Number(value))}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
