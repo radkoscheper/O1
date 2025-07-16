@@ -783,6 +783,7 @@ export default function Admin() {
         siteDescription: result.siteDescription || '',
         metaKeywords: result.metaKeywords || '',
         favicon: result.favicon || '',
+        faviconEnabled: result.faviconEnabled ?? true,
         backgroundImage: result.backgroundImage || '',
         backgroundImageAlt: result.backgroundImageAlt || '',
         logoImage: result.logoImage || '',
