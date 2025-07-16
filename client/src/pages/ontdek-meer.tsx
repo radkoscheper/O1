@@ -39,6 +39,9 @@ export default function OntdekMeer() {
       document.head.appendChild(metaDescription);
     }
     metaDescription.setAttribute('content', "Ontdek alle bestemmingen, reisgidsen en tips voor je reis naar Polen op één plek");
+    
+    // Force refresh to ensure all changes are visible
+    console.log("Ontdek Meer pagina geladen met alle highlights");
   }, []);
 
   // Filter only published destinations
