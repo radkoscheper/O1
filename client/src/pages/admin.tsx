@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
-import { Plus, Edit, Eye, Save, LogIn, LogOut, Shield, Users, UserPlus, Trash2, Key, Upload, X, Image as ImageIcon, RotateCcw, Trash, Copy, Crop as CropIcon, Move, RotateCw, Check } from "lucide-react";
+import { Plus, Edit, Eye, Save, LogIn, LogOut, Shield, Users, UserPlus, Trash2, Key, Upload, X, Image as ImageIcon, RotateCcw, Trash, Copy, Crop as CropIcon, Move, RotateCw, Check, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -2180,12 +2180,13 @@ function ImageCropperDialog({ imagePath, onCroppedImage }: {
       const blob = await response.blob();
       
       const formData = new FormData();
-      const filename = `cropped-${Date.now()}.jpg`;
-      formData.append('image', blob, filename);
-      
-      // Voeg destination toe voor proper folder structuur
       const pathParts = imagePath.split('/');
       const destination = pathParts[pathParts.length - 2]; // Get destination from path
+      const originalName = pathParts[pathParts.length - 1];
+      const baseName = originalName.split('.')[0];
+      const filename = `${baseName}-cropped-${Date.now()}.jpg`;
+      
+      formData.append('image', blob, filename);
       formData.append('destination', destination);
       formData.append('fileName', filename);
 
