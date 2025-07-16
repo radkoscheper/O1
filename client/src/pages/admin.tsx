@@ -2147,47 +2147,62 @@ function ImageCropperDialog({ imagePath, onCroppedImage, destination }: {
       throw new Error('No 2d context');
     }
     
-    // Vaste afmetingen voor header afbeeldingen (2.2:1 ratio)
+    // Exacte header afmetingen - gebaseerd op werkelijke CSS py-24 padding
     const HEADER_WIDTH = 1920;
-    const HEADER_HEIGHT = Math.round(HEADER_WIDTH / 2.2); // ≈ 873px
+    const HEADER_HEIGHT = 873; // Exact 2.2:1 ratio zoals in werkelijke header
 
-    const scaleX = image.naturalWidth / image.width;
-    const scaleY = image.naturalHeight / image.height;
-
-    // Stel canvas in op vaste header afmetingen
     canvas.width = HEADER_WIDTH;
     canvas.height = HEADER_HEIGHT;
 
     ctx.imageSmoothingQuality = 'high';
 
-    const cropX = crop.x * scaleX;
-    const cropY = crop.y * scaleY;
-    const cropWidth = crop.width * scaleX;
-    const cropHeight = crop.height * scaleY;
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
+
+    // Bereken crop coordinaten in natuurlijke afmetingen
+    const sourceX = crop.x * scaleX;
+    const sourceY = crop.y * scaleY;
+    const sourceWidth = crop.width * scaleX;
+    const sourceHeight = crop.height * scaleY;
+
+    // Vul het hele canvas met de gecroppte afbeelding - geen zwarte randen
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, HEADER_WIDTH, HEADER_HEIGHT);
     
-    const centerX = cropX + cropWidth / 2;
-    const centerY = cropY + cropHeight / 2;
+    // Bereken optimale schaling om het canvas te vullen terwijl aspect ratio behouden blijft
+    const scaleToFitWidth = HEADER_WIDTH / sourceWidth;
+    const scaleToFitHeight = HEADER_HEIGHT / sourceHeight;
+    const scaleToFit = Math.max(scaleToFitWidth, scaleToFitHeight) * scale;
+    
+    const scaledWidth = sourceWidth * scaleToFit;
+    const scaledHeight = sourceHeight * scaleToFit;
+    
+    // Centreer de afbeelding
+    const offsetX = (HEADER_WIDTH - scaledWidth) / 2;
+    const offsetY = (HEADER_HEIGHT - scaledHeight) / 2;
 
     ctx.save();
     
-    // Transformaties toepassen
-    ctx.translate(HEADER_WIDTH / 2, HEADER_HEIGHT / 2);
-    ctx.rotate((rotate * Math.PI) / 180);
-    ctx.scale(scale, scale);
-    ctx.translate(-centerX, -centerY);
+    // Rotatie toepassen rond het midden van het canvas
+    if (rotate !== 0) {
+      ctx.translate(HEADER_WIDTH / 2, HEADER_HEIGHT / 2);
+      ctx.rotate((rotate * Math.PI) / 180);
+      ctx.translate(-HEADER_WIDTH / 2, -HEADER_HEIGHT / 2);
+    }
     
-    // Tekenen van de gecroppte sectie, geschaald naar vaste header afmetingen
+    // Teken de gecroppte afbeelding om het hele canvas te vullen
     ctx.drawImage(
       image,
-      cropX,
-      cropY,
-      cropWidth,
-      cropHeight,
-      0,
-      0,
-      HEADER_WIDTH / scale,
-      HEADER_HEIGHT / scale
+      sourceX,
+      sourceY,
+      sourceWidth,
+      sourceHeight,
+      offsetX,
+      offsetY,
+      scaledWidth,
+      scaledHeight
     );
+    
     ctx.restore();
 
     return new Promise((resolve, reject) => {
@@ -2342,18 +2357,45 @@ function ImageCropperDialog({ imagePath, onCroppedImage, destination }: {
                         if (canvas && completedCrop && imgRef.current) {
                           const ctx = canvas.getContext('2d');
                           if (ctx) {
-                            const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
-                            const scaleY = imgRef.current.naturalHeight / imgRef.current.height;
+                            const previewWidth = 240;
+                            const previewHeight = Math.round(previewWidth / 2.2); // Exact 2.2:1 ratio
                             
-                            canvas.width = 240; // Preview width
-                            canvas.height = Math.round(240 / 2.2); // Preview height voor 2.2:1 ratio
+                            canvas.width = previewWidth;
+                            canvas.height = previewHeight;
                             
                             ctx.imageSmoothingQuality = 'high';
+                            
+                            const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
+                            const scaleY = imgRef.current.naturalHeight / imgRef.current.height;
                             
                             const sourceX = completedCrop.x * scaleX;
                             const sourceY = completedCrop.y * scaleY;
                             const sourceWidth = completedCrop.width * scaleX;
                             const sourceHeight = completedCrop.height * scaleY;
+                            
+                            // Vul achtergrond
+                            ctx.fillStyle = '#000000';
+                            ctx.fillRect(0, 0, previewWidth, previewHeight);
+                            
+                            // Bereken schaling om canvas te vullen (zoals echte crop)
+                            const scaleToFitWidth = previewWidth / completedCrop.width;
+                            const scaleToFitHeight = previewHeight / completedCrop.height;
+                            const scaleToFit = Math.max(scaleToFitWidth, scaleToFitHeight) * scale;
+                            
+                            const scaledWidth = completedCrop.width * scaleToFit;
+                            const scaledHeight = completedCrop.height * scaleToFit;
+                            
+                            const offsetX = (previewWidth - scaledWidth) / 2;
+                            const offsetY = (previewHeight - scaledHeight) / 2;
+                            
+                            ctx.save();
+                            
+                            // Rotatie toepassen
+                            if (rotate !== 0) {
+                              ctx.translate(previewWidth / 2, previewHeight / 2);
+                              ctx.rotate((rotate * Math.PI) / 180);
+                              ctx.translate(-previewWidth / 2, -previewHeight / 2);
+                            }
                             
                             ctx.drawImage(
                               imgRef.current,
@@ -2361,23 +2403,25 @@ function ImageCropperDialog({ imagePath, onCroppedImage, destination }: {
                               sourceY,
                               sourceWidth,
                               sourceHeight,
-                              0,
-                              0,
-                              canvas.width,
-                              canvas.height
+                              offsetX,
+                              offsetY,
+                              scaledWidth,
+                              scaledHeight
                             );
+                            
+                            ctx.restore();
                             
                             // Overlay voor realistische preview
                             ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                            ctx.fillRect(0, 0, previewWidth, previewHeight);
                             
                             // Tekst overlay
                             ctx.fillStyle = 'white';
                             ctx.font = 'bold 12px Arial';
                             ctx.textAlign = 'center';
-                            ctx.fillText('Ontdek Polen', canvas.width / 2, canvas.height / 2 - 8);
+                            ctx.fillText('Ontdek Polen', previewWidth / 2, previewHeight / 2 - 8);
                             ctx.font = '10px Arial';
-                            ctx.fillText('Header Preview', canvas.width / 2, canvas.height / 2 + 8);
+                            ctx.fillText('Header Preview', previewWidth / 2, previewHeight / 2 + 8);
                           }
                         }
                       }}
