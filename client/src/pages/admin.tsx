@@ -2537,23 +2537,39 @@ function HeaderImageSelector({ destination, currentImage, onImageSelect }: {
                       currentImage === image.path ? 'border-blue-500 border-2' : 'border-gray-300'
                     }`}
                     onClick={() => onImageSelect(image.path, `${image.name} header afbeelding`)}
+                    style={{
+                      backgroundImage: `url('${image.path}')`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center'
+                    }}
                   >
+                    {/* Overlay voor consistentie met header */}
+                    <div className="absolute inset-0 bg-black bg-opacity-30"></div>
+                    
+                    {/* Tekst overlay voor realistische preview */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center z-10">
+                      <div className="text-xs font-bold mb-1">Ontdek Polen</div>
+                      <div className="text-xs opacity-90">Mooie plekken in {destination} ontdekken</div>
+                    </div>
+                    
+                    {/* Verborgen img voor fallback error handling */}
                     <img 
                       src={image.path} 
                       alt={image.name}
-                      className="w-full h-full object-cover"
+                      className="hidden"
                       onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                        e.currentTarget.nextElementSibling.style.display = 'flex';
+                        const parent = e.currentTarget.parentElement;
+                        if (parent) {
+                          parent.style.backgroundImage = 'none';
+                          parent.style.backgroundColor = '#e5e7eb';
+                          parent.innerHTML = '<div class="flex items-center justify-center h-full text-gray-500 text-xs">Fout bij laden</div>';
+                        }
                       }}
                     />
-                    <div className="hidden w-full h-full bg-gray-200 items-center justify-center">
-                      <span className="text-gray-500 text-xs">Fout bij laden</span>
-                    </div>
                     {currentImage === image.path && (
-                      <div className="absolute inset-0 bg-blue-500 bg-opacity-20 flex items-center justify-center">
-                        <div className="bg-blue-500 text-white text-xs px-2 py-1 rounded">
-                          Geselecteerd
+                      <div className="absolute inset-0 bg-blue-500 bg-opacity-20 flex items-center justify-center z-20">
+                        <div className="bg-blue-500 text-white text-xs px-2 py-1 rounded font-bold">
+                          ✓ Geselecteerd
                         </div>
                       </div>
                     )}
