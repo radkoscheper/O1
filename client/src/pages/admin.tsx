@@ -10,11 +10,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
-import { Plus, Edit, Eye, Save, LogIn, LogOut, Shield, Users, UserPlus, Trash2, Key, Upload, X, Image as ImageIcon, RotateCcw, Trash, Copy } from "lucide-react";
+import { Plus, Edit, Eye, Save, LogIn, LogOut, Shield, Users, UserPlus, Trash2, Key, Upload, X, Image as ImageIcon, RotateCcw, Trash, Copy, Crop as CropIcon, Move, RotateCw, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import ReactCrop, { Crop, PixelCrop } from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -2056,6 +2058,354 @@ export default function Admin() {
   );
 }
 
+// Image Cropper Dialog Component
+function ImageCropperDialog({ imagePath, onCroppedImage }: {
+  imagePath: string;
+  onCroppedImage: (croppedImagePath: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [crop, setCrop] = useState<Crop>({
+    unit: '%',
+    width: 100,
+    height: 40,
+    x: 0,
+    y: 30
+  });
+  const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
+  const [aspect, setAspect] = useState<number>(2.5); // Default header aspect ratio
+  const [scale, setScale] = useState(1);
+  const [rotate, setRotate] = useState(0);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+  const { toast } = useToast();
+
+  const aspectRatios = [
+    { name: 'Header (2.5:1)', value: 2.5 },
+    { name: 'Banner (3:1)', value: 3 },
+    { name: 'Widescreen (16:9)', value: 16/9 },
+    { name: 'Landscape (4:3)', value: 4/3 },
+    { name: 'Square (1:1)', value: 1 },
+    { name: 'Portrait (3:4)', value: 3/4 },
+    { name: 'Vrije vorm', value: 0 }
+  ];
+
+  const onImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const { width, height } = e.currentTarget;
+    const defaultCrop: Crop = {
+      unit: '%',
+      width: 90,
+      height: aspect > 0 ? (90 / aspect) * (width / height) : 50,
+      x: 5,
+      y: Math.max(0, (100 - (aspect > 0 ? (90 / aspect) * (width / height) : 50)) / 2)
+    };
+    setCrop(defaultCrop);
+  };
+
+  const getCroppedImg = async (
+    image: HTMLImageElement,
+    crop: PixelCrop,
+    scale: number,
+    rotate: number
+  ): Promise<string> => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    if (!ctx) {
+      throw new Error('No 2d context');
+    }
+
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
+
+    const pixelRatio = window.devicePixelRatio || 1;
+    canvas.width = Math.floor(crop.width * scaleX * pixelRatio);
+    canvas.height = Math.floor(crop.height * scaleY * pixelRatio);
+
+    ctx.scale(pixelRatio, pixelRatio);
+    ctx.imageSmoothingQuality = 'high';
+
+    const cropX = crop.x * scaleX;
+    const cropY = crop.y * scaleY;
+    const centerX = image.naturalWidth / 2;
+    const centerY = image.naturalHeight / 2;
+
+    ctx.save();
+    ctx.translate(-cropX, -cropY);
+    ctx.translate(centerX, centerY);
+    ctx.rotate((rotate * Math.PI) / 180);
+    ctx.scale(scale, scale);
+    ctx.translate(-centerX, -centerY);
+    ctx.drawImage(
+      image,
+      0,
+      0,
+      image.naturalWidth,
+      image.naturalHeight,
+      0,
+      0,
+      image.naturalWidth,
+      image.naturalHeight
+    );
+    ctx.restore();
+
+    return new Promise((resolve, reject) => {
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            reject(new Error('Canvas is empty'));
+            return;
+          }
+          resolve(URL.createObjectURL(blob));
+        },
+        'image/jpeg',
+        0.95
+      );
+    });
+  };
+
+  const handleCropComplete = async () => {
+    if (!completedCrop || !imgRef.current) return;
+
+    setIsProcessing(true);
+    try {
+      const croppedImageUrl = await getCroppedImg(
+        imgRef.current,
+        completedCrop,
+        scale,
+        rotate
+      );
+
+      // Upload de gecroppte afbeelding
+      const response = await fetch(croppedImageUrl);
+      const blob = await response.blob();
+      
+      const formData = new FormData();
+      const filename = `cropped-${Date.now()}.jpg`;
+      formData.append('image', blob, filename);
+      
+      // Voeg destination toe voor proper folder structuur
+      const pathParts = imagePath.split('/');
+      const destination = pathParts[pathParts.length - 2]; // Get destination from path
+      formData.append('destination', destination);
+      formData.append('fileName', filename);
+
+      const uploadResponse = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const result = await uploadResponse.json();
+      
+      toast({
+        title: "Succes",
+        description: "Afbeelding is succesvol gecroppt en opgeslagen",
+      });
+
+      onCroppedImage(result.path);
+      setOpen(false);
+    } catch (error) {
+      console.error('Error cropping image:', error);
+      toast({
+        title: "Fout",
+        description: "Er ging iets mis bij het croppen van de afbeelding",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const resetCrop = () => {
+    setCrop({
+      unit: '%',
+      width: 90,
+      height: aspect > 0 ? 36 : 50,
+      x: 5,
+      y: aspect > 0 ? 32 : 25
+    });
+    setScale(1);
+    setRotate(0);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="flex-1 text-xs"
+        >
+          <CropIcon className="h-3 w-3 mr-1" />
+          Crop
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Afbeelding Croppen & Bewerken</DialogTitle>
+          <DialogDescription>
+            Selecteer het gewenste gebied van de afbeelding en pas indien nodig de instellingen aan voor optimale header weergave.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Crop Area */}
+          <div className="lg:col-span-2 space-y-4">
+            <div className="border rounded-lg p-4 bg-gray-50">
+              <ReactCrop
+                crop={crop}
+                onChange={(c) => setCrop(c)}
+                onComplete={(c) => setCompletedCrop(c)}
+                aspect={aspect > 0 ? aspect : undefined}
+                minHeight={50}
+                className="max-w-full"
+              >
+                <img
+                  ref={imgRef}
+                  alt="Crop me"
+                  src={imagePath}
+                  onLoad={onImageLoad}
+                  style={{
+                    transform: `scale(${scale}) rotate(${rotate}deg)`,
+                    maxWidth: '100%',
+                    maxHeight: '400px'
+                  }}
+                />
+              </ReactCrop>
+            </div>
+
+            {/* Preview */}
+            {completedCrop && (
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Preview (optimaal voor headers)</Label>
+                <div className="border rounded-lg p-2 bg-white">
+                  <div 
+                    className="w-full bg-gray-100 rounded overflow-hidden"
+                    style={{ 
+                      aspectRatio: aspect > 0 ? aspect : 'auto',
+                      height: '120px'
+                    }}
+                  >
+                    <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm">
+                      Header Preview Area
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Controls */}
+          <div className="space-y-6">
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Aspect Ratio</Label>
+              <Select value={aspect.toString()} onValueChange={(value) => setAspect(Number(value))}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {aspectRatios.map((ratio) => (
+                    <SelectItem key={ratio.value} value={ratio.value.toString()}>
+                      {ratio.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Schaal: {scale.toFixed(1)}x</Label>
+              <input
+                type="range"
+                min="0.5"
+                max="2"
+                step="0.1"
+                value={scale}
+                onChange={(e) => setScale(Number(e.target.value))}
+                className="w-full"
+              />
+            </div>
+
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Rotatie: {rotate}°</Label>
+              <input
+                type="range"
+                min="-180"
+                max="180"
+                step="1"
+                value={rotate}
+                onChange={(e) => setRotate(Number(e.target.value))}
+                className="w-full"
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={resetCrop}
+                className="flex-1"
+              >
+                <RotateCcw className="h-4 w-4 mr-2" />
+                Reset
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setRotate(rotate - 90)}
+                className="flex-1"
+              >
+                <RotateCw className="h-4 w-4 mr-2" />
+                Draai
+              </Button>
+            </div>
+
+            <div className="pt-4 border-t">
+              <div className="space-y-2 text-sm text-gray-600">
+                <p><strong>Header (2.5:1)</strong> - Optimaal voor website headers</p>
+                <p><strong>Banner (3:1)</strong> - Breed banner formaat</p>
+                <p><strong>Widescreen (16:9)</strong> - Modern scherm formaat</p>
+                <p><strong>Vrije vorm</strong> - Geen vaste verhoudingen</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setOpen(false)}
+          >
+            Annuleren
+          </Button>
+          <Button
+            onClick={handleCropComplete}
+            disabled={!completedCrop || isProcessing}
+          >
+            {isProcessing ? (
+              <>
+                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                Verwerken...
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4 mr-2" />
+                Crop & Opslaan
+              </>
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // Herbruikbare afbeelding upload component
 function HeaderImageSelector({ destination, currentImage, onImageSelect }: {
   destination: string;
@@ -2147,6 +2497,25 @@ function HeaderImageSelector({ destination, currentImage, onImageSelect }: {
                     )}
                   </div>
                   <p className="text-xs text-center mt-1 text-gray-600">{image.name}</p>
+                  <div className="flex gap-1 mt-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 text-xs"
+                      onClick={() => onImageSelect(image.path, `${image.name} header afbeelding`)}
+                    >
+                      <Eye className="h-3 w-3 mr-1" />
+                      Selecteer
+                    </Button>
+                    <ImageCropperDialog
+                      imagePath={image.path}
+                      onCroppedImage={(croppedPath) => {
+                        onImageSelect(croppedPath, `${image.name} header afbeelding (gecroppt)`);
+                        setShowGallery(false);
+                      }}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
