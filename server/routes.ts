@@ -255,6 +255,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Delete image endpoint
+  app.post("/api/admin/images/delete", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || !user.canDeleteContent) {
+        return res.status(403).json({ message: "Geen toestemming om afbeeldingen te verwijderen" });
+      }
+
+      const { imagePath } = req.body;
+      if (!imagePath) {
+        return res.status(400).json({ message: "Geen afbeelding pad opgegeven" });
+      }
+
+      // Convert web path to file system path
+      const filePath = path.join(process.cwd(), 'client', 'public', imagePath);
+      
+      // Check if file exists
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ message: "Afbeelding niet gevonden" });
+      }
+
+      // Create trash directory if it doesn't exist
+      const trashDir = path.join(uploadsDir, '.trash');
+      if (!fs.existsSync(trashDir)) {
+        fs.mkdirSync(trashDir, { recursive: true });
+      }
+
+      // Move file to trash instead of deleting
+      const fileName = path.basename(filePath);
+      const timestamp = Date.now();
+      const trashFileName = `${timestamp}-${fileName}`;
+      const trashPath = path.join(trashDir, trashFileName);
+
+      fs.renameSync(filePath, trashPath);
+      
+      console.log(`Image moved to trash: ${fileName} -> ${trashFileName}`);
+      
+      res.json({ 
+        success: true, 
+        message: "Afbeelding succesvol verwijderd",
+        trashedAs: trashFileName 
+      });
+    } catch (error) {
+      console.error("Error deleting image:", error);
+      res.status(500).json({ message: "Server error bij verwijderen afbeelding" });
+    }
+  });
+
   // Create admin user (for initial setup)
   app.post("/api/setup-admin", async (req, res) => {
     try {
