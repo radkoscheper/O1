@@ -1452,6 +1452,157 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Highlights API routes
+  
+  // Get all highlights
+  app.get("/api/highlights", async (req, res) => {
+    try {
+      const highlights = await storage.getActiveHighlights();
+      res.json(highlights);
+    } catch (error) {
+      console.error("Error fetching highlights:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Get highlights by category
+  app.get("/api/highlights/category/:category", async (req, res) => {
+    try {
+      const { category } = req.params;
+      const highlights = await storage.getHighlightsByCategory(category);
+      res.json(highlights);
+    } catch (error) {
+      console.error("Error fetching highlights by category:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Admin routes for highlights
+  app.get("/api/admin/highlights", requireAuth, async (req, res) => {
+    try {
+      const highlights = await storage.getAllHighlights();
+      res.json(highlights);
+    } catch (error) {
+      console.error("Error fetching all highlights:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Create highlight
+  app.post("/api/admin/highlights", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Alleen admins kunnen highlights maken" });
+      }
+
+      const validation = z.object({
+        name: z.string().min(1),
+        iconPath: z.string().min(1),
+        category: z.string().optional(),
+        ranking: z.number().optional(),
+        active: z.boolean().optional(),
+      }).safeParse(req.body);
+
+      if (!validation.success) {
+        return res.status(400).json({ message: "Invalid input", errors: validation.error.errors });
+      }
+
+      const { name, iconPath, category = "general", ranking = 0, active = true } = validation.data;
+      
+      const highlight = await storage.createHighlight({
+        name,
+        iconPath,
+        category,
+        ranking,
+        active,
+        createdBy: user.id,
+      });
+
+      res.json(highlight);
+    } catch (error) {
+      console.error("Error creating highlight:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Update highlight
+  app.put("/api/admin/highlights/:id", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Alleen admins kunnen highlights bewerken" });
+      }
+
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid highlight ID" });
+      }
+
+      const validation = z.object({
+        name: z.string().min(1).optional(),
+        iconPath: z.string().min(1).optional(),
+        category: z.string().optional(),
+        ranking: z.number().optional(),
+        active: z.boolean().optional(),
+      }).safeParse(req.body);
+
+      if (!validation.success) {
+        return res.status(400).json({ message: "Invalid input", errors: validation.error.errors });
+      }
+
+      const highlight = await storage.updateHighlight(id, validation.data);
+      res.json(highlight);
+    } catch (error) {
+      console.error("Error updating highlight:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Delete highlight
+  app.delete("/api/admin/highlights/:id", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Alleen admins kunnen highlights verwijderen" });
+      }
+
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid highlight ID" });
+      }
+
+      await storage.deleteHighlight(id);
+      res.json({ message: "Highlight verwijderd" });
+    } catch (error) {
+      console.error("Error deleting highlight:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Update highlight ranking
+  app.put("/api/admin/highlights/:id/ranking", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Alleen admins kunnen ranking wijzigen" });
+      }
+
+      const id = parseInt(req.params.id);
+      const { ranking } = req.body;
+
+      if (isNaN(id) || typeof ranking !== 'number') {
+        return res.status(400).json({ message: "Invalid input" });
+      }
+
+      await storage.updateHighlightRanking(id, ranking);
+      res.json({ message: "Ranking bijgewerkt" });
+    } catch (error) {
+      console.error("Error updating highlight ranking:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

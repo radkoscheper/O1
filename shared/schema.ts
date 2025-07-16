@@ -268,3 +268,30 @@ export const updateTemplateSchema = insertTemplateSchema.partial();
 export type InsertTemplate = z.infer<typeof insertTemplateSchema>;
 export type UpdateTemplate = z.infer<typeof updateTemplateSchema>;
 export type Template = typeof templates.$inferSelect;
+
+// Highlights table
+export const highlights = pgTable("highlights", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  iconPath: varchar("icon_path", { length: 500 }).notNull(),
+  category: varchar("category", { length: 50 }).default("general"),
+  ranking: integer("ranking").default(0),
+  active: boolean("active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdBy: integer("created_by").references(() => users.id),
+});
+
+export const insertHighlightSchema = createInsertSchema(highlights).pick({
+  name: true,
+  iconPath: true,
+  category: true,
+  ranking: true,
+  active: true,
+});
+
+export const updateHighlightSchema = insertHighlightSchema.partial();
+
+export type InsertHighlight = z.infer<typeof insertHighlightSchema>;
+export type UpdateHighlight = z.infer<typeof updateHighlightSchema>;
+export type Highlight = typeof highlights.$inferSelect;
