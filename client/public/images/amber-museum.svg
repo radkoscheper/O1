@@ -1,0 +1,91 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="amberGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffd700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#daa520;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="museumGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f5deb3;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#daa520;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Sky -->
+  <rect width="400" height="300" fill="#87CEEB"/>
+  
+  <!-- Ground -->
+  <rect x="0" y="200" width="400" height="100" fill="#8b7355"/>
+  
+  <!-- Museum building -->
+  <rect x="120" y="100" width="160" height="100" fill="url(#museumGradient)"/>
+  
+  <!-- Museum entrance -->
+  <rect x="180" y="140" width="40" height="60" fill="#4a3728"/>
+  <path d="M 180 140 Q 200 130 220 140" fill="#4a3728"/>
+  
+  <!-- Museum windows -->
+  <rect x="140" y="120" width="15" height="20" fill="#4169e1"/>
+  <rect x="165" y="120" width="15" height="20" fill="#4169e1"/>
+  <rect x="220" y="120" width="15" height="20" fill="#4169e1"/>
+  <rect x="245" y="120" width="15" height="20" fill="#4169e1"/>
+  
+  <!-- Museum sign -->
+  <rect x="140" y="90" width="120" height="25" fill="#8b4513"/>
+  <text x="200" y="107" text-anchor="middle" fill="#ffd700" font-family="Arial, sans-serif" font-size="12" font-weight="bold">AMBER MUSEUM</text>
+  
+  <!-- Large amber displays -->
+  <circle cx="160" cy="160" r="8" fill="url(#amberGradient)"/>
+  <circle cx="240" cy="160" r="8" fill="url(#amberGradient)"/>
+  
+  <!-- Amber specimens with inclusions -->
+  <circle cx="100" cy="180" r="12" fill="url(#amberGradient)"/>
+  <circle cx="98" cy="178" r="2" fill="#2f4f4f"/>
+  <ellipse cx="102" cy="182" rx="1" ry="3" fill="#228b22"/>
+  
+  <circle cx="300" cy="175" r="10" fill="url(#amberGradient)"/>
+  <circle cx="298" cy="173" r="1" fill="#2f4f4f"/>
+  <ellipse cx="302" cy="177" rx="2" ry="1" fill="#654321"/>
+  
+  <!-- Amber jewelry display -->
+  <rect x="80" y="220" width="40" height="15" fill="#8b4513"/>
+  <circle cx="85" cy="225" r="3" fill="url(#amberGradient)"/>
+  <circle cx="95" cy="225" r="3" fill="url(#amberGradient)"/>
+  <circle cx="105" cy="225" r="3" fill="url(#amberGradient)"/>
+  <circle cx="115" cy="225" r="3" fill="url(#amberGradient)"/>
+  
+  <!-- Amber craftsman workshop -->
+  <rect x="280" y="220" width="40" height="15" fill="#8b4513"/>
+  <circle cx="285" cy="225" r="2" fill="url(#amberGradient)"/>
+  <circle cx="295" cy="225" r="2" fill="url(#amberGradient)"/>
+  <circle cx="305" cy="225" r="2" fill="url(#amberGradient)"/>
+  <circle cx="315" cy="225" r="2" fill="url(#amberGradient)"/>
+  
+  <!-- Trees with amber-colored leaves -->
+  <circle cx="60" cy="160" r="25" fill="#ffd700"/>
+  <rect x="57" y="160" width="6" height="40" fill="#8b4513"/>
+  
+  <circle cx="340" cy="150" r="30" fill="#ffd700"/>
+  <rect x="337" y="150" width="6" height="50" fill="#8b4513"/>
+  
+  <!-- Baltic Sea waves -->
+  <path d="M 0 240 Q 50 230 100 240 Q 150 250 200 240 Q 250 230 300 240 Q 350 250 400 240" stroke="#4169e1" stroke-width="3" fill="none"/>
+  <path d="M 0 245 Q 50 235 100 245 Q 150 255 200 245 Q 250 235 300 245 Q 350 255 400 245" stroke="#6495ed" stroke-width="2" fill="none"/>
+  
+  <!-- Visitors -->
+  <circle cx="140" cy="210" r="3" fill="#2f4f4f"/>
+  <rect x="138" y="210" width="4" height="8" fill="#2f4f4f"/>
+  
+  <circle cx="260" cy="210" r="3" fill="#2f4f4f"/>
+  <rect x="258" y="210" width="4" height="8" fill="#2f4f4f"/>
+  
+  <!-- Information boards -->
+  <rect x="50" y="190" width="20" height="15" fill="#8b4513"/>
+  <rect x="52" y="192" width="16" height="11" fill="#f5f5dc"/>
+  <text x="60" y="199" text-anchor="middle" fill="#2f4f4f" font-family="Arial, sans-serif" font-size="6">AMBER</text>
+  
+  <rect x="330" y="190" width="20" height="15" fill="#8b4513"/>
+  <rect x="332" y="192" width="16" height="11" fill="#f5f5dc"/>
+  <text x="340" y="199" text-anchor="middle" fill="#2f4f4f" font-family="Arial, sans-serif" font-size="6">BALTIC</text>
+  
+  <text x="200" y="280" text-anchor="middle" fill="#4a3728" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Amber Museum</text>
+</svg>

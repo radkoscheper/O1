@@ -1,0 +1,112 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="palaceGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffd700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#daa520;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="gardenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#90ee90;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#228b22;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Sky -->
+  <rect width="400" height="300" fill="#87CEEB"/>
+  
+  <!-- Baroque palace -->
+  <rect x="120" y="100" width="160" height="80" fill="url(#palaceGradient)"/>
+  
+  <!-- Palace wings -->
+  <rect x="80" y="120" width="40" height="60" fill="url(#palaceGradient)"/>
+  <rect x="280" y="120" width="40" height="60" fill="url(#palaceGradient)"/>
+  
+  <!-- Palace roofs -->
+  <polygon points="115,100 140,75 165,100" fill="#8b4513"/>
+  <polygon points="155,100 200,70 245,100" fill="#8b4513"/>
+  <polygon points="275,100 300,75 325,100" fill="#8b4513"/>
+  
+  <!-- Central dome -->
+  <circle cx="200" cy="90" r="20" fill="#32cd32"/>
+  <circle cx="200" cy="90" r="15" fill="#228b22"/>
+  <rect x="195" y="70" width="10" height="15" fill="#ffd700"/>
+  <circle cx="200" cy="68" r="3" fill="#ffd700"/>
+  
+  <!-- Palace windows -->
+  <rect x="135" y="120" width="8" height="15" fill="#4169e1"/>
+  <rect x="155" y="120" width="8" height="15" fill="#4169e1"/>
+  <rect x="175" y="120" width="8" height="15" fill="#4169e1"/>
+  <rect x="195" y="120" width="8" height="15" fill="#4169e1"/>
+  <rect x="215" y="120" width="8" height="15" fill="#4169e1"/>
+  <rect x="235" y="120" width="8" height="15" fill="#4169e1"/>
+  <rect x="255" y="120" width="8" height="15" fill="#4169e1"/>
+  
+  <!-- Palace entrance -->
+  <rect x="180" y="150" width="40" height="30" fill="#4a3728"/>
+  <path d="M 180 150 Q 200 140 220 150" fill="#4a3728"/>
+  
+  <!-- Baroque decorations -->
+  <circle cx="150" cy="110" r="3" fill="#ff6347"/>
+  <circle cx="200" cy="110" r="3" fill="#ff6347"/>
+  <circle cx="250" cy="110" r="3" fill="#ff6347"/>
+  
+  <!-- Formal gardens -->
+  <rect x="0" y="200" width="400" height="100" fill="url(#gardenGradient)"/>
+  
+  <!-- Garden paths -->
+  <rect x="50" y="220" width="300" height="8" fill="#8b7355"/>
+  <rect x="190" y="200" width="8" height="100" fill="#8b7355"/>
+  <rect x="100" y="240" width="200" height="8" fill="#8b7355"/>
+  
+  <!-- Topiary -->
+  <circle cx="80" cy="240" r="12" fill="#228b22"/>
+  <circle cx="120" cy="240" r="12" fill="#228b22"/>
+  <circle cx="280" cy="240" r="12" fill="#228b22"/>
+  <circle cx="320" cy="240" r="12" fill="#228b22"/>
+  
+  <!-- Fountain -->
+  <circle cx="200" cy="250" r="15" fill="#4169e1"/>
+  <circle cx="200" cy="250" r="10" fill="#87ceeb"/>
+  <circle cx="200" cy="245" r="3" fill="#ffffff"/>
+  
+  <!-- Water jets -->
+  <circle cx="195" cy="240" r="1" fill="#ffffff"/>
+  <circle cx="205" cy="240" r="1" fill="#ffffff"/>
+  <circle cx="200" cy="235" r="1" fill="#ffffff"/>
+  
+  <!-- Garden statues -->
+  <rect x="145" y="220" width="6" height="15" fill="#a0a0a0"/>
+  <circle cx="148" cy="218" r="3" fill="#a0a0a0"/>
+  
+  <rect x="250" y="220" width="6" height="15" fill="#a0a0a0"/>
+  <circle cx="253" cy="218" r="3" fill="#a0a0a0"/>
+  
+  <!-- Flower beds -->
+  <circle cx="60" cy="270" r="8" fill="#ff69b4"/>
+  <circle cx="340" cy="270" r="8" fill="#ffd700"/>
+  <circle cx="120" cy="280" r="6" fill="#ff69b4"/>
+  <circle cx="280" cy="280" r="6" fill="#ffd700"/>
+  
+  <!-- Visitors -->
+  <circle cx="150" cy="260" r="3" fill="#2f4f4f"/>
+  <rect x="148" y="260" width="4" height="8" fill="#2f4f4f"/>
+  
+  <circle cx="250" cy="260" r="3" fill="#2f4f4f"/>
+  <rect x="248" y="260" width="4" height="8" fill="#2f4f4f"/>
+  
+  <!-- Palace balcony -->
+  <rect x="175" y="140" width="50" height="5" fill="#8b4513"/>
+  <rect x="180" y="135" width="40" height="5" fill="#654321"/>
+  
+  <!-- Garden benches -->
+  <rect x="110" y="255" width="15" height="5" fill="#8b4513"/>
+  <rect x="275" y="255" width="15" height="5" fill="#8b4513"/>
+  
+  <!-- Trees -->
+  <circle cx="30" cy="210" r="20" fill="#228b22"/>
+  <rect x="27" y="210" width="6" height="30" fill="#8b4513"/>
+  
+  <circle cx="370" cy="210" r="20" fill="#228b22"/>
+  <rect x="367" y="210" width="6" height="30" fill="#8b4513"/>
+  
+  <text x="200" y="290" text-anchor="middle" fill="#4a3728" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Wilanow Paleis</text>
+</svg>

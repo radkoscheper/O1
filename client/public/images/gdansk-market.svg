@@ -1,0 +1,80 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="hanseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6347;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#cd5c5c;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="buildingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#daa520;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#b8860b;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Sky -->
+  <rect width="400" height="300" fill="#87CEEB"/>
+  
+  <!-- Water/Harbor -->
+  <rect x="0" y="200" width="400" height="100" fill="#4169e1"/>
+  
+  <!-- Colorful Hanse buildings -->
+  <rect x="60" y="80" width="40" height="120" fill="url(#hanseGradient)"/>
+  <rect x="110" y="75" width="45" height="125" fill="#ffd700"/>
+  <rect x="165" y="85" width="40" height="115" fill="#32cd32"/>
+  <rect x="215" y="70" width="50" height="130" fill="#ff69b4"/>
+  <rect x="275" y="80" width="42" height="120" fill="#00ced1"/>
+  
+  <!-- Building roofs -->
+  <polygon points="55,80 80,55 105,80" fill="#8b4513"/>
+  <polygon points="105,75 132,50 160,75" fill="#8b4513"/>
+  <polygon points="160,85 185,60 210,85" fill="#8b4513"/>
+  <polygon points="210,70 240,45 270,70" fill="#8b4513"/>
+  <polygon points="270,80 296,55 322,80" fill="#8b4513"/>
+  
+  <!-- Windows -->
+  <rect x="70" y="100" width="8" height="12" fill="#4169e1"/>
+  <rect x="85" y="100" width="8" height="12" fill="#4169e1"/>
+  <rect x="70" y="130" width="8" height="12" fill="#4169e1"/>
+  <rect x="85" y="130" width="8" height="12" fill="#4169e1"/>
+  
+  <rect x="125" y="95" width="8" height="12" fill="#4169e1"/>
+  <rect x="140" y="95" width="8" height="12" fill="#4169e1"/>
+  <rect x="125" y="125" width="8" height="12" fill="#4169e1"/>
+  <rect x="140" y="125" width="8" height="12" fill="#4169e1"/>
+  
+  <!-- Harbor crane -->
+  <rect x="350" y="120" width="8" height="80" fill="#8b4513"/>
+  <rect x="330" y="120" width="40" height="8" fill="#8b4513"/>
+  <rect x="325" y="115" width="8" height="15" fill="#8b4513"/>
+  
+  <!-- Ships -->
+  <ellipse cx="320" cy="220" rx="30" ry="8" fill="#654321"/>
+  <rect x="310" y="210" width="20" height="10" fill="#654321"/>
+  <rect x="315" y="200" width="2" height="10" fill="#8b4513"/>
+  <rect x="317" y="195" width="8" height="5" fill="#dc143c"/>
+  
+  <!-- Market square -->
+  <rect x="170" y="180" width="60" height="20" fill="#8b7355"/>
+  
+  <!-- Market stalls -->
+  <rect x="180" y="170" width="12" height="10" fill="#228b22"/>
+  <rect x="200" y="170" width="12" height="10" fill="#ff6347"/>
+  <rect x="220" y="170" width="12" height="10" fill="#ffd700"/>
+  
+  <!-- People -->
+  <circle cx="190" cy="185" r="3" fill="#2f4f4f"/>
+  <rect x="188" y="185" width="4" height="8" fill="#2f4f4f"/>
+  
+  <circle cx="210" cy="185" r="3" fill="#2f4f4f"/>
+  <rect x="208" y="185" width="4" height="8" fill="#2f4f4f"/>
+  
+  <!-- Neptune's Fountain -->
+  <circle cx="200" cy="160" r="8" fill="#b0c4de"/>
+  <rect x="198" y="150" width="4" height="15" fill="#8b4513"/>
+  <circle cx="200" cy="148" r="3" fill="#ffd700"/>
+  
+  <!-- Seagulls -->
+  <path d="M 250 40 Q 255 35 260 40 Q 255 45 250 40" fill="#f5f5f5"/>
+  <path d="M 300 50 Q 305 45 310 50 Q 305 55 300 50" fill="#f5f5f5"/>
+  
+  <text x="200" y="280" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Lange Markt</text>
+</svg>

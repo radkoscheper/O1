@@ -1,0 +1,92 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="lakeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00bfff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0066cc;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="mountainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a0a0a0;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#696969;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Sky -->
+  <rect width="400" height="300" fill="#87CEEB"/>
+  
+  <!-- Mountain backdrop -->
+  <polygon points="0,150 100,50 200,150" fill="url(#mountainGradient)"/>
+  <polygon points="150,150 250,30 350,150" fill="#a0a0a0"/>
+  <polygon points="300,150 400,80 400,150" fill="url(#mountainGradient)"/>
+  
+  <!-- Snow on peaks -->
+  <polygon points="240,40 250,30 260,40" fill="#f0f8ff"/>
+  <polygon points="90,60 100,50 110,60" fill="#f0f8ff"/>
+  <polygon points="390,90 400,80 400,90" fill="#f0f8ff"/>
+  
+  <!-- Lake (Morskie Oko) -->
+  <ellipse cx="200" cy="200" rx="120" ry="60" fill="url(#lakeGradient)"/>
+  
+  <!-- Lake reflections -->
+  <ellipse cx="200" cy="190" rx="100" ry="20" fill="#87CEEB" opacity="0.5"/>
+  <ellipse cx="200" cy="210" rx="80" ry="15" fill="#4682b4" opacity="0.3"/>
+  
+  <!-- Rocky shore -->
+  <ellipse cx="200" cy="250" rx="140" ry="20" fill="#778899"/>
+  <circle cx="120" cy="250" r="8" fill="#696969"/>
+  <circle cx="280" cy="250" r="6" fill="#696969"/>
+  <circle cx="160" cy="255" r="5" fill="#696969"/>
+  <circle cx="240" cy="255" r="7" fill="#696969"/>
+  
+  <!-- Pine trees around lake -->
+  <polygon points="90,170 100,140 110,170" fill="#228b22"/>
+  <rect x="98" y="170" width="4" height="20" fill="#8b4513"/>
+  
+  <polygon points="300,160 315,130 330,160" fill="#228b22"/>
+  <rect x="313" y="160" width="4" height="25" fill="#8b4513"/>
+  
+  <polygon points="40,180 50,150 60,180" fill="#228b22"/>
+  <rect x="48" y="180" width="4" height="15" fill="#8b4513"/>
+  
+  <polygon points="340,170 350,140 360,170" fill="#228b22"/>
+  <rect x="348" y="170" width="4" height="20" fill="#8b4513"/>
+  
+  <!-- Mountain trail -->
+  <path d="M 50 220 Q 100 210 150 220 Q 200 230 250 220 Q 300 210 350 220" stroke="#8b7355" stroke-width="3" fill="none"/>
+  
+  <!-- Hiking path markers -->
+  <rect x="98" y="215" width="4" height="10" fill="#ff6347"/>
+  <rect x="248" y="215" width="4" height="10" fill="#ff6347"/>
+  
+  <!-- Waterfall -->
+  <path d="M 300 130 Q 305 150 310 170" stroke="#87CEEB" stroke-width="4" fill="none"/>
+  <path d="M 302 130 Q 307 150 312 170" stroke="#b0e0e6" stroke-width="2" fill="none"/>
+  
+  <!-- Wildlife -->
+  <circle cx="120" cy="190" r="3" fill="#8b4513"/>
+  <circle cx="118" cy="188" r="1" fill="#2f4f4f"/>
+  <rect x="115" y="193" width="10" height="5" fill="#8b4513"/>
+  
+  <!-- Mountain flowers -->
+  <circle cx="70" cy="240" r="2" fill="#ff69b4"/>
+  <circle cx="330" cy="245" r="2" fill="#ffd700"/>
+  <circle cx="140" cy="270" r="2" fill="#ff69b4"/>
+  <circle cx="260" cy="270" r="2" fill="#ffd700"/>
+  
+  <!-- Clouds reflecting in lake -->
+  <circle cx="180" cy="200" r="8" fill="#f0f8ff" opacity="0.3"/>
+  <circle cx="220" cy="195" r="6" fill="#f0f8ff" opacity="0.3"/>
+  
+  <!-- Information board -->
+  <rect x="60" y="260" width="20" height="15" fill="#8b4513"/>
+  <rect x="62" y="262" width="16" height="11" fill="#f5f5dc"/>
+  <text x="70" y="270" text-anchor="middle" fill="#2f4f4f" font-family="Arial, sans-serif" font-size="6">MORSKIE OKO</text>
+  
+  <!-- Tourists -->
+  <circle cx="180" cy="240" r="3" fill="#2f4f4f"/>
+  <rect x="178" y="240" width="4" height="8" fill="#2f4f4f"/>
+  
+  <circle cx="220" cy="245" r="3" fill="#2f4f4f"/>
+  <rect x="218" y="245" width="4" height="8" fill="#2f4f4f"/>
+  
+  <text x="200" y="290" text-anchor="middle" fill="#4a3728" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Morskie Oko</text>
+</svg>
