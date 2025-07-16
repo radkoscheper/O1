@@ -996,7 +996,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { destination } = req.params;
-      const headersDir = path.join(__dirname, '../client/public/images/headers', destination);
+      const headersDir = path.join(process.cwd(), 'client/public/images/headers', destination);
       
       if (!fs.existsSync(headersDir)) {
         return res.json([]);
