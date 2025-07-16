@@ -1430,6 +1430,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
+  // Dynamic favicon route - only serve if favicon is enabled
+  app.get('/favicon.ico', async (req, res) => {
+    try {
+      const siteSettings = await storage.getSiteSettings();
+      
+      if (siteSettings?.faviconEnabled && siteSettings.favicon) {
+        const faviconPath = path.join(process.cwd(), 'client/public', siteSettings.favicon);
+        
+        // Check if favicon file exists
+        try {
+          await fs.promises.access(faviconPath);
+          res.setHeader('Content-Type', 'image/x-icon');
+          res.setHeader('Cache-Control', 'no-cache');
+          return res.sendFile(faviconPath);
+        } catch (fileError) {
+          // File doesn't exist, return 404
+          return res.status(404).send('Favicon file not found');
+        }
+      } else {
+        // Favicon disabled or not set, return 404
+        return res.status(404).send('Favicon disabled');
+      }
+    } catch (error) {
+      console.error('Error serving favicon:', error);
+      res.status(404).send('Favicon error');
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
