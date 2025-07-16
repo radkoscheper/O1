@@ -50,15 +50,22 @@ export default function Home() {
       }
       metaKeywords.setAttribute('content', siteSettings.metaKeywords || "Polen, reizen, vakantie, bestemmingen");
       
-      // Update favicon
-      if (siteSettings.favicon) {
-        let favicon = document.querySelector('link[rel="icon"]');
+      // Update favicon - only if enabled and has a valid path
+      const favicon = document.querySelector('link[rel="icon"]');
+      if (siteSettings.faviconEnabled && siteSettings.favicon && siteSettings.favicon.trim()) {
         if (!favicon) {
-          favicon = document.createElement('link');
-          favicon.setAttribute('rel', 'icon');
-          document.head.appendChild(favicon);
+          const newFavicon = document.createElement('link');
+          newFavicon.setAttribute('rel', 'icon');
+          newFavicon.setAttribute('href', siteSettings.favicon);
+          document.head.appendChild(newFavicon);
+        } else {
+          favicon.setAttribute('href', siteSettings.favicon);
         }
-        favicon.setAttribute('href', siteSettings.favicon);
+      } else {
+        // Remove favicon if disabled or empty
+        if (favicon) {
+          favicon.remove();
+        }
       }
       
       // Add custom CSS
