@@ -1851,15 +1851,11 @@ export default function Admin() {
                       fileName="social-media-image"
                     />
                     
-                    <div className="space-y-2">
-                      <Label htmlFor="favicon">Favicon URL</Label>
-                      <Input
-                        id="favicon"
-                        value={siteSettings.favicon}
-                        onChange={(e) => setSiteSettings({...siteSettings, favicon: e.target.value})}
-                        placeholder="/favicon.ico"
-                      />
-                    </div>
+                    <FaviconUploadField
+                      label="Favicon"
+                      value={siteSettings.favicon}
+                      onChange={(faviconPath) => setSiteSettings({...siteSettings, favicon: faviconPath})}
+                    />
                     
                     <div className="space-y-2">
                       <Label htmlFor="googleAnalyticsId">Google Analytics ID</Label>
@@ -2900,6 +2896,219 @@ function ImageUploadField({ label, value, onChange, placeholder, fileName }: {
       {value && (
         <div className="text-sm text-gray-500">
           Huidige afbeelding: {value}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function FaviconUploadField({ label, value, onChange }: {
+  label: string;
+  value: string;
+  onChange: (faviconPath: string) => void;
+}) {
+  const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showFaviconList, setShowFaviconList] = useState(false);
+
+  const faviconQuery = useQuery({
+    queryKey: ['/api/favicons'],
+    queryFn: () => fetch('/api/favicons').then(res => res.json())
+  });
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.toLowerCase().endsWith('.ico')) {
+      toast({
+        title: "Ongeldige bestandstype",
+        description: "Alleen .ico bestanden zijn toegestaan voor favicons",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('favicon', file);
+      formData.append('fileName', file.name.replace('.ico', ''));
+
+      const response = await fetch('/api/upload/favicon', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Favicon upload failed');
+      }
+
+      const result = await response.json();
+      onChange(result.faviconPath);
+      
+      // Refresh favicon list
+      faviconQuery.refetch();
+      
+      toast({
+        title: "Succes",
+        description: "Favicon succesvol geüpload!",
+      });
+    } catch (error) {
+      console.error('Favicon upload error:', error);
+      toast({
+        title: "Upload fout",
+        description: "Er is een fout opgetreden bij het uploaden van de favicon",
+        variant: "destructive",
+      });
+    }
+
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleDeleteFavicon = async (filename: string) => {
+    try {
+      const response = await fetch(`/api/favicons/${filename}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Delete failed');
+      }
+
+      toast({
+        title: "Succes",
+        description: "Favicon succesvol verwijderd!",
+      });
+
+      // Clear current value if deleted file was selected
+      if (value === `/${filename}`) {
+        onChange('');
+      }
+
+      // Refresh favicon list
+      faviconQuery.refetch();
+    } catch (error) {
+      console.error('Delete error:', error);
+      toast({
+        title: "Verwijder fout",
+        description: "Er is een fout opgetreden bij het verwijderen van de favicon",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const faviconFiles = faviconQuery.data || [];
+
+  return (
+    <div className="space-y-2">
+      <Label>{label}</Label>
+      <div className="flex gap-2">
+        <Input
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="/favicon.ico"
+          className="flex-1"
+        />
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => fileInputRef.current?.click()}
+          className="shrink-0"
+        >
+          <Upload className="h-4 w-4 mr-2" />
+          Upload .ico
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => setShowFaviconList(!showFaviconList)}
+          className="shrink-0"
+        >
+          {showFaviconList ? 'Verberg' : 'Bekijk'} ({faviconFiles.length})
+        </Button>
+      </div>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".ico"
+        onChange={handleFileUpload}
+        className="hidden"
+      />
+
+      {showFaviconList && (
+        <div className="mt-4 p-4 border rounded-lg bg-gray-50">
+          <h4 className="font-medium mb-3">Beschikbare Favicon Bestanden</h4>
+          {faviconFiles.length === 0 ? (
+            <p className="text-gray-500">Geen favicon bestanden gevonden</p>
+          ) : (
+            <div className="space-y-2">
+              {faviconFiles.map((file: any) => (
+                <div key={file.name} className="flex items-center justify-between p-2 bg-white rounded border">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={file.path}
+                      alt={file.name}
+                      className="w-4 h-4"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                    <div>
+                      <p className="font-medium">{file.name}</p>
+                      <p className="text-sm text-gray-500">
+                        {formatFileSize(file.size)} • {new Date(file.lastModified).toLocaleDateString('nl-NL')}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => onChange(file.path)}
+                    >
+                      Selecteer
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => handleDeleteFavicon(file.name)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {value && (
+        <div className="mt-2 flex items-center gap-2">
+          <img
+            src={value}
+            alt="Current favicon"
+            className="w-4 h-4"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
+          />
+          <span className="text-sm text-gray-600">Huidige favicon: {value}</span>
         </div>
       )}
     </div>

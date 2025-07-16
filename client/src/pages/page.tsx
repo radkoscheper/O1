@@ -54,7 +54,20 @@ export default function Page() {
         document.head.appendChild(meta);
       }
     }
-  }, [page]);
+    
+    // Apply site-wide favicon from settings
+    if (siteSettings?.favicon) {
+      const favicon = document.querySelector('link[rel="icon"]');
+      if (favicon) {
+        favicon.setAttribute('href', siteSettings.favicon);
+      } else {
+        const link = document.createElement('link');
+        link.rel = 'icon';
+        link.href = siteSettings.favicon;
+        document.head.appendChild(link);
+      }
+    }
+  }, [page, siteSettings]);
 
   if (isLoading) {
     return (

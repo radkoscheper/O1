@@ -1349,6 +1349,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Favicon upload endpoint - specific for .ico files
+  const faviconUpload = multer({
+    storage: multer.diskStorage({
+      destination: (req, file, cb) => {
+        cb(null, path.join(process.cwd(), 'client', 'public'));
+      },
+      filename: (req, file, cb) => {
+        // Always save with .ico extension
+        const customName = req.body.fileName || 'favicon';
+        cb(null, `${customName}.ico`);
+      }
+    }),
+    fileFilter: (req, file, cb) => {
+      // Only allow .ico files
+      if (file.mimetype === 'image/x-icon' || file.originalname.toLowerCase().endsWith('.ico')) {
+        cb(null, true);
+      } else {
+        cb(new Error('Only .ico files are allowed for favicon upload'));
+      }
+    },
+    limits: {
+      fileSize: 1024 * 1024 // 1MB limit for favicon
+    }
+  });
+
+  app.post('/api/upload/favicon', requireAuth, faviconUpload.single('favicon'), (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No favicon file uploaded' });
+    }
+    
+    const faviconPath = `/${req.file.filename}`;
+    res.json({ faviconPath });
+  });
+
+  // Get available favicon files
+  app.get('/api/favicons', (req, res) => {
+    try {
+      const publicDir = path.join(process.cwd(), 'client', 'public');
+      const files = fs.readdirSync(publicDir);
+      const faviconFiles = files
+        .filter(file => file.toLowerCase().endsWith('.ico'))
+        .map(file => ({
+          name: file,
+          path: `/${file}`,
+          size: fs.statSync(path.join(publicDir, file)).size,
+          lastModified: fs.statSync(path.join(publicDir, file)).mtime
+        }));
+      
+      res.json(faviconFiles);
+    } catch (error) {
+      console.error('Error reading favicon files:', error);
+      res.status(500).json({ message: 'Error reading favicon files' });
+    }
+  });
+
+  // Delete favicon file
+  app.delete('/api/favicons/:filename', requireAuth, (req, res) => {
+    try {
+      const filename = req.params.filename;
+      
+      // Security check - only allow .ico files and prevent path traversal
+      if (!filename.toLowerCase().endsWith('.ico') || filename.includes('/') || filename.includes('..')) {
+        return res.status(400).json({ message: 'Invalid filename' });
+      }
+
+      const filePath = path.join(process.cwd(), 'client', 'public', filename);
+      
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+        res.json({ message: 'Favicon deleted successfully' });
+      } else {
+        res.status(404).json({ message: 'Favicon file not found' });
+      }
+    } catch (error) {
+      console.error('Error deleting favicon:', error);
+      res.status(500).json({ message: 'Error deleting favicon file' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
