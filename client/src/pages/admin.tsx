@@ -1876,6 +1876,9 @@ export default function Admin() {
                           <p className="text-sm text-gray-600">
                             Favicon is uitgeschakeld. Schakel in om een favicon te uploaden en te beheren.
                           </p>
+                          <p className="text-xs text-gray-500 mt-2">
+                            💡 Tip: Upload alleen .ico bestanden via de speciale "Upload .ico" knop voor favicons
+                          </p>
                         </div>
                       )}
                     </div>
