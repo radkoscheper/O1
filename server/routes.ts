@@ -36,22 +36,12 @@ if (!fs.existsSync(uploadsDir)) {
 
 const storage_config = multer.diskStorage({
   destination: function (req, file, cb) {
-    // Check if a destination subfolder is specified for header images
-    let finalDestination = uploadsDir;
-    
-    if (req.body?.destination) {
-      // Create destination subfolder for header images
-      finalDestination = path.join(uploadsDir, 'headers', req.body.destination);
-      if (!fs.existsSync(finalDestination)) {
-        fs.mkdirSync(finalDestination, { recursive: true });
-      }
-    }
-    
-    cb(null, finalDestination);
+    // Gebruik altijd de hoofddirectory, we verplaatsen later naar subfolder
+    cb(null, uploadsDir);
   },
   filename: function (req, file, cb) {
     // Generate temporary filename first
-    const tempName = Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname);
+    const tempName = Date.now() + '-' + Math.round(Math.random() * 1E9);
     cb(null, tempName);
   }
 });
@@ -177,16 +167,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       let finalFileName = req.file.filename;
       
+      // Bepaal de juiste directory gebaseerd op destination
+      let finalDirectory = uploadsDir;
+      if (req.body?.destination) {
+        finalDirectory = path.join(uploadsDir, 'headers', req.body.destination);
+        if (!fs.existsSync(finalDirectory)) {
+          fs.mkdirSync(finalDirectory, { recursive: true });
+        }
+      }
+      
       // Check if custom filename was provided and rename file
       if (req.body.fileName && req.body.fileName.trim()) {
         const customName = req.body.fileName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
         // Voor gecroppte afbeeldingen, altijd .jpg gebruiken
         const newFileName = customName + '.jpg';
         
-        // Use the correct destination directory (could be headers subfolder)
-        const currentDirectory = path.dirname(req.file.path);
         const oldPath = req.file.path;
-        const newPath = path.join(currentDirectory, newFileName);
+        const newPath = path.join(finalDirectory, newFileName);
         
         // Create trash directory if it doesn't exist
         const trashDir = path.join(uploadsDir, '.trash');
@@ -196,7 +193,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         try {
           // Check if ANY file with the same base name already exists (regardless of extension)
-          const existingFiles = fs.readdirSync(currentDirectory).filter(file => {
+          const existingFiles = fs.readdirSync(finalDirectory).filter(file => {
             const baseName = path.parse(file).name;
             return baseName === customName && !file.startsWith('.') && file !== req.file!.filename;
           });
@@ -204,7 +201,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (existingFiles.length > 0) {
             // Move ALL matching existing files to archive before new upload
             existingFiles.forEach(existingFile => {
-              const existingPath = path.join(currentDirectory, existingFile);
+              const existingPath = path.join(finalDirectory, existingFile);
               const timestamp = Date.now();
               const existingExt = path.extname(existingFile);
               const archiveFileName = `${customName}-archived-${timestamp}${existingExt}`;
@@ -238,6 +235,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.error("Error renaming file:", renameError);
           // Continue with original filename if rename fails
         }
+      } else {
+        // Geen custom filename, verplaats naar juiste directory
+        const oldPath = req.file.path;
+        const newPath = path.join(finalDirectory, req.file.filename);
+        fs.renameSync(oldPath, newPath);
       }
       
       // Calculate the correct path based on destination
