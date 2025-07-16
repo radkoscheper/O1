@@ -94,28 +94,34 @@ export default function Page() {
     // TODO: Implement search functionality
   };
 
-  // Get the background image based on the page slug
-  const getBackgroundImage = (slug: string) => {
-    const images = {
-      'krakow': '/images/krakow.jpg',
-      'warschau-citytrip': '/images/krakau-dagtrip.jpg', 
-      'tatra-mountains': '/images/tatra.jpg',
-      'gdansk': '/images/gdansk.jpg',
-      'bialowieza': '/images/bialowieza.jpg'
+  // Get the background image from database or fallback to default
+  const getBackgroundImage = () => {
+    if (page?.headerImage) {
+      return page.headerImage;
+    }
+    // Fallback to default background images if no header image is set
+    const defaultImages = {
+      'krakow': '/images/destinations/krakow.jpg',
+      'warschau-citytrip': '/images/destinations/tatra.jpg', 
+      'tatra-mountains': '/images/destinations/tatra.jpg',
+      'gdansk': '/images/destinations/gdansk.jpg',
+      'bialowieza': '/images/destinations/bialowieza.jpg'
     };
-    return images[slug as keyof typeof images] || '/images/header.jpg';
+    return defaultImages[slug as keyof typeof defaultImages] || '/images/backgrounds/header.jpg';
   };
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#f8f6f1" }}>
-      {/* Hero Section - exact same as homepage */}
+      {/* Hero Section - with dynamic header image */}
       <header 
         className="relative bg-cover bg-center text-white py-24 px-5 text-center"
         style={{
-          backgroundImage: `url('${getBackgroundImage(slug)}')`,
+          backgroundImage: `url('${getBackgroundImage()}')`,
           backgroundSize: "cover",
           backgroundPosition: "center"
         }}
+        role="banner"
+        aria-label={page?.headerImageAlt || `${page?.title} header afbeelding`}
       >
         <div className="absolute inset-0 bg-black bg-opacity-30"></div>
         <div className="relative z-10 max-w-4xl mx-auto">
