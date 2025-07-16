@@ -27,8 +27,9 @@ export default function OntdekMeer() {
     queryKey: ["/api/site-settings"],
   });
 
-  // Update document title and meta tags + debug
+  // Update document title and meta tags when site settings change
   useEffect(() => {
+    // Changed title for Ontdek Meer page
     document.title = "Ontdek Meer - Ontdek Polen";
     
     // Update meta description
@@ -40,20 +41,103 @@ export default function OntdekMeer() {
     }
     metaDescription.setAttribute('content', "Ontdek alle bestemmingen, reisgidsen en tips voor je reis naar Polen op één plek");
     
-    // Debug logging
-    console.log("Ontdek Meer pagina geladen");
-    console.log("Destinations:", destinations);
-    console.log("Guides:", guides); 
-    console.log("Pages:", pages);
-    console.log("Published destinations:", publishedDestinations);
-    console.log("Published guides:", publishedGuides);
-    console.log("Loading states:", {
-      destinationsLoading,
-      guidesLoading,
-      pagesLoading,
-      settingsLoading
-    });
-  }, [destinations, guides, pages, publishedDestinations, publishedGuides, destinationsLoading, guidesLoading, pagesLoading, settingsLoading]);
+    if (siteSettings) {
+      // Update meta keywords
+      let metaKeywords = document.querySelector('meta[name="keywords"]');
+      if (!metaKeywords) {
+        metaKeywords = document.createElement('meta');
+        metaKeywords.setAttribute('name', 'keywords');
+        document.head.appendChild(metaKeywords);
+      }
+      metaKeywords.setAttribute('content', siteSettings.metaKeywords || "Polen, reizen, vakantie, bestemmingen");
+      
+      // Update favicon - handle enabled/disabled state
+      const existingFavicon = document.querySelector('link[rel="icon"]');
+      
+      if (siteSettings.faviconEnabled === true && siteSettings.favicon) {
+        // Favicon enabled and has path - use server route which checks database
+        if (existingFavicon) {
+          existingFavicon.setAttribute('href', '/favicon.ico?' + Date.now()); // Cache bust
+        } else {
+          const newFavicon = document.createElement('link');
+          newFavicon.setAttribute('rel', 'icon');
+          newFavicon.setAttribute('href', '/favicon.ico?' + Date.now()); // Cache bust
+          document.head.appendChild(newFavicon);
+        }
+      } else {
+        // Favicon disabled - remove any existing favicon
+        if (existingFavicon) {
+          existingFavicon.remove();
+        }
+        // Force browser to not show any favicon by using empty data URL
+        const emptyFavicon = document.createElement('link');
+        emptyFavicon.setAttribute('rel', 'icon');
+        emptyFavicon.setAttribute('href', 'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=');
+        document.head.appendChild(emptyFavicon);
+      }
+      
+      // Inject custom CSS if provided
+      const existingCustomCSS = document.querySelector('#custom-css');
+      if (siteSettings.customCSS) {
+        if (existingCustomCSS) {
+          existingCustomCSS.textContent = siteSettings.customCSS;
+        } else {
+          const customCSSElement = document.createElement('style');
+          customCSSElement.id = 'custom-css';
+          customCSSElement.textContent = siteSettings.customCSS;
+          document.head.appendChild(customCSSElement);
+        }
+      } else {
+        if (existingCustomCSS) {
+          existingCustomCSS.remove();
+        }
+      }
+      
+      // Inject custom JS if provided
+      const existingCustomJS = document.querySelector('#custom-js');
+      if (siteSettings.customJS) {
+        if (existingCustomJS) {
+          existingCustomJS.textContent = siteSettings.customJS;
+        } else {
+          const customJSElement = document.createElement('script');
+          customJSElement.id = 'custom-js';
+          customJSElement.textContent = siteSettings.customJS;
+          document.head.appendChild(customJSElement);
+        }
+      } else {
+        if (existingCustomJS) {
+          existingCustomJS.remove();
+        }
+      }
+      
+      // Inject Google Analytics if provided
+      const existingGA = document.querySelector('#google-analytics');
+      if (siteSettings.googleAnalyticsId) {
+        if (!existingGA) {
+          // Create Google Analytics script
+          const gtagScript = document.createElement('script');
+          gtagScript.id = 'google-analytics';
+          gtagScript.async = true;
+          gtagScript.src = `https://www.googletagmanager.com/gtag/js?id=${siteSettings.googleAnalyticsId}`;
+          document.head.appendChild(gtagScript);
+          
+          // Create gtag config script
+          const gtagConfig = document.createElement('script');
+          gtagConfig.textContent = `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${siteSettings.googleAnalyticsId}');
+          `;
+          document.head.appendChild(gtagConfig);
+        }
+      } else {
+        if (existingGA) {
+          existingGA.remove();
+        }
+      }
+    }
+  }, [siteSettings]);
 
   // Filter only published destinations
   const publishedDestinations = destinations.filter((destination: any) => destination.published);
@@ -82,9 +166,16 @@ export default function OntdekMeer() {
     // TODO: Implement search functionality
   };
 
+  const handleReadGuides = () => {
+    // Simple scroll to guides section or navigate to first guide
+    if (publishedGuides.length > 0) {
+      window.location.href = publishedGuides[0].link || `/${publishedGuides[0].slug}`;
+    }
+  };
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#f8f6f1" }}>
-      {/* Hero Section - Same as homepage */}
+      {/* Hero Section */}
       <header 
         className="relative bg-cover bg-center text-white py-24 px-5 text-center"
         style={{
@@ -133,33 +224,55 @@ export default function OntdekMeer() {
         </div>
       </header>
 
-      {/* CTA Section - Same as homepage */}
+      {/* Destinations Section */}
       <section className="py-16 px-5 max-w-6xl mx-auto">
-        <div className="flex flex-wrap gap-8 items-center justify-between">
-          <div className="flex-1 min-w-80">
-            <h2 className="text-3xl font-bold mb-4 font-inter text-gray-900">
-              Laat je verrassen door het onbekende Polen
-            </h2>
-            <p className="text-lg mb-6 font-inter text-gray-700">
-              Bezoek historische steden, ontdek natuurparken en verborgen parels. 
-              Onze reisgidsen helpen je op weg!
-            </p>
-            <Link href="/3-dagen-in-krakau">
-              <Button
-                className="py-3 px-6 text-base font-inter hover:opacity-90 transition-all duration-200"
-                style={{ backgroundColor: "#2f3e46" }}
+        <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
+          Populaire Bestemmingen
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {publishedDestinations.map((destination) => {
+            const CardContent = (
+              <Card 
+                className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer"
               >
-                Lees onze gidsen
-              </Button>
-            </Link>
-          </div>
-          <div className="flex-1 min-w-80">
-            <img
-              src="/images/guides/tatra-vallei.jpg"
-              alt="Tatra Valley"
-              className="w-full rounded-xl shadow-lg"
-            />
-          </div>
+                <img
+                  src={destination.image}
+                  alt={destination.alt}
+                  className="w-full h-40 object-cover"
+                />
+                <div className="p-4 font-bold font-inter text-gray-900">
+                  {destination.name}
+                </div>
+              </Card>
+            );
+
+            // If destination has a link, wrap in Link component or external link
+            if (destination.link) {
+              // Check if it's an external link (starts with http)
+              if (destination.link.startsWith('http')) {
+                return (
+                  <a
+                    key={destination.id}
+                    href={destination.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {CardContent}
+                  </a>
+                );
+              } else {
+                // Internal link
+                return (
+                  <Link key={destination.id} href={destination.link}>
+                    {CardContent}
+                  </Link>
+                );
+              }
+            }
+
+            // No link, just return the card
+            return <div key={destination.id}>{CardContent}</div>;
+          })}
         </div>
       </section>
 
@@ -261,62 +374,89 @@ export default function OntdekMeer() {
         </div>
       </section>
 
-      {/* All Destinations Section */}
+      {/* CTA Section */}
       <section className="py-16 px-5 max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
-          Alle Bestemmingen
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {publishedDestinations.map((destination) => {
-            const CardContent = (
-              <Card 
-                className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer"
-              >
-                <img
-                  src={destination.image}
-                  alt={destination.alt}
-                  className="w-full h-40 object-cover"
-                />
-                <div className="p-4 font-bold font-inter text-gray-900">
-                  {destination.name}
-                </div>
-              </Card>
-            );
-
-            // If destination has a link, wrap in Link component or external link
-            if (destination.link) {
-              // Check if it's an external link (starts with http)
-              if (destination.link.startsWith('http')) {
-                return (
-                  <a
-                    key={destination.id}
-                    href={destination.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {CardContent}
-                  </a>
-                );
-              } else {
-                // Internal link
-                return (
-                  <Link key={destination.id} href={destination.link}>
-                    {CardContent}
-                  </Link>
-                );
-              }
-            }
-
-            // No link, just return the card
-            return <div key={destination.id}>{CardContent}</div>;
-          })}
+        <div className="flex flex-wrap gap-8 items-center justify-between">
+          <div className="flex-1 min-w-80">
+            <h2 className="text-3xl font-bold mb-4 font-inter text-gray-900">
+              Laat je verrassen door het onbekende Polen
+            </h2>
+            <p className="text-lg mb-6 font-inter text-gray-700">
+              Bezoek historische steden, ontdek natuurparken en verborgen parels. 
+              Onze reisgidsen helpen je op weg!
+            </p>
+            <Button
+              onClick={handleReadGuides}
+              className="py-3 px-6 text-base font-inter hover:opacity-90 transition-all duration-200"
+              style={{ backgroundColor: "#2f3e46" }}
+            >
+              Lees onze gidsen
+            </Button>
+          </div>
+          <div className="flex-1 min-w-80">
+            <img
+              src="/images/guides/tatra-vallei.jpg"
+              alt="Tatra Valley"
+              className="w-full rounded-xl shadow-lg"
+            />
+          </div>
         </div>
       </section>
 
-      {/* All Travel Guides */}
+      {/* Published Pages */}
+      {publishedPages.length > 0 && (
+        <section className="py-16 px-5 max-w-6xl mx-auto">
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-3xl font-bold font-inter text-gray-900">
+              Ontdek Meer
+            </h2>
+            <Link href="/">
+              <Button
+                variant="outline"
+                className="text-gray-900 border-gray-300 hover:bg-gray-100"
+              >
+                Terug naar Home
+              </Button>
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {publishedPages.map((page) => (
+              <Link href={`/${page.slug}`} key={page.id}>
+                <Card className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer">
+                  <div className="p-6">
+                    <div className="flex items-start justify-between mb-3">
+                      <h3 className="text-xl font-bold font-inter text-gray-900">
+                        {page.title}
+                      </h3>
+                      {page.featured && (
+                        <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                          Uitgelicht
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-gray-600 text-sm mb-4 font-inter">
+                      {page.metaDescription}
+                    </p>
+                    <div className="flex items-center text-xs text-gray-500">
+                      <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded">
+                        {page.template}
+                      </span>
+                      <span className="ml-2">
+                        {new Date(page.createdAt).toLocaleDateString('nl-NL')}
+                      </span>
+                    </div>
+                  </div>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Travel Guides */}
       <section className="py-16 px-5 max-w-6xl mx-auto">
         <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
-          Alle Reisgidsen en Tips
+          Reisgidsen en Tips
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {publishedGuides.map((guide) => {
@@ -365,47 +505,7 @@ export default function OntdekMeer() {
         </div>
       </section>
 
-      {/* All Pages */}
-      {publishedPages.length > 0 && (
-        <section className="py-16 px-5 max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
-            Alle Pagina's
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {publishedPages.map((page) => (
-              <Link href={`/${page.slug}`} key={page.id}>
-                <Card className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer">
-                  <div className="p-6">
-                    <div className="flex items-start justify-between mb-3">
-                      <h3 className="text-xl font-bold font-inter text-gray-900">
-                        {page.title}
-                      </h3>
-                      {page.featured && (
-                        <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                          Uitgelicht
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-gray-600 text-sm mb-4 font-inter">
-                      {page.metaDescription}
-                    </p>
-                    <div className="flex items-center text-xs text-gray-500">
-                      <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded">
-                        {page.template}
-                      </span>
-                      <span className="ml-2">
-                        {new Date(page.createdAt).toLocaleDateString('nl-NL')}
-                      </span>
-                    </div>
-                  </div>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Footer - Same as homepage */}
+      {/* Footer */}
       <footer 
         className="text-center py-10 px-5 text-white relative"
         style={{ backgroundColor: "#2f3e46" }}
