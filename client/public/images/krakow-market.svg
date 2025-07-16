@@ -1,0 +1,75 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="skyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#87CEEB;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#b0e0e6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="buildingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#daa520;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#b8860b;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Sky -->
+  <rect width="400" height="300" fill="url(#skyGradient)"/>
+  
+  <!-- Ground -->
+  <rect x="0" y="220" width="400" height="80" fill="#8b7355"/>
+  
+  <!-- Main Market Square buildings -->
+  <rect x="50" y="100" width="70" height="120" fill="url(#buildingGradient)"/>
+  <rect x="130" y="90" width="60" height="130" fill="#cd853f"/>
+  <rect x="200" y="95" width="80" height="125" fill="url(#buildingGradient)"/>
+  <rect x="290" y="105" width="65" height="115" fill="#cd853f"/>
+  
+  <!-- Building roofs -->
+  <polygon points="45,100 85,70 125,100" fill="#8b4513"/>
+  <polygon points="125,90 160,65 195,90" fill="#8b4513"/>
+  <polygon points="195,95 240,60 285,95" fill="#8b4513"/>
+  <polygon points="285,105 322,80 360,105" fill="#8b4513"/>
+  
+  <!-- Windows -->
+  <rect x="60" y="120" width="12" height="15" fill="#4169e1"/>
+  <rect x="80" y="120" width="12" height="15" fill="#4169e1"/>
+  <rect x="60" y="150" width="12" height="15" fill="#4169e1"/>
+  <rect x="80" y="150" width="12" height="15" fill="#4169e1"/>
+  
+  <rect x="140" y="110" width="12" height="15" fill="#4169e1"/>
+  <rect x="160" y="110" width="12" height="15" fill="#4169e1"/>
+  <rect x="140" y="140" width="12" height="15" fill="#4169e1"/>
+  <rect x="160" y="140" width="12" height="15" fill="#4169e1"/>
+  
+  <rect x="220" y="125" width="12" height="15" fill="#4169e1"/>
+  <rect x="240" y="125" width="12" height="15" fill="#4169e1"/>
+  <rect x="220" y="155" width="12" height="15" fill="#4169e1"/>
+  <rect x="240" y="155" width="12" height="15" fill="#4169e1"/>
+  
+  <!-- Cloth Hall (Sukiennice) in center -->
+  <rect x="160" y="140" width="80" height="40" fill="#daa520"/>
+  <rect x="165" y="135" width="70" height="10" fill="#b8860b"/>
+  
+  <!-- Market stalls -->
+  <rect x="80" y="200" width="20" height="20" fill="#228b22"/>
+  <rect x="110" y="200" width="20" height="20" fill="#ff6347"/>
+  <rect x="140" y="200" width="20" height="20" fill="#ffd700"/>
+  <rect x="170" y="200" width="20" height="20" fill="#ff69b4"/>
+  <rect x="200" y="200" width="20" height="20" fill="#00ced1"/>
+  
+  <!-- People silhouettes -->
+  <circle cx="95" cy="210" r="3" fill="#2f4f4f"/>
+  <rect x="93" y="210" width="4" height="8" fill="#2f4f4f"/>
+  
+  <circle cx="125" cy="210" r="3" fill="#2f4f4f"/>
+  <rect x="123" y="210" width="4" height="8" fill="#2f4f4f"/>
+  
+  <circle cx="185" cy="210" r="3" fill="#2f4f4f"/>
+  <rect x="183" y="210" width="4" height="8" fill="#2f4f4f"/>
+  
+  <!-- St. Mary's Basilica towers -->
+  <rect x="300" y="50" width="25" height="70" fill="#8b4513"/>
+  <rect x="335" y="40" width="20" height="80" fill="#8b4513"/>
+  <polygon points="300,50 312,30 325,50" fill="#654321"/>
+  <polygon points="335,40 345,20 355,40" fill="#654321"/>
+  
+  <text x="200" y="280" text-anchor="middle" fill="#4a3728" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Hoofdmarkt Krakow</text>
+</svg>
