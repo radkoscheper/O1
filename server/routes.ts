@@ -985,6 +985,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // HEADER IMAGES ROUTES
+
+  // Get available header images for a destination/page
+  app.get("/api/admin/header-images/:destination", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || (!user.canEditContent && !user.canCreateContent)) {
+        return res.status(403).json({ message: "Geen toestemming om header afbeeldingen te bekijken" });
+      }
+
+      const { destination } = req.params;
+      const headersDir = path.join(__dirname, '../client/public/images/headers', destination);
+      
+      if (!fs.existsSync(headersDir)) {
+        return res.json([]);
+      }
+
+      const files = fs.readdirSync(headersDir);
+      const imageFiles = files.filter(file => 
+        /\.(jpg|jpeg|png|webp|gif)$/i.test(file)
+      );
+
+      const headerImages = imageFiles.map(file => ({
+        filename: file,
+        path: `/images/headers/${destination}/${file}`,
+        name: file.replace(/\.[^/.]+$/, "").replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase())
+      }));
+
+      res.json(headerImages);
+    } catch (error) {
+      console.error("Error fetching header images:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
   // PAGES ROUTES
 
   // Get all pages (admin) - PUT ADMIN ROUTES FIRST
