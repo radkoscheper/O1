@@ -1,0 +1,63 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="buildingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8b7355;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6b5b47;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="roofGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#654321;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4a3728;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Sky background -->
+  <rect width="400" height="300" fill="#87CEEB"/>
+  
+  <!-- Ground -->
+  <rect x="0" y="220" width="400" height="80" fill="#4a7c59"/>
+  
+  <!-- Museum building -->
+  <rect x="80" y="120" width="240" height="100" fill="url(#buildingGradient)"/>
+  
+  <!-- Roof -->
+  <polygon points="60,120 200,60 340,120" fill="url(#roofGradient)"/>
+  
+  <!-- Museum entrance -->
+  <rect x="170" y="150" width="60" height="70" fill="#4a3728"/>
+  
+  <!-- Museum windows -->
+  <rect x="100" y="140" width="25" height="30" fill="#87CEEB"/>
+  <rect x="135" y="140" width="25" height="30" fill="#87CEEB"/>
+  <rect x="240" y="140" width="25" height="30" fill="#87CEEB"/>
+  <rect x="275" y="140" width="25" height="30" fill="#87CEEB"/>
+  
+  <!-- Museum sign -->
+  <rect x="120" y="80" width="160" height="30" fill="#2d5016"/>
+  <text x="200" y="100" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="bold">NATUURMUSEUM</text>
+  
+  <!-- Trees around museum -->
+  <circle cx="40" cy="180" r="25" fill="#2d5016"/>
+  <rect x="35" y="180" width="10" height="40" fill="#4a3728"/>
+  
+  <circle cx="360" cy="170" r="30" fill="#3e6b3e"/>
+  <rect x="355" y="170" width="10" height="50" fill="#4a3728"/>
+  
+  <!-- Museum exhibits visible through windows -->
+  <rect x="102" y="145" width="8" height="15" fill="#8b4513"/>
+  <rect x="112" y="150" width="6" height="10" fill="#228b22"/>
+  <rect x="137" y="148" width="10" height="12" fill="#ffd700"/>
+  
+  <rect x="242" y="145" width="12" height="18" fill="#8b4513"/>
+  <rect x="260" y="150" width="8" height="15" fill="#228b22"/>
+  <rect x="277" y="148" width="15" height="12" fill="#daa520"/>
+  
+  <!-- Pathway to museum -->
+  <rect x="180" y="220" width="40" height="30" fill="#8b7355"/>
+  
+  <!-- Small plants -->
+  <ellipse cx="60" cy="230" rx="15" ry="8" fill="#228b22"/>
+  <ellipse cx="340" cy="235" rx="20" ry="10" fill="#228b22"/>
+  <ellipse cx="120" cy="240" rx="12" ry="6" fill="#228b22"/>
+  
+  <text x="200" y="280" text-anchor="middle" fill="#2d5016" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Natuurmuseum Bialowieza</text>
+</svg>
