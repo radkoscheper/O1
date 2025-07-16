@@ -55,27 +55,28 @@ export default function Page() {
       }
     }
     
-    // Apply site-wide favicon from settings - only if enabled
+    // Apply site-wide favicon from settings
+    const existingFavicon = document.querySelector('link[rel="icon"]');
+    
     if (siteSettings?.faviconEnabled && siteSettings?.favicon) {
-      const favicon = document.querySelector('link[rel="icon"]');
-      if (favicon) {
-        favicon.setAttribute('href', siteSettings.favicon);
+      // Favicon enabled - show it
+      if (existingFavicon) {
+        existingFavicon.setAttribute('href', siteSettings.favicon);
       } else {
         const link = document.createElement('link');
         link.rel = 'icon';
         link.href = siteSettings.favicon;
         document.head.appendChild(link);
       }
-    } else if (siteSettings?.faviconEnabled === false) {
-      // Remove favicon if disabled
-      const favicon = document.querySelector('link[rel="icon"]');
-      if (favicon) {
-        favicon.remove();
+    } else if (siteSettings?.faviconEnabled === false || !siteSettings?.favicon) {
+      // Favicon disabled or no path - remove any existing and add empty
+      if (existingFavicon) {
+        existingFavicon.remove();
       }
-      // Add empty data URL to override browser default
+      // Add empty favicon to prevent browser from loading default
       const emptyFavicon = document.createElement('link');
       emptyFavicon.rel = 'icon';
-      emptyFavicon.href = 'data:,';
+      emptyFavicon.href = 'data:image/x-icon;base64,AAABAAEAAQEAAAEAIAAwAAAAFgAAACgAAAABAAAAAgAAAAEAIAAAAAAABAAAABMLAAATCwAAAAAAAAAAAAD///8A';
       document.head.appendChild(emptyFavicon);
     }
   }, [page, siteSettings]);

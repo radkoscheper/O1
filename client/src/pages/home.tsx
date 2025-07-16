@@ -50,26 +50,28 @@ export default function Home() {
       }
       metaKeywords.setAttribute('content', siteSettings.metaKeywords || "Polen, reizen, vakantie, bestemmingen");
       
-      // Update favicon - only if enabled
+      // Update favicon - handle enabled/disabled state
+      const existingFavicon = document.querySelector('link[rel="icon"]');
       
       if (siteSettings.faviconEnabled && siteSettings.favicon) {
-        let favicon = document.querySelector('link[rel="icon"]');
-        if (!favicon) {
-          favicon = document.createElement('link');
-          favicon.setAttribute('rel', 'icon');
-          document.head.appendChild(favicon);
+        // Favicon enabled and has path - show it
+        if (existingFavicon) {
+          existingFavicon.setAttribute('href', siteSettings.favicon);
+        } else {
+          const newFavicon = document.createElement('link');
+          newFavicon.setAttribute('rel', 'icon');
+          newFavicon.setAttribute('href', siteSettings.favicon);
+          document.head.appendChild(newFavicon);
         }
-        favicon.setAttribute('href', siteSettings.favicon);
-      } else if (siteSettings.faviconEnabled === false) {
-        // Remove favicon if disabled
-        const favicon = document.querySelector('link[rel="icon"]');
-        if (favicon) {
-          favicon.remove();
+      } else if (siteSettings.faviconEnabled === false || !siteSettings.favicon) {
+        // Favicon disabled or no path - remove any existing and add empty
+        if (existingFavicon) {
+          existingFavicon.remove();
         }
-        // Add empty data URL to override browser default
+        // Add empty favicon to prevent browser from loading default
         const emptyFavicon = document.createElement('link');
         emptyFavicon.setAttribute('rel', 'icon');
-        emptyFavicon.setAttribute('href', 'data:,');
+        emptyFavicon.setAttribute('href', 'data:image/x-icon;base64,AAABAAEAAQEAAAEAIAAwAAAAFgAAACgAAAABAAAAAgAAAAEAIAAAAAAABAAAABMLAAATCwAAAAAAAAAAAAD///8A');
         document.head.appendChild(emptyFavicon);
       }
       
