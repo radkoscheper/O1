@@ -72,6 +72,11 @@ export default function Page() {
       if (favicon) {
         favicon.remove();
       }
+      // Add empty data URL to override browser default
+      const emptyFavicon = document.createElement('link');
+      emptyFavicon.rel = 'icon';
+      emptyFavicon.href = 'data:,';
+      document.head.appendChild(emptyFavicon);
     }
   }, [page, siteSettings]);
 
