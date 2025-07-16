@@ -2066,21 +2066,26 @@ function ImageCropperDialog({ imagePath, onCroppedImage }: {
   const [open, setOpen] = useState(false);
   const [crop, setCrop] = useState<Crop>({
     unit: '%',
-    width: 100,
-    height: 40,
-    x: 0,
+    width: 90,
+    height: 41, // 90/2.2 ≈ 41% voor 2.2:1 aspect ratio
+    x: 5,
     y: 30
   });
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
-  const [aspect, setAspect] = useState<number>(2.5); // Default header aspect ratio
+  const [aspect, setAspect] = useState<number>(2.2); // Default site header aspect ratio
   const [scale, setScale] = useState(1);
   const [rotate, setRotate] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
   const { toast } = useToast();
 
+  // Berekend gebaseerd op site header: py-24 = 6rem (96px) padding boven en onder
+  // Typische viewport: 1920x1080 - 192px padding = 888px effectieve hoogte
+  // Aspect ratio: 1920/888 ≈ 2.16:1 voor desktop
+  // Voor responsief ontwerp gebruiken we 2.2:1 als optimaal
   const aspectRatios = [
-    { name: 'Header (2.5:1)', value: 2.5 },
+    { name: 'Site Header (2.2:1)', value: 2.2 }, // Exact match voor site headers
+    { name: 'Wide Header (2.5:1)', value: 2.5 },
     { name: 'Banner (3:1)', value: 3 },
     { name: 'Widescreen (16:9)', value: 16/9 },
     { name: 'Landscape (4:3)', value: 4/3 },
@@ -2113,6 +2118,10 @@ function ImageCropperDialog({ imagePath, onCroppedImage }: {
     if (!ctx) {
       throw new Error('No 2d context');
     }
+    
+    // Stel een minimale breedte in voor kwaliteit (bijv. 1920px voor headers)
+    const minWidth = 1920;
+    const scaleFactor = Math.max(1, minWidth / crop.width);
 
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
