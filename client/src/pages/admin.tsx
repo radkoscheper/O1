@@ -2059,9 +2059,10 @@ export default function Admin() {
 }
 
 // Image Cropper Dialog Component
-function ImageCropperDialog({ imagePath, onCroppedImage }: {
+function ImageCropperDialog({ imagePath, onCroppedImage, destination }: {
   imagePath: string;
   onCroppedImage: (croppedImagePath: string) => void;
+  destination?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [crop, setCrop] = useState<Crop>({
@@ -2190,13 +2191,21 @@ function ImageCropperDialog({ imagePath, onCroppedImage }: {
       
       const formData = new FormData();
       const pathParts = imagePath.split('/');
-      const destination = pathParts[pathParts.length - 2]; // Get destination from path
+      let destinationFolder = destination;
+      
+      // Als destination niet is opgegeven, probeer het uit het path te halen
+      if (!destinationFolder) {
+        destinationFolder = pathParts[pathParts.length - 2]; // Get destination from path
+      }
+      
       const originalName = pathParts[pathParts.length - 1];
       const baseName = originalName.split('.')[0];
       const filename = `${baseName}-cropped-${Date.now()}.jpg`;
       
       formData.append('image', blob, filename);
-      formData.append('destination', destination);
+      if (destinationFolder) {
+        formData.append('destination', destinationFolder);
+      }
       formData.append('fileName', filename);
 
       const uploadResponse = await fetch('/api/upload', {
@@ -2572,9 +2581,14 @@ function HeaderImageSelector({ destination, currentImage, onImageSelect }: {
                     </Button>
                     <ImageCropperDialog
                       imagePath={image.path}
+                      destination={destination}
                       onCroppedImage={(croppedPath) => {
                         onImageSelect(croppedPath, `${image.name} header afbeelding (gecroppt)`);
+                        // Refresh de gallery om de nieuwe afbeelding te laten zien
                         setShowGallery(false);
+                        setTimeout(() => {
+                          setShowGallery(true);
+                        }, 100);
                       }}
                     />
                   </div>
