@@ -2232,7 +2232,7 @@ function ImageCropperDialog({ imagePath, onCroppedImage, destination }: {
       
       const originalName = pathParts[pathParts.length - 1];
       const baseName = originalName.split('.')[0];
-      const filename = `${baseName}-cropped-${Date.now()}.jpg`;
+      const filename = `${baseName}-cropped-${Date.now()}`; // Geen extensie, server voegt .jpg toe
       
       formData.append('image', blob, filename);
       if (destinationFolder) {
