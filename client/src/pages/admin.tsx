@@ -2057,6 +2057,99 @@ export default function Admin() {
 }
 
 // Herbruikbare afbeelding upload component
+function HeaderImageSelector({ destination, currentImage, onImageSelect }: {
+  destination: string;
+  currentImage: string;
+  onImageSelect: (imagePath: string, altText: string) => void;
+}) {
+  const [availableImages, setAvailableImages] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showGallery, setShowGallery] = useState(false);
+
+  useEffect(() => {
+    if (destination && showGallery) {
+      setIsLoading(true);
+      fetch(`/api/admin/header-images/${destination}`)
+        .then(res => res.json())
+        .then(data => {
+          setAvailableImages(data);
+          setIsLoading(false);
+        })
+        .catch(error => {
+          console.error('Error fetching header images:', error);
+          setIsLoading(false);
+        });
+    }
+  }, [destination, showGallery]);
+
+  if (!destination) return null;
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <Label>Selecteer Header Afbeelding</Label>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => setShowGallery(!showGallery)}
+        >
+          <ImageIcon className="h-4 w-4 mr-2" />
+          {showGallery ? 'Verberg Galerie' : 'Toon Beschikbare Afbeeldingen'}
+        </Button>
+      </div>
+
+      {showGallery && (
+        <div className="border rounded-lg p-4 bg-white">
+          {isLoading ? (
+            <div className="text-center py-4">
+              <p className="text-gray-500">Afbeeldingen laden...</p>
+            </div>
+          ) : availableImages.length === 0 ? (
+            <div className="text-center py-4">
+              <p className="text-gray-500">Geen header afbeeldingen gevonden voor {destination}</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {availableImages.map((image, index) => (
+                <div key={index} className="relative">
+                  <div 
+                    className={`relative h-24 w-full rounded-md overflow-hidden border cursor-pointer hover:border-blue-500 transition-colors ${
+                      currentImage === image.path ? 'border-blue-500 border-2' : 'border-gray-300'
+                    }`}
+                    onClick={() => onImageSelect(image.path, `${image.name} header afbeelding`)}
+                  >
+                    <img 
+                      src={image.path} 
+                      alt={image.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        e.currentTarget.nextElementSibling.style.display = 'flex';
+                      }}
+                    />
+                    <div className="hidden w-full h-full bg-gray-200 items-center justify-center">
+                      <span className="text-gray-500 text-xs">Fout bij laden</span>
+                    </div>
+                    {currentImage === image.path && (
+                      <div className="absolute inset-0 bg-blue-500 bg-opacity-20 flex items-center justify-center">
+                        <div className="bg-blue-500 text-white text-xs px-2 py-1 rounded">
+                          Geselecteerd
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs text-center mt-1 text-gray-600">{image.name}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ImageUploadField({ label, value, onChange, placeholder, fileName }: {
   label: string;
   value: string;
@@ -3856,6 +3949,13 @@ function EditPageDialog({ open, onOpenChange, page, templates, onPageUpdated }: 
                 </Button>
               </div>
             )}
+
+            {/* Header Image Selection */}
+            <HeaderImageSelector
+              destination={formData.slug}
+              currentImage={formData.headerImage}
+              onImageSelect={(imagePath, altText) => setFormData({ ...formData, headerImage: imagePath, headerImageAlt: altText })}
+            />
 
             {/* Upload New Header Image */}
             <ImageUploadField
