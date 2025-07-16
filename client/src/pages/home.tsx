@@ -288,9 +288,19 @@ export default function Home() {
       {/* Published Pages */}
       {publishedPages.length > 0 && (
         <section className="py-16 px-5 max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
-            Ontdek Meer
-          </h2>
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-3xl font-bold font-inter text-gray-900">
+              Ontdek Meer
+            </h2>
+            <Link href="/ontdek-meer">
+              <Button
+                variant="outline"
+                className="text-gray-900 border-gray-300 hover:bg-gray-100"
+              >
+                Bekijk Alles
+              </Button>
+            </Link>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {publishedPages.map((page) => (
               <Link href={`/${page.slug}`} key={page.id}>
