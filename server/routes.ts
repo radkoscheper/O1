@@ -34,32 +34,50 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-const storage_config = multer.diskStorage({
-  destination: function (req, file, cb) {
-    // Gebruik altijd de hoofddirectory, we verplaatsen later naar subfolder
-    cb(null, uploadsDir);
-  },
-  filename: function (req, file, cb) {
-    // Generate temporary filename first
-    const tempName = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, tempName);
-  }
-});
-
-const upload = multer({ 
-  storage: storage_config,
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
-  },
-  fileFilter: function (req, file, cb) {
-    // Check if file is an image
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(null, false);
+// Unified upload configuration for all file types
+const createUploadConfig = (uploadType: 'image' | 'favicon') => {
+  return multer({
+    storage: multer.diskStorage({
+      destination: function (req, file, cb) {
+        if (uploadType === 'favicon') {
+          cb(null, path.join(process.cwd(), 'client', 'public'));
+        } else {
+          cb(null, uploadsDir); // Voor images, verplaatsen we later naar subfolder
+        }
+      },
+      filename: function (req, file, cb) {
+        if (uploadType === 'favicon') {
+          const customName = req.body.fileName || 'favicon';
+          cb(null, `${customName}.ico`);
+        } else {
+          const tempName = Date.now() + '-' + Math.round(Math.random() * 1E9);
+          cb(null, tempName);
+        }
+      }
+    }),
+    limits: {
+      fileSize: uploadType === 'favicon' ? 1024 * 1024 : 5 * 1024 * 1024 // 1MB voor favicon, 5MB voor images
+    },
+    fileFilter: function (req, file, cb) {
+      if (uploadType === 'favicon') {
+        if (file.mimetype === 'image/x-icon' || file.originalname.toLowerCase().endsWith('.ico')) {
+          cb(null, true);
+        } else {
+          cb(new Error('Only .ico files are allowed for favicon upload'));
+        }
+      } else {
+        if (file.mimetype.startsWith('image/')) {
+          cb(null, true);
+        } else {
+          cb(null, false);
+        }
+      }
     }
-  }
-});
+  });
+};
+
+const upload = createUploadConfig('image');
+const faviconUpload = createUploadConfig('favicon');
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Configure PostgreSQL session store
@@ -1350,30 +1368,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Favicon upload endpoint - specific for .ico files
-  const faviconUpload = multer({
-    storage: multer.diskStorage({
-      destination: (req, file, cb) => {
-        cb(null, path.join(process.cwd(), 'client', 'public'));
-      },
-      filename: (req, file, cb) => {
-        // Always save with .ico extension
-        const customName = req.body.fileName || 'favicon';
-        cb(null, `${customName}.ico`);
-      }
-    }),
-    fileFilter: (req, file, cb) => {
-      // Only allow .ico files
-      if (file.mimetype === 'image/x-icon' || file.originalname.toLowerCase().endsWith('.ico')) {
-        cb(null, true);
-      } else {
-        cb(new Error('Only .ico files are allowed for favicon upload'));
-      }
-    },
-    limits: {
-      fileSize: 1024 * 1024 // 1MB limit for favicon
-    }
-  });
-
   app.post('/api/upload/favicon', requireAuth, faviconUpload.single('favicon'), (req, res) => {
     if (!req.file) {
       return res.status(400).json({ message: 'No favicon file uploaded' });
