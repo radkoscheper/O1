@@ -119,6 +119,134 @@ export default function OntdekMeer() {
         </div>
       </header>
 
+      {/* CTA Section - Same as homepage */}
+      <section className="py-16 px-5 max-w-6xl mx-auto">
+        <div className="flex flex-wrap gap-8 items-center justify-between">
+          <div className="flex-1 min-w-80">
+            <h2 className="text-3xl font-bold mb-4 font-inter text-gray-900">
+              Laat je verrassen door het onbekende Polen
+            </h2>
+            <p className="text-lg mb-6 font-inter text-gray-700">
+              Bezoek historische steden, ontdek natuurparken en verborgen parels. 
+              Onze reisgidsen helpen je op weg!
+            </p>
+            <Link href="/3-dagen-in-krakau">
+              <Button
+                className="py-3 px-6 text-base font-inter hover:opacity-90 transition-all duration-200"
+                style={{ backgroundColor: "#2f3e46" }}
+              >
+                Lees onze gidsen
+              </Button>
+            </Link>
+          </div>
+          <div className="flex-1 min-w-80">
+            <img
+              src="/images/guides/tatra-vallei.jpg"
+              alt="Tatra Valley"
+              className="w-full rounded-xl shadow-lg"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Highlights Section */}
+      <section className="py-16 px-5 max-w-6xl mx-auto">
+        <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
+          Populaire Bezienswaardigheden
+        </h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {/* Krakow Highlights */}
+          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
+            <img src="/images/highlights/wawel-castle.svg" alt="Wawel Castle" className="w-12 h-12 mx-auto mb-3" />
+            <h3 className="font-bold text-sm font-inter text-gray-900">Wawel Kasteel</h3>
+          </div>
+          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
+            <img src="/images/highlights/krakow-market.svg" alt="Krakow Market" className="w-12 h-12 mx-auto mb-3" />
+            <h3 className="font-bold text-sm font-inter text-gray-900">Marktplein</h3>
+          </div>
+          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
+            <img src="/images/highlights/st-marys.svg" alt="St Mary's Basilica" className="w-12 h-12 mx-auto mb-3" />
+            <h3 className="font-bold text-sm font-inter text-gray-900">St. Mary's</h3>
+          </div>
+          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
+            <img src="/images/highlights/kazimierz.svg" alt="Kazimierz District" className="w-12 h-12 mx-auto mb-3" />
+            <h3 className="font-bold text-sm font-inter text-gray-900">Kazimierz</h3>
+          </div>
+          
+          {/* Tatra Mountains Highlights */}
+          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
+            <img src="/images/highlights/morskie-oko.svg" alt="Morskie Oko Lake" className="w-12 h-12 mx-auto mb-3" />
+            <h3 className="font-bold text-sm font-inter text-gray-900">Morskie Oko</h3>
+          </div>
+          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
+            <img src="/images/highlights/zakopane.svg" alt="Zakopane" className="w-12 h-12 mx-auto mb-3" />
+            <h3 className="font-bold text-sm font-inter text-gray-900">Zakopane</h3>
+          </div>
+          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
+            <img src="/images/highlights/gubalowka.svg" alt="Gubalowka Hill" className="w-12 h-12 mx-auto mb-3" />
+            <h3 className="font-bold text-sm font-inter text-gray-900">Gubalówka</h3>
+          </div>
+          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
+            <img src="/images/highlights/rysy-peak.svg" alt="Rysy Peak" className="w-12 h-12 mx-auto mb-3" />
+            <h3 className="font-bold text-sm font-inter text-gray-900">Rysy Peak</h3>
+          </div>
+
+          {/* Gdansk Highlights */}
+          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
+            <img src="/images/highlights/gdansk-market.svg" alt="Gdansk Long Market" className="w-12 h-12 mx-auto mb-3" />
+            <h3 className="font-bold text-sm font-inter text-gray-900">Długi Targ</h3>
+          </div>
+          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
+            <img src="/images/highlights/artus-court.svg" alt="Artus Court" className="w-12 h-12 mx-auto mb-3" />
+            <h3 className="font-bold text-sm font-inter text-gray-900">Artus Court</h3>
+          </div>
+          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
+            <img src="/images/highlights/gdansk-church.svg" alt="St Mary's Church Gdansk" className="w-12 h-12 mx-auto mb-3" />
+            <h3 className="font-bold text-sm font-inter text-gray-900">St. Mary's</h3>
+          </div>
+          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
+            <img src="/images/highlights/amber-museum.svg" alt="Amber Museum" className="w-12 h-12 mx-auto mb-3" />
+            <h3 className="font-bold text-sm font-inter text-gray-900">Amber Museum</h3>
+          </div>
+
+          {/* Bialowieza Highlights */}
+          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
+            <img src="/images/highlights/europese-wisent.svg" alt="European Bison" className="w-12 h-12 mx-auto mb-3" />
+            <h3 className="font-bold text-sm font-inter text-gray-900">Europese Bizon</h3>
+          </div>
+          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
+            <img src="/images/highlights/forest-paths.svg" alt="Forest Paths" className="w-12 h-12 mx-auto mb-3" />
+            <h3 className="font-bold text-sm font-inter text-gray-900">Bospaden</h3>
+          </div>
+          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
+            <img src="/images/highlights/bird-watching.svg" alt="Bird Watching" className="w-12 h-12 mx-auto mb-3" />
+            <h3 className="font-bold text-sm font-inter text-gray-900">Vogel Spotten</h3>
+          </div>
+          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
+            <img src="/images/highlights/nature-museum.svg" alt="Nature Museum" className="w-12 h-12 mx-auto mb-3" />
+            <h3 className="font-bold text-sm font-inter text-gray-900">Natuurmuseum</h3>
+          </div>
+
+          {/* Warsaw Highlights */}
+          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
+            <img src="/images/highlights/warsaw-oldtown.svg" alt="Warsaw Old Town" className="w-12 h-12 mx-auto mb-3" />
+            <h3 className="font-bold text-sm font-inter text-gray-900">Oude Stad</h3>
+          </div>
+          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
+            <img src="/images/highlights/warsaw-castle.svg" alt="Royal Castle Warsaw" className="w-12 h-12 mx-auto mb-3" />
+            <h3 className="font-bold text-sm font-inter text-gray-900">Koninklijk Kasteel</h3>
+          </div>
+          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
+            <img src="/images/highlights/lazienki.svg" alt="Lazienki Park" className="w-12 h-12 mx-auto mb-3" />
+            <h3 className="font-bold text-sm font-inter text-gray-900">Lazienki Park</h3>
+          </div>
+          <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 text-center">
+            <img src="/images/highlights/wilanow.svg" alt="Wilanow Palace" className="w-12 h-12 mx-auto mb-3" />
+            <h3 className="font-bold text-sm font-inter text-gray-900">Wilanów Paleis</h3>
+          </div>
+        </div>
+      </section>
+
       {/* All Destinations Section */}
       <section className="py-16 px-5 max-w-6xl mx-auto">
         <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
