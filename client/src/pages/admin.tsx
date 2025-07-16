@@ -1830,7 +1830,20 @@ export default function Admin() {
                         <Switch
                           id="faviconEnabled"
                           checked={siteSettings.faviconEnabled ?? true}
-                          onCheckedChange={(checked) => setSiteSettings({...siteSettings, faviconEnabled: checked})}
+                          onCheckedChange={async (checked) => {
+                            setSiteSettings({...siteSettings, faviconEnabled: checked});
+                            // Direct save to database for immediate effect
+                            try {
+                              await apiRequest('/api/admin/site-settings', {
+                                method: 'PUT',
+                                body: JSON.stringify({...siteSettings, faviconEnabled: checked})
+                              });
+                              queryClient.invalidateQueries({ queryKey: ['/api/site-settings'] });
+                              toast({ title: "Succes", description: `Favicon ${checked ? 'ingeschakeld' : 'uitgeschakeld'}` });
+                            } catch (error) {
+                              toast({ title: "Fout", description: "Kon favicon instelling niet opslaan", variant: "destructive" });
+                            }
+                          }}
                         />
                         <Label htmlFor="faviconEnabled">Favicon inschakelen</Label>
                       </div>

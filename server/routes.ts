@@ -1125,6 +1125,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get deleted pages (admin) - PUT BEFORE SPECIFIC PAGE ROUTE
+  app.get("/api/admin/pages/deleted", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || (!user.canEditContent && !user.canDeleteContent)) {
+        return res.status(403).json({ message: "Geen toestemming om verwijderde pagina's te bekijken" });
+      }
+
+      const pages = await storage.getDeletedPages();
+      res.json(pages);
+    } catch (error) {
+      console.error("Error fetching deleted pages:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
   // Get single page (admin)
   app.get("/api/admin/pages/:id", requireAuth, async (req, res) => {
     try {
@@ -1147,22 +1163,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(page);
     } catch (error) {
       console.error("Error fetching page:", error);
-      res.status(500).json({ message: "Server error" });
-    }
-  });
-
-  // Get deleted pages (admin)
-  app.get("/api/admin/pages/deleted", requireAuth, async (req, res) => {
-    try {
-      const user = await storage.getUser(req.session.userId!);
-      if (!user || (!user.canEditContent && !user.canDeleteContent)) {
-        return res.status(403).json({ message: "Geen toestemming om verwijderde pagina's te bekijken" });
-      }
-
-      const pages = await storage.getDeletedPages();
-      res.json(pages);
-    } catch (error) {
-      console.error("Error fetching deleted pages:", error);
       res.status(500).json({ message: "Server error" });
     }
   });
