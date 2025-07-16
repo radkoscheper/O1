@@ -2425,6 +2425,7 @@ function HeaderImageSelector({ destination, currentImage, onImageSelect }: {
   const [availableImages, setAvailableImages] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (destination && showGallery) {
@@ -2448,6 +2449,48 @@ function HeaderImageSelector({ destination, currentImage, onImageSelect }: {
         });
     }
   }, [destination, showGallery]);
+
+  const handleDeleteImage = async (imagePath: string, imageName: string) => {
+    if (!confirm(`Weet je zeker dat je "${imageName}" wilt verwijderen?`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/admin/images/delete', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ imagePath })
+      });
+
+      if (!response.ok) {
+        throw new Error('Fout bij verwijderen afbeelding');
+      }
+
+      // Refresh de gallery
+      const updatedImages = availableImages.filter(img => img.path !== imagePath);
+      setAvailableImages(updatedImages);
+      
+      // Als het huidige image is verwijderd, clear de selectie
+      if (currentImage === imagePath) {
+        onImageSelect('', '');
+      }
+
+      toast({
+        title: "Succesvol verwijderd",
+        description: `${imageName} is verwijderd`,
+        variant: "default"
+      });
+    } catch (error) {
+      toast({
+        title: "Fout bij verwijderen",
+        description: "Er is een fout opgetreden bij het verwijderen van de afbeelding",
+        variant: "destructive"
+      });
+    }
+  };
 
   if (!destination) return null;
 
@@ -2517,6 +2560,15 @@ function HeaderImageSelector({ destination, currentImage, onImageSelect }: {
                     >
                       <Eye className="h-3 w-3 mr-1" />
                       Selecteer
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="text-xs text-red-600 hover:text-red-700"
+                      onClick={() => handleDeleteImage(image.path, image.name)}
+                    >
+                      <Trash2 className="h-3 w-3" />
                     </Button>
                     <ImageCropperDialog
                       imagePath={image.path}
