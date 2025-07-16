@@ -50,28 +50,21 @@ export default function Home() {
       }
       metaKeywords.setAttribute('content', siteSettings.metaKeywords || "Polen, reizen, vakantie, bestemmingen");
       
-      // Update favicon - only if enabled and has a valid path
-      let favicon = document.querySelector('link[rel="icon"]');
-      
-      if (siteSettings.faviconEnabled && siteSettings.favicon && siteSettings.favicon.trim()) {
+      // Update favicon - only if enabled
+      if (siteSettings.faviconEnabled && siteSettings.favicon) {
+        let favicon = document.querySelector('link[rel="icon"]');
         if (!favicon) {
-          const newFavicon = document.createElement('link');
-          newFavicon.setAttribute('rel', 'icon');
-          newFavicon.setAttribute('href', siteSettings.favicon);
-          document.head.appendChild(newFavicon);
-        } else {
-          favicon.setAttribute('href', siteSettings.favicon);
+          favicon = document.createElement('link');
+          favicon.setAttribute('rel', 'icon');
+          document.head.appendChild(favicon);
         }
-      } else {
-        // Remove favicon if disabled or empty - also add a dummy href to override browser defaults
+        favicon.setAttribute('href', siteSettings.favicon);
+      } else if (!siteSettings.faviconEnabled) {
+        // Remove favicon if disabled
+        const favicon = document.querySelector('link[rel="icon"]');
         if (favicon) {
           favicon.remove();
         }
-        // Add a dummy favicon to prevent browser from trying to load default favicon.ico
-        const dummyFavicon = document.createElement('link');
-        dummyFavicon.setAttribute('rel', 'icon');
-        dummyFavicon.setAttribute('href', 'data:,'); // Empty data URL to prevent any favicon
-        document.head.appendChild(dummyFavicon);
       }
       
       // Add custom CSS
