@@ -18,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import ReactCrop, { Crop, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
+import { CreateHighlightDialog, EditHighlightDialog, ViewHighlightDialog } from '@/components/highlights-dialogs';
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -82,6 +83,12 @@ export default function Admin() {
     queryKey: ['/api/admin/pages/deleted'],
     enabled: isAuthenticated && (currentUser?.canDeleteContent || currentUser?.canEditContent),
   });
+
+  // Highlights queries (admin only)
+  const highlightsQuery = useQuery({
+    queryKey: ['/api/admin/highlights'],
+    enabled: isAuthenticated && currentUser?.role === 'admin',
+  });
   const [showCreateUser, setShowCreateUser] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showEditUser, setShowEditUser] = useState(false);
@@ -133,6 +140,19 @@ export default function Admin() {
   const [showViewPage, setShowViewPage] = useState(false);
   const [selectedPage, setSelectedPage] = useState<any>(null);
   const [editPageData, setEditPageData] = useState<any>({});
+
+  // Highlights management state
+  const [showCreateHighlight, setShowCreateHighlight] = useState(false);
+  const [showEditHighlight, setShowEditHighlight] = useState(false);
+  const [showViewHighlight, setShowViewHighlight] = useState(false);
+  const [selectedHighlight, setSelectedHighlight] = useState<any>(null);
+  const [editHighlightData, setEditHighlightData] = useState({
+    name: '',
+    iconPath: '',
+    category: 'general',
+    ranking: 0,
+    active: true
+  });
 
   const { toast } = useToast();
 
@@ -485,6 +505,30 @@ export default function Admin() {
         toast({ title: "Succes", description: "Reisgids naar prullenbak verplaatst" });
         guidesQuery.refetch();
         deletedGuidesQuery.refetch();
+      } else {
+        const error = await response.json();
+        toast({ title: "Fout", description: error.message, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+    }
+  };
+
+  // Highlights handlers
+  const handleDeleteHighlight = async (id: number) => {
+    if (!confirm('Weet je zeker dat je deze highlight wilt verwijderen?')) {
+      return;
+    }
+    
+    try {
+      const response = await fetch(`/api/admin/highlights/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        toast({ title: "Succes", description: "Highlight verwijderd" });
+        highlightsQuery.refetch();
       } else {
         const error = await response.json();
         toast({ title: "Fout", description: error.message, variant: "destructive" });
@@ -877,11 +921,12 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="destinations" className="w-full">
-          <TabsList className={`grid w-full ${currentUser?.canManageUsers && currentUser?.role === 'admin' ? 'grid-cols-10' : currentUser?.canManageUsers ? 'grid-cols-8' : 'grid-cols-8'}`}>
+          <TabsList className={`grid w-full ${currentUser?.canManageUsers && currentUser?.role === 'admin' ? 'grid-cols-11' : currentUser?.canManageUsers ? 'grid-cols-9' : 'grid-cols-9'}`}>
             {/* Alleen tonen wat de gebruiker mag doen */}
             {currentUser?.canCreateContent && <TabsTrigger value="destinations">Bestemmingen</TabsTrigger>}
             {currentUser?.canCreateContent && <TabsTrigger value="guides">Reisgidsen</TabsTrigger>}
             {currentUser?.canCreateContent && <TabsTrigger value="pages">📄 Pagina's</TabsTrigger>}
+            {currentUser?.role === 'admin' && <TabsTrigger value="highlights">✨ Highlights</TabsTrigger>}
             {currentUser?.canCreateContent && <TabsTrigger value="new-destination">Nieuwe Bestemming</TabsTrigger>}
             {currentUser?.canCreateContent && <TabsTrigger value="new-guide">Nieuwe Gids</TabsTrigger>}
             {currentUser?.role === 'admin' && <TabsTrigger value="templates">🎨 Templates</TabsTrigger>}
@@ -1071,6 +1116,98 @@ export default function Admin() {
                   </CardContent>
                 </Card>
               ))}
+              </div>
+            </TabsContent>
+          )}
+
+          {/* Highlights Tab Content - Admin Only */}
+          {currentUser?.role === 'admin' && (
+            <TabsContent value="highlights" className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <div>
+                  <h2 className="text-2xl font-semibold">Highlights ({highlightsQuery.data?.length || 0})</h2>
+                  <p className="text-gray-600">Beheer de highlights die op de homepage worden getoond</p>
+                </div>
+                <Button onClick={() => setShowCreateHighlight(true)} className="bg-blue-600 hover:bg-blue-700">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nieuwe Highlight
+                </Button>
+              </div>
+              
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {(highlightsQuery.data || []).map((highlight: any) => (
+                  <Card key={highlight.id} className="hover:shadow-lg transition-shadow">
+                    <CardHeader className="pb-3">
+                      <div className="flex flex-col gap-3">
+                        <div className="flex justify-between items-start">
+                          <CardTitle className="text-lg leading-tight">{highlight.name}</CardTitle>
+                          <Badge variant="outline" className="text-xs">#{highlight.ranking || 0}</Badge>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant={highlight.active ? "default" : "outline"} className="text-xs">
+                            {highlight.active ? "✅ Actief" : "❌ Inactief"}
+                          </Badge>
+                          {highlight.category !== 'general' && (
+                            <Badge variant="secondary" className="text-xs capitalize">
+                              {highlight.category}
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center justify-center p-4 bg-gray-50 rounded-lg">
+                          <img
+                            src={highlight.iconPath}
+                            alt={highlight.name}
+                            className="w-12 h-12"
+                            onError={(e) => {
+                              e.currentTarget.src = '/images/highlights/placeholder.svg';
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="flex flex-wrap gap-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedHighlight(highlight);
+                            setEditHighlightData({
+                              name: highlight.name,
+                              iconPath: highlight.iconPath,
+                              category: highlight.category || 'general',
+                              ranking: highlight.ranking || 0,
+                              active: highlight.active
+                            });
+                            setShowEditHighlight(true);
+                          }}
+                        >
+                          <Edit className="h-4 w-4 mr-2" />
+                          Bewerken
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedHighlight(highlight);
+                            setShowViewHighlight(true);
+                          }}
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          Bekijken
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="destructive"
+                          onClick={() => handleDeleteHighlight(highlight.id)}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Verwijderen
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
             </TabsContent>
           )}
@@ -2105,6 +2242,40 @@ export default function Admin() {
             open={showViewPage} 
             onOpenChange={setShowViewPage}
             page={selectedPage}
+          />
+        )}
+
+        {/* Highlights Dialogs */}
+        {showCreateHighlight && (
+          <CreateHighlightDialog 
+            open={showCreateHighlight} 
+            onOpenChange={setShowCreateHighlight}
+            onHighlightCreated={() => {
+              highlightsQuery.refetch();
+              setShowCreateHighlight(false);
+            }}
+          />
+        )}
+
+        {showEditHighlight && selectedHighlight && (
+          <EditHighlightDialog 
+            open={showEditHighlight} 
+            onOpenChange={setShowEditHighlight}
+            highlight={selectedHighlight}
+            editData={editHighlightData}
+            setEditData={setEditHighlightData}
+            onSave={() => {
+              highlightsQuery.refetch();
+              setShowEditHighlight(false);
+            }}
+          />
+        )}
+
+        {showViewHighlight && selectedHighlight && (
+          <ViewHighlightDialog 
+            open={showViewHighlight} 
+            onOpenChange={setShowViewHighlight}
+            highlight={selectedHighlight}
           />
         )}
       </div>

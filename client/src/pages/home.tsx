@@ -22,6 +22,11 @@ export default function Home() {
     queryKey: ["/api/pages"],
   });
 
+  // Fetch highlights from database
+  const { data: highlights = [], isLoading: highlightsLoading } = useQuery({
+    queryKey: ["/api/highlights"],
+  });
+
   // Fetch site settings
   const { data: siteSettings, isLoading: settingsLoading } = useQuery({
     queryKey: ["/api/site-settings"],
@@ -130,7 +135,7 @@ export default function Home() {
   const publishedPages = pages.filter((page: any) => page.published);
   
   // Show loading state
-  if (destinationsLoading || guidesLoading || pagesLoading || settingsLoading) {
+  if (destinationsLoading || guidesLoading || pagesLoading || highlightsLoading || settingsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#f8f6f1" }}>
         <div className="text-center">
@@ -255,6 +260,37 @@ export default function Home() {
           })}
         </div>
       </section>
+
+      {/* Highlights Section - From Database */}
+      {highlights.length > 0 && (
+        <section className="py-16 px-5 max-w-6xl mx-auto">
+          <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
+            Hoogtepunten van Polen
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {highlights.map((highlight) => (
+              <div key={highlight.id} className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer text-center">
+                <img
+                  src={highlight.iconPath}
+                  alt={highlight.name}
+                  className="w-16 h-16 mx-auto mb-3"
+                  onError={(e) => {
+                    e.currentTarget.src = '/images/highlights/placeholder.svg';
+                  }}
+                />
+                <h3 className="font-bold font-inter text-gray-900 text-sm">
+                  {highlight.name}
+                </h3>
+                {highlight.category !== 'general' && (
+                  <p className="text-xs text-gray-500 mt-1 capitalize">
+                    {highlight.category}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* CTA Section */}
       <section className="py-16 px-5 max-w-6xl mx-auto">

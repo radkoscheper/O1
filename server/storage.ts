@@ -1,11 +1,12 @@
 import { 
-  users, destinations, guides, siteSettings, pages, templates,
+  users, destinations, guides, siteSettings, pages, templates, highlights,
   type User, type InsertUser, type UpdateUser,
   type Destination, type InsertDestination, type UpdateDestination,
   type Guide, type InsertGuide, type UpdateGuide,
   type SiteSettings, type InsertSiteSettings, type UpdateSiteSettings,
   type Page, type InsertPage, type UpdatePage,
-  type Template, type InsertTemplate, type UpdateTemplate
+  type Template, type InsertTemplate, type UpdateTemplate,
+  type Highlight, type InsertHighlight, type UpdateHighlight
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, ne, and, gte, lt, gt, lte, sql } from "drizzle-orm";
@@ -72,6 +73,16 @@ export interface IStorage {
   getSiteSettings(): Promise<SiteSettings | undefined>;
   updateSiteSettings(updates: UpdateSiteSettings): Promise<SiteSettings>;
   createDefaultSiteSettings(): Promise<SiteSettings>;
+  
+  // Highlight operations
+  getHighlight(id: number): Promise<Highlight | undefined>;
+  getAllHighlights(): Promise<Highlight[]>;
+  getActiveHighlights(): Promise<Highlight[]>;
+  getHighlightsByCategory(category: string): Promise<Highlight[]>;
+  createHighlight(highlight: InsertHighlight): Promise<Highlight>;
+  updateHighlight(id: number, updates: UpdateHighlight): Promise<Highlight>;
+  deleteHighlight(id: number): Promise<void>;
+  updateHighlightRanking(id: number, newRanking: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -551,6 +562,65 @@ export class DatabaseStorage implements IStorage {
 
   async deleteTemplate(id: number): Promise<void> {
     await db.delete(templates).where(eq(templates.id, id));
+  }
+
+  // Highlight operations implementation
+  async getHighlight(id: number): Promise<Highlight | undefined> {
+    const [highlight] = await db.select().from(highlights).where(eq(highlights.id, id));
+    return highlight || undefined;
+  }
+
+  async getAllHighlights(): Promise<Highlight[]> {
+    return await db.select().from(highlights).orderBy(highlights.ranking, highlights.name);
+  }
+
+  async getActiveHighlights(): Promise<Highlight[]> {
+    return await db.select().from(highlights)
+      .where(eq(highlights.active, true))
+      .orderBy(highlights.ranking, highlights.name);
+  }
+
+  async getHighlightsByCategory(category: string): Promise<Highlight[]> {
+    return await db.select().from(highlights)
+      .where(and(eq(highlights.category, category), eq(highlights.active, true)))
+      .orderBy(highlights.ranking, highlights.name);
+  }
+
+  async createHighlight(insertHighlight: InsertHighlight): Promise<Highlight> {
+    const result = await db
+      .insert(highlights)
+      .values({
+        ...insertHighlight,
+        updatedAt: new Date(),
+      })
+      .returning();
+    return result[0];
+  }
+
+  async updateHighlight(id: number, updates: UpdateHighlight): Promise<Highlight> {
+    const [highlight] = await db
+      .update(highlights)
+      .set({
+        ...updates,
+        updatedAt: new Date(),
+      })
+      .where(eq(highlights.id, id))
+      .returning();
+    return highlight;
+  }
+
+  async deleteHighlight(id: number): Promise<void> {
+    await db.delete(highlights).where(eq(highlights.id, id));
+  }
+
+  async updateHighlightRanking(id: number, newRanking: number): Promise<void> {
+    await db
+      .update(highlights)
+      .set({
+        ranking: newRanking,
+        updatedAt: new Date(),
+      })
+      .where(eq(highlights.id, id));
   }
 }
 
