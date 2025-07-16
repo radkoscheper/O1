@@ -3727,6 +3727,8 @@ function EditPageDialog({ open, onOpenChange, page, templates, onPageUpdated }: 
     metaDescription: page?.metaDescription || '',
     metaKeywords: page?.metaKeywords || '',
     template: page?.template || '',
+    headerImage: page?.headerImage || '',
+    headerImageAlt: page?.headerImageAlt || '',
     highlightSections: page?.highlightSections || '[]',
     published: page?.published || false,
     featured: page?.featured || false,
@@ -3744,6 +3746,8 @@ function EditPageDialog({ open, onOpenChange, page, templates, onPageUpdated }: 
         metaDescription: page.metaDescription || '',
         metaKeywords: page.metaKeywords || '',
         template: page.template || '',
+        headerImage: page.headerImage || '',
+        headerImageAlt: page.headerImageAlt || '',
         highlightSections: page.highlightSections || '[]',
         published: page.published || false,
         featured: page.featured || false,
@@ -3814,6 +3818,64 @@ function EditPageDialog({ open, onOpenChange, page, templates, onPageUpdated }: 
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Header Afbeelding Upload/Delete */}
+          <div className="space-y-4 p-4 border rounded-lg bg-gray-50">
+            <div className="flex items-center gap-2">
+              <ImageIcon className="h-5 w-5 text-gray-600" />
+              <h3 className="font-semibold">Header Afbeelding</h3>
+            </div>
+            
+            {/* Current Header Image Preview */}
+            {formData.headerImage && (
+              <div className="space-y-2">
+                <div className="relative h-32 w-full rounded-md overflow-hidden border">
+                  <img 
+                    src={formData.headerImage} 
+                    alt={formData.headerImageAlt || 'Header afbeelding'}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.nextElementSibling.style.display = 'flex';
+                    }}
+                  />
+                  <div className="hidden w-full h-full bg-gray-200 items-center justify-center">
+                    <span className="text-gray-500 text-sm">Afbeelding niet gevonden: {formData.headerImage}</span>
+                  </div>
+                </div>
+                <Button 
+                  type="button"
+                  variant="outline" 
+                  size="sm"
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  onClick={() => setFormData({ ...formData, headerImage: '', headerImageAlt: '' })}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Header Afbeelding Verwijderen
+                </Button>
+              </div>
+            )}
+
+            {/* Upload New Header Image */}
+            <ImageUploadField
+              label={formData.headerImage ? "Nieuwe Header Afbeelding Uploaden" : "Header Afbeelding Uploaden"}
+              value={formData.headerImage}
+              onChange={(value) => setFormData({ ...formData, headerImage: value })}
+              placeholder="/images/destinations/pagina-header.jpg"
+              fileName={`${formData.slug || formData.title}-header`}
+            />
+
+            {/* Header Image Alt Text */}
+            <div className="space-y-2">
+              <Label htmlFor="editPageHeaderImageAlt">Header Afbeelding Alt-tekst</Label>
+              <Input
+                id="editPageHeaderImageAlt"
+                value={formData.headerImageAlt}
+                onChange={(e) => setFormData({ ...formData, headerImageAlt: e.target.value })}
+                placeholder="Beschrijving van de header afbeelding"
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -3939,6 +4001,28 @@ function ViewPageDialog({ open, onOpenChange, page }: {
             {page?.featured && <Badge variant="secondary">Featured</Badge>}
             <Badge variant="outline">{page?.template}</Badge>
           </div>
+
+          {/* Header Image Preview */}
+          {page?.headerImage && (
+            <div>
+              <h3 className="font-semibold mb-2">Header Afbeelding</h3>
+              <div className="relative h-32 w-full rounded-md overflow-hidden border">
+                <img 
+                  src={page.headerImage} 
+                  alt={page.headerImageAlt || 'Header afbeelding'}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling.style.display = 'flex';
+                  }}
+                />
+                <div className="hidden w-full h-full bg-gray-200 items-center justify-center">
+                  <span className="text-gray-500 text-sm">Afbeelding niet gevonden: {page.headerImage}</span>
+                </div>
+              </div>
+              <p className="text-sm text-gray-600 mt-1">{page.headerImageAlt || 'Geen alt-tekst'}</p>
+            </div>
+          )}
 
           <div>
             <h3 className="font-semibold mb-2">Content</h3>
