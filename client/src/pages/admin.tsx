@@ -598,6 +598,58 @@ export default function Admin() {
     }
   };
 
+  const handleToggleDestinationHomepage = async (id: number, showOnHomepage: boolean) => {
+    try {
+      const response = await fetch(`/api/admin/destinations/${id}/homepage`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ showOnHomepage }),
+      });
+      
+      if (response.ok) {
+        toast({ 
+          title: "Succes", 
+          description: showOnHomepage ? "Bestemming toegevoegd aan homepage" : "Bestemming verwijderd van homepage" 
+        });
+        destinationsQuery.refetch();
+      } else {
+        const error = await response.json();
+        toast({ title: "Fout", description: error.message, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+    }
+  };
+
+  const handleToggleGuideHomepage = async (id: number, showOnHomepage: boolean) => {
+    try {
+      const response = await fetch(`/api/admin/guides/${id}/homepage`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ showOnHomepage }),
+      });
+      
+      if (response.ok) {
+        toast({ 
+          title: "Succes", 
+          description: showOnHomepage ? "Reisgids toegevoegd aan homepage" : "Reisgids verwijderd van homepage" 
+        });
+        guidesQuery.refetch();
+      } else {
+        const error = await response.json();
+        toast({ title: "Fout", description: error.message, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+    }
+  };
+
   const handleLogin = async () => {
     try {
       const response = await fetch('/api/login', {
@@ -1078,30 +1130,41 @@ export default function Admin() {
                     </div>
                   </CardHeader>
                   <CardContent className="pt-0">
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-col gap-3">
+                      {/* Quick Homepage Toggle */}
                       <Button 
                         size="sm" 
-                        variant="outline"
-                        onClick={() => {
-                          setSelectedDestination(destination);
-                          setEditDestinationData({
-                            name: destination.name,
-                            description: destination.description,
-                            image: destination.image,
-                            alt: destination.alt || '',
-                            content: destination.content || '',
-                            link: destination.link || '',
-                            featured: destination.featured,
-                            published: destination.published,
-                            showOnHomepage: destination.showOnHomepage || false,
-                            ranking: destination.ranking || 0
-                          });
-                          setShowEditDestination(true);
-                        }}
+                        variant={destination.showOnHomepage ? "default" : "outline"}
+                        onClick={() => handleToggleDestinationHomepage(destination.id, !destination.showOnHomepage)}
+                        className="w-full"
                       >
-                        <Edit className="h-4 w-4 mr-2" />
-                        Bewerken
+                        {destination.showOnHomepage ? "🏠 Op Homepage" : "➕ Naar Homepage"}
                       </Button>
+                      
+                      <div className="flex flex-wrap gap-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedDestination(destination);
+                            setEditDestinationData({
+                              name: destination.name,
+                              description: destination.description,
+                              image: destination.image,
+                              alt: destination.alt || '',
+                              content: destination.content || '',
+                              link: destination.link || '',
+                              featured: destination.featured,
+                              published: destination.published,
+                              showOnHomepage: destination.showOnHomepage || false,
+                              ranking: destination.ranking || 0
+                            });
+                            setShowEditDestination(true);
+                          }}
+                        >
+                          <Edit className="h-4 w-4 mr-2" />
+                          Bewerken
+                        </Button>
                       <Button 
                         size="sm" 
                         variant="outline"
@@ -1123,6 +1186,7 @@ export default function Admin() {
                           🗑️ Naar Prullenbak
                         </Button>
                       )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -1161,51 +1225,63 @@ export default function Admin() {
                     </div>
                   </CardHeader>
                   <CardContent className="pt-0">
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-col gap-3">
+                      {/* Quick Homepage Toggle */}
                       <Button 
                         size="sm" 
-                        variant="outline"
-                        onClick={() => {
-                          setSelectedGuide(guide);
-                          setEditGuideData({
-                            title: guide.title,
-                            description: guide.description,
-                            image: guide.image,
-                            alt: guide.alt || '',
-                            content: guide.content || '',
-                            link: guide.link || '',
-                            featured: guide.featured,
-                            published: guide.published,
-                            showOnHomepage: guide.showOnHomepage || false,
-                            ranking: guide.ranking || 0
-                          });
-                          setShowEditGuide(true);
-                        }}
+                        variant={guide.showOnHomepage ? "default" : "outline"}
+                        onClick={() => handleToggleGuideHomepage(guide.id, !guide.showOnHomepage)}
+                        className="w-full"
                       >
-                        <Edit className="h-4 w-4 mr-2" />
-                        Bewerken
+                        {guide.showOnHomepage ? "🏠 Op Homepage" : "➕ Naar Homepage"}
                       </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => {
-                          setSelectedGuide(guide);
-                          setShowViewGuide(true);
-                        }}
-                      >
-                        <Eye className="h-4 w-4 mr-2" />
-                        Bekijken
-                      </Button>
-                      {currentUser?.canDeleteContent && (
+                      
+                      <div className="flex flex-wrap gap-2">
                         <Button 
                           size="sm" 
                           variant="outline"
-                          onClick={() => handleSoftDeleteGuide(guide.id)}
+                          onClick={() => {
+                            setSelectedGuide(guide);
+                            setEditGuideData({
+                              title: guide.title,
+                              description: guide.description,
+                              image: guide.image,
+                              alt: guide.alt || '',
+                              content: guide.content || '',
+                              link: guide.link || '',
+                              featured: guide.featured,
+                              published: guide.published,
+                              showOnHomepage: guide.showOnHomepage || false,
+                              ranking: guide.ranking || 0
+                            });
+                            setShowEditGuide(true);
+                          }}
                         >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          🗑️ Naar Prullenbak
+                          <Edit className="h-4 w-4 mr-2" />
+                          Bewerken
                         </Button>
-                      )}
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedGuide(guide);
+                            setShowViewGuide(true);
+                          }}
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          Bekijken
+                        </Button>
+                        {currentUser?.canDeleteContent && (
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleSoftDeleteGuide(guide.id)}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            🗑️ Naar Prullenbak
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
