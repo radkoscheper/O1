@@ -1067,10 +1067,14 @@ export default function Admin() {
             )}
             {currentUser?.canCreateContent && (
               <TabsTrigger value="content-manager-1" className="flex items-center gap-2">
+                🎯 Content Manager 1
+              </TabsTrigger>
+            )}
+            {currentUser?.canCreateContent && (
+              <TabsTrigger value="destinations" className="flex items-center gap-2">
                 🏔️ Bestemmingen
               </TabsTrigger>
             )}
-
             {currentUser?.canCreateContent && (
               <TabsTrigger value="guides" className="flex items-center gap-2">
                 📖 Reisgidsen
@@ -1664,8 +1668,8 @@ export default function Admin() {
             <TabsContent value="content-manager-1" className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
-                  <h2 className="text-2xl font-semibold">Bestemmingen & Highlights</h2>
-                  <p className="text-gray-600">Beheer bestemmingen en highlights in één interface</p>
+                  <h2 className="text-2xl font-semibold">Content Manager 1 - Bestemmingen & Highlights</h2>
+                  <p className="text-gray-600">Unified interface voor bestemmingen en highlights beheer</p>
                 </div>
               </div>
 
@@ -1994,6 +1998,158 @@ export default function Admin() {
                   </div>
                 </TabsContent>
               </Tabs>
+            </TabsContent>
+          )}
+
+          {/* Bestaande Bestemmingen - alleen voor gebruikers met create/edit permissies */}
+          {currentUser?.canCreateContent && (
+            <TabsContent value="destinations" className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <div>
+                  <h2 className="text-2xl font-semibold">Bestemmingen ({getFilteredDestinations().length} van {destinationsQuery.data?.length || 0})</h2>
+                  <p className="text-gray-600">Beheer al je Polish reisbestemmingen</p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Select value={locationFilter} onValueChange={setLocationFilter}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Filter op locatie" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Alle locaties</SelectItem>
+                      {getUniqueLocations().map((location) => (
+                        <SelectItem key={location} value={location}>
+                          📍 {location}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button 
+                    onClick={() => setShowCreateDestination(true)}
+                    className="flex items-center gap-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Nieuwe Bestemming
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {getFilteredDestinations().map((destination: any) => (
+                <Card key={destination.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader className="pb-3">
+                    <div className="flex flex-col gap-3">
+                      <div className="flex justify-between items-start">
+                        <CardTitle className="text-lg leading-tight">{destination.name}</CardTitle>
+                        <Badge variant="outline" className="text-xs">#{destination.ranking || 0}</Badge>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {destination.location && (
+                          <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                            📍 {destination.location}
+                          </Badge>
+                        )}
+                        {destination.featured && <Badge variant="secondary" className="text-xs">⭐ Featured</Badge>}
+                        <Badge variant={destination.published ? "default" : "outline"} className="text-xs">
+                          {destination.published ? "✅ Gepubliceerd" : "📝 Concept"}
+                        </Badge>
+                        {destination.showOnHomepage && <Badge variant="default" className="text-xs bg-green-600 hover:bg-green-700">🏠 Homepage</Badge>}
+                      </div>
+                      <CardDescription className="text-sm line-clamp-2">{destination.description}</CardDescription>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <div className="flex flex-col gap-3">
+                      {destination.image && (
+                        <div className="relative h-32 w-full overflow-hidden rounded-md">
+                          <img 
+                            src={destination.image} 
+                            alt={destination.alt || destination.name}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      )}
+                      
+                      <div className="flex flex-wrap gap-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleToggleDestinationHomepage(destination.id, !destination.showOnHomepage)}
+                          className="text-xs flex-1"
+                        >
+                          {destination.showOnHomepage ? (
+                            <>❌ Van Homepage</>
+                          ) : (
+                            <>✅ Op Homepage</>
+                          )}
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedDestination(destination);
+                            setEditDestinationData({
+                              name: destination.name,
+                              location: destination.location || '',
+                              description: destination.description,
+                              image: destination.image,
+                              alt: destination.alt || '',
+                              content: destination.content || '',
+                              link: destination.link || '',
+                              featured: destination.featured,
+                              published: destination.published,
+                              showOnHomepage: destination.showOnHomepage || false,
+                              ranking: destination.ranking || 0
+                            });
+                            setShowEditDestination(true);
+                          }}
+                          className="text-xs flex-1"
+                        >
+                          <Edit className="h-3 w-3 mr-1" />
+                          Bewerken
+                        </Button>
+                      </div>
+                      
+                      {destination.link && (
+                        <Button 
+                          size="sm" 
+                          variant="ghost"
+                          onClick={() => window.open(destination.link, '_blank')}
+                          className="text-xs w-full"
+                        >
+                          <ExternalLink className="h-3 w-3 mr-1" />
+                          Bekijk Pagina
+                        </Button>
+                      )}
+                      
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedDestination(destination);
+                          setShowViewDestination(true);
+                        }}
+                        className="text-xs w-full"
+                      >
+                        <Eye className="h-3 w-3 mr-1" />
+                        Bekijken
+                      </Button>
+                      
+                      {currentUser?.canDeleteContent && (
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleSoftDeleteDestination(destination.id)}
+                          className="text-xs w-full"
+                        >
+                          <Trash2 className="h-3 w-3 mr-1" />
+                          🗑️ Naar Prullenbak
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
             </TabsContent>
           )}
 
