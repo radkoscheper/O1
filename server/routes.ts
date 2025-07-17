@@ -1263,6 +1263,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Toggle destination homepage visibility
+  app.patch("/api/admin/destinations/:id/homepage", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user?.canEditContent) {
+        return res.status(403).json({ message: "Geen toestemming om bestemmingen te bewerken" });
+      }
+
+      const { id } = req.params;
+      const { showOnHomepage } = req.body;
+      
+      if (typeof showOnHomepage !== 'boolean') {
+        return res.status(400).json({ message: "showOnHomepage waarde moet boolean zijn" });
+      }
+
+      const destination = await storage.updateDestination(parseInt(id), { showOnHomepage });
+      res.json(destination);
+    } catch (error) {
+      console.error("Error toggling destination homepage:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Toggle guide homepage visibility
+  app.patch("/api/admin/guides/:id/homepage", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user?.canEditContent) {
+        return res.status(403).json({ message: "Geen toestemming om reisgidsen te bewerken" });
+      }
+
+      const { id } = req.params;
+      const { showOnHomepage } = req.body;
+      
+      if (typeof showOnHomepage !== 'boolean') {
+        return res.status(400).json({ message: "showOnHomepage waarde moet boolean zijn" });
+      }
+
+      const guide = await storage.updateGuide(parseInt(id), { showOnHomepage });
+      res.json(guide);
+    } catch (error) {
+      console.error("Error toggling guide homepage:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
   // Soft delete page
   app.patch("/api/admin/pages/:id/soft-delete", requireAuth, async (req, res) => {
     try {
