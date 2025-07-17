@@ -1041,6 +1041,11 @@ export default function Admin() {
               </TabsTrigger>
             )}
             {currentUser?.canCreateContent && (
+              <TabsTrigger value="content-manager-1" className="flex items-center gap-2">
+                🎯 Content Manager 1
+              </TabsTrigger>
+            )}
+            {currentUser?.canCreateContent && (
               <TabsTrigger value="destinations" className="flex items-center gap-2">
                 🏔️ Bestemmingen
               </TabsTrigger>
@@ -1588,6 +1593,322 @@ export default function Admin() {
                         ))}
                       </div>
                     </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </TabsContent>
+          )}
+
+          {/* Content Manager 1 - Bestemmingen + Highlights */}
+          {currentUser?.canCreateContent && (
+            <TabsContent value="content-manager-1" className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <div>
+                  <h2 className="text-2xl font-semibold">Content Manager 1 - Bestemmingen & Highlights</h2>
+                  <p className="text-gray-600">Unified interface voor bestemmingen en highlights beheer</p>
+                </div>
+              </div>
+
+              <Tabs defaultValue="all-content" className="w-full">
+                <TabsList className="grid w-full grid-cols-4">
+                  <TabsTrigger value="all-content">Overzicht</TabsTrigger>
+                  <TabsTrigger value="destinations-view">Bestemmingen</TabsTrigger>
+                  <TabsTrigger value="highlights-view">Highlights</TabsTrigger>
+                  <TabsTrigger value="actions">Acties</TabsTrigger>
+                </TabsList>
+
+                {/* Overzicht Tab */}
+                <TabsContent value="all-content" className="space-y-6">
+                  <div className="grid gap-6 lg:grid-cols-2">
+                    {/* Bestemmingen Overzicht */}
+                    <div className="bg-blue-50 rounded-lg p-6">
+                      <h3 className="text-xl font-semibold text-blue-900 mb-4">
+                        Bestemmingen ({destinationsQuery.data?.length || 0})
+                      </h3>
+                      <div className="space-y-3 max-h-96 overflow-y-auto">
+                        {(destinationsQuery.data || []).map((destination: any) => (
+                          <div key={destination.id} className="bg-white p-3 rounded border border-blue-200">
+                            <div className="flex justify-between items-start mb-2">
+                              <h4 className="font-medium text-blue-900">{destination.name}</h4>
+                              <div className="flex gap-1">
+                                <Badge variant="outline" className="text-xs">#{destination.ranking || 0}</Badge>
+                                {destination.showOnHomepage && <Badge variant="default" className="text-xs bg-green-600">🏠</Badge>}
+                              </div>
+                            </div>
+                            <p className="text-sm text-gray-600 mb-2">{destination.description?.substring(0, 80)}...</p>
+                            <div className="flex gap-1">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => handleToggleDestinationHomepage(destination.id, !destination.showOnHomepage)}
+                                className="text-xs"
+                              >
+                                {destination.showOnHomepage ? '❌ Van Homepage' : '✅ Op Homepage'}
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => {
+                                  setSelectedDestination(destination);
+                                  setEditDestinationData({
+                                    name: destination.name,
+                                    description: destination.description,
+                                    image: destination.image,
+                                    alt: destination.alt || '',
+                                    content: destination.content || '',
+                                    link: destination.link || '',
+                                    featured: destination.featured,
+                                    published: destination.published,
+                                    showOnHomepage: destination.showOnHomepage || false,
+                                    ranking: destination.ranking || 0
+                                  });
+                                  setShowEditDestination(true);
+                                }}
+                                className="text-xs"
+                              >
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Highlights Overzicht */}
+                    <div className="bg-purple-50 rounded-lg p-6">
+                      <h3 className="text-xl font-semibold text-purple-900 mb-4">
+                        Highlights ({highlightsQuery.data?.length || 0})
+                      </h3>
+                      <div className="space-y-3 max-h-96 overflow-y-auto">
+                        {(highlightsQuery.data || []).map((highlight: any) => (
+                          <div key={highlight.id} className="bg-white p-3 rounded border border-purple-200">
+                            <div className="flex justify-between items-start mb-2">
+                              <h4 className="font-medium text-purple-900">{highlight.name}</h4>
+                              <Badge variant="outline" className="text-xs">#{highlight.ranking || 0}</Badge>
+                            </div>
+                            <p className="text-sm text-gray-600 mb-2">{highlight.description?.substring(0, 80)}...</p>
+                            <div className="flex gap-1">
+                              <ViewHighlightDialog highlight={highlight} />
+                              <EditHighlightDialog 
+                                highlight={highlight} 
+                                onUpdate={() => queryClient.invalidateQueries({ queryKey: ['/api/admin/highlights'] })} 
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                {/* Bestemmingen View Tab */}
+                <TabsContent value="destinations-view" className="space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                    <div>
+                      <h3 className="text-xl font-semibold">Bestemmingen Beheer ({destinationsQuery.data?.length || 0})</h3>
+                      <p className="text-gray-600">Beheer al je Polish reisbestemmingen</p>
+                    </div>
+                    <Button 
+                      onClick={() => setShowCreateDestination(true)}
+                      className="flex items-center gap-2"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Nieuwe Bestemming
+                    </Button>
+                  </div>
+                  
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {(destinationsQuery.data || []).map((destination: any) => (
+                    <Card key={destination.id} className="hover:shadow-lg transition-shadow">
+                      <CardHeader className="pb-3">
+                        <div className="flex flex-col gap-3">
+                          <div className="flex justify-between items-start">
+                            <CardTitle className="text-lg leading-tight">{destination.name}</CardTitle>
+                            <Badge variant="outline" className="text-xs">#{destination.ranking || 0}</Badge>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {destination.featured && <Badge variant="secondary" className="text-xs">⭐ Featured</Badge>}
+                            <Badge variant={destination.published ? "default" : "outline"} className="text-xs">
+                              {destination.published ? "✅ Gepubliceerd" : "📝 Concept"}
+                            </Badge>
+                            {destination.showOnHomepage && <Badge variant="default" className="text-xs bg-green-600 hover:bg-green-700">🏠 Homepage</Badge>}
+                          </div>
+                          <CardDescription className="text-sm line-clamp-2">{destination.description}</CardDescription>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <div className="flex flex-col gap-3">
+                          {destination.image && (
+                            <div className="relative h-32 w-full overflow-hidden rounded-md">
+                              <img 
+                                src={destination.image} 
+                                alt={destination.alt || destination.name}
+                                className="h-full w-full object-cover"
+                              />
+                            </div>
+                          )}
+                          
+                          <div className="flex flex-wrap gap-2">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => handleToggleDestinationHomepage(destination.id, !destination.showOnHomepage)}
+                              className="text-xs flex-1"
+                            >
+                              {destination.showOnHomepage ? (
+                                <>❌ Van Homepage</>
+                              ) : (
+                                <>✅ Op Homepage</>
+                              )}
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => {
+                                setSelectedDestination(destination);
+                                setEditDestinationData({
+                                  name: destination.name,
+                                  description: destination.description,
+                                  image: destination.image,
+                                  alt: destination.alt || '',
+                                  content: destination.content || '',
+                                  link: destination.link || '',
+                                  featured: destination.featured,
+                                  published: destination.published,
+                                  showOnHomepage: destination.showOnHomepage || false,
+                                  ranking: destination.ranking || 0
+                                });
+                                setShowEditDestination(true);
+                              }}
+                              className="text-xs flex-1"
+                            >
+                              <Edit className="h-3 w-3 mr-1" />
+                              Bewerken
+                            </Button>
+                          </div>
+                          
+                          {destination.link && (
+                            <Button 
+                              size="sm" 
+                              variant="ghost"
+                              onClick={() => window.open(destination.link, '_blank')}
+                              className="text-xs w-full"
+                            >
+                              <ExternalLink className="h-3 w-3 mr-1" />
+                              Bekijk Pagina
+                            </Button>
+                          )}
+                          
+                          {currentUser?.canDeleteContent && (
+                            <Button 
+                              size="sm" 
+                              variant="destructive"
+                              onClick={() => handleDeleteDestination(destination.id)}
+                              className="text-xs w-full"
+                            >
+                              🗑️ Naar Prullenbak
+                            </Button>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                  </div>
+                </TabsContent>
+
+                {/* Highlights View Tab */}
+                <TabsContent value="highlights-view" className="space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                    <div>
+                      <h3 className="text-xl font-semibold">Highlights Beheer ({highlightsQuery.data?.length || 0})</h3>
+                      <p className="text-gray-600">Beheer alle Polish highlights en attracties</p>
+                    </div>
+                    <CreateHighlightDialog onUpdate={() => queryClient.invalidateQueries({ queryKey: ['/api/admin/highlights'] })} />
+                  </div>
+                  
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {(highlightsQuery.data || []).map((highlight: any) => (
+                      <Card key={highlight.id} className="hover:shadow-lg transition-shadow">
+                        <CardHeader className="pb-3">
+                          <div className="flex flex-col gap-3">
+                            <div className="flex justify-between items-start">
+                              <CardTitle className="text-lg leading-tight">{highlight.name}</CardTitle>
+                              <Badge variant="outline" className="text-xs">#{highlight.ranking || 0}</Badge>
+                            </div>
+                            <CardDescription className="text-sm line-clamp-2">{highlight.description}</CardDescription>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="pt-0">
+                          <div className="flex flex-col gap-3">
+                            {highlight.iconPath && (
+                              <div className="relative h-32 w-full overflow-hidden rounded-md bg-gray-50 flex items-center justify-center">
+                                <img 
+                                  src={highlight.iconPath} 
+                                  alt={highlight.name}
+                                  className="h-16 w-16 object-contain"
+                                />
+                              </div>
+                            )}
+                            
+                            <div className="flex flex-wrap gap-2">
+                              <ViewHighlightDialog highlight={highlight} />
+                              <EditHighlightDialog 
+                                highlight={highlight} 
+                                onUpdate={() => queryClient.invalidateQueries({ queryKey: ['/api/admin/highlights'] })} 
+                              />
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </TabsContent>
+
+                {/* Acties Tab */}
+                <TabsContent value="actions" className="space-y-6">
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Nieuwe Content Maken</CardTitle>
+                        <CardDescription>Voeg nieuwe bestemmingen en highlights toe</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <Button 
+                          onClick={() => setShowCreateDestination(true)}
+                          className="w-full flex items-center gap-2"
+                        >
+                          <Plus className="h-4 w-4" />
+                          Nieuwe Bestemming
+                        </Button>
+                        <CreateHighlightDialog 
+                          onUpdate={() => queryClient.invalidateQueries({ queryKey: ['/api/admin/highlights'] })}
+                          className="w-full"
+                        />
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Homepage Beheer</CardTitle>
+                        <CardDescription>Snel homepage content beheren</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="text-sm space-y-2">
+                          <div className="flex justify-between">
+                            <span>Bestemmingen op homepage:</span>
+                            <Badge variant="default" className="bg-blue-600">
+                              {destinationsQuery.data?.filter((d: any) => d.showOnHomepage).length || 0}
+                            </Badge>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Totaal highlights:</span>
+                            <Badge variant="default" className="bg-purple-600">
+                              {highlightsQuery.data?.length || 0}
+                            </Badge>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
                 </TabsContent>
               </Tabs>
