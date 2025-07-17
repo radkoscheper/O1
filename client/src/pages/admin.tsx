@@ -215,6 +215,13 @@ export default function Admin() {
     return destinationsQuery.data.filter((dest: any) => dest.location === locationFilter);
   };
 
+  // Filter guides by location (assuming guides also have location property)
+  const getFilteredGuides = () => {
+    if (!guidesQuery.data) return [];
+    if (locationFilter === 'all') return guidesQuery.data;
+    return guidesQuery.data.filter((guide: any) => guide.location === locationFilter);
+  };
+
   const [newGuide, setNewGuide] = useState({
     title: '',
     description: '',
@@ -1517,13 +1524,35 @@ export default function Admin() {
             <TabsContent value="guides" className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
-                  <h2 className="text-2xl font-semibold">Reisgidsen ({guidesQuery.data?.length || 0})</h2>
+                  <h2 className="text-2xl font-semibold">Reisgidsen ({getFilteredGuides().length} van {guidesQuery.data?.length || 0})</h2>
                   <p className="text-gray-600">Beheer al je Polish reisgidsen en tips</p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Select value={locationFilter} onValueChange={setLocationFilter}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Filter op locatie" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Alle locaties</SelectItem>
+                      {getUniqueLocations().map((location) => (
+                        <SelectItem key={location} value={location}>
+                          📍 {location}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button 
+                    onClick={() => setShowCreateGuide(true)}
+                    className="flex items-center gap-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Nieuwe Gids
+                  </Button>
                 </div>
               </div>
               
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {(guidesQuery.data || []).map((guide: any) => (
+              {getFilteredGuides().map((guide: any) => (
                 <Card key={guide.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader className="pb-3">
                     <div className="flex flex-col gap-3">
