@@ -574,6 +574,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/admin/destinations", requireAuth, async (req, res) => {
     try {
       const destinations = await storage.getActiveDestinations();
+      // Prevent aggressive caching for admin endpoints
+      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '0');
       res.json(destinations);
     } catch (error) {
       console.error("Error fetching destinations:", error);
@@ -792,10 +796,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all active guides for admin
   app.get("/api/admin/guides", requireAuth, async (req, res) => {
     try {
-      const guides = await storage.getAllGuides();
-      // Filter out soft-deleted guides
-      const activeGuides = guides.filter(guide => !guide.is_deleted);
-      res.json(activeGuides);
+      const guides = await storage.getActiveGuides();
+      // Prevent aggressive caching for admin endpoints
+      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '0');
+      res.json(guides);
     } catch (error) {
       console.error("Error fetching guides:", error);
       res.status(500).json({ message: "Server error" });

@@ -40,6 +40,7 @@ export interface IStorage {
   getGuide(id: number): Promise<Guide | undefined>;
   getGuideBySlug(slug: string): Promise<Guide | undefined>;
   getAllGuides(): Promise<Guide[]>;
+  getActiveGuides(): Promise<Guide[]>;
   getPublishedGuides(): Promise<Guide[]>;
   getHomepageGuides(): Promise<Guide[]>;
   getDeletedGuides(): Promise<Guide[]>;
@@ -274,6 +275,10 @@ export class DatabaseStorage implements IStorage {
 
   async getAllGuides(): Promise<Guide[]> {
     return await db.select().from(guides).orderBy(guides.ranking, guides.createdAt);
+  }
+
+  async getActiveGuides(): Promise<Guide[]> {
+    return await db.select().from(guides).where(eq(guides.is_deleted, false)).orderBy(guides.ranking, guides.createdAt);
   }
 
   async getPublishedGuides(): Promise<Guide[]> {
