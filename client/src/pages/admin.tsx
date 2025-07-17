@@ -2053,6 +2053,16 @@ export default function Admin() {
                   </CardHeader>
                   <CardContent className="pt-0">
                     <div className="flex flex-col gap-3">
+                      {destination.image && (
+                        <div className="relative h-32 w-full overflow-hidden rounded-md">
+                          <img 
+                            src={destination.image} 
+                            alt={destination.alt || destination.name}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      )}
+                      
                       {/* Quick Homepage Toggle */}
                       <Button 
                         size="sm" 
