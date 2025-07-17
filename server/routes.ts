@@ -1457,7 +1457,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all highlights
   app.get("/api/highlights", async (req, res) => {
     try {
-      const highlights = await storage.getActiveHighlights();
+      const highlights = await storage.getHomepageHighlights();
       res.json(highlights);
     } catch (error) {
       console.error("Error fetching highlights:", error);
