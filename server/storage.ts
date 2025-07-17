@@ -78,6 +78,7 @@ export interface IStorage {
   getHighlight(id: number): Promise<Highlight | undefined>;
   getAllHighlights(): Promise<Highlight[]>;
   getActiveHighlights(): Promise<Highlight[]>;
+  getHomepageHighlights(): Promise<Highlight[]>;
   getHighlightsByCategory(category: string): Promise<Highlight[]>;
   createHighlight(highlight: InsertHighlight): Promise<Highlight>;
   updateHighlight(id: number, updates: UpdateHighlight): Promise<Highlight>;
@@ -580,9 +581,15 @@ export class DatabaseStorage implements IStorage {
       .orderBy(highlights.ranking, highlights.name);
   }
 
+  async getHomepageHighlights(): Promise<Highlight[]> {
+    return await db.select().from(highlights)
+      .where(and(eq(highlights.active, true), eq(highlights.showOnHomepage, true)))
+      .orderBy(highlights.ranking, highlights.name);
+  }
+
   async getHighlightsByCategory(category: string): Promise<Highlight[]> {
     return await db.select().from(highlights)
-      .where(and(eq(highlights.category, category), eq(highlights.active, true)))
+      .where(and(eq(highlights.category, category), eq(highlights.active, true), eq(highlights.showOnHomepage, true)))
       .orderBy(highlights.ranking, highlights.name);
   }
 
