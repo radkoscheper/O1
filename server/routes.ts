@@ -573,10 +573,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all active destinations for admin
   app.get("/api/admin/destinations", requireAuth, async (req, res) => {
     try {
-      const destinations = await storage.getAllDestinations();
-      // Filter out soft-deleted destinations
-      const activeDestinations = destinations.filter(dest => !dest.is_deleted);
-      res.json(activeDestinations);
+      const destinations = await storage.getActiveDestinations();
+      res.json(destinations);
     } catch (error) {
       console.error("Error fetching destinations:", error);
       res.status(500).json({ message: "Server error" });
