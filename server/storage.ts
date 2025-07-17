@@ -26,6 +26,7 @@ export interface IStorage {
   getDestination(id: number): Promise<Destination | undefined>;
   getDestinationBySlug(slug: string): Promise<Destination | undefined>;
   getAllDestinations(): Promise<Destination[]>;
+  getActiveDestinations(): Promise<Destination[]>;
   getPublishedDestinations(): Promise<Destination[]>;
   getHomepageDestinations(): Promise<Destination[]>;
   getDeletedDestinations(): Promise<Destination[]>;
@@ -155,6 +156,10 @@ export class DatabaseStorage implements IStorage {
 
   async getAllDestinations(): Promise<Destination[]> {
     return await db.select().from(destinations).orderBy(destinations.ranking, destinations.createdAt);
+  }
+
+  async getActiveDestinations(): Promise<Destination[]> {
+    return await db.select().from(destinations).where(eq(destinations.is_deleted, false)).orderBy(destinations.ranking, destinations.createdAt);
   }
 
   async getPublishedDestinations(): Promise<Destination[]> {
