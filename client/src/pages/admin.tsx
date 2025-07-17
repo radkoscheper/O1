@@ -1498,7 +1498,7 @@ export default function Admin() {
                           size="sm" 
                           variant="outline"
                           onClick={() => handleSoftDeleteDestination(destination.id)}
-                          className="text-xs w-full"
+                          className="text-xs w-full border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400"
                         >
                           <Trash2 className="h-3 w-3 mr-1" />
                           🗑️ Naar Prullenbak
@@ -1543,17 +1543,30 @@ export default function Admin() {
                   </CardHeader>
                   <CardContent className="pt-0">
                     <div className="flex flex-col gap-3">
-                      {/* Quick Homepage Toggle */}
-                      <Button 
-                        size="sm" 
-                        variant={guide.showOnHomepage ? "default" : "outline"}
-                        onClick={() => handleToggleGuideHomepage(guide.id, !guide.showOnHomepage)}
-                        className="w-full"
-                      >
-                        {guide.showOnHomepage ? "🏠 Op Homepage" : "➕ Naar Homepage"}
-                      </Button>
+                      {/* Image display (if available) */}
+                      {guide.image && (
+                        <div className="relative aspect-video rounded overflow-hidden bg-gray-100 mb-3">
+                          <img 
+                            src={guide.image} 
+                            alt={guide.alt || guide.title}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      )}
                       
                       <div className="flex flex-wrap gap-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleToggleGuideHomepage(guide.id, !guide.showOnHomepage)}
+                          className="text-xs flex-1"
+                        >
+                          {guide.showOnHomepage ? (
+                            <>❌ Van Homepage</>
+                          ) : (
+                            <>✅ Op Homepage</>
+                          )}
+                        </Button>
                         <Button 
                           size="sm" 
                           variant="outline"
@@ -1573,32 +1586,49 @@ export default function Admin() {
                             });
                             setShowEditGuide(true);
                           }}
+                          className="text-xs flex-1"
                         >
-                          <Edit className="h-4 w-4 mr-2" />
+                          <Edit className="h-3 w-3 mr-1" />
                           Bewerken
                         </Button>
+                      </div>
+                      
+                      {guide.link && (
+                        <Button 
+                          size="sm" 
+                          variant="ghost"
+                          onClick={() => window.open(guide.link, '_blank')}
+                          className="text-xs w-full"
+                        >
+                          <ExternalLink className="h-3 w-3 mr-1" />
+                          Bekijk Pagina
+                        </Button>
+                      )}
+                      
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedGuide(guide);
+                          setShowViewGuide(true);
+                        }}
+                        className="text-xs w-full"
+                      >
+                        <Eye className="h-3 w-3 mr-1" />
+                        Bekijken
+                      </Button>
+                      
+                      {currentUser?.canDeleteContent && (
                         <Button 
                           size="sm" 
                           variant="outline"
-                          onClick={() => {
-                            setSelectedGuide(guide);
-                            setShowViewGuide(true);
-                          }}
+                          onClick={() => handleSoftDeleteGuide(guide.id)}
+                          className="text-xs w-full border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400"
                         >
-                          <Eye className="h-4 w-4 mr-2" />
-                          Bekijken
+                          <Trash2 className="h-3 w-3 mr-1" />
+                          🗑️ Naar Prullenbak
                         </Button>
-                        {currentUser?.canDeleteContent && (
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => handleSoftDeleteGuide(guide.id)}
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            🗑️ Naar Prullenbak
-                          </Button>
-                        )}
-                      </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
