@@ -18,7 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import ReactCrop, { Crop, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
-import { CreateHighlightDialog, EditHighlightDialogContent, ViewHighlightDialogContent, CreateDestinationDialog } from '@/components/highlights-dialogs';
+import { CreateHighlightDialog, EditHighlightDialogContent, ViewHighlightDialogContent, CreateDestinationDialog, CreateGuideDialog } from '@/components/highlights-dialogs';
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -105,6 +105,7 @@ export default function Admin() {
   const [showCreateDestination, setShowCreateDestination] = useState(false);
   const [showEditDestination, setShowEditDestination] = useState(false);
   const [showViewDestination, setShowViewDestination] = useState(false);
+  const [showCreateGuide, setShowCreateGuide] = useState(false);
   const [showEditGuide, setShowEditGuide] = useState(false);
   const [showViewGuide, setShowViewGuide] = useState(false);
   const [selectedDestination, setSelectedDestination] = useState<any>(null);
@@ -3077,6 +3078,18 @@ export default function Admin() {
             onDestinationCreated={() => {
               destinationsQuery.refetch();
               setShowCreateDestination(false);
+            }}
+          />
+        )}
+
+        {/* Create Guide Dialog */}
+        {showCreateGuide && (
+          <CreateGuideDialog 
+            open={showCreateGuide} 
+            onOpenChange={setShowCreateGuide}
+            onGuideCreated={() => {
+              guidesQuery.refetch();
+              setShowCreateGuide(false);
             }}
           />
         )}
