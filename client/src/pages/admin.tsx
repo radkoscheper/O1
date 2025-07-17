@@ -1041,8 +1041,18 @@ export default function Admin() {
               </TabsTrigger>
             )}
             {currentUser?.canCreateContent && (
+              <TabsTrigger value="destinations" className="flex items-center gap-2">
+                🏔️ Bestemmingen
+              </TabsTrigger>
+            )}
+            {currentUser?.canCreateContent && (
               <TabsTrigger value="guides" className="flex items-center gap-2">
                 📖 Reisgidsen
+              </TabsTrigger>
+            )}
+            {currentUser?.canCreateContent && (
+              <TabsTrigger value="new-destination" className="flex items-center gap-2">
+                ➕ Nieuwe Bestemming
               </TabsTrigger>
             )}
             {currentUser?.canCreateContent && (
@@ -1051,8 +1061,18 @@ export default function Admin() {
               </TabsTrigger>
             )}
             {currentUser?.canCreateContent && (
+              <TabsTrigger value="pages" className="flex items-center gap-2">
+                📄 Pagina's
+              </TabsTrigger>
+            )}
+            {currentUser?.canCreateContent && (
               <TabsTrigger value="homepage-overview" className="flex items-center gap-2">
                 🏠 Homepage Overview
+              </TabsTrigger>
+            )}
+            {currentUser?.canCreateContent && (
+              <TabsTrigger value="ontdek-meer" className="flex items-center gap-2">
+                📄 Ontdek Meer
               </TabsTrigger>
             )}
             {currentUser?.role === 'admin' && (
