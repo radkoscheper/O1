@@ -1061,8 +1061,13 @@ export default function Admin() {
               </TabsTrigger>
             )}
             {currentUser?.canCreateContent && (
+              <TabsTrigger value="homepage-overview" className="flex items-center gap-2">
+                🏠 Homepage Overview
+              </TabsTrigger>
+            )}
+            {currentUser?.canCreateContent && (
               <TabsTrigger value="ontdek-meer" className="flex items-center gap-2">
-                🏠 Ontdek Meer
+                📄 Ontdek Meer
               </TabsTrigger>
             )}
             {currentUser?.role === 'admin' && (
@@ -1286,6 +1291,235 @@ export default function Admin() {
                   </CardContent>
                 </Card>
               ))}
+              </div>
+            </TabsContent>
+          )}
+
+          {/* Homepage Overview - Combinatie van Bestemmingen en Ontdek Meer */}
+          {currentUser?.canCreateContent && (
+            <TabsContent value="homepage-overview" className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <div>
+                  <h2 className="text-2xl font-semibold">Homepage Content Overview</h2>
+                  <p className="text-gray-600">Overzicht van alle content die op de homepage wordt getoond</p>
+                </div>
+              </div>
+
+              {/* Bestemmingen Sectie */}
+              <div className="bg-blue-50 rounded-lg p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-semibold text-blue-900">
+                    Bestemmingen ({destinationsQuery.data?.filter((d: any) => d.showOnHomepage).length || 0} op homepage)
+                  </h3>
+                  <div className="text-sm text-blue-700">
+                    Totaal: {destinationsQuery.data?.length || 0} bestemmingen
+                  </div>
+                </div>
+                
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {(destinationsQuery.data || []).filter((destination: any) => destination.showOnHomepage).map((destination: any) => (
+                    <Card key={destination.id} className="bg-white border-blue-200">
+                      <CardHeader className="pb-3">
+                        <div className="flex justify-between items-start">
+                          <CardTitle className="text-lg text-blue-900">{destination.name}</CardTitle>
+                          <Badge variant="default" className="bg-blue-600 text-xs">Homepage</Badge>
+                        </div>
+                        <CardDescription className="text-sm">{destination.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <div className="flex gap-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleToggleDestinationHomepage(destination.id, false)}
+                            className="text-xs"
+                          >
+                            ❌ Van Homepage
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => {
+                              setSelectedDestination(destination);
+                              setEditDestinationData({
+                                name: destination.name,
+                                description: destination.description,
+                                image: destination.image,
+                                alt: destination.alt || '',
+                                content: destination.content || '',
+                                link: destination.link || '',
+                                featured: destination.featured,
+                                published: destination.published,
+                                showOnHomepage: destination.showOnHomepage || false,
+                                ranking: destination.ranking || 0
+                              });
+                              setShowEditDestination(true);
+                            }}
+                            className="text-xs"
+                          >
+                            <Edit className="h-3 w-3 mr-1" />
+                            Bewerken
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+                
+                {destinationsQuery.data?.filter((d: any) => d.showOnHomepage).length === 0 && (
+                  <div className="text-center py-8 text-blue-700">
+                    Geen bestemmingen geselecteerd voor homepage
+                  </div>
+                )}
+              </div>
+
+              {/* Ontdek Meer Sectie */}
+              <div className="bg-green-50 rounded-lg p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-semibold text-green-900">
+                    Ontdek Meer Pagina's ({pagesQuery.data?.filter((p: any) => p.published).length || 0} gepubliceerd)
+                  </h3>
+                  <div className="text-sm text-green-700">
+                    Totaal: {pagesQuery.data?.length || 0} pagina's
+                  </div>
+                </div>
+                
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {(pagesQuery.data || []).filter((page: any) => page.published).map((page: any) => (
+                    <Card key={page.id} className="bg-white border-green-200">
+                      <CardHeader className="pb-3">
+                        <div className="flex justify-between items-start">
+                          <CardTitle className="text-lg text-green-900">{page.title}</CardTitle>
+                          <Badge variant="default" className="bg-green-600 text-xs">Gepubliceerd</Badge>
+                        </div>
+                        <CardDescription className="text-sm">{page.metaDescription}</CardDescription>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <div className="flex gap-2 mb-2">
+                          <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">
+                            {page.template}
+                          </span>
+                          {page.featured && (
+                            <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">
+                              Featured
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleTogglePageHomepage(page.id, false)}
+                            className="text-xs"
+                          >
+                            ❌ Depubliceer
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => {
+                              setSelectedPage(page);
+                              setEditPageData({
+                                title: page.title,
+                                slug: page.slug,
+                                content: page.content,
+                                metaTitle: page.metaTitle || '',
+                                metaDescription: page.metaDescription || '',
+                                metaKeywords: page.metaKeywords || '',
+                                template: page.template,
+                                headerImage: page.headerImage || '',
+                                headerImageAlt: page.headerImageAlt || '',
+                                highlightSections: page.highlightSections || '',
+                                published: page.published,
+                                featured: page.featured,
+                                ranking: page.ranking || 0
+                              });
+                              setShowEditPage(true);
+                            }}
+                            className="text-xs"
+                          >
+                            <Edit className="h-3 w-3 mr-1" />
+                            Bewerken
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+                
+                {pagesQuery.data?.filter((p: any) => p.published).length === 0 && (
+                  <div className="text-center py-8 text-green-700">
+                    Geen pagina's gepubliceerd voor Ontdek Meer sectie
+                  </div>
+                )}
+              </div>
+
+              {/* Reisgidsen Sectie */}
+              <div className="bg-purple-50 rounded-lg p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-semibold text-purple-900">
+                    Reisgidsen ({guidesQuery.data?.filter((g: any) => g.showOnHomepage).length || 0} op homepage)
+                  </h3>
+                  <div className="text-sm text-purple-700">
+                    Totaal: {guidesQuery.data?.length || 0} reisgidsen
+                  </div>
+                </div>
+                
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {(guidesQuery.data || []).filter((guide: any) => guide.showOnHomepage).map((guide: any) => (
+                    <Card key={guide.id} className="bg-white border-purple-200">
+                      <CardHeader className="pb-3">
+                        <div className="flex justify-between items-start">
+                          <CardTitle className="text-lg text-purple-900">{guide.title}</CardTitle>
+                          <Badge variant="default" className="bg-purple-600 text-xs">Homepage</Badge>
+                        </div>
+                        <CardDescription className="text-sm">{guide.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <div className="flex gap-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleToggleGuideHomepage(guide.id, false)}
+                            className="text-xs"
+                          >
+                            ❌ Van Homepage
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => {
+                              setSelectedGuide(guide);
+                              setEditGuideData({
+                                title: guide.title,
+                                description: guide.description,
+                                image: guide.image,
+                                alt: guide.alt || '',
+                                content: guide.content || '',
+                                link: guide.link || '',
+                                featured: guide.featured,
+                                published: guide.published,
+                                showOnHomepage: guide.showOnHomepage || false,
+                                ranking: guide.ranking || 0
+                              });
+                              setShowEditGuide(true);
+                            }}
+                            className="text-xs"
+                          >
+                            <Edit className="h-3 w-3 mr-1" />
+                            Bewerken
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+                
+                {guidesQuery.data?.filter((g: any) => g.showOnHomepage).length === 0 && (
+                  <div className="text-center py-8 text-purple-700">
+                    Geen reisgidsen geselecteerd voor homepage
+                  </div>
+                )}
               </div>
             </TabsContent>
           )}
