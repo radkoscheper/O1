@@ -818,7 +818,7 @@ export function CreateGuideDialog({ open, onOpenChange, onGuideCreated }: {
 
     setIsLoading(true);
     try {
-      const response = await fetch('/api/admin/guides', {
+      const response = await fetch('/api/guides', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
