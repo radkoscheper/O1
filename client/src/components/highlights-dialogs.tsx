@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,6 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { Eye, Edit } from 'lucide-react';
 
 // Highlights dialog components
 export function CreateHighlightDialog({ open, onOpenChange, onHighlightCreated }: { 
@@ -186,7 +188,7 @@ export function CreateHighlightDialog({ open, onOpenChange, onHighlightCreated }
   );
 }
 
-export function EditHighlightDialog({ open, onOpenChange, highlight, editData, setEditData, onSave }: { 
+export function EditHighlightDialogContent({ open, onOpenChange, highlight, editData, setEditData, onSave }: { 
   open: boolean; 
   onOpenChange: (open: boolean) => void; 
   highlight: any;
@@ -249,7 +251,7 @@ export function EditHighlightDialog({ open, onOpenChange, highlight, editData, s
         <DialogHeader>
           <DialogTitle>Highlight Bewerken</DialogTitle>
           <DialogDescription>
-            Bewerk de highlight: {highlight.name}
+            Bewerk de highlight: {highlight?.name}
           </DialogDescription>
         </DialogHeader>
         
@@ -357,7 +359,76 @@ export function EditHighlightDialog({ open, onOpenChange, highlight, editData, s
   );
 }
 
-export function ViewHighlightDialog({ open, onOpenChange, highlight }: { 
+// Simple Button-based dialogs for use in other interfaces
+export function ViewHighlightDialog({ highlight }: { highlight: any }) {
+  const [open, setOpen] = useState(false);
+  
+  return (
+    <>
+      <Button 
+        size="sm" 
+        variant="outline"
+        onClick={() => setOpen(true)}
+        className="text-xs"
+      >
+        <Eye className="h-3 w-3" />
+      </Button>
+      <ViewHighlightDialogContent open={open} onOpenChange={setOpen} highlight={highlight} />
+    </>
+  );
+}
+
+export function EditHighlightDialog({ highlight, onUpdate }: { highlight: any; onUpdate: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [editData, setEditData] = useState({
+    name: highlight?.name || '',
+    iconPath: highlight?.iconPath || '',
+    category: highlight?.category || 'general',
+    ranking: highlight?.ranking || 0,
+    active: highlight?.active || true,
+    showOnHomepage: highlight?.showOnHomepage || true
+  });
+
+  // Update editData when highlight changes
+  React.useEffect(() => {
+    if (highlight) {
+      setEditData({
+        name: highlight.name || '',
+        iconPath: highlight.iconPath || '',
+        category: highlight.category || 'general',
+        ranking: highlight.ranking || 0,
+        active: highlight.active || true,
+        showOnHomepage: highlight.showOnHomepage || true
+      });
+    }
+  }, [highlight]);
+
+  return (
+    <>
+      <Button 
+        size="sm" 
+        variant="outline"
+        onClick={() => setOpen(true)}
+        className="text-xs"
+      >
+        <Edit className="h-3 w-3" />
+      </Button>
+      <EditHighlightDialogContent 
+        open={open} 
+        onOpenChange={setOpen}
+        highlight={highlight}
+        editData={editData}
+        setEditData={setEditData}
+        onSave={() => {
+          onUpdate();
+          setOpen(false);
+        }}
+      />
+    </>
+  );
+}
+
+export function ViewHighlightDialogContent({ open, onOpenChange, highlight }: { 
   open: boolean; 
   onOpenChange: (open: boolean) => void; 
   highlight: any;
