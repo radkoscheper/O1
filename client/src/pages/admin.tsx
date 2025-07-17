@@ -2012,19 +2012,28 @@ export default function Admin() {
                   <h2 className="text-2xl font-semibold">Bestemmingen ({getFilteredDestinations().length} van {destinationsQuery.data?.length || 0})</h2>
                   <p className="text-gray-600">Beheer al je Polish reisbestemmingen</p>
                 </div>
-                <Select value={locationFilter} onValueChange={setLocationFilter}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Filter op locatie" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Alle locaties</SelectItem>
-                    {getUniqueLocations().map((location) => (
-                      <SelectItem key={location} value={location}>
-                        📍 {location}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Select value={locationFilter} onValueChange={setLocationFilter}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Filter op locatie" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Alle locaties</SelectItem>
+                      {getUniqueLocations().map((location) => (
+                        <SelectItem key={location} value={location}>
+                          📍 {location}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button 
+                    onClick={() => setShowCreateDestination(true)}
+                    className="flex items-center gap-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Nieuwe Bestemming
+                  </Button>
+                </div>
               </div>
               
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -2063,17 +2072,19 @@ export default function Admin() {
                         </div>
                       )}
                       
-                      {/* Quick Homepage Toggle */}
-                      <Button 
-                        size="sm" 
-                        variant={destination.showOnHomepage ? "default" : "outline"}
-                        onClick={() => handleToggleDestinationHomepage(destination.id, !destination.showOnHomepage)}
-                        className="w-full"
-                      >
-                        {destination.showOnHomepage ? "🏠 Op Homepage" : "➕ Naar Homepage"}
-                      </Button>
-                      
                       <div className="flex flex-wrap gap-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleToggleDestinationHomepage(destination.id, !destination.showOnHomepage)}
+                          className="text-xs flex-1"
+                        >
+                          {destination.showOnHomepage ? (
+                            <>❌ Van Homepage</>
+                          ) : (
+                            <>✅ Op Homepage</>
+                          )}
+                        </Button>
                         <Button 
                           size="sm" 
                           variant="outline"
@@ -2081,7 +2092,7 @@ export default function Admin() {
                             setSelectedDestination(destination);
                             setEditDestinationData({
                               name: destination.name,
-                                        location: destination.location || '',
+                              location: destination.location || '',
                               description: destination.description,
                               image: destination.image,
                               alt: destination.alt || '',
@@ -2094,10 +2105,25 @@ export default function Admin() {
                             });
                             setShowEditDestination(true);
                           }}
+                          className="text-xs flex-1"
                         >
-                          <Edit className="h-4 w-4 mr-2" />
+                          <Edit className="h-3 w-3 mr-1" />
                           Bewerken
                         </Button>
+                      </div>
+                      
+                      {destination.link && (
+                        <Button 
+                          size="sm" 
+                          variant="ghost"
+                          onClick={() => window.open(destination.link, '_blank')}
+                          className="text-xs w-full"
+                        >
+                          <ExternalLink className="h-3 w-3 mr-1" />
+                          Bekijk Pagina
+                        </Button>
+                      )}
+                      
                       <Button 
                         size="sm" 
                         variant="outline"
@@ -2105,21 +2131,23 @@ export default function Admin() {
                           setSelectedDestination(destination);
                           setShowViewDestination(true);
                         }}
+                        className="text-xs w-full"
                       >
-                        <Eye className="h-4 w-4 mr-2" />
+                        <Eye className="h-3 w-3 mr-1" />
                         Bekijken
                       </Button>
+                      
                       {currentUser?.canDeleteContent && (
                         <Button 
                           size="sm" 
                           variant="outline"
                           onClick={() => handleSoftDeleteDestination(destination.id)}
+                          className="text-xs w-full"
                         >
-                          <Trash2 className="h-4 w-4 mr-2" />
+                          <Trash2 className="h-3 w-3 mr-1" />
                           🗑️ Naar Prullenbak
                         </Button>
                       )}
-                      </div>
                     </div>
                   </CardContent>
                 </Card>
