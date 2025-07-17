@@ -64,6 +64,7 @@ export type User = typeof users.$inferSelect;
 export const destinations = pgTable("destinations", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
+  location: text("location"), // City or village name for organizing destinations
   slug: text("slug").notNull().unique(),
   description: text("description").notNull(),
   image: text("image").notNull(),
@@ -83,6 +84,7 @@ export const destinations = pgTable("destinations", {
 
 export const insertDestinationSchema = createInsertSchema(destinations).pick({
   name: true,
+  location: true,
   slug: true,
   description: true,
   image: true,

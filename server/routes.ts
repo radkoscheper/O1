@@ -589,6 +589,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const validation = z.object({
         name: z.string().min(1),
+        location: z.string().optional(),
         description: z.string().min(1),
         image: z.string().min(1),
         alt: z.string().min(1),
@@ -604,13 +605,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid input", errors: validation.error.errors });
       }
 
-      const { name, description, image, alt, content, link, featured = false, published = true, showOnHomepage = true, ranking = 0 } = validation.data;
+      const { name, location, description, image, alt, content, link, featured = false, published = true, showOnHomepage = true, ranking = 0 } = validation.data;
       
       // Generate slug from name
       const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
       
       const destination = await storage.createDestination({
         name,
+        location,
         slug,
         description,
         image,
@@ -642,6 +644,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
       const validation = z.object({
         name: z.string().min(1).optional(),
+        location: z.string().optional(),
         description: z.string().min(1).optional(),
         image: z.string().min(1).optional(),
         alt: z.string().min(1).optional(),

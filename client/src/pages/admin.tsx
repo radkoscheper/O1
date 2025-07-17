@@ -110,6 +110,7 @@ export default function Admin() {
   const [selectedGuide, setSelectedGuide] = useState<any>(null);
   const [editDestinationData, setEditDestinationData] = useState({
     name: '',
+    location: '',
     description: '',
     image: '',
     alt: '',
@@ -181,6 +182,7 @@ export default function Admin() {
 
   const [newDestination, setNewDestination] = useState({
     name: '',
+    location: '',
     description: '',
     image: '',
     alt: '',
@@ -769,6 +771,7 @@ export default function Admin() {
       // Reset form
       setNewDestination({
         name: '',
+        location: '',
         description: '',
         image: '',
         alt: '',
@@ -1214,6 +1217,7 @@ export default function Admin() {
                                       setSelectedDestination(destination);
                                       setEditDestinationData({
                                         name: destination.name,
+                                        location: destination.location || '',
                                         description: destination.description,
                                         image: destination.image,
                                         alt: destination.alt || '',
@@ -1363,6 +1367,7 @@ export default function Admin() {
                                   setSelectedDestination(destination);
                                   setEditDestinationData({
                                     name: destination.name,
+                                        location: destination.location || '',
                                     description: destination.description,
                                     image: destination.image,
                                     alt: destination.alt || '',
@@ -1652,6 +1657,7 @@ export default function Admin() {
                                   setSelectedDestination(destination);
                                   setEditDestinationData({
                                     name: destination.name,
+                                        location: destination.location || '',
                                     description: destination.description,
                                     image: destination.image,
                                     alt: destination.alt || '',
@@ -1768,6 +1774,7 @@ export default function Admin() {
                                 setSelectedDestination(destination);
                                 setEditDestinationData({
                                   name: destination.name,
+                                        location: destination.location || '',
                                   description: destination.description,
                                   image: destination.image,
                                   alt: destination.alt || '',
@@ -1964,6 +1971,7 @@ export default function Admin() {
                             setSelectedDestination(destination);
                             setEditDestinationData({
                               name: destination.name,
+                                        location: destination.location || '',
                               description: destination.description,
                               image: destination.image,
                               alt: destination.alt || '',
@@ -2153,6 +2161,7 @@ export default function Admin() {
                               setSelectedDestination(destination);
                               setEditDestinationData({
                                 name: destination.name,
+                                        location: destination.location || '',
                                 description: destination.description,
                                 image: destination.image,
                                 alt: destination.alt || '',
@@ -2571,6 +2580,15 @@ export default function Admin() {
                       value={newDestination.name}
                       onChange={(e) => setNewDestination({...newDestination, name: e.target.value})}
                       className={!newDestination.name.trim() ? "border-red-300" : ""}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="dest-location">Plaats/Locatie</Label>
+                    <Input
+                      id="dest-location"
+                      placeholder="Bijv. Krakow, Warschau"
+                      value={newDestination.location}
+                      onChange={(e) => setNewDestination({...newDestination, location: e.target.value})}
                     />
                   </div>
                   <div>
@@ -5196,6 +5214,15 @@ function EditDestinationDialog({ open, onOpenChange, destination, editData, setE
               value={editData.name}
               onChange={(e) => setEditData({ ...editData, name: e.target.value })}
               required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="location">Plaats/Locatie</Label>
+            <Input
+              id="location"
+              value={editData.location || ''}
+              onChange={(e) => setEditData({ ...editData, location: e.target.value })}
+              placeholder="Bijv. Krakow, Warschau"
             />
           </div>
           <div className="space-y-2">
