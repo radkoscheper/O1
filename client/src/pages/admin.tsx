@@ -18,7 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import ReactCrop, { Crop, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
-import { CreateHighlightDialog, EditHighlightDialog, ViewHighlightDialog } from '@/components/highlights-dialogs';
+import { CreateHighlightDialog, EditHighlightDialog, ViewHighlightDialog, CreateDestinationDialog } from '@/components/highlights-dialogs';
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -102,6 +102,7 @@ export default function Admin() {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   
   // Content editing states
+  const [showCreateDestination, setShowCreateDestination] = useState(false);
   const [showEditDestination, setShowEditDestination] = useState(false);
   const [showViewDestination, setShowViewDestination] = useState(false);
   const [showEditGuide, setShowEditGuide] = useState(false);
@@ -1079,11 +1080,7 @@ export default function Admin() {
                 📖 Reisgidsen
               </TabsTrigger>
             )}
-            {currentUser?.canCreateContent && (
-              <TabsTrigger value="new-destination" className="flex items-center gap-2">
-                ➕ Nieuwe Bestemming
-              </TabsTrigger>
-            )}
+
             {currentUser?.canCreateContent && (
               <TabsTrigger value="new-guide" className="flex items-center gap-2">
                 📝 Nieuwe Gids
@@ -2700,128 +2697,7 @@ export default function Admin() {
             </TabsContent>
           )}
 
-          {/* Nieuwe Bestemming */}
-          {currentUser?.canCreateContent && (
-            <TabsContent value="new-destination" className="space-y-4">
-              <Card>
-              <CardHeader>
-                <CardTitle>Nieuwe Bestemming Toevoegen</CardTitle>
-                <CardDescription>Voeg een nieuwe bestemming toe aan je website</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-3">
-                  <div>
-                    <Label htmlFor="dest-name">Naam <span className="text-red-500">*</span></Label>
-                    <Input
-                      id="dest-name"
-                      placeholder="Bijv. Warsaw"
-                      value={newDestination.name}
-                      onChange={(e) => setNewDestination({...newDestination, name: e.target.value})}
-                      className={!newDestination.name.trim() ? "border-red-300" : ""}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="dest-location">Plaats/Locatie</Label>
-                    <Input
-                      id="dest-location"
-                      placeholder="Bijv. Krakow, Warschau"
-                      value={newDestination.location}
-                      onChange={(e) => setNewDestination({...newDestination, location: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="dest-ranking">Ranking (volgorde)</Label>
-                    <Input
-                      id="dest-ranking"
-                      type="number"
-                      placeholder="0"
-                      value={newDestination.ranking || 0}
-                      onChange={(e) => setNewDestination({...newDestination, ranking: parseInt(e.target.value) || 0})}
-                    />
-                  </div>
-                  <ImageUploadField
-                    label="Afbeelding *"
-                    value={newDestination.image}
-                    onChange={(value) => setNewDestination({...newDestination, image: value})}
-                    placeholder="/images/destinations/warsaw.jpg"
-                    fileName={newDestination.name}
-                    destination="destinations"
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="dest-alt">Alt-tekst *</Label>
-                  <Input
-                    id="dest-alt"
-                    placeholder="Bijv. Krakow marktplein"
-                    value={newDestination.alt}
-                    onChange={(e) => setNewDestination({...newDestination, alt: e.target.value})}
-                    className={!newDestination.alt.trim() ? "border-red-300" : ""}
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="dest-description">Beschrijving <span className="text-red-500">*</span></Label>
-                  <Textarea
-                    id="dest-description"
-                    placeholder="Korte beschrijving van de bestemming..."
-                    value={newDestination.description}
-                    onChange={(e) => setNewDestination({...newDestination, description: e.target.value})}
-                    className={!newDestination.description.trim() ? "border-red-300" : ""}
-                  />
-                </div>
 
-                <div>
-                  <Label htmlFor="dest-content">Content (Markdown) <span className="text-red-500">*</span></Label>
-                  <Textarea
-                    id="dest-content"
-                    placeholder="# Titel&#10;&#10;Volledige beschrijving in Markdown formaat..."
-                    className={`min-h-32 ${!newDestination.content.trim() ? "border-red-300" : ""}`}
-                    value={newDestination.content}
-                    onChange={(e) => setNewDestination({...newDestination, content: e.target.value})}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="dest-link">Link (optioneel)</Label>
-                  <Input
-                    id="dest-link"
-                    placeholder="Bijv. /krakow-bezoeken of https://example.com"
-                    value={newDestination.link}
-                    onChange={(e) => setNewDestination({...newDestination, link: e.target.value})}
-                  />
-                  <p className="text-sm text-gray-500 mt-1">
-                    Link waar de afbeelding naartoe moet leiden. Gebruik interne links (bijv. /pagina) of externe links (bijv. https://website.com)
-                  </p>
-                </div>
-
-                <div className="flex gap-4">
-                  <div className="flex items-center space-x-2">
-                    <Switch 
-                      id="dest-featured"
-                      checked={newDestination.featured}
-                      onCheckedChange={(checked) => setNewDestination({...newDestination, featured: checked})}
-                    />
-                    <Label htmlFor="dest-featured">Featured</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Switch 
-                      id="dest-published"
-                      checked={newDestination.published}
-                      onCheckedChange={(checked) => setNewDestination({...newDestination, published: checked})}
-                    />
-                    <Label htmlFor="dest-published">Publiceren</Label>
-                  </div>
-                </div>
-
-                <Button onClick={handleCreateDestination} className="w-full">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Bestemming Aanmaken
-                </Button>
-              </CardContent>
-              </Card>
-            </TabsContent>
-          )}
 
           {/* Nieuwe Reisgids */}
           {currentUser?.canCreateContent && (
@@ -3772,6 +3648,18 @@ export default function Admin() {
             open={showViewHighlight} 
             onOpenChange={setShowViewHighlight}
             highlight={selectedHighlight}
+          />
+        )}
+
+        {/* Create Destination Dialog */}
+        {showCreateDestination && (
+          <CreateDestinationDialog 
+            open={showCreateDestination} 
+            onOpenChange={setShowCreateDestination}
+            onDestinationCreated={() => {
+              destinationsQuery.refetch();
+              setShowCreateDestination(false);
+            }}
           />
         )}
       </div>

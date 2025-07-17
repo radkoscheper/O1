@@ -7,8 +7,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, Edit } from 'lucide-react';
+import { Eye, Edit, Plus, Upload } from 'lucide-react';
+import { uploadFile } from '@/lib/uploadUtils';
 
 // Highlights dialog components
 export function CreateHighlightDialog({ open, onOpenChange, onHighlightCreated }: { 
@@ -504,6 +506,278 @@ export function ViewHighlightDialogContent({ open, onOpenChange, highlight }: {
             </Button>
           </div>
         </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Image Upload Field component
+function ImageUploadField({ label, value, onChange, placeholder, fileName, destination }: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  fileName?: string;
+  destination?: string;
+}) {
+  const [isUploading, setIsUploading] = useState(false);
+  const { toast } = useToast();
+
+  const handleFileUpload = async (file: File) => {
+    setIsUploading(true);
+    try {
+      const result = await uploadFile(file, destination || 'destinations');
+      onChange(result.url);
+      toast({ title: "Success", description: "Afbeelding succesvol geüpload" });
+    } catch (error) {
+      toast({ title: "Error", description: "Upload mislukt", variant: "destructive" });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  return (
+    <div>
+      <Label htmlFor={`upload-${label}`}>{label}</Label>
+      <div className="flex gap-2">
+        <Input
+          id={`upload-${label}`}
+          type="text"
+          placeholder={placeholder || "/images/destinations/example.jpg"}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="flex-1"
+        />
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={isUploading}
+          onClick={() => document.getElementById(`file-${label}`)?.click()}
+        >
+          {isUploading ? "Uploading..." : <Upload className="h-4 w-4" />}
+        </Button>
+        <input
+          id={`file-${label}`}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) handleFileUpload(file);
+          }}
+        />
+      </div>
+      {value && (
+        <div className="mt-2">
+          <img src={value} alt="Preview" className="h-20 w-20 object-cover rounded" />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Create Destination Dialog
+export function CreateDestinationDialog({ open, onOpenChange, onDestinationCreated }: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onDestinationCreated: () => void;
+}) {
+  const [formData, setFormData] = useState({
+    name: '',
+    location: '',
+    description: '',
+    content: '',
+    image: '',
+    alt: '',
+    link: '',
+    ranking: 0,
+    featured: false,
+    published: true,
+    showOnHomepage: true
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name.trim() || !formData.description.trim() || !formData.image.trim() || !formData.alt.trim()) {
+      toast({ title: "Fout", description: "Naam, beschrijving, afbeelding en alt-tekst zijn verplicht", variant: "destructive" });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/admin/destinations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        toast({ title: "Succes", description: "Bestemming succesvol aangemaakt" });
+        onDestinationCreated();
+        setFormData({
+          name: '',
+          location: '',
+          description: '',
+          content: '',
+          image: '',
+          alt: '',
+          link: '',
+          ranking: 0,
+          featured: false,
+          published: true,
+          showOnHomepage: true
+        });
+      } else {
+        const error = await response.json();
+        toast({ title: "Fout", description: error.message, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Nieuwe Bestemming Toevoegen</DialogTitle>
+          <DialogDescription>
+            Voeg een nieuwe bestemming toe aan je website
+          </DialogDescription>
+        </DialogHeader>
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <Label htmlFor="dest-name">Naam <span className="text-red-500">*</span></Label>
+              <Input
+                id="dest-name"
+                placeholder="Bijv. Warsaw"
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                className={!formData.name.trim() ? "border-red-300" : ""}
+              />
+            </div>
+            <div>
+              <Label htmlFor="dest-location">Plaats/Locatie</Label>
+              <Input
+                id="dest-location"
+                placeholder="Bijv. Krakow, Warschau"
+                value={formData.location}
+                onChange={(e) => setFormData({...formData, location: e.target.value})}
+              />
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="dest-ranking">Ranking (volgorde)</Label>
+            <Input
+              id="dest-ranking"
+              type="number"
+              placeholder="0"
+              value={formData.ranking}
+              onChange={(e) => setFormData({...formData, ranking: parseInt(e.target.value) || 0})}
+            />
+          </div>
+
+          <ImageUploadField
+            label="Afbeelding *"
+            value={formData.image}
+            onChange={(value) => setFormData({...formData, image: value})}
+            placeholder="/images/destinations/warsaw.jpg"
+            fileName={formData.name}
+            destination="destinations"
+          />
+
+          <div>
+            <Label htmlFor="dest-alt">Alt-tekst *</Label>
+            <Input
+              id="dest-alt"
+              placeholder="Bijv. Krakow marktplein"
+              value={formData.alt}
+              onChange={(e) => setFormData({...formData, alt: e.target.value})}
+              className={!formData.alt.trim() ? "border-red-300" : ""}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="dest-description">Beschrijving <span className="text-red-500">*</span></Label>
+            <Textarea
+              id="dest-description"
+              placeholder="Beschrijf waarom deze bestemming de moeite waard is..."
+              value={formData.description}
+              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              rows={3}
+              className={!formData.description.trim() ? "border-red-300" : ""}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="dest-content">Volledige inhoud</Label>
+            <Textarea
+              id="dest-content"
+              placeholder="Uitgebreide beschrijving van de bestemming..."
+              value={formData.content}
+              onChange={(e) => setFormData({...formData, content: e.target.value})}
+              rows={5}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="dest-link">Link (optioneel)</Label>
+            <Input
+              id="dest-link"
+              placeholder="Bijv. /krakow-bezoeken of https://example.com"
+              value={formData.link}
+              onChange={(e) => setFormData({...formData, link: e.target.value})}
+            />
+            <p className="text-sm text-gray-500 mt-1">
+              Link waar de afbeelding naartoe moet leiden. Gebruik interne links (bijv. /pagina) of externe links (bijv. https://website.com)
+            </p>
+          </div>
+
+          <div className="flex gap-4">
+            <div className="flex items-center space-x-2">
+              <Switch 
+                id="dest-featured"
+                checked={formData.featured}
+                onCheckedChange={(checked) => setFormData({...formData, featured: checked})}
+              />
+              <Label htmlFor="dest-featured">Featured</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch 
+                id="dest-published"
+                checked={formData.published}
+                onCheckedChange={(checked) => setFormData({...formData, published: checked})}
+              />
+              <Label htmlFor="dest-published">Publiceren</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch 
+                id="dest-homepage"
+                checked={formData.showOnHomepage}
+                onCheckedChange={(checked) => setFormData({...formData, showOnHomepage: checked})}
+              />
+              <Label htmlFor="dest-homepage">Homepage</Label>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Annuleren
+            </Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "Bezig..." : <><Plus className="h-4 w-4 mr-2" /> Bestemming Aanmaken</>}
+            </Button>
+          </div>
+        </form>
       </DialogContent>
     </Dialog>
   );
