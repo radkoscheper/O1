@@ -573,7 +573,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all active destinations for admin
   app.get("/api/admin/destinations", requireAuth, async (req, res) => {
     try {
+      console.log("Fetching destinations for admin user:", req.session.userId);
       const destinations = await storage.getActiveDestinations();
+      console.log("Found destinations:", destinations.length);
       // Prevent aggressive caching for admin endpoints
       res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
       res.set('Pragma', 'no-cache');
