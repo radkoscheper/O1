@@ -205,12 +205,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Bepaal de juiste directory gebaseerd op destination
       let finalDirectory = uploadsDir;
-      if (req.body?.destination && ['background', 'logo', 'social'].includes(req.body.destination)) {
+      if (req.body?.destination && ['background', 'logo', 'social', 'destinations', 'guides'].includes(req.body.destination)) {
         // Map imageType to actual folder names (handle plural forms)
         const folderMap = {
           background: 'backgrounds',
           logo: 'logo', 
-          social: 'social'
+          social: 'social',
+          destinations: 'destinations',
+          guides: 'guides'
         };
         const actualFolder = folderMap[req.body.destination as keyof typeof folderMap];
         finalDirectory = path.join(process.cwd(), 'client', 'public', 'images', actualFolder);

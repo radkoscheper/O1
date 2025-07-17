@@ -2715,8 +2715,9 @@ export default function Admin() {
                     label="Afbeelding *"
                     value={newDestination.image}
                     onChange={(value) => setNewDestination({...newDestination, image: value})}
-                    placeholder="/images/warsaw.jpg"
+                    placeholder="/images/destinations/warsaw.jpg"
                     fileName={newDestination.name}
+                    destination="destinations"
                   />
                 </div>
                 
@@ -2818,8 +2819,9 @@ export default function Admin() {
                     label="Afbeelding *"
                     value={newGuide.image}
                     onChange={(value) => setNewGuide({...newGuide, image: value})}
-                    placeholder="/images/warsaw-guide.jpg"
+                    placeholder="/images/guides/warsaw-guide.jpg"
                     fileName={newGuide.title}
+                    destination="guides"
                   />
                 </div>
                 
@@ -4427,12 +4429,13 @@ function HeaderImageSelector({ destination, currentImage, onImageSelect }: {
   );
 }
 
-function ImageUploadField({ label, value, onChange, placeholder, fileName }: {
+function ImageUploadField({ label, value, onChange, placeholder, fileName, destination }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   placeholder: string;
   fileName?: string;
+  destination?: string;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -4444,6 +4447,7 @@ function ImageUploadField({ label, value, onChange, placeholder, fileName }: {
       const result = await uploadFile({ 
         file, 
         fileName, 
+        destination,
         type: 'image' 
       });
       onChange(result.imagePath || '');
@@ -5358,8 +5362,9 @@ function EditDestinationDialog({ open, onOpenChange, destination, editData, setE
             label="Afbeelding"
             value={editData.image}
             onChange={(value) => setEditData({ ...editData, image: value })}
-            placeholder="/images/bestemming.jpg"
+            placeholder="/images/destinations/bestemming.jpg"
             fileName={editData.name}
+            destination="destinations"
           />
           <div className="space-y-2">
             <Label htmlFor="alt">Alt-tekst</Label>
@@ -5556,8 +5561,9 @@ function EditGuideDialog({ open, onOpenChange, guide, editData, setEditData, onS
             label="Afbeelding"
             value={editData.image}
             onChange={(value) => setEditData({ ...editData, image: value })}
-            placeholder="/images/reisgids.jpg"
+            placeholder="/images/guides/reisgids.jpg"
             fileName={editData.title}
+            destination="guides"
           />
           <div className="space-y-2">
             <Label htmlFor="alt">Alt-tekst</Label>
