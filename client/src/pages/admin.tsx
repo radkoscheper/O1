@@ -79,6 +79,12 @@ export default function Admin() {
     enabled: isAuthenticated && currentUser?.canCreateContent,
   });
 
+  // Homepage pages query (filtered pages shown on homepage)
+  const homepagePagesQuery = useQuery({
+    queryKey: ['/api/pages'],
+    enabled: isAuthenticated && currentUser?.canCreateContent,
+  });
+
   const deletedPagesQuery = useQuery({
     queryKey: ['/api/admin/pages/deleted'],
     enabled: isAuthenticated && (currentUser?.canDeleteContent || currentUser?.canEditContent),
@@ -948,10 +954,11 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="destinations" className="w-full">
-          <TabsList className={`grid w-full ${currentUser?.canManageUsers && currentUser?.role === 'admin' ? 'grid-cols-11' : currentUser?.canManageUsers ? 'grid-cols-9' : 'grid-cols-9'}`}>
+          <TabsList className={`grid w-full ${currentUser?.canManageUsers && currentUser?.role === 'admin' ? 'grid-cols-12' : currentUser?.canManageUsers ? 'grid-cols-10' : 'grid-cols-10'}`}>
             {/* Alleen tonen wat de gebruiker mag doen */}
             {currentUser?.canCreateContent && <TabsTrigger value="destinations">Bestemmingen</TabsTrigger>}
             {currentUser?.canCreateContent && <TabsTrigger value="guides">Reisgidsen</TabsTrigger>}
+            {currentUser?.canCreateContent && <TabsTrigger value="ontdek-meer">🏠 Ontdek Meer</TabsTrigger>}
             {currentUser?.canCreateContent && <TabsTrigger value="pages">📄 Pagina's</TabsTrigger>}
             {currentUser?.role === 'admin' && <TabsTrigger value="highlights">✨ Highlights</TabsTrigger>}
             {currentUser?.canCreateContent && <TabsTrigger value="new-destination">Nieuwe Bestemming</TabsTrigger>}
@@ -1144,6 +1151,103 @@ export default function Admin() {
                 </Card>
               ))}
               </div>
+            </TabsContent>
+          )}
+
+          {/* Ontdek Meer Tab Content */}
+          {currentUser?.canCreateContent && (
+            <TabsContent value="ontdek-meer" className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <div>
+                  <h2 className="text-2xl font-semibold">Ontdek Meer Homepage ({homepagePagesQuery.data?.filter((page: any) => page.published).length || 0})</h2>
+                  <p className="text-gray-600">Beheer de pagina's die in de "Ontdek Meer" sectie op de homepage worden getoond</p>
+                </div>
+                <Button onClick={() => setShowCreatePage(true)} className="bg-blue-600 hover:bg-blue-700">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nieuwe Pagina
+                </Button>
+              </div>
+              
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {(homepagePagesQuery.data || [])
+                  .filter((page: any) => page.published)
+                  .map((page: any) => (
+                    <Card key={page.id} className="hover:shadow-lg transition-shadow">
+                      <CardHeader className="pb-3">
+                        <div className="flex flex-col gap-3">
+                          <div className="flex justify-between items-start">
+                            <CardTitle className="text-lg leading-tight">{page.title}</CardTitle>
+                            <Badge variant="outline" className="text-xs">#{page.ranking || 0}</Badge>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {page.featured && <Badge variant="secondary" className="text-xs">⭐ Featured</Badge>}
+                            <Badge variant="default" className="text-xs">✅ Gepubliceerd</Badge>
+                            <Badge variant="default" className="text-xs bg-green-600 hover:bg-green-700">🏠 Homepage</Badge>
+                          </div>
+                          <div className="flex items-center text-xs text-gray-500 gap-2">
+                            <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded">
+                              {page.template}
+                            </span>
+                            <span>
+                              {new Date(page.createdAt).toLocaleDateString('nl-NL')}
+                            </span>
+                          </div>
+                          <CardDescription className="text-sm line-clamp-2">{page.metaDescription}</CardDescription>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <div className="flex flex-wrap gap-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => {
+                              setSelectedPage(page);
+                              setShowEditPage(true);
+                            }}
+                          >
+                            <Edit className="h-4 w-4 mr-2" />
+                            Bewerken
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => {
+                              setSelectedPage(page);
+                              setShowViewPage(true);
+                            }}
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            Bekijken
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => window.open(`/${page.slug}`, '_blank')}
+                          >
+                            <FolderOpen className="h-4 w-4 mr-2" />
+                            Live
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+              </div>
+              
+              {(!homepagePagesQuery.data || homepagePagesQuery.data.filter((page: any) => page.published).length === 0) && (
+                <div className="text-center py-12">
+                  <div className="text-gray-400 mb-4">
+                    <div className="w-20 h-20 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                      📄
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Geen gepubliceerde pagina's</h3>
+                    <p className="text-sm">Maak je eerste "Ontdek Meer" pagina aan om content op de homepage te tonen.</p>
+                  </div>
+                  <Button onClick={() => setShowCreatePage(true)} className="mt-4">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Eerste Pagina Maken
+                  </Button>
+                </div>
+              )}
             </TabsContent>
           )}
 
