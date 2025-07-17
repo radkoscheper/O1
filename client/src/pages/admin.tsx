@@ -193,6 +193,27 @@ export default function Admin() {
     ranking: 0
   });
 
+  // Location filter state
+  const [locationFilter, setLocationFilter] = useState<string>('all');
+
+  // Get unique locations from destinations for filter
+  const getUniqueLocations = () => {
+    if (!destinationsQuery.data) return [];
+    const locations = destinationsQuery.data
+      .map((dest: any) => dest.location)
+      .filter((location: string) => location && location.trim() !== '')
+      .filter((location: string, index: number, arr: string[]) => arr.indexOf(location) === index)
+      .sort();
+    return locations;
+  };
+
+  // Filter destinations by location
+  const getFilteredDestinations = () => {
+    if (!destinationsQuery.data) return [];
+    if (locationFilter === 'all') return destinationsQuery.data;
+    return destinationsQuery.data.filter((dest: any) => dest.location === locationFilter);
+  };
+
   const [newGuide, setNewGuide] = useState({
     title: '',
     description: '',
@@ -1159,8 +1180,25 @@ export default function Admin() {
                 <TabsContent value="all-content" className="space-y-4">
                   <div className="rounded-lg border bg-white">
                     <div className="p-4 border-b bg-gray-50">
-                      <h3 className="font-semibold">Alle Content Items</h3>
-                      <p className="text-sm text-gray-600">Bestemmingen en Ontdek Meer pagina's in één overzicht</p>
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <h3 className="font-semibold">Alle Content Items</h3>
+                          <p className="text-sm text-gray-600">Bestemmingen en Ontdek Meer pagina's in één overzicht</p>
+                        </div>
+                        <Select value={locationFilter} onValueChange={setLocationFilter}>
+                          <SelectTrigger className="w-48">
+                            <SelectValue placeholder="Filter op locatie" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">Alle locaties</SelectItem>
+                            {getUniqueLocations().map((location) => (
+                              <SelectItem key={location} value={location}>
+                                📍 {location}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                     <div className="overflow-x-auto">
                       <table className="w-full">
@@ -1176,7 +1214,7 @@ export default function Admin() {
                         </thead>
                         <tbody className="divide-y divide-gray-200">
                           {/* Destinations */}
-                          {(destinationsQuery.data || []).map((destination: any) => (
+                          {getFilteredDestinations().map((destination: any) => (
                             <tr key={`dest-${destination.id}`} className="hover:bg-gray-50">
                               <td className="px-4 py-3">
                                 <Badge className="bg-blue-100 text-blue-800">🏔️ Bestemming</Badge>
@@ -1184,6 +1222,9 @@ export default function Admin() {
                               <td className="px-4 py-3">
                                 <div>
                                   <div className="font-medium">{destination.name}</div>
+                                  {destination.location && (
+                                    <div className="text-xs text-blue-600 mb-1">📍 {destination.location}</div>
+                                  )}
                                   <div className="text-sm text-gray-500">{destination.description?.substring(0, 80)}...</div>
                                 </div>
                               </td>
@@ -1329,8 +1370,24 @@ export default function Admin() {
 
                 {/* Destinations Only View */}
                 <TabsContent value="destinations-only" className="space-y-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-semibold">Bestemmingen ({getFilteredDestinations().length} van {destinationsQuery.data?.length || 0})</h3>
+                    <Select value={locationFilter} onValueChange={setLocationFilter}>
+                      <SelectTrigger className="w-48">
+                        <SelectValue placeholder="Filter op locatie" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Alle locaties</SelectItem>
+                        {getUniqueLocations().map((location) => (
+                          <SelectItem key={location} value={location}>
+                            📍 {location}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {(destinationsQuery.data || []).map((destination: any) => (
+                    {getFilteredDestinations().map((destination: any) => (
                       <Card key={destination.id} className="hover:shadow-lg transition-shadow">
                         <CardHeader className="pb-3">
                           <div className="flex flex-col gap-3">
@@ -1339,11 +1396,16 @@ export default function Admin() {
                               <Badge variant="outline" className="text-xs">#{destination.ranking || 0}</Badge>
                             </div>
                             <div className="flex flex-wrap gap-2">
+                              {destination.location && (
+                                <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                                  📍 {destination.location}
+                                </Badge>
+                              )}
                               {destination.featured && <Badge variant="secondary" className="text-xs">⭐ Featured</Badge>}
                               <Badge variant={destination.published ? "default" : "outline"} className="text-xs">
                                 {destination.published ? "✅ Gepubliceerd" : "📝 Concept"}
                               </Badge>
-                              {destination.showOnHomepage && <Badge variant="default" className="text-xs bg-blue-600 hover:bg-blue-700">🏠 Homepage</Badge>}
+                              {destination.showOnHomepage && <Badge variant="default" className="text-xs bg-green-600 hover:bg-green-700">🏠 Homepage</Badge>}
                             </div>
                             <CardDescription className="text-sm line-clamp-2">{destination.description}</CardDescription>
                           </div>
@@ -1711,20 +1773,35 @@ export default function Admin() {
                 <TabsContent value="destinations-view" className="space-y-6">
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                     <div>
-                      <h3 className="text-xl font-semibold">Bestemmingen Beheer ({destinationsQuery.data?.length || 0})</h3>
+                      <h3 className="text-xl font-semibold">Bestemmingen Beheer ({getFilteredDestinations().length} van {destinationsQuery.data?.length || 0})</h3>
                       <p className="text-gray-600">Beheer al je Polish reisbestemmingen</p>
                     </div>
-                    <Button 
-                      onClick={() => setShowCreateDestination(true)}
-                      className="flex items-center gap-2"
-                    >
-                      <Plus className="h-4 w-4" />
-                      Nieuwe Bestemming
-                    </Button>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <Select value={locationFilter} onValueChange={setLocationFilter}>
+                        <SelectTrigger className="w-48">
+                          <SelectValue placeholder="Filter op locatie" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Alle locaties</SelectItem>
+                          {getUniqueLocations().map((location) => (
+                            <SelectItem key={location} value={location}>
+                              📍 {location}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button 
+                        onClick={() => setShowCreateDestination(true)}
+                        className="flex items-center gap-2"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Nieuwe Bestemming
+                      </Button>
+                    </div>
                   </div>
                   
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {(destinationsQuery.data || []).map((destination: any) => (
+                  {getFilteredDestinations().map((destination: any) => (
                     <Card key={destination.id} className="hover:shadow-lg transition-shadow">
                       <CardHeader className="pb-3">
                         <div className="flex flex-col gap-3">
@@ -1733,6 +1810,11 @@ export default function Admin() {
                             <Badge variant="outline" className="text-xs">#{destination.ranking || 0}</Badge>
                           </div>
                           <div className="flex flex-wrap gap-2">
+                            {destination.location && (
+                              <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                                📍 {destination.location}
+                              </Badge>
+                            )}
                             {destination.featured && <Badge variant="secondary" className="text-xs">⭐ Featured</Badge>}
                             <Badge variant={destination.published ? "default" : "outline"} className="text-xs">
                               {destination.published ? "✅ Gepubliceerd" : "📝 Concept"}
