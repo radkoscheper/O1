@@ -688,7 +688,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const id = parseInt(req.params.id);
+      
+      // Get destination data before deletion to clean up associated files
+      const destination = await storage.getDestination(id);
+      
+      // Delete destination from database
       await storage.deleteDestination(id);
+      
+      // Clean up associated image files
+      if (destination && destination.image) {
+        try {
+          const imagePath = path.join(process.cwd(), 'client', 'public', destination.image);
+          if (fs.existsSync(imagePath)) {
+            fs.unlinkSync(imagePath);
+            console.log(`Deleted destination image: ${destination.image}`);
+          }
+        } catch (fileError) {
+          console.error(`Error deleting destination image ${destination.image}:`, fileError);
+          // Don't fail the whole operation if file deletion fails
+        }
+      }
+      
       res.json({ message: "Destination verwijderd" });
     } catch (error) {
       console.error("Error deleting destination:", error);
@@ -886,7 +906,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const id = parseInt(req.params.id);
+      
+      // Get guide data before deletion to clean up associated files
+      const guide = await storage.getGuide(id);
+      
+      // Delete guide from database
       await storage.deleteGuide(id);
+      
+      // Clean up associated image files
+      if (guide && guide.image) {
+        try {
+          const imagePath = path.join(process.cwd(), 'client', 'public', guide.image);
+          if (fs.existsSync(imagePath)) {
+            fs.unlinkSync(imagePath);
+            console.log(`Deleted guide image: ${guide.image}`);
+          }
+        } catch (fileError) {
+          console.error(`Error deleting guide image ${guide.image}:`, fileError);
+          // Don't fail the whole operation if file deletion fails
+        }
+      }
+      
       res.json({ message: "Guide verwijderd" });
     } catch (error) {
       console.error("Error deleting guide:", error);
@@ -1834,6 +1874,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error toggling highlight homepage visibility:", error);
       res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Clean up orphaned images
+  app.post("/api/admin/cleanup-images", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || user.role !== "admin") {
+        return res.status(403).json({ message: "Alleen admins kunnen image cleanup uitvoeren" });
+      }
+
+      const results = { deletedGuides: 0, deletedDestinations: 0, errors: [] as string[] };
+
+      // Get all image references from database
+      const guidesResult = await db.execute(sql`SELECT image FROM guides WHERE image IS NOT NULL AND image != ''`);
+      const destinationsResult = await db.execute(sql`SELECT image FROM destinations WHERE image IS NOT NULL AND image != ''`);
+      
+      const referencedImages = new Set<string>();
+      guidesResult.rows.forEach((row: any) => {
+        if (row.image) referencedImages.add(path.basename(row.image));
+      });
+      destinationsResult.rows.forEach((row: any) => {
+        if (row.image) referencedImages.add(path.basename(row.image));
+      });
+
+      // Check guides directory
+      const guidesDir = path.join(process.cwd(), 'client', 'public', 'images', 'guides');
+      if (fs.existsSync(guidesDir)) {
+        const guideFiles = fs.readdirSync(guidesDir).filter(file => 
+          file.endsWith('.jpg') || file.endsWith('.jpeg') || file.endsWith('.png')
+        );
+        
+        for (const file of guideFiles) {
+          if (!referencedImages.has(file)) {
+            try {
+              const filePath = path.join(guidesDir, file);
+              fs.unlinkSync(filePath);
+              results.deletedGuides++;
+              console.log(`Cleanup: Deleted orphaned guide image: ${file}`);
+            } catch (error: any) {
+              results.errors.push(`Error deleting guide ${file}: ${error.message}`);
+            }
+          }
+        }
+      }
+
+      // Check destinations directory
+      const destinationsDir = path.join(process.cwd(), 'client', 'public', 'images', 'destinations');
+      if (fs.existsSync(destinationsDir)) {
+        const destFiles = fs.readdirSync(destinationsDir).filter(file => 
+          file.endsWith('.jpg') || file.endsWith('.jpeg') || file.endsWith('.png')
+        );
+        
+        for (const file of destFiles) {
+          if (!referencedImages.has(file)) {
+            try {
+              const filePath = path.join(destinationsDir, file);
+              fs.unlinkSync(filePath);
+              results.deletedDestinations++;
+              console.log(`Cleanup: Deleted orphaned destination image: ${file}`);
+            } catch (error: any) {
+              results.errors.push(`Error deleting destination ${file}: ${error.message}`);
+            }
+          }
+        }
+      }
+
+      res.json({
+        message: `Cleanup voltooid: ${results.deletedGuides + results.deletedDestinations} bestanden verwijderd`,
+        deletedGuides: results.deletedGuides,
+        deletedDestinations: results.deletedDestinations,
+        errors: results.errors
+      });
+    } catch (error) {
+      console.error("Image cleanup error:", error);
+      res.status(500).json({ message: "Fout bij opruimen afbeeldingen" });
     }
   });
 
