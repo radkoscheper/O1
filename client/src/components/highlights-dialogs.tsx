@@ -811,8 +811,30 @@ export function CreateGuideDialog({ open, onOpenChange, onGuideCreated }: {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title.trim() || !formData.description.trim()) {
-      toast({ title: "Fout", description: "Titel en beschrijving zijn verplicht", variant: "destructive" });
+    
+    // Validate all required fields (same as old tab)
+    if (!formData.title.trim()) {
+      toast({ title: "Validatie fout", description: "Titel is verplicht", variant: "destructive" });
+      return;
+    }
+    
+    if (!formData.description.trim()) {
+      toast({ title: "Validatie fout", description: "Beschrijving is verplicht", variant: "destructive" });
+      return;
+    }
+    
+    if (!formData.image.trim()) {
+      toast({ title: "Validatie fout", description: "Afbeelding is verplicht", variant: "destructive" });
+      return;
+    }
+    
+    if (!formData.alt.trim()) {
+      toast({ title: "Validatie fout", description: "Alt-tekst is verplicht", variant: "destructive" });
+      return;
+    }
+    
+    if (!formData.content.trim()) {
+      toast({ title: "Validatie fout", description: "Content is verplicht", variant: "destructive" });
       return;
     }
 
@@ -885,7 +907,7 @@ export function CreateGuideDialog({ open, onOpenChange, onGuideCreated }: {
           </div>
 
           <ImageUploadField
-            label="Afbeelding"
+            label="Afbeelding *"
             value={formData.image}
             onChange={(value) => setFormData({...formData, image: value})}
             placeholder="/images/guides/krakau-gids.jpg"
@@ -894,12 +916,13 @@ export function CreateGuideDialog({ open, onOpenChange, onGuideCreated }: {
           />
 
           <div>
-            <Label htmlFor="guide-alt">Alt-tekst</Label>
+            <Label htmlFor="guide-alt">Alt-tekst <span className="text-red-500">*</span></Label>
             <Input
               id="guide-alt"
               placeholder="Bijv. Krakau reisgids afbeelding"
               value={formData.alt}
               onChange={(e) => setFormData({...formData, alt: e.target.value})}
+              className={!formData.alt.trim() ? "border-red-300" : ""}
             />
           </div>
 
@@ -916,13 +939,14 @@ export function CreateGuideDialog({ open, onOpenChange, onGuideCreated }: {
           </div>
 
           <div>
-            <Label htmlFor="guide-content">Volledige inhoud</Label>
+            <Label htmlFor="guide-content">Volledige inhoud <span className="text-red-500">*</span></Label>
             <Textarea
               id="guide-content"
               placeholder="Uitgebreide inhoud van de reisgids..."
               value={formData.content}
               onChange={(e) => setFormData({...formData, content: e.target.value})}
               rows={5}
+              className={!formData.content.trim() ? "border-red-300" : ""}
             />
           </div>
 
