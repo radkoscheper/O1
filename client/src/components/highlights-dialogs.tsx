@@ -526,8 +526,13 @@ function ImageUploadField({ label, value, onChange, placeholder, fileName, desti
   const handleFileUpload = async (file: File) => {
     setIsUploading(true);
     try {
-      const result = await uploadFile(file, destination || 'destinations');
-      onChange(result.url);
+      const result = await uploadFile({
+        file,
+        fileName,
+        destination: destination || 'destinations',
+        type: 'image'
+      });
+      onChange(result.imagePath || '');
       toast({ title: "Success", description: "Afbeelding succesvol geüpload" });
     } catch (error) {
       toast({ title: "Error", description: "Upload mislukt", variant: "destructive" });
