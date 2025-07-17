@@ -45,7 +45,14 @@ const createUploadConfig = (uploadType: 'image' | 'favicon') => {
           // Use destination from form data if provided, otherwise use default
           const destination = req.body.destination;
           if (destination && ['background', 'logo', 'social'].includes(destination)) {
-            const destDir = path.join(process.cwd(), 'client', 'public', 'images', destination);
+            // Map imageType to actual folder names (handle plural forms)
+            const folderMap = {
+              background: 'backgrounds',
+              logo: 'logo', 
+              social: 'social'
+            };
+            const actualFolder = folderMap[destination as keyof typeof folderMap];
+            const destDir = path.join(process.cwd(), 'client', 'public', 'images', actualFolder);
             // Create directory if it doesn't exist
             if (!fs.existsSync(destDir)) {
               fs.mkdirSync(destDir, { recursive: true });
@@ -198,7 +205,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Bepaal de juiste directory gebaseerd op destination
       let finalDirectory = uploadsDir;
-      if (req.body?.destination) {
+      if (req.body?.destination && ['background', 'logo', 'social'].includes(req.body.destination)) {
+        // Map imageType to actual folder names (handle plural forms)
+        const folderMap = {
+          background: 'backgrounds',
+          logo: 'logo', 
+          social: 'social'
+        };
+        const actualFolder = folderMap[req.body.destination as keyof typeof folderMap];
+        finalDirectory = path.join(process.cwd(), 'client', 'public', 'images', actualFolder);
+        if (!fs.existsSync(finalDirectory)) {
+          fs.mkdirSync(finalDirectory, { recursive: true });
+        }
+      } else if (req.body?.destination) {
         finalDirectory = path.join(uploadsDir, 'headers', req.body.destination);
         if (!fs.existsSync(finalDirectory)) {
           fs.mkdirSync(finalDirectory, { recursive: true });
@@ -274,7 +293,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Calculate the correct path based on destination
       let imagePath = `/images/${finalFileName}`;
       if (req.body?.destination && ['background', 'logo', 'social'].includes(req.body.destination)) {
-        imagePath = `/images/${req.body.destination}/${finalFileName}`;
+        // Map imageType to actual folder names (handle plural forms)
+        const folderMap = {
+          background: 'backgrounds',
+          logo: 'logo', 
+          social: 'social'
+        };
+        const actualFolder = folderMap[req.body.destination as keyof typeof folderMap];
+        imagePath = `/images/${actualFolder}/${finalFileName}`;
       } else if (req.body?.destination) {
         imagePath = `/images/headers/${req.body.destination}/${finalFileName}`;
       }
@@ -1446,7 +1472,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Invalid image type' });
       }
 
-      const imagesDir = path.join(process.cwd(), 'client', 'public', 'images', imageType);
+      // Map imageType to actual folder names (handle plural forms)
+      const folderMap = {
+        background: 'backgrounds',
+        logo: 'logo', 
+        social: 'social'
+      };
+      const actualFolder = folderMap[imageType as keyof typeof folderMap];
+      const imagesDir = path.join(process.cwd(), 'client', 'public', 'images', actualFolder);
+      
+      console.log(`Looking for ${imageType} images in: ${imagesDir}`);
       
       // Create directory if it doesn't exist
       if (!fs.existsSync(imagesDir)) {
@@ -1466,7 +1501,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const stats = fs.statSync(filePath);
           return {
             name: file,
-            path: `/images/${imageType}/${file}`,
+            path: `/images/${actualFolder}/${file}`,
             size: stats.size,
             lastModified: stats.mtime
           };
@@ -1501,7 +1536,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Invalid file type' });
       }
 
-      const filePath = path.join(process.cwd(), 'client', 'public', 'images', imageType, filename);
+      // Map imageType to actual folder names (handle plural forms)
+      const folderMap = {
+        background: 'backgrounds',
+        logo: 'logo', 
+        social: 'social'
+      };
+      const actualFolder = folderMap[imageType as keyof typeof folderMap];
+      const filePath = path.join(process.cwd(), 'client', 'public', 'images', actualFolder, filename);
       
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
