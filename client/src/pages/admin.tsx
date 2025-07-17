@@ -2009,13 +2009,26 @@ export default function Admin() {
             <TabsContent value="destinations" className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
-                  <h2 className="text-2xl font-semibold">Bestemmingen ({destinationsQuery.data?.length || 0})</h2>
+                  <h2 className="text-2xl font-semibold">Bestemmingen ({getFilteredDestinations().length} van {destinationsQuery.data?.length || 0})</h2>
                   <p className="text-gray-600">Beheer al je Polish reisbestemmingen</p>
                 </div>
+                <Select value={locationFilter} onValueChange={setLocationFilter}>
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="Filter op locatie" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Alle locaties</SelectItem>
+                    {getUniqueLocations().map((location) => (
+                      <SelectItem key={location} value={location}>
+                        📍 {location}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {(destinationsQuery.data || []).map((destination: any) => (
+              {getFilteredDestinations().map((destination: any) => (
                 <Card key={destination.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader className="pb-3">
                     <div className="flex flex-col gap-3">
@@ -2024,6 +2037,11 @@ export default function Admin() {
                         <Badge variant="outline" className="text-xs">#{destination.ranking || 0}</Badge>
                       </div>
                       <div className="flex flex-wrap gap-2">
+                        {destination.location && (
+                          <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                            📍 {destination.location}
+                          </Badge>
+                        )}
                         {destination.featured && <Badge variant="secondary" className="text-xs">⭐ Featured</Badge>}
                         <Badge variant={destination.published ? "default" : "outline"} className="text-xs">
                           {destination.published ? "✅ Gepubliceerd" : "📝 Concept"}
