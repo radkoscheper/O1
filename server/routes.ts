@@ -42,7 +42,18 @@ const createUploadConfig = (uploadType: 'image' | 'favicon') => {
         if (uploadType === 'favicon') {
           cb(null, path.join(process.cwd(), 'client', 'public'));
         } else {
-          cb(null, uploadsDir); // Voor images, verplaatsen we later naar subfolder
+          // Use destination from form data if provided, otherwise use default
+          const destination = req.body.destination;
+          if (destination && ['background', 'logo', 'social'].includes(destination)) {
+            const destDir = path.join(process.cwd(), 'client', 'public', 'images', destination);
+            // Create directory if it doesn't exist
+            if (!fs.existsSync(destDir)) {
+              fs.mkdirSync(destDir, { recursive: true });
+            }
+            cb(null, destDir);
+          } else {
+            cb(null, uploadsDir); // Default fallback
+          }
         }
       },
       filename: function (req, file, cb) {
@@ -262,7 +273,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Calculate the correct path based on destination
       let imagePath = `/images/${finalFileName}`;
-      if (req.body?.destination) {
+      if (req.body?.destination && ['background', 'logo', 'social'].includes(req.body.destination)) {
+        imagePath = `/images/${req.body.destination}/${finalFileName}`;
+      } else if (req.body?.destination) {
         imagePath = `/images/headers/${req.body.destination}/${finalFileName}`;
       }
       
@@ -1422,7 +1435,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Site Images API routes
+  // Get site images by type (background, logo, social)
+  app.get('/api/site-images/:imageType', (req, res) => {
+    try {
+      const imageType = req.params.imageType;
+      
+      // Validate image type
+      if (!['background', 'logo', 'social'].includes(imageType)) {
+        return res.status(400).json({ message: 'Invalid image type' });
+      }
 
+      const imagesDir = path.join(process.cwd(), 'client', 'public', 'images', imageType);
+      
+      // Create directory if it doesn't exist
+      if (!fs.existsSync(imagesDir)) {
+        fs.mkdirSync(imagesDir, { recursive: true });
+        return res.json([]);
+      }
+
+      const files = fs.readdirSync(imagesDir);
+      const imageFiles = files
+        .filter(file => {
+          const ext = file.toLowerCase();
+          return ext.endsWith('.jpg') || ext.endsWith('.jpeg') || ext.endsWith('.png') || 
+                 ext.endsWith('.gif') || ext.endsWith('.webp') || ext.endsWith('.svg');
+        })
+        .map(file => {
+          const filePath = path.join(imagesDir, file);
+          const stats = fs.statSync(filePath);
+          return {
+            name: file,
+            path: `/images/${imageType}/${file}`,
+            size: stats.size,
+            lastModified: stats.mtime
+          };
+        });
+      
+      res.json(imageFiles);
+    } catch (error) {
+      console.error('Error reading site image files:', error);
+      res.status(500).json({ message: 'Error reading site image files' });
+    }
+  });
+
+  // Delete site image file
+  app.delete('/api/site-images/:imageType/:filename', requireAuth, (req, res) => {
+    try {
+      const { imageType, filename } = req.params;
+      
+      // Validate image type
+      if (!['background', 'logo', 'social'].includes(imageType)) {
+        return res.status(400).json({ message: 'Invalid image type' });
+      }
+
+      // Security check - prevent path traversal
+      if (filename.includes('/') || filename.includes('..')) {
+        return res.status(400).json({ message: 'Invalid filename' });
+      }
+
+      // Validate file extension
+      const ext = filename.toLowerCase();
+      const validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+      if (!validExtensions.some(validExt => ext.endsWith(validExt))) {
+        return res.status(400).json({ message: 'Invalid file type' });
+      }
+
+      const filePath = path.join(process.cwd(), 'client', 'public', 'images', imageType, filename);
+      
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+        res.json({ message: 'Image deleted successfully' });
+      } else {
+        res.status(404).json({ message: 'Image file not found' });
+      }
+    } catch (error) {
+      console.error('Error deleting site image:', error);
+      res.status(500).json({ message: 'Error deleting image file' });
+    }
+  });
 
   // Dynamic favicon route - only serve if favicon is enabled
   app.get('/favicon.ico', async (req, res) => {

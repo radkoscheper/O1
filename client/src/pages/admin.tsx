@@ -1952,12 +1952,11 @@ export default function Admin() {
                     <CardDescription>Logo, achtergrond en social media afbeeldingen</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <ImageUploadField
+                    <SiteImageUploadField
                       label="Achtergrond Afbeelding"
                       value={siteSettings.backgroundImage}
                       onChange={(imagePath) => setSiteSettings({...siteSettings, backgroundImage: imagePath})}
-                      placeholder="Header achtergrond afbeelding"
-                      fileName="header-background"
+                      imageType="background"
                     />
                     
                     <div className="space-y-2">
@@ -1970,12 +1969,11 @@ export default function Admin() {
                       />
                     </div>
                     
-                    <ImageUploadField
+                    <SiteImageUploadField
                       label="Logo Afbeelding"
                       value={siteSettings.logoImage}
                       onChange={(imagePath) => setSiteSettings({...siteSettings, logoImage: imagePath})}
-                      placeholder="Site logo"
-                      fileName="site-logo"
+                      imageType="logo"
                     />
                     
                     <div className="space-y-2">
@@ -1997,12 +1995,11 @@ export default function Admin() {
                     <CardDescription>Instellingen voor social media sharing en SEO</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <ImageUploadField
+                    <SiteImageUploadField
                       label="Social Media Afbeelding"
                       value={siteSettings.socialMediaImage}
                       onChange={(imagePath) => setSiteSettings({...siteSettings, socialMediaImage: imagePath})}
-                      placeholder="Afbeelding voor social media sharing"
-                      fileName="social-media-image"
+                      imageType="social"
                     />
                     
                     <div className="space-y-4">
@@ -3076,6 +3073,213 @@ function ImageUploadField({ label, value, onChange, placeholder, fileName }: {
       {value && (
         <div className="text-sm text-gray-500">
           Huidige afbeelding: {value}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SiteImageUploadField({ label, value, onChange, imageType }: {
+  label: string;
+  value: string;
+  onChange: (imagePath: string) => void;
+  imageType: 'background' | 'logo' | 'social';
+}) {
+  const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showImageList, setShowImageList] = useState(false);
+
+  const imageQuery = useQuery({
+    queryKey: ['/api/site-images', imageType],
+    queryFn: () => fetch(`/api/site-images/${imageType}`).then(res => res.json())
+  });
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const result = await uploadFile({ 
+        file, 
+        fileName: `${imageType}-${Date.now()}`, 
+        destination: imageType,
+        type: 'image' 
+      });
+      onChange(result.imagePath || '');
+      
+      // Refresh image list
+      imageQuery.refetch();
+    } catch (error) {
+      // Error handling is done in uploadFile utility
+    }
+
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleDeleteImage = async (filename: string) => {
+    try {
+      const response = await fetch(`/api/site-images/${imageType}/${filename}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Delete failed');
+      }
+
+      toast({
+        title: "Succes",
+        description: "Afbeelding succesvol verwijderd!",
+      });
+
+      // Clear current value if deleted file was selected
+      if (value.includes(filename)) {
+        onChange('');
+      }
+
+      // Refresh image list
+      imageQuery.refetch();
+    } catch (error) {
+      console.error('Delete error:', error);
+      toast({
+        title: "Verwijder fout",
+        description: "Er is een fout opgetreden bij het verwijderen van de afbeelding",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const imageFiles = imageQuery.data || [];
+  const typeLabels = {
+    background: 'Achtergrond',
+    logo: 'Logo',
+    social: 'Social Media'
+  };
+
+  return (
+    <div className="space-y-2">
+      <Label>{label}</Label>
+      <div className="flex gap-2">
+        <Input
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={`/${imageType}-afbeelding.jpg`}
+          className="flex-1"
+        />
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => fileInputRef.current?.click()}
+          className="shrink-0"
+        >
+          <Upload className="h-4 w-4 mr-2" />
+          Upload
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => setShowImageList(!showImageList)}
+          className="shrink-0"
+        >
+          {showImageList ? (
+            <>
+              <Eye className="h-4 w-4 mr-1" />
+              Verberg
+            </>
+          ) : (
+            <>
+              <FolderOpen className="h-4 w-4 mr-1" />
+              Bekijk ({imageFiles.length})
+            </>
+          )}
+        </Button>
+      </div>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleFileUpload}
+        className="hidden"
+      />
+
+      {showImageList && (
+        <div className="mt-4 p-4 border rounded-lg bg-gray-50">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="font-medium">Beschikbare {typeLabels[imageType]} Afbeeldingen</h4>
+            <span className="text-sm text-gray-500">{imageFiles.length} bestand(en)</span>
+          </div>
+          {imageFiles.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="w-12 h-12 mx-auto mb-3 border-2 border-dashed border-gray-300 rounded flex items-center justify-center">
+                <ImageIcon className="h-6 w-6 text-gray-400" />
+              </div>
+              <p className="text-gray-500 mb-2">Geen {typeLabels[imageType].toLowerCase()} afbeeldingen gevonden</p>
+              <p className="text-xs text-gray-400">Upload een afbeelding om te beginnen</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-3">
+              {imageFiles.map((file: any) => (
+                <div key={file.name} className="flex items-center justify-between p-3 bg-white rounded border hover:border-blue-300 transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 border rounded overflow-hidden bg-gray-50 flex items-center justify-center">
+                      <img
+                        src={file.path}
+                        alt={file.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          const parent = e.currentTarget.parentElement;
+                          if (parent && !parent.querySelector('.fallback-icon')) {
+                            const fallbackIcon = document.createElement('div');
+                            fallbackIcon.className = 'fallback-icon text-xs text-gray-400 flex items-center justify-center w-full h-full';
+                            fallbackIcon.innerHTML = '<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path></svg>';
+                            parent.appendChild(fallbackIcon);
+                          }
+                        }}
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate">{file.name}</p>
+                      <p className="text-xs text-gray-500">
+                        {(file.size / 1024).toFixed(1)} KB • 
+                        {file.dimensions && ` ${file.dimensions} • `}
+                        {new Date(file.lastModified).toLocaleDateString('nl-NL')}
+                      </p>
+                    </div>
+                    {value === file.path && (
+                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                        Actief
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onChange(file.path)}
+                      disabled={value === file.path}
+                    >
+                      {value === file.path ? 'Geselecteerd' : 'Selecteer'}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDeleteImage(file.name)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
