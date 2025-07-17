@@ -1473,7 +1473,42 @@ export default function Admin() {
                 {/* Homepage Content View */}
                 <TabsContent value="homepage-content" className="space-y-4">
                   <div className="grid gap-4">
-                    {/* Removed Homepage Bestemmingen as requested */}
+                    {/* Homepage Bestemmingen */}
+                    <div className="bg-blue-50 rounded-lg p-4">
+                      <h4 className="font-semibold text-blue-900 mb-3">Homepage Bestemmingen ({destinationsQuery.data?.filter((d: any) => d.showOnHomepage).length || 0})</h4>
+                      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                        {(destinationsQuery.data || []).filter((d: any) => d.showOnHomepage).map((destination: any) => (
+                          <div key={destination.id} className="bg-white p-3 rounded border border-blue-200">
+                            <div className="flex justify-between items-start mb-2">
+                              <h5 className="font-medium text-blue-900">{destination.name}</h5>
+                              <Badge className="bg-blue-600 text-xs">#{destination.ranking || 0}</Badge>
+                            </div>
+                            <p className="text-sm text-gray-600 mb-2">{destination.description?.substring(0, 60)}...</p>
+                            <div className="flex gap-1">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => handleToggleDestinationHomepage(destination.id, false)}
+                                className="text-xs"
+                              >
+                                ❌ Verwijderen
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => {
+                                  setSelectedDestination(destination);
+                                  setShowEditDestination(true);
+                                }}
+                                className="text-xs"
+                              >
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
 
                     {/* Homepage Ontdek Meer */}
                     <div className="bg-green-50 rounded-lg p-4">
@@ -1525,8 +1560,8 @@ export default function Admin() {
             <TabsContent value="content-manager-1" className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
-                  <h2 className="text-2xl font-semibold">Content Manager 1 - Highlights</h2>
-                  <p className="text-gray-600">Unified interface voor highlights beheer</p>
+                  <h2 className="text-2xl font-semibold">Content Manager 1 - Bestemmingen & Highlights</h2>
+                  <p className="text-gray-600">Unified interface voor bestemmingen en highlights beheer</p>
                 </div>
               </div>
 
@@ -1539,8 +1574,61 @@ export default function Admin() {
 
                 {/* Overzicht Tab */}
                 <TabsContent value="all-content" className="space-y-6">
-                  <div className="grid gap-6">
-                    {/* Only highlights overview now */}
+                  <div className="grid gap-6 lg:grid-cols-2">
+                    {/* Bestemmingen Overzicht */}
+                    <div className="bg-blue-50 rounded-lg p-6">
+                      <h3 className="text-xl font-semibold text-blue-900 mb-4">
+                        Bestemmingen ({destinationsQuery.data?.length || 0})
+                      </h3>
+                      <div className="space-y-3 max-h-96 overflow-y-auto">
+                        {(destinationsQuery.data || []).map((destination: any) => (
+                          <div key={destination.id} className="bg-white p-3 rounded border border-blue-200">
+                            <div className="flex justify-between items-start mb-2">
+                              <h4 className="font-medium text-blue-900">{destination.name}</h4>
+                              <div className="flex gap-1">
+                                <Badge variant="outline" className="text-xs">#{destination.ranking || 0}</Badge>
+                                {destination.showOnHomepage && <Badge variant="default" className="text-xs bg-green-600">🏠</Badge>}
+                              </div>
+                            </div>
+                            <p className="text-sm text-gray-600 mb-2">{destination.description?.substring(0, 80)}...</p>
+                            <div className="flex gap-1">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => handleToggleDestinationHomepage(destination.id, !destination.showOnHomepage)}
+                                className="text-xs"
+                              >
+                                {destination.showOnHomepage ? '❌ Van Homepage' : '✅ Op Homepage'}
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => {
+                                  setSelectedDestination(destination);
+                                  setEditDestinationData({
+                                    name: destination.name,
+                                        location: destination.location || '',
+                                    description: destination.description,
+                                    image: destination.image,
+                                    alt: destination.alt || '',
+                                    content: destination.content || '',
+                                    link: destination.link || '',
+                                    featured: destination.featured,
+                                    published: destination.published,
+                                    showOnHomepage: destination.showOnHomepage || false,
+                                    ranking: destination.ranking || 0
+                                  });
+                                  setShowEditDestination(true);
+                                }}
+                                className="text-xs"
+                              >
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
 
                     {/* Highlights Overzicht */}
                     <div className="bg-purple-50 rounded-lg p-6">
@@ -1569,40 +1657,20 @@ export default function Admin() {
                   </div>
                 </TabsContent>
 
+
                 {/* Highlights View Tab */}
                 <TabsContent value="highlights-view" className="space-y-6">
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                     <div>
                       <h3 className="text-xl font-semibold">Highlights Beheer ({highlightsQuery.data?.length || 0})</h3>
-                      <p className="text-gray-600">Beheer al je Polish reisbestemmingen</p>
+                      <p className="text-gray-600">Beheer alle Polish highlights en attracties</p>
                     </div>
-                    <div className="flex flex-col sm:flex-row gap-2">
-                      <Select value={locationFilter} onValueChange={setLocationFilter}>
-                        <SelectTrigger className="w-48">
-                          <SelectValue placeholder="Filter op locatie" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Alle locaties</SelectItem>
-                          {getUniqueLocations().map((location) => (
-                            <SelectItem key={location} value={location}>
-                              📍 {location}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Button 
-                        onClick={() => setShowCreateDestination(true)}
-                        className="flex items-center gap-2"
-                      >
-                        <Plus className="h-4 w-4" />
-                        Nieuwe Bestemming
-                      </Button>
-                    </div>
+                    <CreateHighlightDialog onUpdate={() => queryClient.invalidateQueries({ queryKey: ['/api/admin/highlights'] })} />
                   </div>
                   
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {getFilteredDestinations().map((destination: any) => (
-                    <Card key={destination.id} className="hover:shadow-lg transition-shadow">
+                    {(highlightsQuery.data || []).map((highlight: any) => (
+                      <Card key={highlight.id} className="hover:shadow-lg transition-shadow">
                       <CardHeader className="pb-3">
                         <div className="flex flex-col gap-3">
                           <div className="flex justify-between items-start">
