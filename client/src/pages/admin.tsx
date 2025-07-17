@@ -2871,7 +2871,8 @@ export default function Admin() {
             onOpenChange={setShowCreateGuide}
             onGuideCreated={() => {
               guidesQuery.refetch();
-              // Also invalidate homepage guides cache
+              // Also invalidate all guides related caches
+              queryClient.invalidateQueries({ queryKey: ['/api/admin/guides'] });
               queryClient.invalidateQueries({ queryKey: ['/api/guides/homepage'] });
               queryClient.invalidateQueries({ queryKey: ['/api/guides'] });
               setShowCreateGuide(false);
