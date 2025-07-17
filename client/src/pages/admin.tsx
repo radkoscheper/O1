@@ -494,6 +494,39 @@ export default function Admin() {
     }
   };
 
+  const handleCleanupOrphanedImages = async () => {
+    const confirmCleanup = confirm('Weet je zeker dat je weesgezinde afbeeldingen wilt opruimen? Dit verwijdert alle afbeeldingen die niet meer gebruikt worden in de database.');
+    if (!confirmCleanup) return;
+    
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/admin/cleanup-images', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        toast({ 
+          title: "Cleanup voltooid", 
+          description: `${result.deletedGuides + result.deletedDestinations} weesgezinde afbeeldingen verwijderd`,
+        });
+        
+        // Refresh all image-related queries
+        trashedImagesQuery.refetch();
+        destinationsQuery.refetch();
+        guidesQuery.refetch();
+      } else {
+        const error = await response.json();
+        toast({ title: "Fout", description: error.message, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden bij cleanup", variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Soft delete handlers
   const handleSoftDeleteDestination = async (id: number) => {
     if (!confirm('Weet je zeker dat je deze bestemming naar de prullenbak wilt verplaatsen?')) {
@@ -2357,6 +2390,15 @@ export default function Admin() {
                         >
                           <Trash className="h-4 w-4 mr-2" />
                           Afbeelding Prullenbak Leegmaken
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleCleanupOrphanedImages()}
+                          disabled={currentUser?.role !== 'admin' || isLoading}
+                        >
+                          <RefreshCw className="h-4 w-4 mr-2" />
+                          Opruimen Weesgezinde Afbeeldingen
                         </Button>
                       </div>
                     </div>
