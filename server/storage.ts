@@ -160,7 +160,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getActiveDestinations(): Promise<Destination[]> {
-    return await db.select().from(destinations).where(eq(destinations.is_deleted, false)).orderBy(destinations.ranking, destinations.createdAt);
+    console.log("Running getActiveDestinations query...");
+    const result = await db.select().from(destinations).where(eq(destinations.is_deleted, false)).orderBy(destinations.ranking, destinations.createdAt);
+    console.log("getActiveDestinations result count:", result.length);
+    return result;
   }
 
   async getPublishedDestinations(): Promise<Destination[]> {
