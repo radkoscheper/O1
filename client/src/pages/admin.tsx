@@ -1032,12 +1032,12 @@ export default function Admin() {
           </Button>
         </div>
 
-        <Tabs defaultValue="destinations" className="w-full">
+        <Tabs defaultValue="content-manager" className="w-full">
           <TabsList className="h-auto w-full flex-wrap justify-start gap-2 p-2 bg-muted/30">
             {/* Content Beheer */}
             {currentUser?.canCreateContent && (
-              <TabsTrigger value="destinations" className="flex items-center gap-2">
-                🏔️ Bestemmingen
+              <TabsTrigger value="content-manager" className="flex items-center gap-2">
+                🎯 Content Manager
               </TabsTrigger>
             )}
             {currentUser?.canCreateContent && (
@@ -1046,28 +1046,13 @@ export default function Admin() {
               </TabsTrigger>
             )}
             {currentUser?.canCreateContent && (
-              <TabsTrigger value="new-destination" className="flex items-center gap-2">
-                ➕ Nieuwe Bestemming
-              </TabsTrigger>
-            )}
-            {currentUser?.canCreateContent && (
               <TabsTrigger value="new-guide" className="flex items-center gap-2">
                 📝 Nieuwe Gids
               </TabsTrigger>
             )}
             {currentUser?.canCreateContent && (
-              <TabsTrigger value="pages" className="flex items-center gap-2">
-                📄 Pagina's
-              </TabsTrigger>
-            )}
-            {currentUser?.canCreateContent && (
               <TabsTrigger value="homepage-overview" className="flex items-center gap-2">
                 🏠 Homepage Overview
-              </TabsTrigger>
-            )}
-            {currentUser?.canCreateContent && (
-              <TabsTrigger value="ontdek-meer" className="flex items-center gap-2">
-                📄 Ontdek Meer
               </TabsTrigger>
             )}
             {currentUser?.role === 'admin' && (
@@ -1104,6 +1089,490 @@ export default function Admin() {
               👤 Account
             </TabsTrigger>
           </TabsList>
+
+          {/* Content Manager - Unified CMS for Bestemmingen + Ontdek Meer */}
+          {currentUser?.canCreateContent && (
+            <TabsContent value="content-manager" className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <div>
+                  <h2 className="text-2xl font-semibold">Unified Content Manager</h2>
+                  <p className="text-gray-600">Beheer bestemmingen en ontdek meer content in één interface</p>
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={() => setShowCreateDestination(true)} className="bg-blue-600 hover:bg-blue-700">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Nieuwe Bestemming
+                  </Button>
+                  <Button onClick={() => setShowCreatePage(true)} className="bg-green-600 hover:bg-green-700">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Nieuwe Pagina
+                  </Button>
+                </div>
+              </div>
+
+              {/* Content Type Tabs */}
+              <Tabs defaultValue="all-content" className="w-full">
+                <TabsList className="w-full justify-start">
+                  <TabsTrigger value="all-content" className="flex items-center gap-2">
+                    📋 Alle Content
+                  </TabsTrigger>
+                  <TabsTrigger value="destinations-only" className="flex items-center gap-2">
+                    🏔️ Bestemmingen ({destinationsQuery.data?.length || 0})
+                  </TabsTrigger>
+                  <TabsTrigger value="pages-only" className="flex items-center gap-2">
+                    📄 Ontdek Meer ({pagesQuery.data?.length || 0})
+                  </TabsTrigger>
+                  <TabsTrigger value="homepage-content" className="flex items-center gap-2">
+                    🏠 Homepage Content
+                  </TabsTrigger>
+                </TabsList>
+
+                {/* All Content View - Unified Table */}
+                <TabsContent value="all-content" className="space-y-4">
+                  <div className="rounded-lg border bg-white">
+                    <div className="p-4 border-b bg-gray-50">
+                      <h3 className="font-semibold">Alle Content Items</h3>
+                      <p className="text-sm text-gray-600">Bestemmingen en Ontdek Meer pagina's in één overzicht</p>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-gray-50 border-b">
+                          <tr>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Titel</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Homepage</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ranking</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acties</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                          {/* Destinations */}
+                          {(destinationsQuery.data || []).map((destination: any) => (
+                            <tr key={`dest-${destination.id}`} className="hover:bg-gray-50">
+                              <td className="px-4 py-3">
+                                <Badge className="bg-blue-100 text-blue-800">🏔️ Bestemming</Badge>
+                              </td>
+                              <td className="px-4 py-3">
+                                <div>
+                                  <div className="font-medium">{destination.name}</div>
+                                  <div className="text-sm text-gray-500">{destination.description?.substring(0, 80)}...</div>
+                                </div>
+                              </td>
+                              <td className="px-4 py-3">
+                                <div className="flex flex-col gap-1">
+                                  <Badge variant={destination.published ? "default" : "outline"} className="text-xs w-fit">
+                                    {destination.published ? "✅ Gepubliceerd" : "📝 Concept"}
+                                  </Badge>
+                                  {destination.featured && <Badge variant="secondary" className="text-xs w-fit">⭐ Featured</Badge>}
+                                </div>
+                              </td>
+                              <td className="px-4 py-3">
+                                <Button 
+                                  size="sm"
+                                  variant={destination.showOnHomepage ? "default" : "outline"}
+                                  onClick={() => handleToggleDestinationHomepage(destination.id, !destination.showOnHomepage)}
+                                  className="text-xs"
+                                >
+                                  {destination.showOnHomepage ? "🏠 Op Homepage" : "➕ Naar Homepage"}
+                                </Button>
+                              </td>
+                              <td className="px-4 py-3">
+                                <Badge variant="outline" className="text-xs">#{destination.ranking || 0}</Badge>
+                              </td>
+                              <td className="px-4 py-3">
+                                <div className="flex gap-1">
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline"
+                                    onClick={() => {
+                                      setSelectedDestination(destination);
+                                      setEditDestinationData({
+                                        name: destination.name,
+                                        description: destination.description,
+                                        image: destination.image,
+                                        alt: destination.alt || '',
+                                        content: destination.content || '',
+                                        link: destination.link || '',
+                                        featured: destination.featured,
+                                        published: destination.published,
+                                        showOnHomepage: destination.showOnHomepage || false,
+                                        ranking: destination.ranking || 0
+                                      });
+                                      setShowEditDestination(true);
+                                    }}
+                                  >
+                                    <Edit className="h-3 w-3" />
+                                  </Button>
+                                  {currentUser?.canDeleteContent && (
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline"
+                                      onClick={() => handleSoftDeleteDestination(destination.id)}
+                                    >
+                                      <Trash2 className="h-3 w-3" />
+                                    </Button>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                          
+                          {/* Pages */}
+                          {(pagesQuery.data || []).map((page: any) => (
+                            <tr key={`page-${page.id}`} className="hover:bg-gray-50">
+                              <td className="px-4 py-3">
+                                <Badge className="bg-green-100 text-green-800">📄 Ontdek Meer</Badge>
+                              </td>
+                              <td className="px-4 py-3">
+                                <div>
+                                  <div className="font-medium">{page.title}</div>
+                                  <div className="text-sm text-gray-500">{page.metaDescription?.substring(0, 80)}...</div>
+                                </div>
+                              </td>
+                              <td className="px-4 py-3">
+                                <div className="flex flex-col gap-1">
+                                  <Badge variant={page.published ? "default" : "outline"} className="text-xs w-fit">
+                                    {page.published ? "✅ Gepubliceerd" : "📝 Concept"}
+                                  </Badge>
+                                  {page.featured && <Badge variant="secondary" className="text-xs w-fit">⭐ Featured</Badge>}
+                                  <Badge variant="outline" className="text-xs w-fit bg-gray-100">{page.template}</Badge>
+                                </div>
+                              </td>
+                              <td className="px-4 py-3">
+                                <Button 
+                                  size="sm"
+                                  variant={page.published ? "default" : "outline"}
+                                  onClick={() => handleTogglePageHomepage(page.id, !page.published)}
+                                  className="text-xs"
+                                >
+                                  {page.published ? "🏠 Op Homepage" : "➕ Naar Homepage"}
+                                </Button>
+                              </td>
+                              <td className="px-4 py-3">
+                                <Badge variant="outline" className="text-xs">#{page.ranking || 0}</Badge>
+                              </td>
+                              <td className="px-4 py-3">
+                                <div className="flex gap-1">
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline"
+                                    onClick={() => {
+                                      setSelectedPage(page);
+                                      setEditPageData({
+                                        title: page.title,
+                                        slug: page.slug,
+                                        content: page.content,
+                                        metaTitle: page.metaTitle || '',
+                                        metaDescription: page.metaDescription || '',
+                                        metaKeywords: page.metaKeywords || '',
+                                        template: page.template,
+                                        headerImage: page.headerImage || '',
+                                        headerImageAlt: page.headerImageAlt || '',
+                                        highlightSections: page.highlightSections || '',
+                                        published: page.published,
+                                        featured: page.featured,
+                                        ranking: page.ranking || 0
+                                      });
+                                      setShowEditPage(true);
+                                    }}
+                                  >
+                                    <Edit className="h-3 w-3" />
+                                  </Button>
+                                  {currentUser?.canDeleteContent && (
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline"
+                                      onClick={() => handleSoftDeletePage(page.id)}
+                                    >
+                                      <Trash2 className="h-3 w-3" />
+                                    </Button>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                {/* Destinations Only View */}
+                <TabsContent value="destinations-only" className="space-y-4">
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {(destinationsQuery.data || []).map((destination: any) => (
+                      <Card key={destination.id} className="hover:shadow-lg transition-shadow">
+                        <CardHeader className="pb-3">
+                          <div className="flex flex-col gap-3">
+                            <div className="flex justify-between items-start">
+                              <CardTitle className="text-lg leading-tight">{destination.name}</CardTitle>
+                              <Badge variant="outline" className="text-xs">#{destination.ranking || 0}</Badge>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {destination.featured && <Badge variant="secondary" className="text-xs">⭐ Featured</Badge>}
+                              <Badge variant={destination.published ? "default" : "outline"} className="text-xs">
+                                {destination.published ? "✅ Gepubliceerd" : "📝 Concept"}
+                              </Badge>
+                              {destination.showOnHomepage && <Badge variant="default" className="text-xs bg-blue-600 hover:bg-blue-700">🏠 Homepage</Badge>}
+                            </div>
+                            <CardDescription className="text-sm line-clamp-2">{destination.description}</CardDescription>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="pt-0">
+                          <div className="flex flex-col gap-3">
+                            <Button 
+                              size="sm" 
+                              variant={destination.showOnHomepage ? "default" : "outline"}
+                              onClick={() => handleToggleDestinationHomepage(destination.id, !destination.showOnHomepage)}
+                              className="w-full"
+                            >
+                              {destination.showOnHomepage ? "🏠 Op Homepage" : "➕ Naar Homepage"}
+                            </Button>
+                            
+                            <div className="flex flex-wrap gap-2">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => {
+                                  setSelectedDestination(destination);
+                                  setEditDestinationData({
+                                    name: destination.name,
+                                    description: destination.description,
+                                    image: destination.image,
+                                    alt: destination.alt || '',
+                                    content: destination.content || '',
+                                    link: destination.link || '',
+                                    featured: destination.featured,
+                                    published: destination.published,
+                                    showOnHomepage: destination.showOnHomepage || false,
+                                    ranking: destination.ranking || 0
+                                  });
+                                  setShowEditDestination(true);
+                                }}
+                              >
+                                <Edit className="h-4 w-4 mr-2" />
+                                Bewerken
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => {
+                                  setSelectedDestination(destination);
+                                  setShowViewDestination(true);
+                                }}
+                              >
+                                <Eye className="h-4 w-4 mr-2" />
+                                Bekijken
+                              </Button>
+                              {currentUser?.canDeleteContent && (
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => handleSoftDeleteDestination(destination.id)}
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  🗑️ Naar Prullenbak
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </TabsContent>
+
+                {/* Pages Only View */}
+                <TabsContent value="pages-only" className="space-y-4">
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {(pagesQuery.data || []).map((page: any) => (
+                      <Card key={page.id} className="hover:shadow-lg transition-shadow">
+                        <CardHeader className="pb-3">
+                          <div className="flex flex-col gap-3">
+                            <div className="flex justify-between items-start">
+                              <CardTitle className="text-lg leading-tight">{page.title}</CardTitle>
+                              <Badge variant="outline" className="text-xs">#{page.ranking || 0}</Badge>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {page.featured && <Badge variant="secondary" className="text-xs">⭐ Featured</Badge>}
+                              <Badge variant={page.published ? "default" : "outline"} className="text-xs">
+                                {page.published ? "✅ Gepubliceerd" : "📝 Concept"}
+                              </Badge>
+                              {page.published && <Badge variant="default" className="text-xs bg-green-600 hover:bg-green-700">🏠 Homepage</Badge>}
+                            </div>
+                            <div className="flex items-center text-xs text-gray-500 gap-2">
+                              <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded">
+                                {page.template}
+                              </span>
+                              <span>
+                                {new Date(page.createdAt).toLocaleDateString('nl-NL')}
+                              </span>
+                            </div>
+                            <CardDescription className="text-sm line-clamp-2">{page.metaDescription}</CardDescription>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="pt-0">
+                          <div className="flex flex-col gap-3">
+                            <Button 
+                              size="sm" 
+                              variant={page.published ? "default" : "outline"}
+                              onClick={() => handleTogglePageHomepage(page.id, !page.published)}
+                              className="w-full"
+                            >
+                              {page.published ? "🏠 Op Homepage" : "➕ Naar Homepage"}
+                            </Button>
+                            
+                            <div className="flex flex-wrap gap-2">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => {
+                                  setSelectedPage(page);
+                                  setEditPageData({
+                                    title: page.title,
+                                    slug: page.slug,
+                                    content: page.content,
+                                    metaTitle: page.metaTitle || '',
+                                    metaDescription: page.metaDescription || '',
+                                    metaKeywords: page.metaKeywords || '',
+                                    template: page.template,
+                                    headerImage: page.headerImage || '',
+                                    headerImageAlt: page.headerImageAlt || '',
+                                    highlightSections: page.highlightSections || '',
+                                    published: page.published,
+                                    featured: page.featured,
+                                    ranking: page.ranking || 0
+                                  });
+                                  setShowEditPage(true);
+                                }}
+                              >
+                                <Edit className="h-4 w-4 mr-2" />
+                                Bewerken
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => {
+                                  setSelectedPage(page);
+                                  setShowViewPage(true);
+                                }}
+                              >
+                                <Eye className="h-4 w-4 mr-2" />
+                                Bekijken
+                              </Button>
+                              {page.published && (
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => window.open(`/${page.slug}`, '_blank')}
+                                >
+                                  <ExternalLink className="h-4 w-4 mr-2" />
+                                  Live
+                                </Button>
+                              )}
+                              {currentUser?.canDeleteContent && (
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => handleSoftDeletePage(page.id)}
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  🗑️ Naar Prullenbak
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </TabsContent>
+
+                {/* Homepage Content View */}
+                <TabsContent value="homepage-content" className="space-y-4">
+                  <div className="grid gap-4">
+                    {/* Homepage Bestemmingen */}
+                    <div className="bg-blue-50 rounded-lg p-4">
+                      <h4 className="font-semibold text-blue-900 mb-3">Homepage Bestemmingen ({destinationsQuery.data?.filter((d: any) => d.showOnHomepage).length || 0})</h4>
+                      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                        {(destinationsQuery.data || []).filter((d: any) => d.showOnHomepage).map((destination: any) => (
+                          <div key={destination.id} className="bg-white p-3 rounded border border-blue-200">
+                            <div className="flex justify-between items-start mb-2">
+                              <h5 className="font-medium text-blue-900">{destination.name}</h5>
+                              <Badge className="bg-blue-600 text-xs">#{destination.ranking || 0}</Badge>
+                            </div>
+                            <p className="text-sm text-gray-600 mb-2">{destination.description?.substring(0, 60)}...</p>
+                            <div className="flex gap-1">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => handleToggleDestinationHomepage(destination.id, false)}
+                                className="text-xs"
+                              >
+                                ❌ Verwijderen
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => {
+                                  setSelectedDestination(destination);
+                                  setShowEditDestination(true);
+                                }}
+                                className="text-xs"
+                              >
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Homepage Ontdek Meer */}
+                    <div className="bg-green-50 rounded-lg p-4">
+                      <h4 className="font-semibold text-green-900 mb-3">Homepage Ontdek Meer ({pagesQuery.data?.filter((p: any) => p.published).length || 0})</h4>
+                      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                        {(pagesQuery.data || []).filter((p: any) => p.published).map((page: any) => (
+                          <div key={page.id} className="bg-white p-3 rounded border border-green-200">
+                            <div className="flex justify-between items-start mb-2">
+                              <h5 className="font-medium text-green-900">{page.title}</h5>
+                              <Badge className="bg-green-600 text-xs">#{page.ranking || 0}</Badge>
+                            </div>
+                            <p className="text-sm text-gray-600 mb-2">{page.metaDescription?.substring(0, 60)}...</p>
+                            <div className="flex gap-1 mb-2">
+                              <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">{page.template}</span>
+                            </div>
+                            <div className="flex gap-1">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => handleTogglePageHomepage(page.id, false)}
+                                className="text-xs"
+                              >
+                                ❌ Depubliceren
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => {
+                                  setSelectedPage(page);
+                                  setShowEditPage(true);
+                                }}
+                                className="text-xs"
+                              >
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </TabsContent>
+          )}
 
           {/* Bestaande Bestemmingen - alleen voor gebruikers met create/edit permissies */}
           {currentUser?.canCreateContent && (
