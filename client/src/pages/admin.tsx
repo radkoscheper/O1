@@ -981,37 +981,70 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="destinations" className="w-full">
-          <TabsList className={`grid w-full ${currentUser?.canManageUsers && currentUser?.role === 'admin' ? 'grid-cols-12' : currentUser?.canManageUsers ? 'grid-cols-10' : 'grid-cols-10'}`}>
-            {/* Alleen tonen wat de gebruiker mag doen */}
-            {currentUser?.canCreateContent && <TabsTrigger value="destinations">Bestemmingen</TabsTrigger>}
-            {currentUser?.canCreateContent && <TabsTrigger value="guides">Reisgidsen</TabsTrigger>}
-            {currentUser?.canCreateContent && <TabsTrigger value="ontdek-meer">🏠 Ontdek Meer</TabsTrigger>}
-            {currentUser?.canCreateContent && <TabsTrigger value="pages">📄 Pagina's</TabsTrigger>}
-            {currentUser?.role === 'admin' && <TabsTrigger value="highlights">✨ Highlights</TabsTrigger>}
-            {currentUser?.canCreateContent && <TabsTrigger value="new-destination">Nieuwe Bestemming</TabsTrigger>}
-            {currentUser?.canCreateContent && <TabsTrigger value="new-guide">Nieuwe Gids</TabsTrigger>}
-            {currentUser?.role === 'admin' && <TabsTrigger value="templates">🎨 Templates</TabsTrigger>}
+          <TabsList className="h-auto w-full flex-wrap justify-start gap-2 p-2 bg-muted/30">
+            {/* Content Beheer */}
+            {currentUser?.canCreateContent && (
+              <TabsTrigger value="destinations" className="flex items-center gap-2">
+                🏔️ Bestemmingen
+              </TabsTrigger>
+            )}
+            {currentUser?.canCreateContent && (
+              <TabsTrigger value="guides" className="flex items-center gap-2">
+                📖 Reisgidsen
+              </TabsTrigger>
+            )}
+            {currentUser?.canCreateContent && (
+              <TabsTrigger value="new-destination" className="flex items-center gap-2">
+                ➕ Nieuwe Bestemming
+              </TabsTrigger>
+            )}
+            {currentUser?.canCreateContent && (
+              <TabsTrigger value="new-guide" className="flex items-center gap-2">
+                📝 Nieuwe Gids
+              </TabsTrigger>
+            )}
+            {currentUser?.canCreateContent && (
+              <TabsTrigger value="pages" className="flex items-center gap-2">
+                📄 Pagina's
+              </TabsTrigger>
+            )}
+            {currentUser?.canCreateContent && (
+              <TabsTrigger value="ontdek-meer" className="flex items-center gap-2">
+                🏠 Ontdek Meer
+              </TabsTrigger>
+            )}
+            {currentUser?.role === 'admin' && (
+              <TabsTrigger value="templates" className="flex items-center gap-2">
+                🎨 Templates
+              </TabsTrigger>
+            )}
+            {currentUser?.role === 'admin' && (
+              <TabsTrigger value="highlights" className="flex items-center gap-2">
+                ✨ Highlights
+              </TabsTrigger>
+            )}
+            
+            {/* Beheer & Instellingen */}
             {(currentUser?.canDeleteContent || currentUser?.canEditContent) && (
-              <TabsTrigger value="recycle">
-                <Trash2 className="h-4 w-4 mr-2" />
+              <TabsTrigger value="recycle" className="flex items-center gap-2">
+                <Trash2 className="h-4 w-4" />
                 Prullenbak
               </TabsTrigger>
             )}
             {currentUser?.canManageUsers && (
-              <TabsTrigger value="users">
-                <Users className="h-4 w-4 mr-2" />
+              <TabsTrigger value="users" className="flex items-center gap-2">
+                <Users className="h-4 w-4" />
                 Gebruikers
               </TabsTrigger>
             )}
             {currentUser?.role === 'admin' && (
-              <TabsTrigger value="site-settings">
-                <Shield className="h-4 w-4 mr-2" />
+              <TabsTrigger value="site-settings" className="flex items-center gap-2">
+                <Shield className="h-4 w-4" />
                 Site Instellingen
               </TabsTrigger>
             )}
-            <TabsTrigger value="account">
-              <Shield className="h-4 w-4 mr-2" />
-              Account
+            <TabsTrigger value="account" className="flex items-center gap-2">
+              👤 Account
             </TabsTrigger>
           </TabsList>
 
