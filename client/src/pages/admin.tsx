@@ -18,7 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import ReactCrop, { Crop, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
-import { CreateHighlightDialog, EditHighlightDialog, ViewHighlightDialog, CreateDestinationDialog } from '@/components/highlights-dialogs';
+import { CreateHighlightDialog, EditHighlightDialogContent, ViewHighlightDialogContent, CreateDestinationDialog } from '@/components/highlights-dialogs';
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -2989,7 +2989,7 @@ export default function Admin() {
         )}
 
         {showEditHighlight && selectedHighlight && (
-          <EditHighlightDialog 
+          <EditHighlightDialogContent 
             open={showEditHighlight} 
             onOpenChange={setShowEditHighlight}
             highlight={selectedHighlight}
@@ -3003,7 +3003,7 @@ export default function Admin() {
         )}
 
         {showViewHighlight && selectedHighlight && (
-          <ViewHighlightDialog 
+          <ViewHighlightDialogContent 
             open={showViewHighlight} 
             onOpenChange={setShowViewHighlight}
             highlight={selectedHighlight}
