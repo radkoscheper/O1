@@ -3077,6 +3077,9 @@ export default function Admin() {
             onOpenChange={setShowCreateDestination}
             onDestinationCreated={() => {
               destinationsQuery.refetch();
+              // Also invalidate homepage destinations cache
+              queryClient.invalidateQueries({ queryKey: ['/api/destinations/homepage'] });
+              queryClient.invalidateQueries({ queryKey: ['/api/destinations'] });
               setShowCreateDestination(false);
             }}
           />
@@ -3089,6 +3092,9 @@ export default function Admin() {
             onOpenChange={setShowCreateGuide}
             onGuideCreated={() => {
               guidesQuery.refetch();
+              // Also invalidate homepage guides cache
+              queryClient.invalidateQueries({ queryKey: ['/api/guides/homepage'] });
+              queryClient.invalidateQueries({ queryKey: ['/api/guides'] });
               setShowCreateGuide(false);
             }}
           />
