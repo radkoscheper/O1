@@ -787,3 +787,195 @@ export function CreateDestinationDialog({ open, onOpenChange, onDestinationCreat
     </Dialog>
   );
 }
+
+// Create Guide Dialog
+export function CreateGuideDialog({ open, onOpenChange, onGuideCreated }: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onGuideCreated: () => void;
+}) {
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    content: '',
+    image: '',
+    alt: '',
+    link: '',
+    ranking: 0,
+    featured: false,
+    published: true,
+    showOnHomepage: true
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.title.trim() || !formData.description.trim()) {
+      toast({ title: "Fout", description: "Titel en beschrijving zijn verplicht", variant: "destructive" });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/admin/guides', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        toast({ title: "Succes", description: "Reisgids succesvol aangemaakt" });
+        onGuideCreated();
+        setFormData({
+          title: '',
+          description: '',
+          content: '',
+          image: '',
+          alt: '',
+          link: '',
+          ranking: 0,
+          featured: false,
+          published: true,
+          showOnHomepage: true
+        });
+      } else {
+        const error = await response.json();
+        toast({ title: "Fout", description: error.message, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Nieuwe Reisgids Toevoegen</DialogTitle>
+          <DialogDescription>
+            Voeg een nieuwe reisgids toe aan je website
+          </DialogDescription>
+        </DialogHeader>
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <Label htmlFor="guide-title">Titel <span className="text-red-500">*</span></Label>
+            <Input
+              id="guide-title"
+              placeholder="Bijv. 3 Dagen in Krakau"
+              value={formData.title}
+              onChange={(e) => setFormData({...formData, title: e.target.value})}
+              className={!formData.title.trim() ? "border-red-300" : ""}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="guide-ranking">Ranking (volgorde)</Label>
+            <Input
+              id="guide-ranking"
+              type="number"
+              placeholder="0"
+              value={formData.ranking}
+              onChange={(e) => setFormData({...formData, ranking: parseInt(e.target.value) || 0})}
+            />
+          </div>
+
+          <ImageUploadField
+            label="Afbeelding"
+            value={formData.image}
+            onChange={(value) => setFormData({...formData, image: value})}
+            placeholder="/images/guides/krakau-gids.jpg"
+            fileName={formData.title}
+            destination="guides"
+          />
+
+          <div>
+            <Label htmlFor="guide-alt">Alt-tekst</Label>
+            <Input
+              id="guide-alt"
+              placeholder="Bijv. Krakau reisgids afbeelding"
+              value={formData.alt}
+              onChange={(e) => setFormData({...formData, alt: e.target.value})}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="guide-description">Beschrijving <span className="text-red-500">*</span></Label>
+            <Textarea
+              id="guide-description"
+              placeholder="Beschrijf wat deze reisgids bevat..."
+              value={formData.description}
+              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              rows={3}
+              className={!formData.description.trim() ? "border-red-300" : ""}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="guide-content">Volledige inhoud</Label>
+            <Textarea
+              id="guide-content"
+              placeholder="Uitgebreide inhoud van de reisgids..."
+              value={formData.content}
+              onChange={(e) => setFormData({...formData, content: e.target.value})}
+              rows={5}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="guide-link">Link (optioneel)</Label>
+            <Input
+              id="guide-link"
+              placeholder="Bijv. /krakau-gids of https://example.com"
+              value={formData.link}
+              onChange={(e) => setFormData({...formData, link: e.target.value})}
+            />
+            <p className="text-sm text-gray-500 mt-1">
+              Link waar de afbeelding naartoe moet leiden
+            </p>
+          </div>
+
+          <div className="flex gap-4">
+            <div className="flex items-center space-x-2">
+              <Switch 
+                id="guide-featured"
+                checked={formData.featured}
+                onCheckedChange={(checked) => setFormData({...formData, featured: checked})}
+              />
+              <Label htmlFor="guide-featured">Featured</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch 
+                id="guide-published"
+                checked={formData.published}
+                onCheckedChange={(checked) => setFormData({...formData, published: checked})}
+              />
+              <Label htmlFor="guide-published">Publiceren</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch 
+                id="guide-homepage"
+                checked={formData.showOnHomepage}
+                onCheckedChange={(checked) => setFormData({...formData, showOnHomepage: checked})}
+              />
+              <Label htmlFor="guide-homepage">Homepage</Label>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Annuleren
+            </Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "Bezig..." : <><Plus className="h-4 w-4 mr-2" /> Reisgids Aanmaken</>}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
