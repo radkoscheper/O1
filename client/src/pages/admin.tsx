@@ -18,7 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import ReactCrop, { Crop, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
-import { CreateHighlightDialog, EditHighlightDialog, ViewHighlightDialog, CreateDestinationDialog } from '@/components/highlights-dialogs';
+import { CreateHighlightDialog, EditHighlightDialog, ViewHighlightDialog, CreateDestinationDialog, CreateGuideDialog } from '@/components/highlights-dialogs';
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -105,6 +105,7 @@ export default function Admin() {
   const [showCreateDestination, setShowCreateDestination] = useState(false);
   const [showEditDestination, setShowEditDestination] = useState(false);
   const [showViewDestination, setShowViewDestination] = useState(false);
+  const [showCreateGuide, setShowCreateGuide] = useState(false);
   const [showEditGuide, setShowEditGuide] = useState(false);
   const [showViewGuide, setShowViewGuide] = useState(false);
   const [selectedDestination, setSelectedDestination] = useState<any>(null);
@@ -2081,22 +2082,7 @@ export default function Admin() {
                     </SelectContent>
                   </Select>
                   <Button 
-                    onClick={() => {
-                      // Switch naar nieuwe gids tab via verschillende selectors
-                      const newGuideTab = document.querySelector('[data-state="inactive"][value="new-guide"]') as HTMLElement ||
-                                         document.querySelector('[value="new-guide"]') as HTMLElement ||
-                                         Array.from(document.querySelectorAll('button')).find(btn => 
-                                           btn.textContent?.includes('📝 Nieuwe Gids')
-                                         ) as HTMLElement;
-                      
-                      if (newGuideTab) {
-                        newGuideTab.click();
-                        // Scroll naar boven na tab switch
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      } else {
-                        console.log('Nieuwe Gids tab niet gevonden');
-                      }
-                    }}
+                    onClick={() => setShowCreateGuide(true)}
                     className="flex items-center gap-2"
                   >
                     <Plus className="h-4 w-4" />
@@ -3629,6 +3615,18 @@ export default function Admin() {
             onDestinationCreated={() => {
               destinationsQuery.refetch();
               setShowCreateDestination(false);
+            }}
+          />
+        )}
+
+        {/* Create Guide Dialog */}
+        {showCreateGuide && (
+          <CreateGuideDialog 
+            open={showCreateGuide} 
+            onOpenChange={setShowCreateGuide}
+            onGuideCreated={() => {
+              guidesQuery.refetch();
+              setShowCreateGuide(false);
             }}
           />
         )}
