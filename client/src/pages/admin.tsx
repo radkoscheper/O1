@@ -286,9 +286,18 @@ export default function Admin() {
       const response = await fetch('/api/auth/status');
       if (response.ok) {
         const data = await response.json();
-        setIsAuthenticated(data.isAuthenticated);
-        if (data.user) {
+        if (data.isAuthenticated && data.user) {
+          setIsAuthenticated(true);
           setCurrentUser(data.user);
+          
+          // If user is already authenticated on page load, ensure queries are fresh
+          // This handles the case where user refreshes the page
+          setTimeout(() => {
+            queryClient.invalidateQueries();
+          }, 100);
+        } else {
+          setIsAuthenticated(false);
+          setCurrentUser(null);
         }
       } else {
         // If API fails, enable simple mode (no database)
@@ -714,8 +723,32 @@ export default function Admin() {
       });
 
       if (response.ok) {
+        const loginResult = await response.json();
+        
+        // First update the authentication state
         setIsAuthenticated(true);
+        setCurrentUser(loginResult.user);
         setShowLogin(false);
+        
+        // Clear all cached queries to force fresh data fetch
+        queryClient.clear();
+        
+        // Invalidate specific queries that depend on authentication
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ['/api/users'] }),
+          queryClient.invalidateQueries({ queryKey: ['/api/admin/destinations'] }),
+          queryClient.invalidateQueries({ queryKey: ['/api/admin/guides'] }),
+          queryClient.invalidateQueries({ queryKey: ['/api/admin/destinations/deleted'] }),
+          queryClient.invalidateQueries({ queryKey: ['/api/admin/guides/deleted'] }),
+          queryClient.invalidateQueries({ queryKey: ['/api/admin/images/trash'] }),
+          queryClient.invalidateQueries({ queryKey: ['/api/site-settings'] }),
+          queryClient.invalidateQueries({ queryKey: ['/api/admin/templates'] }),
+          queryClient.invalidateQueries({ queryKey: ['/api/admin/pages'] }),
+          queryClient.invalidateQueries({ queryKey: ['/api/pages'] }),
+          queryClient.invalidateQueries({ queryKey: ['/api/admin/pages/deleted'] }),
+          queryClient.invalidateQueries({ queryKey: ['/api/admin/highlights'] })
+        ]);
+
         toast({
           title: "Ingelogd",
           description: "Welkom in het admin panel!",
@@ -739,7 +772,14 @@ export default function Admin() {
   const handleLogout = async () => {
     try {
       await fetch('/api/logout', { method: 'POST' });
+      
+      // Clear authentication state
       setIsAuthenticated(false);
+      setCurrentUser(null);
+      
+      // Clear all cached queries
+      queryClient.clear();
+      
       toast({
         title: "Uitgelogd",
         description: "Je bent succesvol uitgelogd",
@@ -747,6 +787,8 @@ export default function Admin() {
     } catch (error) {
       // Fallback for simple mode
       setIsAuthenticated(false);
+      setCurrentUser(null);
+      queryClient.clear();
     }
   };
 
