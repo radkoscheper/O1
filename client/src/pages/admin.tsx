@@ -30,70 +30,70 @@ export default function Admin() {
   // Users query voor admin functionaliteit
   const usersQuery = useQuery({
     queryKey: ['/api/users'],
-    enabled: isAuthenticated && currentUser?.canManageUsers,
+    enabled: isAuthenticated && !!currentUser,
   });
   
-  // Content queries
+  // Content queries - always enable when authenticated, backend will handle permissions
   const destinationsQuery = useQuery({
     queryKey: ['/api/admin/destinations'],
-    enabled: isAuthenticated,
+    enabled: isAuthenticated && !!currentUser,
   });
   
   const guidesQuery = useQuery({
     queryKey: ['/api/admin/guides'],
-    enabled: isAuthenticated,
+    enabled: isAuthenticated && !!currentUser,
   });
 
   // Recycle bin queries
   const deletedDestinationsQuery = useQuery({
     queryKey: ['/api/admin/destinations/deleted'],
-    enabled: isAuthenticated && (currentUser?.canDeleteContent || currentUser?.canEditContent),
+    enabled: isAuthenticated && !!currentUser,
   });
 
   const deletedGuidesQuery = useQuery({
     queryKey: ['/api/admin/guides/deleted'],
-    enabled: isAuthenticated && (currentUser?.canDeleteContent || currentUser?.canEditContent),
+    enabled: isAuthenticated && !!currentUser,
   });
 
   // Images trash query
   const trashedImagesQuery = useQuery({
     queryKey: ['/api/admin/images/trash'],
-    enabled: isAuthenticated && (currentUser?.canDeleteContent || currentUser?.canEditContent),
+    enabled: isAuthenticated && !!currentUser,
   });
 
   // Site settings query
   const siteSettingsQuery = useQuery({
     queryKey: ['/api/site-settings'],
-    enabled: isAuthenticated && currentUser?.role === 'admin',
+    enabled: isAuthenticated && !!currentUser,
   });
 
   // Template queries (admin only)
   const templatesQuery = useQuery({
     queryKey: ['/api/admin/templates'],
-    enabled: isAuthenticated && currentUser?.role === 'admin',
+    enabled: isAuthenticated && !!currentUser,
   });
 
   // Pages queries
   const pagesQuery = useQuery({
     queryKey: ['/api/admin/pages'],
-    enabled: isAuthenticated && currentUser?.canCreateContent,
+    enabled: isAuthenticated && !!currentUser,
   });
 
   // Homepage pages query (filtered pages shown on homepage)
   const homepagePagesQuery = useQuery({
     queryKey: ['/api/pages'],
-    enabled: isAuthenticated && currentUser?.canCreateContent,
+    enabled: isAuthenticated && !!currentUser,
   });
 
   const deletedPagesQuery = useQuery({
     queryKey: ['/api/admin/pages/deleted'],
-    enabled: isAuthenticated && (currentUser?.canDeleteContent || currentUser?.canEditContent),
+    enabled: isAuthenticated && !!currentUser,
   });
 
   // Highlights queries (admin only)
   const highlightsQuery = useQuery({
     queryKey: ['/api/admin/highlights'],
-    enabled: isAuthenticated && currentUser?.role === 'admin',
+    enabled: isAuthenticated && !!currentUser,
   });
   const [showCreateUser, setShowCreateUser] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
@@ -725,29 +725,41 @@ export default function Admin() {
       if (response.ok) {
         const loginResult = await response.json();
         
-        // First update the authentication state
+        // Clear all cached queries first
+        queryClient.clear();
+        
+        // Update authentication state after clearing cache
         setIsAuthenticated(true);
         setCurrentUser(loginResult.user);
         setShowLogin(false);
         
-        // Clear all cached queries to force fresh data fetch
-        queryClient.clear();
-        
-        // Invalidate specific queries that depend on authentication
-        await Promise.all([
-          queryClient.invalidateQueries({ queryKey: ['/api/users'] }),
-          queryClient.invalidateQueries({ queryKey: ['/api/admin/destinations'] }),
-          queryClient.invalidateQueries({ queryKey: ['/api/admin/guides'] }),
-          queryClient.invalidateQueries({ queryKey: ['/api/admin/destinations/deleted'] }),
-          queryClient.invalidateQueries({ queryKey: ['/api/admin/guides/deleted'] }),
-          queryClient.invalidateQueries({ queryKey: ['/api/admin/images/trash'] }),
-          queryClient.invalidateQueries({ queryKey: ['/api/site-settings'] }),
-          queryClient.invalidateQueries({ queryKey: ['/api/admin/templates'] }),
-          queryClient.invalidateQueries({ queryKey: ['/api/admin/pages'] }),
-          queryClient.invalidateQueries({ queryKey: ['/api/pages'] }),
-          queryClient.invalidateQueries({ queryKey: ['/api/admin/pages/deleted'] }),
-          queryClient.invalidateQueries({ queryKey: ['/api/admin/highlights'] })
-        ]);
+        // Force immediate refetch of essential queries
+        setTimeout(async () => {
+          // First, re-fetch authentication status to ensure session is valid
+          await queryClient.refetchQueries({ queryKey: ['/api/auth/status'] });
+          
+          // Then refetch all data queries
+          await Promise.all([
+            queryClient.refetchQueries({ queryKey: ['/api/admin/destinations'] }),
+            queryClient.refetchQueries({ queryKey: ['/api/admin/guides'] }),
+            queryClient.refetchQueries({ queryKey: ['/api/admin/destinations/deleted'] }),
+            queryClient.refetchQueries({ queryKey: ['/api/admin/guides/deleted'] }),
+            queryClient.refetchQueries({ queryKey: ['/api/admin/images/trash'] }),
+            queryClient.refetchQueries({ queryKey: ['/api/admin/pages'] }),
+            queryClient.refetchQueries({ queryKey: ['/api/pages'] }),
+            queryClient.refetchQueries({ queryKey: ['/api/admin/pages/deleted'] })
+          ]);
+          
+          // Conditionally refetch admin-only queries
+          if (loginResult.user?.role === 'admin') {
+            await Promise.all([
+              queryClient.refetchQueries({ queryKey: ['/api/users'] }),
+              queryClient.refetchQueries({ queryKey: ['/api/site-settings'] }),
+              queryClient.refetchQueries({ queryKey: ['/api/admin/templates'] }),
+              queryClient.refetchQueries({ queryKey: ['/api/admin/highlights'] })
+            ]);
+          }
+        }, 150);
 
         toast({
           title: "Ingelogd",
@@ -945,13 +957,22 @@ export default function Admin() {
     }
   };
 
-  // Loading state
-  if (isLoading) {
+  // Enhanced loading state - wait for essential queries to complete
+  const isDataLoading = isLoading || 
+    (isAuthenticated && (!currentUser || 
+     destinationsQuery.isLoading || 
+     guidesQuery.isLoading || 
+     (currentUser?.role === 'admin' && (siteSettingsQuery.isLoading || highlightsQuery.isLoading))));
+
+  if (isDataLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading admin panel...</p>
+          {isAuthenticated && currentUser && (
+            <p className="mt-2 text-sm text-gray-500">Welcome {currentUser.username}, loading your content...</p>
+          )}
         </div>
       </div>
     );
