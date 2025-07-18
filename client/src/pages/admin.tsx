@@ -1057,19 +1057,9 @@ export default function Admin() {
           </Button>
         </div>
 
-        <Tabs defaultValue="content-manager" className="w-full">
+        <Tabs defaultValue="destinations" className="w-full">
           <TabsList className="h-auto w-full flex-wrap justify-start gap-2 p-2 bg-muted/30">
             {/* Content Beheer */}
-            {currentUser?.canCreateContent && (
-              <TabsTrigger value="content-manager" className="flex items-center gap-2">
-                🎯 Content Manager
-              </TabsTrigger>
-            )}
-            {currentUser?.canCreateContent && (
-              <TabsTrigger value="content-manager-1" className="flex items-center gap-2">
-                🎯 Content Manager 1
-              </TabsTrigger>
-            )}
             {currentUser?.canCreateContent && (
               <TabsTrigger value="destinations" className="flex items-center gap-2">
                 🏔️ Bestemmingen
@@ -1137,7 +1127,7 @@ export default function Admin() {
           </TabsList>
 
           {/* Content Manager - Unified CMS for Bestemmingen + Ontdek Meer */}
-          {currentUser?.canCreateContent && (
+          {false && currentUser?.canCreateContent && (
             <TabsContent value="content-manager" className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
@@ -1556,7 +1546,7 @@ export default function Admin() {
           )}
 
           {/* Content Manager 1 - Bestemmingen + Highlights */}
-          {currentUser?.canCreateContent && (
+          {false && currentUser?.canCreateContent && (
             <TabsContent value="content-manager-1" className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
@@ -2055,13 +2045,12 @@ export default function Admin() {
                 <div className="flex flex-col sm:flex-row gap-2">
                   <Button 
                     onClick={() => {
-                      // Switch naar nieuwe gids tab door de data-state te vinden en te klikken
-                      setTimeout(() => {
-                        const newGuideTab = document.querySelector('[data-state="inactive"][value="new-guide"]') as HTMLElement;
-                        if (newGuideTab) {
-                          newGuideTab.click();
-                        }
-                      }, 100);
+                      // Switch naar nieuwe gids tab
+                      const tabsContainer = document.querySelector('[role="tablist"]');
+                      const newGuideTab = tabsContainer?.querySelector('[value="new-guide"]') as HTMLElement;
+                      if (newGuideTab) {
+                        newGuideTab.click();
+                      }
                     }}
                     className="flex items-center gap-2"
                   >
@@ -2092,17 +2081,29 @@ export default function Admin() {
                   </CardHeader>
                   <CardContent className="pt-0">
                     <div className="flex flex-col gap-3">
-                      {/* Quick Homepage Toggle */}
-                      <Button 
-                        size="sm" 
-                        variant={guide.showOnHomepage ? "default" : "outline"}
-                        onClick={() => handleToggleGuideHomepage(guide.id, !guide.showOnHomepage)}
-                        className="w-full"
-                      >
-                        {guide.showOnHomepage ? "🏠 Op Homepage" : "➕ Naar Homepage"}
-                      </Button>
+                      {guide.image && (
+                        <div className="relative h-32 w-full overflow-hidden rounded-md">
+                          <img 
+                            src={guide.image} 
+                            alt={guide.alt || guide.title}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      )}
                       
                       <div className="flex flex-wrap gap-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleToggleGuideHomepage(guide.id, !guide.showOnHomepage)}
+                          className="text-xs flex-1"
+                        >
+                          {guide.showOnHomepage ? (
+                            <>❌ Van Homepage</>
+                          ) : (
+                            <>✅ Op Homepage</>
+                          )}
+                        </Button>
                         <Button 
                           size="sm" 
                           variant="outline"
@@ -2122,32 +2123,37 @@ export default function Admin() {
                             });
                             setShowEditGuide(true);
                           }}
+                          className="text-xs"
                         >
-                          <Edit className="h-4 w-4 mr-2" />
+                          <Edit className="h-3 w-3 mr-1" />
                           Bewerken
                         </Button>
+                      </div>
+
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedGuide(guide);
+                          setShowViewGuide(true);
+                        }}
+                        className="text-xs w-full"
+                      >
+                        <Eye className="h-3 w-3 mr-1" />
+                        Bekijken
+                      </Button>
+                      
+                      {currentUser?.canDeleteContent && (
                         <Button 
                           size="sm" 
                           variant="outline"
-                          onClick={() => {
-                            setSelectedGuide(guide);
-                            setShowViewGuide(true);
-                          }}
+                          onClick={() => handleSoftDeleteGuide(guide.id)}
+                          className="text-xs w-full"
                         >
-                          <Eye className="h-4 w-4 mr-2" />
-                          Bekijken
+                          <Trash2 className="h-3 w-3 mr-1" />
+                          🗑️ Naar Prullenbak
                         </Button>
-                        {currentUser?.canDeleteContent && (
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => handleSoftDeleteGuide(guide.id)}
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            🗑️ Naar Prullenbak
-                          </Button>
-                        )}
-                      </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -3354,23 +3360,31 @@ export default function Admin() {
             </TabsContent>
           )}
 
-          {/* Templates Tab Content - Admin Only */}
-          {currentUser?.role === 'admin' && (
-            <TabsContent value="templates" className="space-y-6">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h2 className="text-2xl font-semibold">Templates</h2>
-                  <p className="text-gray-600">Beheer templates voor pagina's en content</p>
+          {/* Templates Tab Content */}
+          <TabsContent value="templates" className="space-y-6">
+            {currentUser && currentUser.role !== 'admin' ? (
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <p className="text-gray-600">Je hebt geen toegang tot deze functie. Alleen administrators kunnen templates beheren.</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h2 className="text-2xl font-semibold">Templates</h2>
+                    <p className="text-gray-600">Beheer templates voor pagina's en content</p>
+                  </div>
+                  <Button variant="outline" onClick={() => setShowCreateTemplate(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Nieuwe Template
+                  </Button>
                 </div>
-                <Button variant="outline" onClick={() => setShowCreateTemplate(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nieuwe Template
-                </Button>
-              </div>
-              
-              <TemplateManagement />
-            </TabsContent>
-          )}
+                
+                <TemplateManagement />
+              </>
+            )}
+          </TabsContent>
 
         </Tabs>
 
