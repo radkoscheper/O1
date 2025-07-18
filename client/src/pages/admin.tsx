@@ -957,22 +957,13 @@ export default function Admin() {
     }
   };
 
-  // Enhanced loading state - wait for essential queries to complete
-  const isDataLoading = isLoading || 
-    (isAuthenticated && (!currentUser || 
-     destinationsQuery.isLoading || 
-     guidesQuery.isLoading || 
-     (currentUser?.role === 'admin' && (siteSettingsQuery.isLoading || highlightsQuery.isLoading))));
-
-  if (isDataLoading) {
+  // Only show loading for initial page load
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading admin panel...</p>
-          {isAuthenticated && currentUser && (
-            <p className="mt-2 text-sm text-gray-500">Welcome {currentUser.username}, loading your content...</p>
-          )}
         </div>
       </div>
     );
@@ -1058,65 +1049,56 @@ export default function Admin() {
 
         <Tabs defaultValue="content-manager" className="w-full">
           <TabsList className="h-auto w-full flex-wrap justify-start gap-2 p-2 bg-muted/30">
-            {/* Content Beheer */}
-            {currentUser?.canCreateContent && (
-              <TabsTrigger value="content-manager" className="flex items-center gap-2">
-                🎯 Content Manager
-              </TabsTrigger>
-            )}
+            {/* Content Beheer - Show by default, enforce permissions in content */}
+            <TabsTrigger value="content-manager" className="flex items-center gap-2">
+              🎯 Content Manager
+            </TabsTrigger>
 
-            {currentUser?.canCreateContent && (
-              <TabsTrigger value="destinations" className="flex items-center gap-2">
-                🏔️ Bestemmingen
-              </TabsTrigger>
-            )}
-            {currentUser?.canCreateContent && (
-              <TabsTrigger value="guides" className="flex items-center gap-2">
-                📖 Reisgidsen
-              </TabsTrigger>
-            )}
+            <TabsTrigger value="destinations" className="flex items-center gap-2">
+              🏔️ Bestemmingen
+            </TabsTrigger>
+            
+            <TabsTrigger value="guides" className="flex items-center gap-2">
+              📖 Reisgidsen
+            </TabsTrigger>
 
+            <TabsTrigger value="pages" className="flex items-center gap-2">
+              📄 Pagina's
+            </TabsTrigger>
+            
+            <TabsTrigger value="homepage-overview" className="flex items-center gap-2">
+              🏠 Homepage Overview
+            </TabsTrigger>
+            
+            <TabsTrigger value="ontdek-meer" className="flex items-center gap-2">
+              📄 Ontdek Meer
+            </TabsTrigger>
 
-            {currentUser?.canCreateContent && (
-              <TabsTrigger value="pages" className="flex items-center gap-2">
-                📄 Pagina's
-              </TabsTrigger>
-            )}
-            {currentUser?.canCreateContent && (
-              <TabsTrigger value="homepage-overview" className="flex items-center gap-2">
-                🏠 Homepage Overview
-              </TabsTrigger>
-            )}
-            {currentUser?.canCreateContent && (
-              <TabsTrigger value="ontdek-meer" className="flex items-center gap-2">
-                📄 Ontdek Meer
-              </TabsTrigger>
-            )}
-            {currentUser?.role === 'admin' && (
+            {/* Admin only tabs */}
+            {(!currentUser || currentUser?.role === 'admin') && (
               <TabsTrigger value="templates" className="flex items-center gap-2">
                 🎨 Templates
               </TabsTrigger>
             )}
-            {currentUser?.role === 'admin' && (
+            {(!currentUser || currentUser?.role === 'admin') && (
               <TabsTrigger value="highlights" className="flex items-center gap-2">
                 ✨ Highlights
               </TabsTrigger>
             )}
             
             {/* Beheer & Instellingen */}
-            {(currentUser?.canDeleteContent || currentUser?.canEditContent) && (
-              <TabsTrigger value="recycle" className="flex items-center gap-2">
-                <Trash2 className="h-4 w-4" />
-                Prullenbak
-              </TabsTrigger>
-            )}
-            {currentUser?.canManageUsers && (
+            <TabsTrigger value="recycle" className="flex items-center gap-2">
+              <Trash2 className="h-4 w-4" />
+              Prullenbak
+            </TabsTrigger>
+
+            {(!currentUser || currentUser?.canManageUsers) && (
               <TabsTrigger value="users" className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
                 Gebruikers
               </TabsTrigger>
             )}
-            {currentUser?.role === 'admin' && (
+            {(!currentUser || currentUser?.role === 'admin') && (
               <TabsTrigger value="site-settings" className="flex items-center gap-2">
                 <Shield className="h-4 w-4" />
                 Site Instellingen
