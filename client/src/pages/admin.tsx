@@ -18,7 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import ReactCrop, { Crop, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
-import { CreateHighlightDialog, EditHighlightDialogContent, ViewHighlightDialogContent, CreateDestinationDialog, CreateGuideDialog } from '@/components/highlights-dialogs';
+import { CreateHighlightDialog, EditHighlightDialog, ViewHighlightDialog, CreateDestinationDialog } from '@/components/highlights-dialogs';
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -30,70 +30,70 @@ export default function Admin() {
   // Users query voor admin functionaliteit
   const usersQuery = useQuery({
     queryKey: ['/api/users'],
-    enabled: isAuthenticated && !!currentUser,
+    enabled: isAuthenticated && currentUser?.canManageUsers,
   });
   
-  // Content queries - always enable when authenticated, backend will handle permissions
+  // Content queries
   const destinationsQuery = useQuery({
     queryKey: ['/api/admin/destinations'],
-    enabled: isAuthenticated && !!currentUser,
+    enabled: isAuthenticated,
   });
   
   const guidesQuery = useQuery({
     queryKey: ['/api/admin/guides'],
-    enabled: isAuthenticated && !!currentUser,
+    enabled: isAuthenticated,
   });
 
   // Recycle bin queries
   const deletedDestinationsQuery = useQuery({
     queryKey: ['/api/admin/destinations/deleted'],
-    enabled: isAuthenticated && !!currentUser,
+    enabled: isAuthenticated && (currentUser?.canDeleteContent || currentUser?.canEditContent),
   });
 
   const deletedGuidesQuery = useQuery({
     queryKey: ['/api/admin/guides/deleted'],
-    enabled: isAuthenticated && !!currentUser,
+    enabled: isAuthenticated && (currentUser?.canDeleteContent || currentUser?.canEditContent),
   });
 
   // Images trash query
   const trashedImagesQuery = useQuery({
     queryKey: ['/api/admin/images/trash'],
-    enabled: isAuthenticated && !!currentUser,
+    enabled: isAuthenticated && (currentUser?.canDeleteContent || currentUser?.canEditContent),
   });
 
   // Site settings query
   const siteSettingsQuery = useQuery({
     queryKey: ['/api/site-settings'],
-    enabled: isAuthenticated && !!currentUser,
+    enabled: isAuthenticated && currentUser?.role === 'admin',
   });
 
   // Template queries (admin only)
   const templatesQuery = useQuery({
     queryKey: ['/api/admin/templates'],
-    enabled: isAuthenticated && !!currentUser,
+    enabled: isAuthenticated && currentUser?.role === 'admin',
   });
 
   // Pages queries
   const pagesQuery = useQuery({
     queryKey: ['/api/admin/pages'],
-    enabled: isAuthenticated && !!currentUser,
+    enabled: isAuthenticated && currentUser?.canCreateContent,
   });
 
   // Homepage pages query (filtered pages shown on homepage)
   const homepagePagesQuery = useQuery({
     queryKey: ['/api/pages'],
-    enabled: isAuthenticated && !!currentUser,
+    enabled: isAuthenticated && currentUser?.canCreateContent,
   });
 
   const deletedPagesQuery = useQuery({
     queryKey: ['/api/admin/pages/deleted'],
-    enabled: isAuthenticated && !!currentUser,
+    enabled: isAuthenticated && (currentUser?.canDeleteContent || currentUser?.canEditContent),
   });
 
   // Highlights queries (admin only)
   const highlightsQuery = useQuery({
     queryKey: ['/api/admin/highlights'],
-    enabled: isAuthenticated && !!currentUser,
+    enabled: isAuthenticated && currentUser?.role === 'admin',
   });
   const [showCreateUser, setShowCreateUser] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
@@ -105,7 +105,6 @@ export default function Admin() {
   const [showCreateDestination, setShowCreateDestination] = useState(false);
   const [showEditDestination, setShowEditDestination] = useState(false);
   const [showViewDestination, setShowViewDestination] = useState(false);
-  const [showCreateGuide, setShowCreateGuide] = useState(false);
   const [showEditGuide, setShowEditGuide] = useState(false);
   const [showViewGuide, setShowViewGuide] = useState(false);
   const [selectedDestination, setSelectedDestination] = useState<any>(null);
@@ -216,14 +215,17 @@ export default function Admin() {
     return destinationsQuery.data.filter((dest: any) => dest.location === locationFilter);
   };
 
-  // Filter guides by location (assuming guides also have location property)
-  const getFilteredGuides = () => {
-    if (!guidesQuery.data) return [];
-    if (locationFilter === 'all') return guidesQuery.data;
-    return guidesQuery.data.filter((guide: any) => guide.location === locationFilter);
-  };
-
-
+  const [newGuide, setNewGuide] = useState({
+    title: '',
+    description: '',
+    image: '',
+    alt: '',
+    content: '',
+    link: '',
+    featured: false,
+    published: false,
+    ranking: 0
+  });
 
   // Site settings state
   const [siteSettings, setSiteSettings] = useState({
@@ -286,18 +288,9 @@ export default function Admin() {
       const response = await fetch('/api/auth/status');
       if (response.ok) {
         const data = await response.json();
-        if (data.isAuthenticated && data.user) {
-          setIsAuthenticated(true);
+        setIsAuthenticated(data.isAuthenticated);
+        if (data.user) {
           setCurrentUser(data.user);
-          
-          // If user is already authenticated on page load, ensure queries are fresh
-          // This handles the case where user refreshes the page
-          setTimeout(() => {
-            queryClient.invalidateQueries();
-          }, 100);
-        } else {
-          setIsAuthenticated(false);
-          setCurrentUser(null);
         }
       } else {
         // If API fails, enable simple mode (no database)
@@ -503,39 +496,6 @@ export default function Admin() {
     }
   };
 
-  const handleCleanupOrphanedImages = async () => {
-    const confirmCleanup = confirm('Weet je zeker dat je weesgezinde afbeeldingen wilt opruimen? Dit verwijdert alle afbeeldingen die niet meer gebruikt worden in de database.');
-    if (!confirmCleanup) return;
-    
-    try {
-      setIsLoading(true);
-      const response = await fetch('/api/admin/cleanup-images', {
-        method: 'POST',
-        credentials: 'include',
-      });
-      
-      if (response.ok) {
-        const result = await response.json();
-        toast({ 
-          title: "Cleanup voltooid", 
-          description: `${result.deletedGuides + result.deletedDestinations} weesgezinde afbeeldingen verwijderd`,
-        });
-        
-        // Refresh all image-related queries
-        trashedImagesQuery.refetch();
-        destinationsQuery.refetch();
-        guidesQuery.refetch();
-      } else {
-        const error = await response.json();
-        toast({ title: "Fout", description: error.message, variant: "destructive" });
-      }
-    } catch (error) {
-      toast({ title: "Fout", description: "Er is een fout opgetreden bij cleanup", variant: "destructive" });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   // Soft delete handlers
   const handleSoftDeleteDestination = async (id: number) => {
     if (!confirm('Weet je zeker dat je deze bestemming naar de prullenbak wilt verplaatsen?')) {
@@ -723,44 +683,8 @@ export default function Admin() {
       });
 
       if (response.ok) {
-        const loginResult = await response.json();
-        
-        // Clear all cached queries first
-        queryClient.clear();
-        
-        // Update authentication state after clearing cache
         setIsAuthenticated(true);
-        setCurrentUser(loginResult.user);
         setShowLogin(false);
-        
-        // Force immediate refetch of essential queries
-        setTimeout(async () => {
-          // First, re-fetch authentication status to ensure session is valid
-          await queryClient.refetchQueries({ queryKey: ['/api/auth/status'] });
-          
-          // Then refetch all data queries
-          await Promise.all([
-            queryClient.refetchQueries({ queryKey: ['/api/admin/destinations'] }),
-            queryClient.refetchQueries({ queryKey: ['/api/admin/guides'] }),
-            queryClient.refetchQueries({ queryKey: ['/api/admin/destinations/deleted'] }),
-            queryClient.refetchQueries({ queryKey: ['/api/admin/guides/deleted'] }),
-            queryClient.refetchQueries({ queryKey: ['/api/admin/images/trash'] }),
-            queryClient.refetchQueries({ queryKey: ['/api/admin/pages'] }),
-            queryClient.refetchQueries({ queryKey: ['/api/pages'] }),
-            queryClient.refetchQueries({ queryKey: ['/api/admin/pages/deleted'] })
-          ]);
-          
-          // Conditionally refetch admin-only queries
-          if (loginResult.user?.role === 'admin') {
-            await Promise.all([
-              queryClient.refetchQueries({ queryKey: ['/api/users'] }),
-              queryClient.refetchQueries({ queryKey: ['/api/site-settings'] }),
-              queryClient.refetchQueries({ queryKey: ['/api/admin/templates'] }),
-              queryClient.refetchQueries({ queryKey: ['/api/admin/highlights'] })
-            ]);
-          }
-        }, 150);
-
         toast({
           title: "Ingelogd",
           description: "Welkom in het admin panel!",
@@ -784,14 +708,7 @@ export default function Admin() {
   const handleLogout = async () => {
     try {
       await fetch('/api/logout', { method: 'POST' });
-      
-      // Clear authentication state
       setIsAuthenticated(false);
-      setCurrentUser(null);
-      
-      // Clear all cached queries
-      queryClient.clear();
-      
       toast({
         title: "Uitgelogd",
         description: "Je bent succesvol uitgelogd",
@@ -799,8 +716,6 @@ export default function Admin() {
     } catch (error) {
       // Fallback for simple mode
       setIsAuthenticated(false);
-      setCurrentUser(null);
-      queryClient.clear();
     }
   };
 
@@ -902,7 +817,102 @@ export default function Admin() {
     }
   };
 
+  const handleCreateGuide = async () => {
+    // Validate required fields
+    if (!newGuide.title.trim()) {
+      toast({
+        title: "Validatie fout",
+        description: "Titel is verplicht",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!newGuide.description.trim()) {
+      toast({
+        title: "Validatie fout",
+        description: "Beschrijving is verplicht", 
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!newGuide.image.trim()) {
+      toast({
+        title: "Validatie fout",
+        description: "Afbeelding is verplicht",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!newGuide.alt.trim()) {
+      toast({
+        title: "Validatie fout",
+        description: "Alt-tekst is verplicht",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!newGuide.content.trim()) {
+      toast({
+        title: "Validatie fout",
+        description: "Content is verplicht",
+        variant: "destructive",
+      });
+      return;
+    }
 
+    try {
+      console.log('Creating guide:', newGuide);
+      
+      const response = await fetch('/api/guides', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(newGuide),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Fout bij aanmaken reisgids');
+      }
+
+      const result = await response.json();
+      
+      toast({
+        title: "Succes",
+        description: `Reisgids "${newGuide.title}" is succesvol aangemaakt!`,
+      });
+      
+      // Reset form
+      setNewGuide({
+        title: '',
+        description: '',
+        image: '',
+        alt: '',
+        content: '',
+        link: '',
+        featured: false,
+        published: false,
+        ranking: 0
+      });
+
+      // Refresh data
+      guidesQuery.refetch();
+      
+    } catch (error) {
+      console.error('Error creating guide:', error);
+      toast({
+        title: "Fout",
+        description: error instanceof Error ? error.message : "Er is een fout opgetreden bij het aanmaken van de reisgids",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleSaveSiteSettings = async () => {
     try {
@@ -957,7 +967,7 @@ export default function Admin() {
     }
   };
 
-  // Only show loading for initial page load
+  // Loading state
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -1049,56 +1059,73 @@ export default function Admin() {
 
         <Tabs defaultValue="content-manager" className="w-full">
           <TabsList className="h-auto w-full flex-wrap justify-start gap-2 p-2 bg-muted/30">
-            {/* Content Beheer - Show by default, enforce permissions in content */}
-            <TabsTrigger value="content-manager" className="flex items-center gap-2">
-              🎯 Content Manager
-            </TabsTrigger>
+            {/* Content Beheer */}
+            {currentUser?.canCreateContent && (
+              <TabsTrigger value="content-manager" className="flex items-center gap-2">
+                🎯 Content Manager
+              </TabsTrigger>
+            )}
+            {currentUser?.canCreateContent && (
+              <TabsTrigger value="content-manager-1" className="flex items-center gap-2">
+                🎯 Content Manager 1
+              </TabsTrigger>
+            )}
+            {currentUser?.canCreateContent && (
+              <TabsTrigger value="destinations" className="flex items-center gap-2">
+                🏔️ Bestemmingen
+              </TabsTrigger>
+            )}
+            {currentUser?.canCreateContent && (
+              <TabsTrigger value="guides" className="flex items-center gap-2">
+                📖 Reisgidsen
+              </TabsTrigger>
+            )}
 
-            <TabsTrigger value="destinations" className="flex items-center gap-2">
-              🏔️ Bestemmingen
-            </TabsTrigger>
-            
-            <TabsTrigger value="guides" className="flex items-center gap-2">
-              📖 Reisgidsen
-            </TabsTrigger>
-
-            <TabsTrigger value="pages" className="flex items-center gap-2">
-              📄 Pagina's
-            </TabsTrigger>
-            
-            <TabsTrigger value="homepage-overview" className="flex items-center gap-2">
-              🏠 Homepage Overview
-            </TabsTrigger>
-            
-            <TabsTrigger value="ontdek-meer" className="flex items-center gap-2">
-              📄 Ontdek Meer
-            </TabsTrigger>
-
-            {/* Admin only tabs */}
-            {(!currentUser || currentUser?.role === 'admin') && (
+            {currentUser?.canCreateContent && (
+              <TabsTrigger value="new-guide" className="flex items-center gap-2">
+                📝 Nieuwe Gids
+              </TabsTrigger>
+            )}
+            {currentUser?.canCreateContent && (
+              <TabsTrigger value="pages" className="flex items-center gap-2">
+                📄 Pagina's
+              </TabsTrigger>
+            )}
+            {currentUser?.canCreateContent && (
+              <TabsTrigger value="homepage-overview" className="flex items-center gap-2">
+                🏠 Homepage Overview
+              </TabsTrigger>
+            )}
+            {currentUser?.canCreateContent && (
+              <TabsTrigger value="ontdek-meer" className="flex items-center gap-2">
+                📄 Ontdek Meer
+              </TabsTrigger>
+            )}
+            {currentUser?.role === 'admin' && (
               <TabsTrigger value="templates" className="flex items-center gap-2">
                 🎨 Templates
               </TabsTrigger>
             )}
-            {(!currentUser || currentUser?.role === 'admin') && (
+            {currentUser?.role === 'admin' && (
               <TabsTrigger value="highlights" className="flex items-center gap-2">
                 ✨ Highlights
               </TabsTrigger>
             )}
             
             {/* Beheer & Instellingen */}
-            <TabsTrigger value="recycle" className="flex items-center gap-2">
-              <Trash2 className="h-4 w-4" />
-              Prullenbak
-            </TabsTrigger>
-
-            {(!currentUser || currentUser?.canManageUsers) && (
+            {(currentUser?.canDeleteContent || currentUser?.canEditContent) && (
+              <TabsTrigger value="recycle" className="flex items-center gap-2">
+                <Trash2 className="h-4 w-4" />
+                Prullenbak
+              </TabsTrigger>
+            )}
+            {currentUser?.canManageUsers && (
               <TabsTrigger value="users" className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
                 Gebruikers
               </TabsTrigger>
             )}
-            {(!currentUser || currentUser?.role === 'admin') && (
+            {currentUser?.role === 'admin' && (
               <TabsTrigger value="site-settings" className="flex items-center gap-2">
                 <Shield className="h-4 w-4" />
                 Site Instellingen
@@ -1135,7 +1162,12 @@ export default function Admin() {
                   <TabsTrigger value="all-content" className="flex items-center gap-2">
                     📋 Alle Content
                   </TabsTrigger>
-
+                  <TabsTrigger value="pages-only" className="flex items-center gap-2">
+                    📄 Ontdek Meer ({pagesQuery.data?.length || 0})
+                  </TabsTrigger>
+                  <TabsTrigger value="homepage-content" className="flex items-center gap-2">
+                    🏠 Homepage Content
+                  </TabsTrigger>
                 </TabsList>
 
                 {/* All Content View - Unified Table */}
@@ -1332,7 +1364,530 @@ export default function Admin() {
 
 
 
+                {/* Pages Only View */}
+                <TabsContent value="pages-only" className="space-y-4">
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {(pagesQuery.data || []).map((page: any) => (
+                      <Card key={page.id} className="hover:shadow-lg transition-shadow">
+                        <CardHeader className="pb-3">
+                          <div className="flex flex-col gap-3">
+                            <div className="flex justify-between items-start">
+                              <CardTitle className="text-lg leading-tight">{page.title}</CardTitle>
+                              <Badge variant="outline" className="text-xs">#{page.ranking || 0}</Badge>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {page.featured && <Badge variant="secondary" className="text-xs">⭐ Featured</Badge>}
+                              <Badge variant={page.published ? "default" : "outline"} className="text-xs">
+                                {page.published ? "✅ Gepubliceerd" : "📝 Concept"}
+                              </Badge>
+                              {page.published && <Badge variant="default" className="text-xs bg-green-600 hover:bg-green-700">🏠 Homepage</Badge>}
+                            </div>
+                            <div className="flex items-center text-xs text-gray-500 gap-2">
+                              <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded">
+                                {page.template}
+                              </span>
+                              <span>
+                                {new Date(page.createdAt).toLocaleDateString('nl-NL')}
+                              </span>
+                            </div>
+                            <CardDescription className="text-sm line-clamp-2">{page.metaDescription}</CardDescription>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="pt-0">
+                          <div className="flex flex-col gap-3">
+                            <Button 
+                              size="sm" 
+                              variant={page.published ? "default" : "outline"}
+                              onClick={() => handleTogglePageHomepage(page.id, !page.published)}
+                              className="w-full"
+                            >
+                              {page.published ? "🏠 Op Homepage" : "➕ Naar Homepage"}
+                            </Button>
+                            
+                            <div className="flex flex-wrap gap-2">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => {
+                                  setSelectedPage(page);
+                                  setEditPageData({
+                                    title: page.title,
+                                    slug: page.slug,
+                                    content: page.content,
+                                    metaTitle: page.metaTitle || '',
+                                    metaDescription: page.metaDescription || '',
+                                    metaKeywords: page.metaKeywords || '',
+                                    template: page.template,
+                                    headerImage: page.headerImage || '',
+                                    headerImageAlt: page.headerImageAlt || '',
+                                    highlightSections: page.highlightSections || '',
+                                    published: page.published,
+                                    featured: page.featured,
+                                    ranking: page.ranking || 0
+                                  });
+                                  setShowEditPage(true);
+                                }}
+                              >
+                                <Edit className="h-4 w-4 mr-2" />
+                                Bewerken
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => {
+                                  setSelectedPage(page);
+                                  setShowViewPage(true);
+                                }}
+                              >
+                                <Eye className="h-4 w-4 mr-2" />
+                                Bekijken
+                              </Button>
+                              {page.published && (
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => window.open(`/${page.slug}`, '_blank')}
+                                >
+                                  <ExternalLink className="h-4 w-4 mr-2" />
+                                  Live
+                                </Button>
+                              )}
+                              {currentUser?.canDeleteContent && (
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => handleSoftDeletePage(page.id)}
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  🗑️ Naar Prullenbak
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </TabsContent>
 
+                {/* Homepage Content View */}
+                <TabsContent value="homepage-content" className="space-y-4">
+                  <div className="grid gap-4">
+                    {/* Homepage Bestemmingen */}
+                    <div className="bg-blue-50 rounded-lg p-4">
+                      <h4 className="font-semibold text-blue-900 mb-3">Homepage Bestemmingen ({destinationsQuery.data?.filter((d: any) => d.showOnHomepage).length || 0})</h4>
+                      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                        {(destinationsQuery.data || []).filter((d: any) => d.showOnHomepage).map((destination: any) => (
+                          <div key={destination.id} className="bg-white p-3 rounded border border-blue-200">
+                            <div className="flex justify-between items-start mb-2">
+                              <h5 className="font-medium text-blue-900">{destination.name}</h5>
+                              <Badge className="bg-blue-600 text-xs">#{destination.ranking || 0}</Badge>
+                            </div>
+                            <p className="text-sm text-gray-600 mb-2">{destination.description?.substring(0, 60)}...</p>
+                            <div className="flex gap-1">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => handleToggleDestinationHomepage(destination.id, false)}
+                                className="text-xs"
+                              >
+                                ❌ Verwijderen
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => {
+                                  setSelectedDestination(destination);
+                                  setShowEditDestination(true);
+                                }}
+                                className="text-xs"
+                              >
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Homepage Ontdek Meer */}
+                    <div className="bg-green-50 rounded-lg p-4">
+                      <h4 className="font-semibold text-green-900 mb-3">Homepage Ontdek Meer ({pagesQuery.data?.filter((p: any) => p.published).length || 0})</h4>
+                      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                        {(pagesQuery.data || []).filter((p: any) => p.published).map((page: any) => (
+                          <div key={page.id} className="bg-white p-3 rounded border border-green-200">
+                            <div className="flex justify-between items-start mb-2">
+                              <h5 className="font-medium text-green-900">{page.title}</h5>
+                              <Badge className="bg-green-600 text-xs">#{page.ranking || 0}</Badge>
+                            </div>
+                            <p className="text-sm text-gray-600 mb-2">{page.metaDescription?.substring(0, 60)}...</p>
+                            <div className="flex gap-1 mb-2">
+                              <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">{page.template}</span>
+                            </div>
+                            <div className="flex gap-1">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => handleTogglePageHomepage(page.id, false)}
+                                className="text-xs"
+                              >
+                                ❌ Depubliceren
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => {
+                                  setSelectedPage(page);
+                                  setShowEditPage(true);
+                                }}
+                                className="text-xs"
+                              >
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </TabsContent>
+          )}
+
+          {/* Content Manager 1 - Bestemmingen + Highlights */}
+          {currentUser?.canCreateContent && (
+            <TabsContent value="content-manager-1" className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <div>
+                  <h2 className="text-2xl font-semibold">Content Manager 1 - Bestemmingen & Highlights</h2>
+                  <p className="text-gray-600">Unified interface voor bestemmingen en highlights beheer</p>
+                </div>
+              </div>
+
+              <Tabs defaultValue="all-content" className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="all-content">Overzicht</TabsTrigger>
+                  <TabsTrigger value="highlights-view">Highlights</TabsTrigger>
+                  <TabsTrigger value="actions">Acties</TabsTrigger>
+                </TabsList>
+
+                {/* Overzicht Tab */}
+                <TabsContent value="all-content" className="space-y-6">
+                  <div className="grid gap-6 lg:grid-cols-2">
+                    {/* Bestemmingen Overzicht */}
+                    <div className="bg-blue-50 rounded-lg p-6">
+                      <h3 className="text-xl font-semibold text-blue-900 mb-4">
+                        Bestemmingen ({destinationsQuery.data?.length || 0})
+                      </h3>
+                      <div className="space-y-3 max-h-96 overflow-y-auto">
+                        {(destinationsQuery.data || []).map((destination: any) => (
+                          <div key={destination.id} className="bg-white p-3 rounded border border-blue-200">
+                            <div className="flex justify-between items-start mb-2">
+                              <h4 className="font-medium text-blue-900">{destination.name}</h4>
+                              <div className="flex gap-1">
+                                <Badge variant="outline" className="text-xs">#{destination.ranking || 0}</Badge>
+                                {destination.showOnHomepage && <Badge variant="default" className="text-xs bg-green-600">🏠</Badge>}
+                              </div>
+                            </div>
+                            <p className="text-sm text-gray-600 mb-2">{destination.description?.substring(0, 80)}...</p>
+                            <div className="flex gap-1">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => handleToggleDestinationHomepage(destination.id, !destination.showOnHomepage)}
+                                className="text-xs"
+                              >
+                                {destination.showOnHomepage ? '❌ Van Homepage' : '✅ Op Homepage'}
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => {
+                                  setSelectedDestination(destination);
+                                  setEditDestinationData({
+                                    name: destination.name,
+                                        location: destination.location || '',
+                                    description: destination.description,
+                                    image: destination.image,
+                                    alt: destination.alt || '',
+                                    content: destination.content || '',
+                                    link: destination.link || '',
+                                    featured: destination.featured,
+                                    published: destination.published,
+                                    showOnHomepage: destination.showOnHomepage || false,
+                                    ranking: destination.ranking || 0
+                                  });
+                                  setShowEditDestination(true);
+                                }}
+                                className="text-xs"
+                              >
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Highlights Overzicht */}
+                    <div className="bg-purple-50 rounded-lg p-6">
+                      <h3 className="text-xl font-semibold text-purple-900 mb-4">
+                        Highlights ({highlightsQuery.data?.length || 0})
+                      </h3>
+                      <div className="space-y-3 max-h-96 overflow-y-auto">
+                        {(highlightsQuery.data || []).map((highlight: any) => (
+                          <div key={highlight.id} className="bg-white p-3 rounded border border-purple-200">
+                            <div className="flex justify-between items-start mb-2">
+                              <h4 className="font-medium text-purple-900">{highlight.name}</h4>
+                              <Badge variant="outline" className="text-xs">#{highlight.ranking || 0}</Badge>
+                            </div>
+                            <p className="text-sm text-gray-600 mb-2">{highlight.description?.substring(0, 80)}...</p>
+                            <div className="flex gap-1">
+                              <ViewHighlightDialog highlight={highlight} />
+                              <EditHighlightDialog 
+                                highlight={highlight} 
+                                onUpdate={() => queryClient.invalidateQueries({ queryKey: ['/api/admin/highlights'] })} 
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                {/* Highlights View Tab */}
+                <TabsContent value="highlights-view" className="space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                    <div>
+                      <h3 className="text-xl font-semibold">Highlights Beheer ({highlightsQuery.data?.length || 0})</h3>
+                      <p className="text-gray-600">Beheer al je Polish reisbestemmingen</p>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <Select value={locationFilter} onValueChange={setLocationFilter}>
+                        <SelectTrigger className="w-48">
+                          <SelectValue placeholder="Filter op locatie" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Alle locaties</SelectItem>
+                          {getUniqueLocations().map((location) => (
+                            <SelectItem key={location} value={location}>
+                              📍 {location}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button 
+                        onClick={() => setShowCreateDestination(true)}
+                        className="flex items-center gap-2"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Nieuwe Bestemming
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {getFilteredDestinations().map((destination: any) => (
+                    <Card key={destination.id} className="hover:shadow-lg transition-shadow">
+                      <CardHeader className="pb-3">
+                        <div className="flex flex-col gap-3">
+                          <div className="flex justify-between items-start">
+                            <CardTitle className="text-lg leading-tight">{destination.name}</CardTitle>
+                            <Badge variant="outline" className="text-xs">#{destination.ranking || 0}</Badge>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {destination.location && (
+                              <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                                📍 {destination.location}
+                              </Badge>
+                            )}
+                            {destination.featured && <Badge variant="secondary" className="text-xs">⭐ Featured</Badge>}
+                            <Badge variant={destination.published ? "default" : "outline"} className="text-xs">
+                              {destination.published ? "✅ Gepubliceerd" : "📝 Concept"}
+                            </Badge>
+                            {destination.showOnHomepage && <Badge variant="default" className="text-xs bg-green-600 hover:bg-green-700">🏠 Homepage</Badge>}
+                          </div>
+                          <CardDescription className="text-sm line-clamp-2">{destination.description}</CardDescription>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <div className="flex flex-col gap-3">
+                          {destination.image && (
+                            <div className="relative h-32 w-full overflow-hidden rounded-md">
+                              <img 
+                                src={destination.image} 
+                                alt={destination.alt || destination.name}
+                                className="h-full w-full object-cover"
+                              />
+                            </div>
+                          )}
+                          
+                          <div className="flex flex-wrap gap-2">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => handleToggleDestinationHomepage(destination.id, !destination.showOnHomepage)}
+                              className="text-xs flex-1"
+                            >
+                              {destination.showOnHomepage ? (
+                                <>❌ Van Homepage</>
+                              ) : (
+                                <>✅ Op Homepage</>
+                              )}
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => {
+                                setSelectedDestination(destination);
+                                setEditDestinationData({
+                                  name: destination.name,
+                                        location: destination.location || '',
+                                  description: destination.description,
+                                  image: destination.image,
+                                  alt: destination.alt || '',
+                                  content: destination.content || '',
+                                  link: destination.link || '',
+                                  featured: destination.featured,
+                                  published: destination.published,
+                                  showOnHomepage: destination.showOnHomepage || false,
+                                  ranking: destination.ranking || 0
+                                });
+                                setShowEditDestination(true);
+                              }}
+                              className="text-xs flex-1"
+                            >
+                              <Edit className="h-3 w-3 mr-1" />
+                              Bewerken
+                            </Button>
+                          </div>
+                          
+                          {destination.link && (
+                            <Button 
+                              size="sm" 
+                              variant="ghost"
+                              onClick={() => window.open(destination.link, '_blank')}
+                              className="text-xs w-full"
+                            >
+                              <ExternalLink className="h-3 w-3 mr-1" />
+                              Bekijk Pagina
+                            </Button>
+                          )}
+                          
+                          {currentUser?.canDeleteContent && (
+                            <Button 
+                              size="sm" 
+                              variant="destructive"
+                              onClick={() => handleDeleteDestination(destination.id)}
+                              className="text-xs w-full"
+                            >
+                              🗑️ Naar Prullenbak
+                            </Button>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                  </div>
+                </TabsContent>
+
+                {/* Highlights View Tab */}
+                <TabsContent value="highlights-view" className="space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                    <div>
+                      <h3 className="text-xl font-semibold">Highlights Beheer ({highlightsQuery.data?.length || 0})</h3>
+                      <p className="text-gray-600">Beheer alle Polish highlights en attracties</p>
+                    </div>
+                    <CreateHighlightDialog onUpdate={() => queryClient.invalidateQueries({ queryKey: ['/api/admin/highlights'] })} />
+                  </div>
+                  
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {(highlightsQuery.data || []).map((highlight: any) => (
+                      <Card key={highlight.id} className="hover:shadow-lg transition-shadow">
+                        <CardHeader className="pb-3">
+                          <div className="flex flex-col gap-3">
+                            <div className="flex justify-between items-start">
+                              <CardTitle className="text-lg leading-tight">{highlight.name}</CardTitle>
+                              <Badge variant="outline" className="text-xs">#{highlight.ranking || 0}</Badge>
+                            </div>
+                            <CardDescription className="text-sm line-clamp-2">{highlight.description}</CardDescription>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="pt-0">
+                          <div className="flex flex-col gap-3">
+                            {highlight.iconPath && (
+                              <div className="relative h-32 w-full overflow-hidden rounded-md bg-gray-50 flex items-center justify-center">
+                                <img 
+                                  src={highlight.iconPath} 
+                                  alt={highlight.name}
+                                  className="h-16 w-16 object-contain"
+                                />
+                              </div>
+                            )}
+                            
+                            <div className="flex flex-wrap gap-2">
+                              <ViewHighlightDialog highlight={highlight} />
+                              <EditHighlightDialog 
+                                highlight={highlight} 
+                                onUpdate={() => queryClient.invalidateQueries({ queryKey: ['/api/admin/highlights'] })} 
+                              />
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </TabsContent>
+
+                {/* Acties Tab */}
+                <TabsContent value="actions" className="space-y-6">
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Nieuwe Content Maken</CardTitle>
+                        <CardDescription>Voeg nieuwe bestemmingen en highlights toe</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <Button 
+                          onClick={() => setShowCreateDestination(true)}
+                          className="w-full flex items-center gap-2"
+                        >
+                          <Plus className="h-4 w-4" />
+                          Nieuwe Bestemming
+                        </Button>
+                        <CreateHighlightDialog 
+                          onUpdate={() => queryClient.invalidateQueries({ queryKey: ['/api/admin/highlights'] })}
+                          className="w-full"
+                        />
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Homepage Beheer</CardTitle>
+                        <CardDescription>Snel homepage content beheren</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="text-sm space-y-2">
+                          <div className="flex justify-between">
+                            <span>Bestemmingen op homepage:</span>
+                            <Badge variant="default" className="bg-blue-600">
+                              {destinationsQuery.data?.filter((d: any) => d.showOnHomepage).length || 0}
+                            </Badge>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Totaal highlights:</span>
+                            <Badge variant="default" className="bg-purple-600">
+                              {highlightsQuery.data?.length || 0}
+                            </Badge>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </TabsContent>
               </Tabs>
             </TabsContent>
           )}
@@ -1475,7 +2030,7 @@ export default function Admin() {
                           size="sm" 
                           variant="outline"
                           onClick={() => handleSoftDeleteDestination(destination.id)}
-                          className="text-xs w-full border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400"
+                          className="text-xs w-full"
                         >
                           <Trash2 className="h-3 w-3 mr-1" />
                           🗑️ Naar Prullenbak
@@ -1494,35 +2049,13 @@ export default function Admin() {
             <TabsContent value="guides" className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
-                  <h2 className="text-2xl font-semibold">Reisgidsen ({getFilteredGuides().length} van {guidesQuery.data?.length || 0})</h2>
+                  <h2 className="text-2xl font-semibold">Reisgidsen ({guidesQuery.data?.length || 0})</h2>
                   <p className="text-gray-600">Beheer al je Polish reisgidsen en tips</p>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <Select value={locationFilter} onValueChange={setLocationFilter}>
-                    <SelectTrigger className="w-48">
-                      <SelectValue placeholder="Filter op locatie" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Alle locaties</SelectItem>
-                      {getUniqueLocations().map((location) => (
-                        <SelectItem key={location} value={location}>
-                          📍 {location}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button 
-                    onClick={() => setShowCreateGuide(true)}
-                    className="flex items-center gap-2"
-                  >
-                    <Plus className="h-4 w-4" />
-                    Nieuwe Gids
-                  </Button>
                 </div>
               </div>
               
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {getFilteredGuides().map((guide: any) => (
+              {(guidesQuery.data || []).map((guide: any) => (
                 <Card key={guide.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader className="pb-3">
                     <div className="flex flex-col gap-3">
@@ -1542,30 +2075,17 @@ export default function Admin() {
                   </CardHeader>
                   <CardContent className="pt-0">
                     <div className="flex flex-col gap-3">
-                      {/* Image display (if available) */}
-                      {guide.image && (
-                        <div className="relative aspect-video rounded overflow-hidden bg-gray-100 mb-3">
-                          <img 
-                            src={guide.image} 
-                            alt={guide.alt || guide.title}
-                            className="h-full w-full object-cover"
-                          />
-                        </div>
-                      )}
+                      {/* Quick Homepage Toggle */}
+                      <Button 
+                        size="sm" 
+                        variant={guide.showOnHomepage ? "default" : "outline"}
+                        onClick={() => handleToggleGuideHomepage(guide.id, !guide.showOnHomepage)}
+                        className="w-full"
+                      >
+                        {guide.showOnHomepage ? "🏠 Op Homepage" : "➕ Naar Homepage"}
+                      </Button>
                       
                       <div className="flex flex-wrap gap-2">
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => handleToggleGuideHomepage(guide.id, !guide.showOnHomepage)}
-                          className="text-xs flex-1"
-                        >
-                          {guide.showOnHomepage ? (
-                            <>❌ Van Homepage</>
-                          ) : (
-                            <>✅ Op Homepage</>
-                          )}
-                        </Button>
                         <Button 
                           size="sm" 
                           variant="outline"
@@ -1585,49 +2105,32 @@ export default function Admin() {
                             });
                             setShowEditGuide(true);
                           }}
-                          className="text-xs flex-1"
                         >
-                          <Edit className="h-3 w-3 mr-1" />
+                          <Edit className="h-4 w-4 mr-2" />
                           Bewerken
                         </Button>
-                      </div>
-                      
-                      {guide.link && (
-                        <Button 
-                          size="sm" 
-                          variant="ghost"
-                          onClick={() => window.open(guide.link, '_blank')}
-                          className="text-xs w-full"
-                        >
-                          <ExternalLink className="h-3 w-3 mr-1" />
-                          Bekijk Pagina
-                        </Button>
-                      )}
-                      
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => {
-                          setSelectedGuide(guide);
-                          setShowViewGuide(true);
-                        }}
-                        className="text-xs w-full"
-                      >
-                        <Eye className="h-3 w-3 mr-1" />
-                        Bekijken
-                      </Button>
-                      
-                      {currentUser?.canDeleteContent && (
                         <Button 
                           size="sm" 
                           variant="outline"
-                          onClick={() => handleSoftDeleteGuide(guide.id)}
-                          className="text-xs w-full border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400"
+                          onClick={() => {
+                            setSelectedGuide(guide);
+                            setShowViewGuide(true);
+                          }}
                         >
-                          <Trash2 className="h-3 w-3 mr-1" />
-                          🗑️ Naar Prullenbak
+                          <Eye className="h-4 w-4 mr-2" />
+                          Bekijken
                         </Button>
-                      )}
+                        {currentUser?.canDeleteContent && (
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleSoftDeleteGuide(guide.id)}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            🗑️ Naar Prullenbak
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -2087,7 +2590,119 @@ export default function Admin() {
 
 
 
+          {/* Nieuwe Reisgids */}
+          {currentUser?.canCreateContent && (
+            <TabsContent value="new-guide" className="space-y-4">
+              <Card>
+              <CardHeader>
+                <CardTitle>Nieuwe Reisgids Toevoegen</CardTitle>
+                <CardDescription>Voeg een nieuwe reisgids toe aan je website</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <Label htmlFor="guide-title">Titel <span className="text-red-500">*</span></Label>
+                    <Input
+                      id="guide-title"
+                      placeholder="Bijv. Weekend in Warsaw"
+                      value={newGuide.title}
+                      onChange={(e) => setNewGuide({...newGuide, title: e.target.value})}
+                      className={!newGuide.title.trim() ? "border-red-300" : ""}
+                    />
+                  </div>
+                  <ImageUploadField
+                    label="Afbeelding *"
+                    value={newGuide.image}
+                    onChange={(value) => setNewGuide({...newGuide, image: value})}
+                    placeholder="/images/guides/warsaw-guide.jpg"
+                    fileName={newGuide.title}
+                    destination="guides"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="guide-alt">Alt-tekst *</Label>
+                  <Input
+                    id="guide-alt"
+                    placeholder="Bijv. Krakow marktplein reisgids"
+                    value={newGuide.alt}
+                    onChange={(e) => setNewGuide({...newGuide, alt: e.target.value})}
+                    className={!newGuide.alt.trim() ? "border-red-300" : ""}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="guide-description">Beschrijving <span className="text-red-500">*</span></Label>
+                  <Textarea
+                    id="guide-description"
+                    placeholder="Korte beschrijving van de reisgids..."
+                    value={newGuide.description}
+                    onChange={(e) => setNewGuide({...newGuide, description: e.target.value})}
+                    className={!newGuide.description.trim() ? "border-red-300" : ""}
+                  />
+                </div>
 
+                <div>
+                  <Label htmlFor="guide-content">Content (Markdown) <span className="text-red-500">*</span></Label>
+                  <Textarea
+                    id="guide-content"
+                    placeholder="# Titel&#10;&#10;Volledige reisgids in Markdown formaat..."
+                    className={`min-h-32 ${!newGuide.content.trim() ? "border-red-300" : ""}`}
+                    value={newGuide.content}
+                    onChange={(e) => setNewGuide({...newGuide, content: e.target.value})}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="guide-link">Link (optioneel)</Label>
+                  <Input
+                    id="guide-link"
+                    placeholder="Bijv. /krakow-gids of https://example.com"
+                    value={newGuide.link}
+                    onChange={(e) => setNewGuide({...newGuide, link: e.target.value})}
+                  />
+                  <p className="text-sm text-gray-500 mt-1">
+                    Link waar de afbeelding naartoe moet leiden. Gebruik interne links (bijv. /pagina) of externe links (bijv. https://website.com)
+                  </p>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div>
+                    <Label htmlFor="guide-ranking">Ranking</Label>
+                    <Input
+                      id="guide-ranking"
+                      type="number"
+                      placeholder="0"
+                      value={newGuide.ranking}
+                      onChange={(e) => setNewGuide({...newGuide, ranking: parseInt(e.target.value) || 0})}
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2 pt-6">
+                    <Switch 
+                      id="guide-featured"
+                      checked={newGuide.featured}
+                      onCheckedChange={(checked) => setNewGuide({...newGuide, featured: checked})}
+                    />
+                    <Label htmlFor="guide-featured">Featured</Label>
+                  </div>
+                  <div className="flex items-center space-x-2 pt-6">
+                    <Switch 
+                      id="guide-published"
+                      checked={newGuide.published}
+                      onCheckedChange={(checked) => setNewGuide({...newGuide, published: checked})}
+                    />
+                    <Label htmlFor="guide-published">Publiceren</Label>
+                  </div>
+                </div>
+
+                <Button onClick={handleCreateGuide} className="w-full">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Reisgids Aanmaken
+                </Button>
+              </CardContent>
+              </Card>
+            </TabsContent>
+          )}
 
           {/* Gebruikersbeheer Tab - alleen voor admins */}
           {currentUser?.canManageUsers && (
@@ -2436,15 +3051,6 @@ export default function Admin() {
                           <Trash className="h-4 w-4 mr-2" />
                           Afbeelding Prullenbak Leegmaken
                         </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => handleCleanupOrphanedImages()}
-                          disabled={currentUser?.role !== 'admin' || isLoading}
-                        >
-                          <RefreshCw className="h-4 w-4 mr-2" />
-                          Opruimen Weesgezinde Afbeeldingen
-                        </Button>
                       </div>
                     </div>
                   </div>
@@ -2731,23 +3337,31 @@ export default function Admin() {
             </TabsContent>
           )}
 
-          {/* Templates Tab Content - Admin Only */}
-          {currentUser?.role === 'admin' && (
-            <TabsContent value="templates" className="space-y-6">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h2 className="text-2xl font-semibold">Templates</h2>
-                  <p className="text-gray-600">Beheer templates voor pagina's en content</p>
+          {/* Templates Tab Content */}
+          <TabsContent value="templates" className="space-y-6">
+            {currentUser && currentUser.role !== 'admin' ? (
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <p className="text-gray-600">Je hebt geen toegang tot deze functie. Alleen administrators kunnen templates beheren.</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h2 className="text-2xl font-semibold">Templates</h2>
+                    <p className="text-gray-600">Beheer templates voor pagina's en content</p>
+                  </div>
+                  <Button variant="outline" onClick={() => setShowCreateTemplate(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Nieuwe Template
+                  </Button>
                 </div>
-                <Button variant="outline" onClick={() => setShowCreateTemplate(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nieuwe Template
-                </Button>
-              </div>
-              
-              <TemplateManagement />
-            </TabsContent>
-          )}
+                
+                <TemplateManagement />
+              </>
+            )}
+          </TabsContent>
 
         </Tabs>
 
@@ -2915,7 +3529,7 @@ export default function Admin() {
         )}
 
         {showEditHighlight && selectedHighlight && (
-          <EditHighlightDialogContent 
+          <EditHighlightDialog 
             open={showEditHighlight} 
             onOpenChange={setShowEditHighlight}
             highlight={selectedHighlight}
@@ -2929,7 +3543,7 @@ export default function Admin() {
         )}
 
         {showViewHighlight && selectedHighlight && (
-          <ViewHighlightDialogContent 
+          <ViewHighlightDialog 
             open={showViewHighlight} 
             onOpenChange={setShowViewHighlight}
             highlight={selectedHighlight}
@@ -2943,26 +3557,7 @@ export default function Admin() {
             onOpenChange={setShowCreateDestination}
             onDestinationCreated={() => {
               destinationsQuery.refetch();
-              // Also invalidate homepage destinations cache
-              queryClient.invalidateQueries({ queryKey: ['/api/destinations/homepage'] });
-              queryClient.invalidateQueries({ queryKey: ['/api/destinations'] });
               setShowCreateDestination(false);
-            }}
-          />
-        )}
-
-        {/* Create Guide Dialog */}
-        {showCreateGuide && (
-          <CreateGuideDialog 
-            open={showCreateGuide} 
-            onOpenChange={setShowCreateGuide}
-            onGuideCreated={() => {
-              guidesQuery.refetch();
-              // Also invalidate all guides related caches
-              queryClient.invalidateQueries({ queryKey: ['/api/admin/guides'] });
-              queryClient.invalidateQueries({ queryKey: ['/api/guides/homepage'] });
-              queryClient.invalidateQueries({ queryKey: ['/api/guides'] });
-              setShowCreateGuide(false);
             }}
           />
         )}
