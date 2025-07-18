@@ -590,6 +590,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Create destination
   app.post("/api/destinations", requireAuth, async (req, res) => {
+    console.log("CREATE DESTINATION - Request body:", req.body);
     try {
       const user = await storage.getUser(req.session.userId!);
       if (!user || !user.canCreateContent) {
@@ -638,6 +639,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(destination);
     } catch (error) {
       console.error("Error creating destination:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Create destination for admin (admin-specific endpoint)
+  app.post("/api/admin/destinations", requireAuth, async (req, res) => {
+    console.log("CREATE ADMIN DESTINATION - Request body:", req.body);
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || !user.canCreateContent) {
+        return res.status(403).json({ message: "Geen toestemming om content te maken" });
+      }
+
+      const validation = z.object({
+        name: z.string().min(1),
+        location: z.string().optional(),
+        description: z.string().min(1),
+        image: z.string().min(1),
+        alt: z.string().min(1),
+        content: z.string().min(1),
+        link: z.string().optional(),
+        featured: z.boolean().optional(),
+        published: z.boolean().optional(),
+        showOnHomepage: z.boolean().optional(),
+        ranking: z.number().optional(),
+      }).safeParse(req.body);
+
+      if (!validation.success) {
+        console.log("Validation failed:", validation.error.errors);
+        return res.status(400).json({ message: "Invalid input", errors: validation.error.errors });
+      }
+
+      const { name, location, description, image, alt, content, link, featured = false, published = true, showOnHomepage = true, ranking = 0 } = validation.data;
+      
+      // Generate slug from name
+      const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+      
+      const destination = await storage.createDestination({
+        name,
+        location,
+        slug,
+        description,
+        image,
+        alt,
+        content,
+        link,
+        featured,
+        published,
+        showOnHomepage,
+        ranking,
+        createdBy: user.id,
+      });
+
+      console.log("Created destination:", destination.id, destination.name);
+      res.json(destination);
+    } catch (error) {
+      console.error("Error creating admin destination:", error);
       res.status(500).json({ message: "Server error" });
     }
   });

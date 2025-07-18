@@ -163,6 +163,7 @@ export class DatabaseStorage implements IStorage {
     console.log("Running getActiveDestinations query...");
     const result = await db.select().from(destinations).where(eq(destinations.is_deleted, false)).orderBy(destinations.ranking, destinations.createdAt);
     console.log("getActiveDestinations result count:", result.length);
+    console.log("Sample destinations:", result.slice(0, 5).map(d => `${d.id}: ${d.name}`));
     return result;
   }
 
