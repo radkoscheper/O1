@@ -2082,11 +2082,19 @@ export default function Admin() {
                   </Select>
                   <Button 
                     onClick={() => {
-                      // Switch naar nieuwe gids tab
-                      const tabsContainer = document.querySelector('[role="tablist"]');
-                      const newGuideTab = tabsContainer?.querySelector('[value="new-guide"]') as HTMLElement;
+                      // Switch naar nieuwe gids tab via verschillende selectors
+                      const newGuideTab = document.querySelector('[data-state="inactive"][value="new-guide"]') as HTMLElement ||
+                                         document.querySelector('[value="new-guide"]') as HTMLElement ||
+                                         Array.from(document.querySelectorAll('button')).find(btn => 
+                                           btn.textContent?.includes('📝 Nieuwe Gids')
+                                         ) as HTMLElement;
+                      
                       if (newGuideTab) {
                         newGuideTab.click();
+                        // Scroll naar boven na tab switch
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      } else {
+                        console.log('Nieuwe Gids tab niet gevonden');
                       }
                     }}
                     className="flex items-center gap-2"
