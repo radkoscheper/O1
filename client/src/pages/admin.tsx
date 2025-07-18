@@ -2040,7 +2040,23 @@ export default function Admin() {
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
                   <h2 className="text-2xl font-semibold">Reisgidsen ({guidesQuery.data?.length || 0})</h2>
-                  <p className="text-gray-600">Beheer al je Polish reisgidsen en tips. Gebruik de "📝 Nieuwe Gids" tab om nieuwe reisgidsen toe te voegen.</p>
+                  <p className="text-gray-600">Beheer al je Polish reisgidsen en tips</p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button 
+                    onClick={() => {
+                      // Switch naar nieuwe gids tab
+                      const tabsContainer = document.querySelector('[role="tablist"]');
+                      const newGuideTab = tabsContainer?.querySelector('[value="new-guide"]') as HTMLElement;
+                      if (newGuideTab) {
+                        newGuideTab.click();
+                      }
+                    }}
+                    className="flex items-center gap-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Nieuwe Reisgids
+                  </Button>
                 </div>
               </div>
               
