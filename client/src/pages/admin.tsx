@@ -196,6 +196,7 @@ export default function Admin() {
 
   // Location filter state
   const [locationFilter, setLocationFilter] = useState<string>('all');
+  const [guideFilter, setGuideFilter] = useState<string>('all');
 
   // Get unique locations from destinations for filter
   const getUniqueLocations = () => {
@@ -208,11 +209,34 @@ export default function Admin() {
     return locations;
   };
 
+  // Get unique titles from guides for filter (first word)
+  const getUniqueGuideCategories = () => {
+    if (!guidesQuery.data) return [];
+    const categories = guidesQuery.data
+      .map((guide: any) => {
+        const firstWord = guide.title.split(' ')[0];
+        return firstWord || 'Overig';
+      })
+      .filter((category: string, index: number, arr: string[]) => arr.indexOf(category) === index)
+      .sort();
+    return categories;
+  };
+
   // Filter destinations by location
   const getFilteredDestinations = () => {
     if (!destinationsQuery.data) return [];
     if (locationFilter === 'all') return destinationsQuery.data;
     return destinationsQuery.data.filter((dest: any) => dest.location === locationFilter);
+  };
+
+  // Filter guides by category
+  const getFilteredGuides = () => {
+    if (!guidesQuery.data) return [];
+    if (guideFilter === 'all') return guidesQuery.data;
+    return guidesQuery.data.filter((guide: any) => {
+      const firstWord = guide.title.split(' ')[0] || 'Overig';
+      return firstWord === guideFilter;
+    });
   };
 
   const [newGuide, setNewGuide] = useState({
@@ -2039,10 +2063,23 @@ export default function Admin() {
             <TabsContent value="guides" className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
-                  <h2 className="text-2xl font-semibold">Reisgidsen ({guidesQuery.data?.length || 0})</h2>
+                  <h2 className="text-2xl font-semibold">Reisgidsen ({getFilteredGuides().length} van {guidesQuery.data?.length || 0})</h2>
                   <p className="text-gray-600">Beheer al je Polish reisgidsen en tips</p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2">
+                  <Select value={guideFilter} onValueChange={setGuideFilter}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Filter op categorie" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Alle categorieën</SelectItem>
+                      {getUniqueGuideCategories().map((category) => (
+                        <SelectItem key={category} value={category}>
+                          📖 {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <Button 
                     onClick={() => {
                       // Switch naar nieuwe gids tab
@@ -2061,7 +2098,7 @@ export default function Admin() {
               </div>
               
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {(guidesQuery.data || []).map((guide: any) => (
+              {getFilteredGuides().map((guide: any) => (
                 <Card key={guide.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader className="pb-3">
                     <div className="flex flex-col gap-3">
@@ -2070,6 +2107,9 @@ export default function Admin() {
                         <Badge variant="outline" className="text-xs">#{guide.ranking || 0}</Badge>
                       </div>
                       <div className="flex flex-wrap gap-2">
+                        <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                          📖 {guide.title.split(' ')[0] || 'Overig'}
+                        </Badge>
                         {guide.featured && <Badge variant="secondary" className="text-xs">⭐ Featured</Badge>}
                         <Badge variant={guide.published ? "default" : "outline"} className="text-xs">
                           {guide.published ? "✅ Gepubliceerd" : "📝 Concept"}
