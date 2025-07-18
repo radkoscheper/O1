@@ -1057,19 +1057,9 @@ export default function Admin() {
           </Button>
         </div>
 
-        <Tabs defaultValue="content-manager" className="w-full">
+        <Tabs defaultValue="destinations" className="w-full">
           <TabsList className="h-auto w-full flex-wrap justify-start gap-2 p-2 bg-muted/30">
             {/* Content Beheer */}
-            {currentUser?.canCreateContent && (
-              <TabsTrigger value="content-manager" className="flex items-center gap-2">
-                🎯 Content Manager
-              </TabsTrigger>
-            )}
-            {currentUser?.canCreateContent && (
-              <TabsTrigger value="content-manager-1" className="flex items-center gap-2">
-                🎯 Content Manager 1
-              </TabsTrigger>
-            )}
             {currentUser?.canCreateContent && (
               <TabsTrigger value="destinations" className="flex items-center gap-2">
                 🏔️ Bestemmingen
@@ -1137,7 +1127,7 @@ export default function Admin() {
           </TabsList>
 
           {/* Content Manager - Unified CMS for Bestemmingen + Ontdek Meer */}
-          {currentUser?.canCreateContent && (
+          {false && currentUser?.canCreateContent && (
             <TabsContent value="content-manager" className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
@@ -1556,7 +1546,7 @@ export default function Admin() {
           )}
 
           {/* Content Manager 1 - Bestemmingen + Highlights */}
-          {currentUser?.canCreateContent && (
+          {false && currentUser?.canCreateContent && (
             <TabsContent value="content-manager-1" className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
