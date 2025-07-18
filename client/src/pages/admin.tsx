@@ -240,17 +240,7 @@ export default function Admin() {
     });
   };
 
-  const [newGuide, setNewGuide] = useState({
-    title: '',
-    description: '',
-    image: '',
-    alt: '',
-    content: '',
-    link: '',
-    featured: false,
-    published: false,
-    ranking: 0
-  });
+
 
   // Site settings state
   const [siteSettings, setSiteSettings] = useState({
@@ -842,102 +832,7 @@ export default function Admin() {
     }
   };
 
-  const handleCreateGuide = async () => {
-    // Validate required fields
-    if (!newGuide.title.trim()) {
-      toast({
-        title: "Validatie fout",
-        description: "Titel is verplicht",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    if (!newGuide.description.trim()) {
-      toast({
-        title: "Validatie fout",
-        description: "Beschrijving is verplicht", 
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    if (!newGuide.image.trim()) {
-      toast({
-        title: "Validatie fout",
-        description: "Afbeelding is verplicht",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    if (!newGuide.alt.trim()) {
-      toast({
-        title: "Validatie fout",
-        description: "Alt-tekst is verplicht",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    if (!newGuide.content.trim()) {
-      toast({
-        title: "Validatie fout",
-        description: "Content is verplicht",
-        variant: "destructive",
-      });
-      return;
-    }
 
-    try {
-      console.log('Creating guide:', newGuide);
-      
-      const response = await fetch('/api/guides', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(newGuide),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Fout bij aanmaken reisgids');
-      }
-
-      const result = await response.json();
-      
-      toast({
-        title: "Succes",
-        description: `Reisgids "${newGuide.title}" is succesvol aangemaakt!`,
-      });
-      
-      // Reset form
-      setNewGuide({
-        title: '',
-        description: '',
-        image: '',
-        alt: '',
-        content: '',
-        link: '',
-        featured: false,
-        published: false,
-        ranking: 0
-      });
-
-      // Refresh data
-      guidesQuery.refetch();
-      
-    } catch (error) {
-      console.error('Error creating guide:', error);
-      toast({
-        title: "Fout",
-        description: error instanceof Error ? error.message : "Er is een fout opgetreden bij het aanmaken van de reisgids",
-        variant: "destructive",
-      });
-    }
-  };
 
   const handleSaveSiteSettings = async () => {
     try {
@@ -1096,11 +991,7 @@ export default function Admin() {
               </TabsTrigger>
             )}
 
-            {currentUser?.canCreateContent && (
-              <TabsTrigger value="new-guide" className="flex items-center gap-2">
-                📝 Nieuwe Gids
-              </TabsTrigger>
-            )}
+    
             {currentUser?.canCreateContent && (
               <TabsTrigger value="pages" className="flex items-center gap-2">
                 📄 Pagina's
@@ -2647,119 +2538,7 @@ export default function Admin() {
 
 
 
-          {/* Nieuwe Reisgids */}
-          {currentUser?.canCreateContent && (
-            <TabsContent value="new-guide" className="space-y-4">
-              <Card>
-              <CardHeader>
-                <CardTitle>Nieuwe Reisgids Toevoegen</CardTitle>
-                <CardDescription>Voeg een nieuwe reisgids toe aan je website</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <Label htmlFor="guide-title">Titel <span className="text-red-500">*</span></Label>
-                    <Input
-                      id="guide-title"
-                      placeholder="Bijv. Weekend in Warsaw"
-                      value={newGuide.title}
-                      onChange={(e) => setNewGuide({...newGuide, title: e.target.value})}
-                      className={!newGuide.title.trim() ? "border-red-300" : ""}
-                    />
-                  </div>
-                  <ImageUploadField
-                    label="Afbeelding *"
-                    value={newGuide.image}
-                    onChange={(value) => setNewGuide({...newGuide, image: value})}
-                    placeholder="/images/guides/warsaw-guide.jpg"
-                    fileName={newGuide.title}
-                    destination="guides"
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="guide-alt">Alt-tekst *</Label>
-                  <Input
-                    id="guide-alt"
-                    placeholder="Bijv. Krakow marktplein reisgids"
-                    value={newGuide.alt}
-                    onChange={(e) => setNewGuide({...newGuide, alt: e.target.value})}
-                    className={!newGuide.alt.trim() ? "border-red-300" : ""}
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="guide-description">Beschrijving <span className="text-red-500">*</span></Label>
-                  <Textarea
-                    id="guide-description"
-                    placeholder="Korte beschrijving van de reisgids..."
-                    value={newGuide.description}
-                    onChange={(e) => setNewGuide({...newGuide, description: e.target.value})}
-                    className={!newGuide.description.trim() ? "border-red-300" : ""}
-                  />
-                </div>
 
-                <div>
-                  <Label htmlFor="guide-content">Content (Markdown) <span className="text-red-500">*</span></Label>
-                  <Textarea
-                    id="guide-content"
-                    placeholder="# Titel&#10;&#10;Volledige reisgids in Markdown formaat..."
-                    className={`min-h-32 ${!newGuide.content.trim() ? "border-red-300" : ""}`}
-                    value={newGuide.content}
-                    onChange={(e) => setNewGuide({...newGuide, content: e.target.value})}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="guide-link">Link (optioneel)</Label>
-                  <Input
-                    id="guide-link"
-                    placeholder="Bijv. /krakow-gids of https://example.com"
-                    value={newGuide.link}
-                    onChange={(e) => setNewGuide({...newGuide, link: e.target.value})}
-                  />
-                  <p className="text-sm text-gray-500 mt-1">
-                    Link waar de afbeelding naartoe moet leiden. Gebruik interne links (bijv. /pagina) of externe links (bijv. https://website.com)
-                  </p>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-3">
-                  <div>
-                    <Label htmlFor="guide-ranking">Ranking</Label>
-                    <Input
-                      id="guide-ranking"
-                      type="number"
-                      placeholder="0"
-                      value={newGuide.ranking}
-                      onChange={(e) => setNewGuide({...newGuide, ranking: parseInt(e.target.value) || 0})}
-                    />
-                  </div>
-                  <div className="flex items-center space-x-2 pt-6">
-                    <Switch 
-                      id="guide-featured"
-                      checked={newGuide.featured}
-                      onCheckedChange={(checked) => setNewGuide({...newGuide, featured: checked})}
-                    />
-                    <Label htmlFor="guide-featured">Featured</Label>
-                  </div>
-                  <div className="flex items-center space-x-2 pt-6">
-                    <Switch 
-                      id="guide-published"
-                      checked={newGuide.published}
-                      onCheckedChange={(checked) => setNewGuide({...newGuide, published: checked})}
-                    />
-                    <Label htmlFor="guide-published">Publiceren</Label>
-                  </div>
-                </div>
-
-                <Button onClick={handleCreateGuide} className="w-full">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Reisgids Aanmaken
-                </Button>
-              </CardContent>
-              </Card>
-            </TabsContent>
-          )}
 
           {/* Gebruikersbeheer Tab - alleen voor admins */}
           {currentUser?.canManageUsers && (
