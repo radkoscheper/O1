@@ -208,12 +208,14 @@ This is a full-stack web application for discovering beautiful places in Poland.
 
 **Stadium 16 Progress (2025-01-19)**: ✅ GEBRUIKERSGEBASEERDE TOEGANGSCONTROLE GEÏMPLEMENTEERD
 ✅ **ROLGEBASEERDE INTERFACE TOEGEVOEGD**:
-- Administrator sectie volledig verborgen voor niet-admin gebruikers
-- Website Onderdelen sectie alleen zichtbaar voor gebruikers met content rechten
+- Administrator sectie volledig verborgen voor niet-admin gebruikers (alleen Radko ziet deze)
+- Website Onderdelen sectie zichtbaar voor alle gebruikers
+- ✨ Hoogtepunten tab alleen zichtbaar voor administrators (verborgen voor Ingrid en andere niet-admin gebruikers)
+- Andere content tabs (🏔️ Bestemmingen, 🎯 Activiteiten, 📖 Reisgidsen, 📄 Pagina's) zichtbaar voor gebruikers met content rechten
 - Persoonlijke begroeting toegevoegd: "Hoi [gebruikersnaam], beheer je content voor Ontdek Polen"
-- Subgroep structuur in Website Onderdelen: "Content Types" en "Pagina Management"
+- Subgroep structuur in Website Onderdelen: "Content Types" en "Pagina Management"  
 - Visuele hiërarchie met inspringing (ml-2) voor subgroep items
-- Pagina's sectie error opgelost door misplaatste activity dialog code te verwijderen
+- **GETEST EN WERKEND**: Ingrid (niet-admin) ziet Website Onderdelen maar niet ✨ Hoogtepunten tab
 
 **Stadium 12 Progress (2025-01-18)**: ✅ COMPLETE TECHNICAL PARITY BETWEEN REISGIDSEN AND BESTEMMINGEN
 ✅ **IDENTICAL TECHNICAL STRUCTURE IMPLEMENTED**:
