@@ -3048,39 +3048,79 @@ export default function Admin() {
                           
 
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex flex-col gap-2">
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => {
+                                console.log('👁️ View clicked - Before:', { showViewSearchConfig, selectedSearchConfig });
+                                setSelectedSearchConfig(config);
+                                setShowViewSearchConfig(true);
+                                console.log('👁️ View clicked - After state update');
+                                setTimeout(() => {
+                                  console.log('👁️ View clicked - After timeout:', { showViewSearchConfig, selectedSearchConfig });
+                                }, 100);
+                              }}
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              Bekijk
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              disabled
+                              title="Bewerken tijdelijk uitgeschakeld"
+                            >
+                              <Edit className="h-4 w-4 mr-1" />
+                              Bewerk
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="destructive"
+                              onClick={() => handleDeleteSearchConfig(config.id)}
+                            >
+                              <Trash2 className="h-4 w-4 mr-1" />
+                              Verwijder
+                            </Button>
+                          </div>
                           <Button 
                             size="sm" 
-                            variant="outline"
-                            onClick={() => {
-                              console.log('👁️ View clicked - Before:', { showViewSearchConfig, selectedSearchConfig });
-                              setSelectedSearchConfig(config);
-                              setShowViewSearchConfig(true);
-                              console.log('👁️ View clicked - After state update');
-                              setTimeout(() => {
-                                console.log('👁️ View clicked - After timeout:', { showViewSearchConfig, selectedSearchConfig });
-                              }, 100);
+                            variant={config.isActive ? "default" : "outline"}
+                            onClick={async () => {
+                              try {
+                                const response = await fetch(`/api/admin/search-configs/${config.id}`, {
+                                  method: 'PUT',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ isActive: !config.isActive }),
+                                  credentials: 'include',
+                                });
+                                
+                                if (response.ok) {
+                                  toast({ 
+                                    title: "Succes", 
+                                    description: `Zoekfunctie ${!config.isActive ? 'ingeschakeld' : 'uitgeschakeld'}` 
+                                  });
+                                  searchConfigsQuery.refetch();
+                                } else {
+                                  const error = await response.json();
+                                  toast({ 
+                                    title: "Fout", 
+                                    description: error.message, 
+                                    variant: "destructive" 
+                                  });
+                                }
+                              } catch (error) {
+                                toast({ 
+                                  title: "Fout", 
+                                  description: "Er is een fout opgetreden", 
+                                  variant: "destructive" 
+                                });
+                              }
                             }}
+                            className="w-full"
                           >
-                            <Eye className="h-4 w-4 mr-1" />
-                            Bekijk
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            disabled
-                            title="Bewerken tijdelijk uitgeschakeld"
-                          >
-                            <Edit className="h-4 w-4 mr-1" />
-                            Bewerk
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="destructive"
-                            onClick={() => handleDeleteSearchConfig(config.id)}
-                          >
-                            <Trash2 className="h-4 w-4 mr-1" />
-                            Verwijder
+                            {config.isActive ? '❌ Uitschakelen' : '✅ Inschakelen'}
                           </Button>
                         </div>
                       </div>
