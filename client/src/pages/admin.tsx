@@ -7364,16 +7364,14 @@ function PageManagement({ templates }: { templates: any[] }) {
         />
       )}
 
-      {/* Create Search Configuration Dialog */}
+      {/* Create Search Configuration Dialog - Working Custom Modal */}
       {showCreateSearchConfig && (
-        <Dialog open={showCreateSearchConfig} onOpenChange={setShowCreateSearchConfig}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Nieuwe Zoek Configuratie</DialogTitle>
-              <DialogDescription>
-                Maak een nieuwe zoek configuratie aan voor een specifieke context
-              </DialogDescription>
-            </DialogHeader>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowCreateSearchConfig(false)}>
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="mb-4">
+              <h2 className="text-xl font-semibold">Nieuwe Zoek Configuratie</h2>
+              <p className="text-gray-600 text-sm">Maak een nieuwe zoek configuratie aan voor een specifieke context</p>
+            </div>
 
             <div className="space-y-4">
               <div>
@@ -7381,9 +7379,7 @@ function PageManagement({ templates }: { templates: any[] }) {
                 <Input
                   id="context"
                   value={searchConfigData.context}
-                  onChange={(e) => {
-                    setSearchConfigData({...searchConfigData, context: e.target.value});
-                  }}
+                  onChange={(e) => setSearchConfigData({...searchConfigData, context: e.target.value})}
                   placeholder="Bijvoorbeeld: homepage, destination, global"
                 />
               </div>
@@ -7392,9 +7388,7 @@ function PageManagement({ templates }: { templates: any[] }) {
                 <Input
                   id="placeholderText"
                   value={searchConfigData.placeholderText}
-                  onChange={(e) => {
-                    setSearchConfigData({...searchConfigData, placeholderText: e.target.value});
-                  }}
+                  onChange={(e) => setSearchConfigData({...searchConfigData, placeholderText: e.target.value})}
                   placeholder="Bijvoorbeeld: Zoek bestemmingen..."
                 />
               </div>
@@ -7460,16 +7454,17 @@ function PageManagement({ templates }: { templates: any[] }) {
                 <Label htmlFor="isActive">Configuratie actief</Label>
               </div>
             </div>
-            <DialogFooter>
+            
+            <div className="flex justify-end gap-3 mt-6">
               <Button variant="outline" onClick={() => setShowCreateSearchConfig(false)}>
                 Annuleren
               </Button>
               <Button onClick={() => handleCreateSearchConfig(searchConfigData)}>
                 Aanmaken
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            </div>
+          </div>
+        </div>
       )}
 
       {showEditSearchConfig && selectedSearchConfig && (
