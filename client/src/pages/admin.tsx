@@ -190,6 +190,21 @@ export default function Admin() {
     published: true,
     ranking: 0
   });
+  const [createActivityData, setCreateActivityData] = useState({
+    name: '',
+    location: '',
+    category: '',
+    activityType: '',
+    description: '',
+    image: '',
+    alt: '',
+    content: '',
+    link: '',
+    featured: false,
+    published: false,
+    ranking: 0
+  });
+
   const [editActivityData, setEditActivityData] = useState({
     name: '',
     location: '',
