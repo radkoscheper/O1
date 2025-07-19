@@ -7448,35 +7448,6 @@ function PageManagement({ templates }: { templates: any[] }) {
           }}
         />
       )}
-
-
-
-
-
-
-
-
-
-      {/* Activity dialogs */}
-      {showEditActivity && selectedActivity && (
-        <EditActivityDialog
-          open={showEditActivity}
-          onOpenChange={setShowEditActivity}
-          activity={selectedActivity}
-          onActivityUpdated={() => {
-            activitiesQuery.refetch();
-            setShowEditActivity(false);
-          }}
-        />
-      )}
-
-      {showViewActivity && selectedActivity && (
-        <ViewActivityDialog
-          open={showViewActivity}
-          onOpenChange={setShowViewActivity}
-          activity={selectedActivity}
-        />
-      )}
     </div>
   );
 }
