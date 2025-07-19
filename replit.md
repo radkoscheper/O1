@@ -204,9 +204,11 @@ This is a full-stack web application for discovering beautiful places in Poland.
 - Automatische scroll naar content sectie bij activiteit selectie
 
 ✅ **SECTIE VOLGORDE GEOPTIMALISEERD**:
-- Hoogtepunten sectie verplaatst naar onder Content sectie
-- Nieuwe volgorde: Activiteiten → Content → Hoogtepunten → Footer
-- Verbeterde user flow: eerst activiteiten bekijken, dan hoofdinhoud lezen, dan hoogtepunten ontdekken
+- **Destination pagina's**: Hoogtepunten sectie verplaatst naar onder Content sectie
+- **Homepage**: Hoogtepunten sectie verplaatst tussen "Lees onze gidsen" CTA en "Ontdek Meer" sectie
+- Nieuwe destination volgorde: Activiteiten → Content → Hoogtepunten → Footer
+- Nieuwe homepage volgorde: Header → Bestemmingen → CTA → Hoogtepunten → Ontdek Meer → Reisgidsen → Footer
+- Verbeterde user flow met logische informatievolgorde op beide page types
 
 **Stadium 17 Progress (2025-01-19)**: ✅ ACTIVITEITEN SECTIE TOEGEVOEGD AAN DESTINATION PAGINA'S
 ✅ **LOCATIE-SPECIFIEKE ACTIVITEITEN IMPLEMENTATIE VOLTOOID**:
