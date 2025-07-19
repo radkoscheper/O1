@@ -3033,21 +3033,8 @@ export default function Admin() {
                           <Button 
                             size="sm" 
                             variant="outline"
-                            onClick={() => {
-                              setSelectedSearchConfig(config);
-                              // Pre-populate form with current data
-                              setSearchConfigData({
-                                context: config.context || '',
-                                placeholderText: config.placeholderText || '',
-                                searchScope: config.searchScope || 'destinations',
-                                enableLocationFilter: Boolean(config.enableLocationFilter),
-                                enableCategoryFilter: Boolean(config.enableCategoryFilter),
-                                customInstructions: config.customInstructions || '',
-                                redirectPattern: config.redirectPattern || '',
-                                isActive: Boolean(config.isActive)
-                              });
-                              setShowEditSearchConfig(true);
-                            }}
+                            disabled
+                            title="Bewerken tijdelijk uitgeschakeld"
                           >
                             <Edit className="h-4 w-4 mr-1" />
                             Bewerk
@@ -7304,217 +7291,34 @@ function PageManagement({ templates }: { templates: any[] }) {
 
 
 
-      {/* Search Config Edit Dialog */}
-      {console.log('🔍 RENDER CHECK Edit:', { showEditSearchConfig, selectedSearchConfig: !!selectedSearchConfig })}
-      {showEditSearchConfig && selectedSearchConfig && (
-        <Dialog open={showEditSearchConfig} onOpenChange={(open) => {
-          console.log('🔧 Edit Dialog onOpenChange:', open);
-          if (!open) {
-            setShowEditSearchConfig(false);
-            setSelectedSearchConfig(null);
-          }
-        }}>
-          <DialogContent className="max-w-2xl">
-            {console.log('🔧 EDIT DIALOG CONTENT RENDERING')}
-            <DialogHeader>
-              <DialogTitle>Zoek Configuratie Bewerken</DialogTitle>
-              <DialogDescription>
-                Bewerk de zoek configuratie voor {selectedSearchConfig.context}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="edit-context">Context *</Label>
-                <Input
-                  id="edit-context"
-                  value={searchConfigData.context}
-                  onChange={(e) => setSearchConfigData({...searchConfigData, context: e.target.value})}
-                  placeholder="Bijvoorbeeld: homepage, destination, global"
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-placeholderText">Placeholder Tekst *</Label>
-                <Input
-                  id="edit-placeholderText"
-                  value={searchConfigData.placeholderText}
-                  onChange={(e) => setSearchConfigData({...searchConfigData, placeholderText: e.target.value})}
-                  placeholder="Bijvoorbeeld: Zoek bestemmingen..."
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-searchScope">Zoekbereik *</Label>
-                <select
-                  id="edit-searchScope"
-                  value={searchConfigData.searchScope}
-                  onChange={(e) => setSearchConfigData({...searchConfigData, searchScope: e.target.value})}
-                  className="w-full p-2 border rounded-md"
-                >
-                  <optgroup label="Website Onderdelen">
-                    <option value="destinations">🏔️ Bestemmingen</option>
-                    <option value="activities">🎯 Activiteiten</option>
-                    <option value="highlights">✨ Hoogtepunten</option>
-                    <option value="guides">📖 Reisgidsen</option>
-                  </optgroup>
-                </select>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="edit-enableLocationFilter"
-                    checked={searchConfigData.enableLocationFilter}
-                    onCheckedChange={(checked) => setSearchConfigData({...searchConfigData, enableLocationFilter: checked})}
-                  />
-                  <Label htmlFor="edit-enableLocationFilter">Locatie filter inschakelen</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="edit-enableCategoryFilter"
-                    checked={searchConfigData.enableCategoryFilter}
-                    onCheckedChange={(checked) => setSearchConfigData({...searchConfigData, enableCategoryFilter: checked})}
-                  />
-                  <Label htmlFor="edit-enableCategoryFilter">Categorie filter inschakelen</Label>
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="edit-redirectPattern">Redirect Patroon</Label>
-                <Input
-                  id="edit-redirectPattern"
-                  value={searchConfigData.redirectPattern}
-                  onChange={(e) => setSearchConfigData({...searchConfigData, redirectPattern: e.target.value})}
-                  placeholder="Bijvoorbeeld: /{slug} of /search?q={query}"
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-customInstructions">Aangepaste Instructies</Label>
-                <Textarea
-                  id="edit-customInstructions"
-                  value={searchConfigData.customInstructions}
-                  onChange={(e) => setSearchConfigData({...searchConfigData, customInstructions: e.target.value})}
-                  placeholder="Extra instructies voor deze zoek configuratie"
-                  rows={3}
-                />
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="edit-isActive"
-                  checked={searchConfigData.isActive}
-                  onCheckedChange={(checked) => setSearchConfigData({...searchConfigData, isActive: checked})}
-                />
-                <Label htmlFor="edit-isActive">Configuratie actief</Label>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowEditSearchConfig(false)}>
-                Annuleren
-              </Button>
-              <Button onClick={() => handleUpdateSearchConfig(selectedSearchConfig.id, searchConfigData)}>
-                Bijwerken
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
 
-      {/* Search Config View Dialog */}
-      {console.log('🔍 RENDER CHECK View:', { showViewSearchConfig, selectedSearchConfig: !!selectedSearchConfig })}
+
+      {/* Simpele View Dialog - Alleen Bekijken */}
       {showViewSearchConfig && selectedSearchConfig && (
-        <Dialog open={showViewSearchConfig} onOpenChange={(open) => {
-          console.log('👁️ Dialog onOpenChange:', open);
-          if (!open) {
-            setShowViewSearchConfig(false);
-            setSelectedSearchConfig(null);
-          }
-        }}>
-          <DialogContent className="max-w-2xl">
-            {console.log('👁️ DIALOG CONTENT RENDERING')}
+        <Dialog open={showViewSearchConfig} onOpenChange={setShowViewSearchConfig}>
+          <DialogContent className="max-w-lg">
             <DialogHeader>
-              <DialogTitle>Zoek Configuratie Details</DialogTitle>
-              <DialogDescription>
-                Details van zoek configuratie: {selectedSearchConfig?.context || 'Onbekend'}
-              </DialogDescription>
+              <DialogTitle>Zoek Configuratie: {selectedSearchConfig.context}</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="font-semibold">Context</Label>
-                  <p className="text-sm text-gray-600">{selectedSearchConfig?.context || 'Onbekend'}</p>
-                </div>
-                <div>
-                  <Label className="font-semibold">Status</Label>
-                  <p className="text-sm text-gray-600">
-                    <Badge variant={selectedSearchConfig?.isActive ? "default" : "secondary"}>
-                      {selectedSearchConfig?.isActive ? "Actief" : "Inactief"}
-                    </Badge>
-                  </p>
-                </div>
+            <div className="space-y-3">
+              <div>
+                <Label className="font-medium">Placeholder Tekst</Label>
+                <p className="text-sm text-gray-700">{selectedSearchConfig.placeholderText}</p>
               </div>
               <div>
-                <Label className="font-semibold">Placeholder Tekst</Label>
-                <p className="text-sm text-gray-600">{selectedSearchConfig?.placeholderText || 'Geen tekst'}</p>
+                <Label className="font-medium">Zoekbereik</Label>
+                <p className="text-sm text-gray-700">{selectedSearchConfig.searchScope}</p>
               </div>
               <div>
-                <Label className="font-semibold">Zoekbereik</Label>
-                <p className="text-sm text-gray-600">
-                  <Badge variant="outline">{selectedSearchConfig.searchScope}</Badge>
-                </p>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="font-semibold">Locatie Filter</Label>
-                  <p className="text-sm text-gray-600">
-                    {selectedSearchConfig.enableLocationFilter ? "Ingeschakeld" : "Uitgeschakeld"}
-                  </p>
-                </div>
-                <div>
-                  <Label className="font-semibold">Categorie Filter</Label>
-                  <p className="text-sm text-gray-600">
-                    {selectedSearchConfig.enableCategoryFilter ? "Ingeschakeld" : "Uitgeschakeld"}
-                  </p>
-                </div>
-              </div>
-              {selectedSearchConfig.redirectPattern && (
-                <div>
-                  <Label className="font-semibold">Redirect Patroon</Label>
-                  <p className="text-sm text-gray-600">{selectedSearchConfig.redirectPattern}</p>
-                </div>
-              )}
-              {selectedSearchConfig.customInstructions && (
-                <div>
-                  <Label className="font-semibold">Aangepaste Instructies</Label>
-                  <p className="text-sm text-gray-600">{selectedSearchConfig.customInstructions}</p>
-                </div>
-              )}
-              <div className="grid grid-cols-2 gap-4 text-xs text-gray-500">
-                <div>
-                  <Label className="font-semibold">Aangemaakt</Label>
-                  <p>{new Date(selectedSearchConfig.createdAt).toLocaleString('nl-NL')}</p>
-                </div>
-                <div>
-                  <Label className="font-semibold">Laatst bijgewerkt</Label>
-                  <p>{new Date(selectedSearchConfig.updatedAt).toLocaleString('nl-NL')}</p>
-                </div>
+                <Label className="font-medium">Status</Label>
+                <Badge variant={selectedSearchConfig.isActive ? "default" : "secondary"}>
+                  {selectedSearchConfig.isActive ? "Actief" : "Inactief"}
+                </Badge>
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowViewSearchConfig(false)}>
+              <Button onClick={() => setShowViewSearchConfig(false)}>
                 Sluiten
-              </Button>
-              <Button onClick={() => {
-                setSearchConfigData({
-                  context: selectedSearchConfig.context || '',
-                  placeholderText: selectedSearchConfig.placeholderText || '',
-                  searchScope: selectedSearchConfig.searchScope || 'destinations',
-                  enableLocationFilter: Boolean(selectedSearchConfig.enableLocationFilter),
-                  enableCategoryFilter: Boolean(selectedSearchConfig.enableCategoryFilter),
-                  customInstructions: selectedSearchConfig.customInstructions || '',
-                  redirectPattern: selectedSearchConfig.redirectPattern || '',
-                  isActive: Boolean(selectedSearchConfig.isActive)
-                });
-                setShowViewSearchConfig(false);
-                setShowEditSearchConfig(true);
-              }}>
-                <Edit className="h-4 w-4 mr-2" />
-                Bewerken
               </Button>
             </DialogFooter>
           </DialogContent>
