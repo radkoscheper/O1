@@ -2054,26 +2054,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/activities", requireAuth, async (req, res) => {
+  app.post("/api/admin/activities", requireAuth, async (req, res) => {
     try {
       const user = await storage.getUser(req.session.userId!);
       if (!user || !user.canCreateContent) {
         return res.status(403).json({ message: "Geen toestemming om activiteiten aan te maken" });
       }
 
-      // Generate slug from name
-      const slug = req.body.name
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)/g, '');
-
-      const activityData = {
-        ...req.body,
-        slug,
-        createdBy: user.id,
-      };
-
-      const activity = await storage.createActivity(activityData);
+      const activity = await storage.createActivity(req.body);
       res.json(activity);
     } catch (error) {
       console.error("Error creating activity:", error);
@@ -2089,15 +2077,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { id } = req.params;
-      
-      // Update slug if name changes
-      if (req.body.name) {
-        req.body.slug = req.body.name
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/(^-|-$)/g, '');
-      }
-
       const activity = await storage.updateActivity(parseInt(id), req.body);
       res.json(activity);
     } catch (error) {
