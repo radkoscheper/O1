@@ -99,6 +99,7 @@ function ActivitiesSection({ pageTitle }: { pageTitle?: string }) {
 
 export default function Page() {
   const { slug } = useParams<{ slug: string }>();
+  const [selectedActivityId, setSelectedActivityId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
@@ -111,6 +112,15 @@ export default function Page() {
     setIsSearching(false);
     // Keep searchQuery and searchResults so user can re-open same search
   };
+
+  // Check for activity parameter on page load
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const activityParam = urlParams.get('activity');
+    if (activityParam) {
+      setSelectedActivityId(activityParam);
+    }
+  }, [slug]);
 
   // Helper function to get type-specific styling for search results
   const getTypeStyles = (type: string) => {
@@ -171,6 +181,19 @@ export default function Page() {
   // Fetch search configuration for destination context
   const { data: searchConfig } = useQuery({
     queryKey: ["/api/search-config/destination"],
+  });
+
+  // Fetch selected activity details if activity ID is present
+  const { data: selectedActivity } = useQuery({
+    queryKey: ['/api/activities', selectedActivityId],
+    queryFn: async () => {
+      if (!selectedActivityId) return null;
+      const response = await fetch(`/api/admin/activities`);
+      if (!response.ok) throw new Error('Failed to fetch activities');
+      const activities = await response.json();
+      return activities.find((a: any) => a.id === parseInt(selectedActivityId));
+    },
+    enabled: !!selectedActivityId,
   });
 
   // Update document title and meta tags
@@ -437,28 +460,77 @@ export default function Page() {
               </div>
             ) : searchResults.length > 0 ? (
               <div className="space-y-3">
-                {searchResults.map((result: any) => (
-                  <Link key={result.id} href={result.link || `/${result.slug}`}>
-                    <div className="p-4 hover:bg-gray-50 rounded-lg cursor-pointer border border-gray-200 transition-all duration-200">
-                      <div className="flex items-center space-x-4">
-                        {result.image && (
-                          <img 
-                            src={result.image} 
-                            alt={result.alt || result.name} 
-                            className="w-16 h-16 object-cover rounded-lg"
-                          />
-                        )}
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-gray-900 mb-1">{result.name || result.title}</h4>
-                          <p className="text-sm text-gray-600 mb-2">{result.description}</p>
-                          <span className={`text-xs px-2 py-1 rounded capitalize ${getTypeStyles(result.type)}`}>
-                            {getTypeLabel(result.type)}
-                          </span>
+                {searchResults.map((result: any) => {
+                  // For activities, create a link with activity parameter instead of external link
+                  const handleActivityClick = (e: React.MouseEvent, activityId: number) => {
+                    e.preventDefault();
+                    setSelectedActivityId(activityId.toString());
+                    
+                    // Update URL without page reload
+                    const newUrl = `${window.location.pathname}?activity=${activityId}`;
+                    window.history.pushState({}, '', newUrl);
+                    
+                    // Close search overlay
+                    closeSearch();
+                    
+                    // Scroll to content section smoothly
+                    setTimeout(() => {
+                      const contentSection = document.querySelector('section:last-of-type');
+                      if (contentSection) {
+                        contentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                    }, 100);
+                  };
+
+                  return (
+                    <div key={result.id}>
+                      {result.type === 'activity' ? (
+                        <div 
+                          className="p-4 hover:bg-gray-50 rounded-lg cursor-pointer border border-gray-200 transition-all duration-200"
+                          onClick={(e) => handleActivityClick(e, result.id)}
+                        >
+                          <div className="flex items-center space-x-4">
+                            {result.image && (
+                              <img 
+                                src={result.image} 
+                                alt={result.alt || result.name} 
+                                className="w-16 h-16 object-cover rounded-lg"
+                              />
+                            )}
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-gray-900 mb-1">{result.name || result.title}</h4>
+                              <p className="text-sm text-gray-600 mb-2">{result.description}</p>
+                              <span className={`text-xs px-2 py-1 rounded capitalize ${getTypeStyles(result.type)}`}>
+                                {getTypeLabel(result.type)}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      ) : (
+                        <Link href={result.link || `/${result.slug}`}>
+                          <div className="p-4 hover:bg-gray-50 rounded-lg cursor-pointer border border-gray-200 transition-all duration-200">
+                            <div className="flex items-center space-x-4">
+                              {result.image && (
+                                <img 
+                                  src={result.image} 
+                                  alt={result.alt || result.name} 
+                                  className="w-16 h-16 object-cover rounded-lg"
+                                />
+                              )}
+                              <div className="flex-1">
+                                <h4 className="font-semibold text-gray-900 mb-1">{result.name || result.title}</h4>
+                                <p className="text-sm text-gray-600 mb-2">{result.description}</p>
+                                <span className={`text-xs px-2 py-1 rounded capitalize ${getTypeStyles(result.type)}`}>
+                                  {getTypeLabel(result.type)}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </Link>
+                      )}
                     </div>
-                  </Link>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="text-center py-8">
@@ -512,21 +584,104 @@ export default function Page() {
       {/* Content Section */}
       <section className="py-16 px-5 max-w-6xl mx-auto">
         <Card className="bg-white rounded-xl shadow-lg border-none p-8">
-          <div 
-            className="prose prose-lg max-w-none font-inter"
-            dangerouslySetInnerHTML={{
-              __html: page.content
-                .replace(/\n/g, '<br>')
-                .replace(/# (.*)/g, '<h1 class="text-3xl font-bold mb-6 text-gray-900 font-inter">$1</h1>')
-                .replace(/## (.*)/g, '<h2 class="text-2xl font-semibold mb-4 text-gray-800 font-inter">$1</h2>')
-                .replace(/### (.*)/g, '<h3 class="text-xl font-medium mb-3 text-gray-700 font-inter">$1</h3>')
-                .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
-                .replace(/\*(.*?)\*/g, '<em class="italic text-gray-700">$1</em>')
-                .replace(/- (.*)/g, '<li class="mb-2 text-gray-700">$1</li>')
-                .replace(/(<li.*<\/li>)/gs, '<ul class="list-disc list-inside mb-6 space-y-2 ml-4">$1</ul>')
-                .replace(/---/g, '<hr class="my-8 border-gray-200">')
-            }}
-          />
+          {selectedActivity ? (
+            // Show selected activity content
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <h1 className="text-3xl font-bold text-gray-900 font-inter">{selectedActivity.name}</h1>
+                <button
+                  onClick={() => {
+                    setSelectedActivityId(null);
+                    // Remove activity parameter from URL
+                    const newUrl = window.location.pathname;
+                    window.history.pushState({}, '', newUrl);
+                  }}
+                  className="text-blue-600 hover:text-blue-800 font-medium"
+                >
+                  ← Terug naar {page?.title}
+                </button>
+              </div>
+              
+              {selectedActivity.image && (
+                <img
+                  src={selectedActivity.image}
+                  alt={selectedActivity.alt || selectedActivity.name}
+                  className="w-full h-64 object-cover rounded-lg mb-6"
+                  onError={(e) => {
+                    e.currentTarget.src = '/images/destinations/krakow.jpg';
+                  }}
+                />
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div>
+                  <h3 className="font-semibold text-gray-800 mb-2">Locatie</h3>
+                  <p className="text-gray-600">{selectedActivity.location}</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-800 mb-2">Categorie</h3>
+                  <p className="text-gray-600">{selectedActivity.category}</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-800 mb-2">Type</h3>
+                  <p className="text-gray-600">{selectedActivity.activityType}</p>
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <h2 className="text-2xl font-semibold text-gray-800 mb-4 font-inter">Beschrijving</h2>
+                <p className="text-gray-700 text-lg leading-relaxed font-inter">{selectedActivity.description}</p>
+              </div>
+
+              {selectedActivity.content && (
+                <div>
+                  <h2 className="text-2xl font-semibold text-gray-800 mb-4 font-inter">Meer informatie</h2>
+                  <div 
+                    className="prose prose-lg max-w-none font-inter"
+                    dangerouslySetInnerHTML={{
+                      __html: selectedActivity.content
+                        .replace(/\n/g, '<br>')
+                        .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
+                        .replace(/\*(.*?)\*/g, '<em class="italic text-gray-700">$1</em>')
+                    }}
+                  />
+                </div>
+              )}
+
+              {selectedActivity.link && (
+                <div className="mt-6">
+                  <a
+                    href={selectedActivity.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    Bezoek website
+                    <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                </div>
+              )}
+            </div>
+          ) : (
+            // Show original page content
+            <div 
+              className="prose prose-lg max-w-none font-inter"
+              dangerouslySetInnerHTML={{
+                __html: page.content
+                  .replace(/\n/g, '<br>')
+                  .replace(/# (.*)/g, '<h1 class="text-3xl font-bold mb-6 text-gray-900 font-inter">$1</h1>')
+                  .replace(/## (.*)/g, '<h2 class="text-2xl font-semibold mb-4 text-gray-800 font-inter">$1</h2>')
+                  .replace(/### (.*)/g, '<h3 class="text-xl font-medium mb-3 text-gray-700 font-inter">$1</h3>')
+                  .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
+                  .replace(/\*(.*?)\*/g, '<em class="italic text-gray-700">$1</em>')
+                  .replace(/- (.*)/g, '<li class="mb-2 text-gray-700">$1</li>')
+                  .replace(/(<li.*<\/li>)/gs, '<ul class="list-disc list-inside mb-6 space-y-2 ml-4">$1</ul>')
+                  .replace(/---/g, '<hr class="my-8 border-gray-200">')
+              }}
+            />
+          )}
         </Card>
       </section>
 
