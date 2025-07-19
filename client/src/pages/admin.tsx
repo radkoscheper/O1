@@ -187,7 +187,7 @@ export default function Admin() {
     content: '',
     link: '',
     featured: false,
-    published: false,
+    published: true,
     ranking: 0
   });
   const [editActivityData, setEditActivityData] = useState({

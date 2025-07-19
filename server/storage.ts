@@ -668,8 +668,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getActivityBySlug(slug: string): Promise<Activity | undefined> {
-    const [activity] = await db.select().from(activities).where(eq(activities.slug, slug));
-    return activity || undefined;
+    // Activities don't have slugs yet, return undefined for now
+    return undefined;
   }
 
   async getAllActivities(): Promise<Activity[]> {
