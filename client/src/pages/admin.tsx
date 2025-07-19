@@ -105,6 +105,14 @@ export default function Admin() {
   const searchConfigsQuery = useQuery({
     queryKey: ['/api/admin/search-configs'],
     enabled: isAuthenticated && currentUser?.canEditContent,
+    retry: 1,
+    staleTime: 0,
+    onError: (error) => {
+      console.error('Search configs query error:', error);
+    },
+    onSuccess: (data) => {
+      console.log('Search configs loaded successfully:', data);
+    }
   });
   const [showCreateUser, setShowCreateUser] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
@@ -3020,6 +3028,14 @@ export default function Admin() {
           {/* Search Configuration Tab */}
           {currentUser?.canEditContent && (
             <TabsContent value="search-configs" className="space-y-6">
+              {/* Debug information */}
+              <div className="bg-blue-50 p-3 rounded border text-sm">
+                <strong>Debug Info:</strong> 
+                <div>User can edit: {String(currentUser?.canEditContent)}</div>
+                <div>Search configs loading: {String(searchConfigsQuery.isLoading)}</div>
+                <div>Search configs error: {searchConfigsQuery.error ? String(searchConfigsQuery.error) : 'None'}</div>
+                <div>Search configs data: {searchConfigsQuery.data ? `${searchConfigsQuery.data.length} items` : 'No data'}</div>
+              </div>
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
                   <h2 className="text-2xl font-semibold">Zoekbalk CMS</h2>
@@ -3126,7 +3142,25 @@ export default function Admin() {
                 ))}
               </div>
 
-              {searchConfigsQuery.data?.length === 0 && (
+              {/* Loading state */}
+              {searchConfigsQuery.isLoading && (
+                <div className="text-center py-8">
+                  <div className="text-gray-400">Zoek configuraties laden...</div>
+                </div>
+              )}
+
+              {/* Error state */}
+              {searchConfigsQuery.error && (
+                <div className="text-center py-8 text-red-600">
+                  <div>Fout bij laden: {String(searchConfigsQuery.error)}</div>
+                  <Button onClick={() => searchConfigsQuery.refetch()} className="mt-2">
+                    Opnieuw proberen
+                  </Button>
+                </div>
+              )}
+
+              {/* Empty state */}
+              {searchConfigsQuery.data?.length === 0 && !searchConfigsQuery.isLoading && (
                 <Card>
                   <CardContent className="p-12 text-center">
                     <div className="space-y-3">
@@ -7342,7 +7376,10 @@ function PageManagement({ templates }: { templates: any[] }) {
 
       {/* Search Configuration Dialogs */}
       {showCreateSearchConfig && (
-        <Dialog open={showCreateSearchConfig} onOpenChange={setShowCreateSearchConfig}>
+        <Dialog open={showCreateSearchConfig} onOpenChange={(open) => {
+          console.log('Create dialog open state changed:', open);
+          setShowCreateSearchConfig(open);
+        }}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Nieuwe Zoek Configuratie</DialogTitle>
@@ -7350,13 +7387,20 @@ function PageManagement({ templates }: { templates: any[] }) {
                 Maak een nieuwe zoek configuratie aan voor een specifieke context
               </DialogDescription>
             </DialogHeader>
+            {/* Debug form data */}
+            <div className="bg-gray-50 p-2 text-xs rounded">
+              <strong>Form Debug:</strong> {JSON.stringify(searchConfigData, null, 2)}
+            </div>
             <div className="space-y-4">
               <div>
                 <Label htmlFor="context">Context *</Label>
                 <Input
                   id="context"
                   value={searchConfigData.context}
-                  onChange={(e) => setSearchConfigData({...searchConfigData, context: e.target.value})}
+                  onChange={(e) => {
+                    console.log('Context input changed:', e.target.value);
+                    setSearchConfigData({...searchConfigData, context: e.target.value});
+                  }}
                   placeholder="Bijvoorbeeld: homepage, destination, global"
                 />
               </div>
@@ -7365,7 +7409,10 @@ function PageManagement({ templates }: { templates: any[] }) {
                 <Input
                   id="placeholderText"
                   value={searchConfigData.placeholderText}
-                  onChange={(e) => setSearchConfigData({...searchConfigData, placeholderText: e.target.value})}
+                  onChange={(e) => {
+                    console.log('Placeholder text changed:', e.target.value);
+                    setSearchConfigData({...searchConfigData, placeholderText: e.target.value});
+                  }}
                   placeholder="Bijvoorbeeld: Zoek bestemmingen..."
                 />
               </div>
