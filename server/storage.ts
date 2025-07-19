@@ -1,12 +1,13 @@
 import { 
-  users, destinations, guides, siteSettings, pages, templates, highlights,
+  users, destinations, guides, siteSettings, pages, templates, highlights, activities,
   type User, type InsertUser, type UpdateUser,
   type Destination, type InsertDestination, type UpdateDestination,
   type Guide, type InsertGuide, type UpdateGuide,
   type SiteSettings, type InsertSiteSettings, type UpdateSiteSettings,
   type Page, type InsertPage, type UpdatePage,
   type Template, type InsertTemplate, type UpdateTemplate,
-  type Highlight, type InsertHighlight, type UpdateHighlight
+  type Highlight, type InsertHighlight, type UpdateHighlight,
+  type Activity, type InsertActivity, type UpdateActivity
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, ne, and, gte, lt, gt, lte, sql } from "drizzle-orm";
@@ -86,6 +87,22 @@ export interface IStorage {
   updateHighlight(id: number, updates: UpdateHighlight): Promise<Highlight>;
   deleteHighlight(id: number): Promise<void>;
   updateHighlightRanking(id: number, newRanking: number): Promise<void>;
+
+  // Activity operations
+  getActivity(id: number): Promise<Activity | undefined>;
+  getActivityBySlug(slug: string): Promise<Activity | undefined>;
+  getAllActivities(): Promise<Activity[]>;
+  getActiveActivities(): Promise<Activity[]>;
+  getPublishedActivities(): Promise<Activity[]>;
+  getHomepageActivities(): Promise<Activity[]>;
+  getActivitiesByLocation(location: string): Promise<Activity[]>;
+  getActivitiesByCategory(category: string): Promise<Activity[]>;
+  getDeletedActivities(): Promise<Activity[]>;
+  createActivity(activity: InsertActivity): Promise<Activity>;
+  updateActivity(id: number, updates: UpdateActivity): Promise<Activity>;
+  deleteActivity(id: number): Promise<void>;
+  softDeleteActivity(id: number): Promise<void>;
+  restoreActivity(id: number): Promise<Activity>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -642,6 +659,110 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date(),
       })
       .where(eq(highlights.id, id));
+  }
+
+  // Activity operations
+  async getActivity(id: number): Promise<Activity | undefined> {
+    const [activity] = await db.select().from(activities).where(eq(activities.id, id));
+    return activity || undefined;
+  }
+
+  async getActivityBySlug(slug: string): Promise<Activity | undefined> {
+    const [activity] = await db.select().from(activities).where(eq(activities.slug, slug));
+    return activity || undefined;
+  }
+
+  async getAllActivities(): Promise<Activity[]> {
+    return await db.select().from(activities).where(eq(activities.is_deleted, false));
+  }
+
+  async getActiveActivities(): Promise<Activity[]> {
+    return await db.select().from(activities).where(
+      and(eq(activities.is_deleted, false), eq(activities.published, true))
+    );
+  }
+
+  async getPublishedActivities(): Promise<Activity[]> {
+    return await db.select().from(activities).where(
+      and(eq(activities.is_deleted, false), eq(activities.published, true))
+    );
+  }
+
+  async getHomepageActivities(): Promise<Activity[]> {
+    return await db.select().from(activities).where(
+      and(
+        eq(activities.is_deleted, false),
+        eq(activities.published, true),
+        eq(activities.showOnHomepage, true)
+      )
+    );
+  }
+
+  async getActivitiesByLocation(location: string): Promise<Activity[]> {
+    return await db.select().from(activities).where(
+      and(eq(activities.is_deleted, false), eq(activities.location, location))
+    );
+  }
+
+  async getActivitiesByCategory(category: string): Promise<Activity[]> {
+    return await db.select().from(activities).where(
+      and(eq(activities.is_deleted, false), eq(activities.category, category))
+    );
+  }
+
+  async getDeletedActivities(): Promise<Activity[]> {
+    return await db.select().from(activities).where(eq(activities.is_deleted, true));
+  }
+
+  async createActivity(insertActivity: InsertActivity): Promise<Activity> {
+    const result = await db
+      .insert(activities)
+      .values({
+        ...insertActivity,
+        updatedAt: new Date(),
+      })
+      .returning();
+    return result[0];
+  }
+
+  async updateActivity(id: number, updates: UpdateActivity): Promise<Activity> {
+    const [activity] = await db
+      .update(activities)
+      .set({
+        ...updates,
+        updatedAt: new Date(),
+      })
+      .where(eq(activities.id, id))
+      .returning();
+    return activity;
+  }
+
+  async deleteActivity(id: number): Promise<void> {
+    await db.delete(activities).where(eq(activities.id, id));
+  }
+
+  async softDeleteActivity(id: number): Promise<void> {
+    await db
+      .update(activities)
+      .set({
+        is_deleted: true,
+        deleted_at: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(activities.id, id));
+  }
+
+  async restoreActivity(id: number): Promise<Activity> {
+    const [activity] = await db
+      .update(activities)
+      .set({
+        is_deleted: false,
+        deleted_at: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(activities.id, id))
+      .returning();
+    return activity;
   }
 }
 

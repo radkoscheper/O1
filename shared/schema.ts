@@ -299,3 +299,49 @@ export const updateHighlightSchema = insertHighlightSchema.partial();
 export type InsertHighlight = z.infer<typeof insertHighlightSchema>;
 export type UpdateHighlight = z.infer<typeof updateHighlightSchema>;
 export type Highlight = typeof highlights.$inferSelect;
+
+// Activities table
+export const activities = pgTable("activities", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  location: text("location").notNull(), // City/region where activity is located
+  category: text("category").notNull(), // museum, gebergte, plein, kerk, horeca, hotel, camping, etc.
+  slug: text("slug").notNull().unique(),
+  description: text("description").notNull(),
+  image: text("image").notNull(),
+  alt: text("alt").notNull(),
+  content: text("content").notNull(),
+  link: text("link"), // Optional link URL for the activity
+  featured: boolean("featured").default(false),
+  published: boolean("published").default(true),
+  showOnHomepage: boolean("show_on_homepage").default(false).notNull(), // Not shown on homepage by default
+  ranking: integer("ranking").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdBy: integer("created_by").references(() => users.id),
+  is_deleted: boolean("is_deleted").default(false),
+  deleted_at: timestamp("deleted_at"),
+});
+
+export const insertActivitySchema = createInsertSchema(activities).pick({
+  name: true,
+  location: true,
+  category: true,
+  slug: true,
+  description: true,
+  image: true,
+  alt: true,
+  content: true,
+  link: true,
+  featured: true,
+  published: true,
+  showOnHomepage: true,
+  ranking: true,
+  createdBy: true,
+});
+
+export const updateActivitySchema = insertActivitySchema.partial();
+
+export type InsertActivity = z.infer<typeof insertActivitySchema>;
+export type UpdateActivity = z.infer<typeof updateActivitySchema>;
+export type Activity = typeof activities.$inferSelect;
