@@ -206,19 +206,6 @@ export default function Page() {
       console.log('Results count:', data.results?.length || 0);
       
       setSearchResults(data.results || []);
-      
-      // Auto-redirect logic if configured
-      if (searchConfig?.redirectPattern && data.results?.length === 1) {
-        const result = data.results[0];
-        let redirectUrl = searchConfig.redirectPattern;
-        
-        redirectUrl = redirectUrl.replace('{slug}', result.slug || result.name?.toLowerCase().replace(/\s+/g, '-'));
-        redirectUrl = redirectUrl.replace('{query}', encodeURIComponent(searchQuery));
-        
-        console.log('Redirecting to:', redirectUrl);
-        window.location.href = redirectUrl;
-        return;
-      }
     } catch (error) {
       console.error('Search error:', error);
       setSearchResults([]);
