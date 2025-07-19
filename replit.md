@@ -187,6 +187,8 @@ This is a full-stack web application for discovering beautiful places in Poland.
 - Zoekbalk CMS volledig uitgebreid met alle gewenste configuraties
 - Duidelijke weergave van aantal beschikbare zoek configuraties
 - Consistente structuur met bestaande CMS functionaliteit
+- Toggle buttons toegevoegd voor eenvoudig aan/uit schakelen van zoekfuncties
+- Knoppen gepositioneerd onder "Bekijk" button voor intuïtieve toegang
 
 **Stadium 12 Progress (2025-01-18)**: ✅ COMPLETE TECHNICAL PARITY BETWEEN REISGIDSEN AND BESTEMMINGEN
 ✅ **IDENTICAL TECHNICAL STRUCTURE IMPLEMENTED**:
