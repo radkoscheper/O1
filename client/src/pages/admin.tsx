@@ -231,15 +231,14 @@ export default function Admin() {
     ranking: 0
   });
 
-  // Search configuration management state
-  const [showCreateSearchConfig, setShowCreateSearchConfig] = useState(false);
+  // Search configuration management state  
   const [showEditSearchConfig, setShowEditSearchConfig] = useState(false);
   const [showViewSearchConfig, setShowViewSearchConfig] = useState(false);
   const [selectedSearchConfig, setSelectedSearchConfig] = useState<any>(null);
   const [searchConfigData, setSearchConfigData] = useState({
     context: '',
     placeholderText: '',
-    searchScope: 'destinations', // Default to destinations (part of Website Onderdelen)
+    searchScope: 'destinations',
     enableLocationFilter: false,
     enableCategoryFilter: false,
     customInstructions: '',
@@ -731,49 +730,7 @@ export default function Admin() {
     }
   };
 
-  const handleCreateSearchConfig = async (data: any) => {
-    // Validatie van verplichte velden
-    if (!data.context || !data.placeholderText) {
-      toast({ 
-        title: "Validatiefout", 
-        description: "Context en placeholder tekst zijn verplicht", 
-        variant: "destructive" 
-      });
-      return;
-    }
 
-    try {
-      const response = await fetch('/api/admin/search-configs', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(data),
-      });
-      
-      if (response.ok) {
-        toast({ title: "Succes", description: "Zoek configuratie aangemaakt" });
-        searchConfigsQuery.refetch();
-        setShowCreateSearchConfig(false);
-        setSearchConfigData({
-          context: '',
-          placeholderText: '',
-          searchScope: 'destinations',
-          enableLocationFilter: false,
-          enableCategoryFilter: false,
-          customInstructions: '',
-          redirectPattern: '',
-          isActive: true
-        });
-      } else {
-        const error = await response.json();
-        toast({ title: "Fout", description: error.message || "Onbekende fout", variant: "destructive" });
-      }
-    } catch (error) {
-      toast({ title: "Fout", description: "Er is een netwerkfout opgetreden", variant: "destructive" });
-    }
-  };
 
   const handleUpdateSearchConfig = async (id: number, data: any) => {
     try {
@@ -3022,37 +2979,11 @@ export default function Admin() {
           {/* Search Configuration Tab */}
           {currentUser?.canEditContent && (
             <TabsContent value="search-configs" className="space-y-6">
-              {/* Debug information */}
-
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
                   <h2 className="text-2xl font-semibold">Zoekbalk CMS</h2>
                   <p className="text-gray-600">Beheer zoekfunctionaliteit en configuraties per context</p>
                 </div>
-                <Button 
-                  onClick={() => {
-                    console.log('🟢 Nieuwe Zoek Configuratie clicked');
-                    // Reset form data
-                    setSearchConfigData({
-                      context: '',
-                      placeholderText: '',
-                      searchScope: 'destinations',
-                      enableLocationFilter: false,
-                      enableCategoryFilter: false,
-                      customInstructions: '',
-                      redirectPattern: '',
-                      isActive: true
-                    });
-                    
-                    console.log('🟢 About to set showCreateSearchConfig to true');
-                    setShowCreateSearchConfig(true);
-                    console.log('🟢 showCreateSearchConfig state set to true');
-                  }} 
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nieuwe Zoek Configuratie
-                </Button>
               </div>
 
               {/* Search Configurations List */}
@@ -7364,108 +7295,7 @@ function PageManagement({ templates }: { templates: any[] }) {
         />
       )}
 
-      {/* Create Search Configuration Dialog - Working Custom Modal */}
-      {showCreateSearchConfig && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowCreateSearchConfig(false)}>
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="mb-4">
-              <h2 className="text-xl font-semibold">Nieuwe Zoek Configuratie</h2>
-              <p className="text-gray-600 text-sm">Maak een nieuwe zoek configuratie aan voor een specifieke context</p>
-            </div>
 
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="context">Context *</Label>
-                <Input
-                  id="context"
-                  value={searchConfigData.context}
-                  onChange={(e) => setSearchConfigData({...searchConfigData, context: e.target.value})}
-                  placeholder="Bijvoorbeeld: homepage, destination, global"
-                />
-              </div>
-              <div>
-                <Label htmlFor="placeholderText">Placeholder Tekst *</Label>
-                <Input
-                  id="placeholderText"
-                  value={searchConfigData.placeholderText}
-                  onChange={(e) => setSearchConfigData({...searchConfigData, placeholderText: e.target.value})}
-                  placeholder="Bijvoorbeeld: Zoek bestemmingen..."
-                />
-              </div>
-              <div>
-                <Label htmlFor="searchScope">Zoekbereik *</Label>
-                <select
-                  id="searchScope"
-                  value={searchConfigData.searchScope}
-                  onChange={(e) => setSearchConfigData({...searchConfigData, searchScope: e.target.value})}
-                  className="w-full p-2 border rounded-md"
-                >
-                  <optgroup label="Website Onderdelen">
-                    <option value="destinations">🏔️ Bestemmingen</option>
-                    <option value="activities">🎯 Activiteiten</option>
-                    <option value="highlights">✨ Hoogtepunten</option>
-                    <option value="guides">📖 Reisgidsen</option>
-                  </optgroup>
-                </select>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="enableLocationFilter"
-                    checked={searchConfigData.enableLocationFilter}
-                    onCheckedChange={(checked) => setSearchConfigData({...searchConfigData, enableLocationFilter: checked})}
-                  />
-                  <Label htmlFor="enableLocationFilter">Locatie filter inschakelen</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="enableCategoryFilter"
-                    checked={searchConfigData.enableCategoryFilter}
-                    onCheckedChange={(checked) => setSearchConfigData({...searchConfigData, enableCategoryFilter: checked})}
-                  />
-                  <Label htmlFor="enableCategoryFilter">Categorie filter inschakelen</Label>
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="redirectPattern">Redirect Patroon</Label>
-                <Input
-                  id="redirectPattern"
-                  value={searchConfigData.redirectPattern}
-                  onChange={(e) => setSearchConfigData({...searchConfigData, redirectPattern: e.target.value})}
-                  placeholder="Bijvoorbeeld: /{slug} of /search?q={query}"
-                />
-              </div>
-              <div>
-                <Label htmlFor="customInstructions">Aangepaste Instructies</Label>
-                <Textarea
-                  id="customInstructions"
-                  value={searchConfigData.customInstructions}
-                  onChange={(e) => setSearchConfigData({...searchConfigData, customInstructions: e.target.value})}
-                  placeholder="Extra instructies voor deze zoek configuratie"
-                  rows={3}
-                />
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="isActive"
-                  checked={searchConfigData.isActive}
-                  onCheckedChange={(checked) => setSearchConfigData({...searchConfigData, isActive: checked})}
-                />
-                <Label htmlFor="isActive">Configuratie actief</Label>
-              </div>
-            </div>
-            
-            <div className="flex justify-end gap-3 mt-6">
-              <Button variant="outline" onClick={() => setShowCreateSearchConfig(false)}>
-                Annuleren
-              </Button>
-              <Button onClick={() => handleCreateSearchConfig(searchConfigData)}>
-                Aanmaken
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {showEditSearchConfig && selectedSearchConfig && (
         <Dialog open={showEditSearchConfig} onOpenChange={(open) => {
