@@ -2039,6 +2039,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Activities by location API
+  app.get("/api/activities/location/:location", async (req, res) => {
+    try {
+      const { location } = req.params;
+      const activities = await storage.getActivitiesByLocation(location);
+      res.json(activities);
+    } catch (error) {
+      console.error("Error fetching activities by location:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
   app.get("/api/admin/activities", requireAuth, async (req, res) => {
     try {
       const user = await storage.getUser(req.session.userId!);

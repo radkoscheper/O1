@@ -7,6 +7,96 @@ import { Card } from "@/components/ui/card";
 import { Search, Settings, ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
 
+// Activities section component
+function ActivitiesSection({ pageTitle }: { pageTitle?: string }) {
+  const { data: locationActivities, isLoading } = useQuery({
+    queryKey: ['/api/activities/location', pageTitle],
+    queryFn: async () => {
+      if (!pageTitle) return [];
+      const response = await fetch(`/api/activities/location/${encodeURIComponent(pageTitle)}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch activities');
+      }
+      return response.json();
+    },
+    enabled: !!pageTitle,
+  });
+
+  if (isLoading || !locationActivities?.length) {
+    return null;
+  }
+
+  return (
+    <section className="py-16 px-5 max-w-6xl mx-auto">
+      <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
+        Activiteiten in {pageTitle}
+      </h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {locationActivities.map((activity: any) => {
+          const CardContent = (
+            <Card 
+              className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer"
+            >
+              {activity.image && (
+                <img
+                  src={activity.image}
+                  alt={activity.alt || activity.name}
+                  className="w-full h-40 object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = '/images/destinations/krakow.jpg';
+                  }}
+                />
+              )}
+              <div className="p-4">
+                <h3 className="font-bold font-inter text-gray-900 mb-2">
+                  {activity.name}
+                </h3>
+                {activity.description && (
+                  <p className="text-sm text-gray-600 font-inter line-clamp-2">
+                    {activity.description}
+                  </p>
+                )}
+                {activity.category && (
+                  <p className="text-xs text-gray-500 mt-2 capitalize">
+                    {activity.category}
+                  </p>
+                )}
+              </div>
+            </Card>
+          );
+
+          // If activity has a link, wrap in Link component or external link
+          if (activity.link) {
+            // Check if it's an external link (starts with http)
+            if (activity.link.startsWith('http')) {
+              return (
+                <a
+                  key={activity.id}
+                  href={activity.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {CardContent}
+                </a>
+              );
+            } else {
+              // Internal link
+              return (
+                <Link key={activity.id} href={activity.link}>
+                  {CardContent}
+                </Link>
+              );
+            }
+          }
+
+          // No link, just return the card
+          return <div key={activity.id}>{CardContent}</div>;
+        })}
+      </div>
+    </section>
+  );
+}
+
 export default function Page() {
   const { slug } = useParams<{ slug: string }>();
   const [searchQuery, setSearchQuery] = useState("");
@@ -383,6 +473,9 @@ export default function Page() {
           </div>
         </div>
       )}
+
+      {/* Activities Section - same style as homepage destinations grid */}
+      <ActivitiesSection pageTitle={page?.title} />
 
       {/* Highlight Section - same style as homepage destination grid */}
       {page.highlightSections && (

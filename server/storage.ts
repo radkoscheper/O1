@@ -718,8 +718,12 @@ export class DatabaseStorage implements IStorage {
 
   async getActivitiesByLocation(location: string): Promise<Activity[]> {
     return await db.select().from(activities).where(
-      and(eq(activities.is_deleted, false), eq(activities.location, location))
-    );
+      and(
+        eq(activities.is_deleted, false), 
+        eq(activities.published, true),
+        eq(activities.location, location)
+      )
+    ).orderBy(activities.ranking);
   }
 
   async getActivitiesByCategory(category: string): Promise<Activity[]> {

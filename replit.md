@@ -194,6 +194,17 @@ This is a full-stack web application for discovering beautiful places in Poland.
 - Zoekresultaten tonen categorie-indicatoren: 🏔️ Bestemmingen, 🎯 Activiteiten, ✨ Hoogtepunten, 📖 Reisgidsen
 - Type-velden toegevoegd aan alle zoek API responses voor correcte categorisatie
 
+**Stadium 17 Progress (2025-01-19)**: ✅ ACTIVITEITEN SECTIE TOEGEVOEGD AAN DESTINATION PAGINA'S
+✅ **LOCATIE-SPECIFIEKE ACTIVITEITEN IMPLEMENTATIE VOLTOOID**:
+- Nieuwe API endpoint `/api/activities/location/:location` toegevoegd voor gefilterde activiteiten
+- ActivitiesSection component toegevoegd aan alle destination pagina's (/krakow, /warschau, etc.)
+- Exacte layout kopie van homepage Bestemmingen sectie: grid, card styling, hover effecten
+- Activiteiten worden automatisch gefilterd per locatie (alleen published en niet-deleted)
+- Ranking-gebaseerde sortering voor consistente volgorde
+- Support voor externe en interne links op activity cards
+- Fallback image handling voor ontbrekende afbeeldingen
+- Section toont alleen wanneer er activiteiten beschikbaar zijn voor die locatie
+
 **Stadium 16 Progress (2025-01-19)**: ✅ AUTOMATISCHE SEARCH REDIRECT VERWIJDERD
 ✅ **AUTO-REDIRECT FUNCTIONALITEIT UITGESCHAKELD**:
 - Verwijderd auto-redirect logica uit homepage zoekfunctie
