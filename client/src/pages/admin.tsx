@@ -241,6 +241,8 @@ export default function Admin() {
     searchScope: 'destinations',
     enableLocationFilter: false,
     enableCategoryFilter: false,
+    enableHighlights: false,
+    enableGuides: false,
     customInstructions: '',
     redirectPattern: '',
     isActive: true
@@ -3004,13 +3006,76 @@ export default function Admin() {
                           {config.customInstructions && (
                             <p className="text-sm text-gray-500">{config.customInstructions}</p>
                           )}
-                          <div className="flex gap-2">
+                          <div className="flex gap-2 flex-wrap">
                             {config.enableLocationFilter && (
                               <Badge variant="outline" className="text-xs">📍 Locatie filter</Badge>
                             )}
                             {config.enableCategoryFilter && (
                               <Badge variant="outline" className="text-xs">🏷️ Categorie filter</Badge>
                             )}
+                            {config.enableHighlights && (
+                              <Badge variant="outline" className="text-xs">✨ Hoogtepunten</Badge>
+                            )}
+                            {config.enableGuides && (
+                              <Badge variant="outline" className="text-xs">📖 Reisgidsen</Badge>
+                            )}
+                          </div>
+                          
+                          {/* Toggle buttons for Hoogtepunten and Reisgidsen */}
+                          <div className="flex gap-2 mt-3">
+                            <Button
+                              size="sm"
+                              variant={config.enableHighlights ? "default" : "outline"}
+                              onClick={async () => {
+                                try {
+                                  const response = await fetch(`/api/admin/search-configs/${config.id}`, {
+                                    method: 'PUT',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ enableHighlights: !config.enableHighlights }),
+                                    credentials: 'include',
+                                  });
+                                  
+                                  if (response.ok) {
+                                    toast({ title: "Succes", description: `Hoogtepunten ${!config.enableHighlights ? 'ingeschakeld' : 'uitgeschakeld'}` });
+                                    searchConfigsQuery.refetch();
+                                  } else {
+                                    const error = await response.json();
+                                    toast({ title: "Fout", description: error.message, variant: "destructive" });
+                                  }
+                                } catch (error) {
+                                  toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+                                }
+                              }}
+                            >
+                              ✨ Hoogtepunten {config.enableHighlights ? 'Uit' : 'Aan'}
+                            </Button>
+                            
+                            <Button
+                              size="sm"
+                              variant={config.enableGuides ? "default" : "outline"}
+                              onClick={async () => {
+                                try {
+                                  const response = await fetch(`/api/admin/search-configs/${config.id}`, {
+                                    method: 'PUT',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ enableGuides: !config.enableGuides }),
+                                    credentials: 'include',
+                                  });
+                                  
+                                  if (response.ok) {
+                                    toast({ title: "Succes", description: `Reisgidsen ${!config.enableGuides ? 'ingeschakeld' : 'uitgeschakeld'}` });
+                                    searchConfigsQuery.refetch();
+                                  } else {
+                                    const error = await response.json();
+                                    toast({ title: "Fout", description: error.message, variant: "destructive" });
+                                  }
+                                } catch (error) {
+                                  toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+                                }
+                              }}
+                            >
+                              📖 Reisgidsen {config.enableGuides ? 'Uit' : 'Aan'}
+                            </Button>
                           </div>
                         </div>
                         <div className="flex gap-2">
@@ -3090,6 +3155,8 @@ export default function Admin() {
                             searchScope: 'destinations',
                             enableLocationFilter: false,
                             enableCategoryFilter: false,
+                            enableHighlights: false,
+                            enableGuides: false,
                             customInstructions: '',
                             redirectPattern: '',
                             isActive: true
@@ -5754,6 +5821,12 @@ function ViewSearchConfigDialog({ open, onOpenChange, searchConfig }: {
             )}
             {searchConfig?.enableCategoryFilter && (
               <Badge variant="secondary">🏷️ Categorie filter</Badge>
+            )}
+            {searchConfig?.enableHighlights && (
+              <Badge variant="secondary">✨ Hoogtepunten</Badge>
+            )}
+            {searchConfig?.enableGuides && (
+              <Badge variant="secondary">📖 Reisgidsen</Badge>
             )}
           </div>
         </div>

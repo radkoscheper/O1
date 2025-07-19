@@ -350,6 +350,8 @@ export const searchConfigs = pgTable("search_configs", {
   searchScope: text("search_scope").notNull(), // "destinations", "activities", "guides", "all"
   enableLocationFilter: boolean("enable_location_filter").default(false),
   enableCategoryFilter: boolean("enable_category_filter").default(false),
+  enableHighlights: boolean("enable_highlights").default(false), // ✨ Hoogtepunten
+  enableGuides: boolean("enable_guides").default(false), // 📖 Reisgidsen
   customInstructions: text("custom_instructions"), // Additional search instructions or context
   redirectPattern: text("redirect_pattern"), // Pattern for redirects like "/{{slug}}" or "/bestemming/{{slug}}"
   isActive: boolean("is_active").default(true),
@@ -364,6 +366,8 @@ export const insertSearchConfigSchema = createInsertSchema(searchConfigs).pick({
   searchScope: true,
   enableLocationFilter: true,
   enableCategoryFilter: true,
+  enableHighlights: true,
+  enableGuides: true,
   customInstructions: true,
   redirectPattern: true,
   isActive: true,
