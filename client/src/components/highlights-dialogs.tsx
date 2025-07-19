@@ -512,13 +512,15 @@ export function ViewHighlightDialogContent({ open, onOpenChange, highlight }: {
 }
 
 // Image Upload Field component
-function ImageUploadField({ label, value, onChange, placeholder, fileName, destination }: {
+function ImageUploadField({ label, value, onChange, placeholder, fileName, destination, entityId, entityName }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
   fileName?: string;
   destination?: string;
+  entityId?: string | number;
+  entityName?: string;
 }) {
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
@@ -530,7 +532,9 @@ function ImageUploadField({ label, value, onChange, placeholder, fileName, desti
         file,
         fileName,
         destination: destination || 'destinations',
-        type: 'image'
+        type: 'image',
+        entityId,
+        entityName
       });
       onChange(result.imagePath || '');
       toast({ title: "Success", description: "Afbeelding succesvol geüpload" });
@@ -1162,9 +1166,11 @@ export function CreateActivityDialog({ open, onOpenChange, onActivityCreated }: 
                 label="Afbeelding"
                 value={formData.image}
                 onChange={(value) => setFormData({...formData, image: value})}
-                placeholder="/images/destinations/example.jpg"
+                placeholder="/images/activities/example.jpg"
                 fileName={`${formData.name.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`}
-                destination="destinations"
+                destination="activities"
+                entityId="new"
+                entityName={formData.name}
               />
             </div>
             <div>
@@ -1375,9 +1381,11 @@ export function EditActivityDialog({ open, onOpenChange, activity, onActivityUpd
                 label="Afbeelding"
                 value={formData.image}
                 onChange={(value) => setFormData({...formData, image: value})}
-                placeholder="/images/destinations/example.jpg"
+                placeholder="/images/activities/example.jpg"
                 fileName={`${formData.name.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`}
-                destination="destinations"
+                destination="activities"
+                entityId={activity?.id}
+                entityName={formData.name}
               />
             </div>
             <div>

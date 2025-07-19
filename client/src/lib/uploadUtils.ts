@@ -14,10 +14,12 @@ export interface UploadOptions {
   fileName?: string;
   destination?: string;
   type?: 'image' | 'favicon';
+  entityId?: string | number;
+  entityName?: string;
 }
 
 export const uploadFile = async (options: UploadOptions): Promise<UploadResult> => {
-  const { file, fileName, destination, type = 'image' } = options;
+  const { file, fileName, destination, type = 'image', entityId, entityName } = options;
   
   try {
     // Validate file based on type
@@ -51,6 +53,12 @@ export const uploadFile = async (options: UploadOptions): Promise<UploadResult> 
       }
       if (destination) {
         formData.append('destination', destination);
+      }
+      if (entityId) {
+        formData.append('entityId', entityId.toString());
+      }
+      if (entityName) {
+        formData.append('entityName', entityName);
       }
     }
 

@@ -44,6 +44,9 @@ const createUploadConfig = (uploadType: 'image' | 'favicon') => {
         } else {
           // Use destination from form data if provided, otherwise use default
           const destination = req.body.destination;
+          const entityId = req.body.entityId;
+          const entityName = req.body.entityName;
+          
           if (destination && ['background', 'logo', 'social'].includes(destination)) {
             // Map imageType to actual folder names (handle plural forms)
             const folderMap = {
@@ -58,6 +61,24 @@ const createUploadConfig = (uploadType: 'image' | 'favicon') => {
               fs.mkdirSync(destDir, { recursive: true });
             }
             cb(null, destDir);
+          } else if (destination === 'activities' && entityId && entityName) {
+            // Create specific folder for each activity
+            const sanitizedName = entityName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+            const activityFolder = `${entityId}-${sanitizedName}`;
+            const destDir = path.join(process.cwd(), 'client', 'public', 'images', 'activities', activityFolder);
+            if (!fs.existsSync(destDir)) {
+              fs.mkdirSync(destDir, { recursive: true });
+            }
+            cb(null, destDir);
+          } else if (destination === 'destinations' && entityId && entityName) {
+            // Create specific folder for each destination
+            const sanitizedName = entityName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+            const destinationFolder = `${entityId}-${sanitizedName}`;
+            const destDir = path.join(process.cwd(), 'client', 'public', 'images', 'destinations', destinationFolder);
+            if (!fs.existsSync(destDir)) {
+              fs.mkdirSync(destDir, { recursive: true });
+            }
+            cb(null, destDir);
           } else {
             cb(null, uploadsDir); // Default fallback
           }
@@ -68,8 +89,9 @@ const createUploadConfig = (uploadType: 'image' | 'favicon') => {
           const customName = req.body.fileName || 'favicon';
           cb(null, `${customName}.ico`);
         } else {
-          const tempName = Date.now() + '-' + Math.round(Math.random() * 1E9);
-          cb(null, tempName);
+          const customName = req.body.fileName || `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
+          const fileExtension = path.extname(file.originalname);
+          cb(null, `${customName}${fileExtension}`);
         }
       }
     }),
@@ -203,9 +225,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       let finalFileName = req.file.filename;
       
-      // Bepaal de juiste directory gebaseerd op destination
+      // Bepaal de juiste directory gebaseerd op destination en entity info
       let finalDirectory = uploadsDir;
-      if (req.body?.destination && ['background', 'logo', 'social', 'destinations', 'guides'].includes(req.body.destination)) {
+      let relativePath = '';
+      
+      if (req.body?.destination === 'activities' && req.body?.entityId && req.body?.entityName) {
+        // Create specific folder for each activity
+        const sanitizedName = req.body.entityName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+        const activityFolder = `${req.body.entityId}-${sanitizedName}`;
+        finalDirectory = path.join(process.cwd(), 'client', 'public', 'images', 'activities', activityFolder);
+        relativePath = `/images/activities/${activityFolder}`;
+        if (!fs.existsSync(finalDirectory)) {
+          fs.mkdirSync(finalDirectory, { recursive: true });
+        }
+      } else if (req.body?.destination === 'destinations' && req.body?.entityId && req.body?.entityName) {
+        // Create specific folder for each destination
+        const sanitizedName = req.body.entityName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+        const destinationFolder = `${req.body.entityId}-${sanitizedName}`;
+        finalDirectory = path.join(process.cwd(), 'client', 'public', 'images', 'destinations', destinationFolder);
+        relativePath = `/images/destinations/${destinationFolder}`;
+        if (!fs.existsSync(finalDirectory)) {
+          fs.mkdirSync(finalDirectory, { recursive: true });
+        }
+      } else if (req.body?.destination && ['background', 'logo', 'social', 'destinations', 'guides'].includes(req.body.destination)) {
         // Map imageType to actual folder names (handle plural forms)
         const folderMap = {
           background: 'backgrounds',
@@ -216,11 +258,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
         const actualFolder = folderMap[req.body.destination as keyof typeof folderMap];
         finalDirectory = path.join(process.cwd(), 'client', 'public', 'images', actualFolder);
+        relativePath = `/images/${actualFolder}`;
         if (!fs.existsSync(finalDirectory)) {
           fs.mkdirSync(finalDirectory, { recursive: true });
         }
       } else if (req.body?.destination) {
         finalDirectory = path.join(uploadsDir, 'headers', req.body.destination);
+        relativePath = `/images/headers/${req.body.destination}`;
         if (!fs.existsSync(finalDirectory)) {
           fs.mkdirSync(finalDirectory, { recursive: true });
         }
@@ -292,9 +336,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         fs.renameSync(oldPath, newPath);
       }
       
-      // Calculate the correct path based on destination
+      // Calculate the correct path based on destination and entity info
       let imagePath = `/images/${finalFileName}`;
-      if (req.body?.destination && ['background', 'logo', 'social', 'destinations', 'guides'].includes(req.body.destination)) {
+      if (relativePath) {
+        // Use the relative path calculated earlier for activities/destinations with entity folders
+        imagePath = `${relativePath}/${finalFileName}`;
+      } else if (req.body?.destination && ['background', 'logo', 'social', 'destinations', 'guides'].includes(req.body.destination)) {
         // Map imageType to actual folder names (handle plural forms)
         const folderMap = {
           background: 'backgrounds',
