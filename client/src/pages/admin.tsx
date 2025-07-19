@@ -1183,44 +1183,50 @@ export default function Admin() {
               </>
             )}
 
-            {/* Website Onderdelen groep - alleen zichtbaar voor gebruikers met content rechten */}
+            {/* Website Onderdelen groep - zichtbaar voor alle gebruikers */}
+            <div className="w-full" />
+            <div className="w-full text-xs font-semibold text-gray-500 px-2 py-1">
+              Website Onderdelen
+            </div>
+            
+            {/* Content Types Subgroep */}
+            <div className="w-full pl-4 text-xs font-medium text-gray-400 px-2 py-1">
+              Content Types
+            </div>
             {currentUser?.canCreateContent && (
-              <>
-                <div className="w-full" />
-                <div className="w-full text-xs font-semibold text-gray-500 px-2 py-1">
-                  Website Onderdelen
-                </div>
-                
-                {/* Content Types Subgroep */}
-                <div className="w-full pl-4 text-xs font-medium text-gray-400 px-2 py-1">
-                  Content Types
-                </div>
-                <TabsTrigger value="destinations" className="flex items-center gap-2 ml-2">
-                  🏔️ Bestemmingen
-                </TabsTrigger>
-                <TabsTrigger value="activities" className="flex items-center gap-2 ml-2">
-                  🎯 Activiteiten
-                </TabsTrigger>
-                {currentUser?.role === 'admin' && (
-                  <TabsTrigger value="highlights" className="flex items-center gap-2 ml-2">
-                    ✨ Hoogtepunten
-                  </TabsTrigger>
-                )}
-                <TabsTrigger value="guides" className="flex items-center gap-2 ml-2">
-                  📖 Reisgidsen
-                </TabsTrigger>
-                
-                {/* Pagina Management Subgroep */}
-                <div className="w-full pl-4 text-xs font-medium text-gray-400 px-2 py-1">
-                  Pagina Management
-                </div>
-                <TabsTrigger value="pages" className="flex items-center gap-2 ml-2">
-                  📄 Pagina's
-                </TabsTrigger>
-                <TabsTrigger value="ontdek-meer" className="flex items-center gap-2 ml-2">
-                  📄 Ontdek Meer
-                </TabsTrigger>
-              </>
+              <TabsTrigger value="destinations" className="flex items-center gap-2 ml-2">
+                🏔️ Bestemmingen
+              </TabsTrigger>
+            )}
+            {currentUser?.canCreateContent && (
+              <TabsTrigger value="activities" className="flex items-center gap-2 ml-2">
+                🎯 Activiteiten
+              </TabsTrigger>
+            )}
+            {currentUser?.role === 'admin' && (
+              <TabsTrigger value="highlights" className="flex items-center gap-2 ml-2">
+                ✨ Hoogtepunten
+              </TabsTrigger>
+            )}
+            {currentUser?.canCreateContent && (
+              <TabsTrigger value="guides" className="flex items-center gap-2 ml-2">
+                📖 Reisgidsen
+              </TabsTrigger>
+            )}
+            
+            {/* Pagina Management Subgroep */}
+            <div className="w-full pl-4 text-xs font-medium text-gray-400 px-2 py-1">
+              Pagina Management
+            </div>
+            {currentUser?.canCreateContent && (
+              <TabsTrigger value="pages" className="flex items-center gap-2 ml-2">
+                📄 Pagina's
+              </TabsTrigger>
+            )}
+            {currentUser?.canCreateContent && (
+              <TabsTrigger value="ontdek-meer" className="flex items-center gap-2 ml-2">
+                📄 Ontdek Meer
+              </TabsTrigger>
             )}
             
             {/* Derde regel: Account */}
