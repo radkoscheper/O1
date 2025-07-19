@@ -191,6 +191,8 @@ This is a full-stack web application for discovering beautiful places in Poland.
 - Knoppen gepositioneerd onder "Bekijk" button voor intuïtieve toegang
 - Kleurgecodeerde toggle buttons: groen voor ingeschakeld, rood voor uitgeschakeld
 - Duidelijke status weergave: "✅ Ingeschakeld" (groen) / "❌ Uitgeschakeld" (rood)
+- Zoekresultaten tonen categorie-indicatoren: 🏔️ Bestemmingen, 🎯 Activiteiten, ✨ Hoogtepunten, 📖 Reisgidsen
+- Type-velden toegevoegd aan alle zoek API responses voor correcte categorisatie
 
 **Stadium 12 Progress (2025-01-18)**: ✅ COMPLETE TECHNICAL PARITY BETWEEN REISGIDSEN AND BESTEMMINGEN
 ✅ **IDENTICAL TECHNICAL STRUCTURE IMPLEMENTED**:

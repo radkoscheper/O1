@@ -46,13 +46,13 @@ export default function Page() {
   const getTypeLabel = (type: string) => {
     switch (type) {
       case 'destination':
-        return '🏔️ Bestemming';
+        return '🏔️ Bestemmingen';
       case 'activity':
-        return '🎯 Activiteit';
+        return '🎯 Activiteiten';
       case 'highlight':
-        return '✨ Hoogtepunt';
+        return '✨ Hoogtepunten';
       case 'guide':
-        return '📖 Reisgids';
+        return '📖 Reisgidsen';
       case 'page':
         return '📄 Pagina';
       case 'template':
