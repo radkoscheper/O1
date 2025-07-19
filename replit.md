@@ -194,12 +194,26 @@ This is a full-stack web application for discovering beautiful places in Poland.
 - Zoekresultaten tonen categorie-indicatoren: 🏔️ Bestemmingen, 🎯 Activiteiten, ✨ Hoogtepunten, 📖 Reisgidsen
 - Type-velden toegevoegd aan alle zoek API responses voor correcte categorisatie
 
+**Stadium 18 Progress (2025-01-19)**: ✅ ACTIVITEIT DETAIL VIEWS EN SECTIE HERORGANISATIE VOLTOOID
+✅ **ACTIVITEIT DETAIL VIEWS GEÏMPLEMENTEERD**:
+- Prototype activiteit detail view in content sectie via URL parameters (?activity=ID)
+- Zoekresultaten behandelen activiteiten anders: klik opent detail view ipv externe link
+- Complete activiteit informatie in content sectie: naam, afbeelding, locatie/categorie/type, beschrijving, uitgebreide content, website link
+- "Terug naar [Locatie]" navigatie functionaliteit
+- URL state management zonder page reloads
+- Automatische scroll naar content sectie bij activiteit selectie
+
+✅ **SECTIE VOLGORDE GEOPTIMALISEERD**:
+- Hoogtepunten sectie verplaatst naar onder Content sectie
+- Nieuwe volgorde: Activiteiten → Content → Hoogtepunten → Footer
+- Verbeterde user flow: eerst activiteiten bekijken, dan hoofdinhoud lezen, dan hoogtepunten ontdekken
+
 **Stadium 17 Progress (2025-01-19)**: ✅ ACTIVITEITEN SECTIE TOEGEVOEGD AAN DESTINATION PAGINA'S
 ✅ **LOCATIE-SPECIFIEKE ACTIVITEITEN IMPLEMENTATIE VOLTOOID**:
 - Nieuwe API endpoint `/api/activities/location/:location` toegevoegd voor gefilterde activiteiten
 - ActivitiesSection component toegevoegd aan alle destination pagina's (/krakow, /warschau, etc.)
 - Exacte layout kopie van homepage Bestemmingen sectie: grid, card styling, hover effecten
-- Activiteiten worden automatisch gefilterd per locatie (alleen published en niet-deleted)
+- Activiteiten werden automatisch gefilterd per locatie (alleen published en niet-deleted)
 - Ranking-gebaseerde sortering voor consistente volgorde
 - Support voor externe en interne links op activity cards
 - Fallback image handling voor ontbrekende afbeeldingen
