@@ -208,7 +208,10 @@ This is a full-stack web application for discovering beautiful places in Poland.
 - **TOEGANGSCONTROLE**: Hele Administrator sectie alleen zichtbaar voor gebruikers met role "admin"
 - **PERSONALISATIE**: Admin panel header toont gepersonaliseerde begroeting "Hoi [username], beheer je content voor Ontdek Polen"
 - **SUBGROEPEN**: Website Onderdelen opgedeeld in "Content Types" en "Pagina Management" subgroepen voor betere organisatie
-- **PERMISSIE CONSISTENTIE**: Alle Content Types (Bestemmingen, Activiteiten, Hoogtepunten, Reisgidsen) nu consistent met canCreateContent permissie in plaats van admin-only
+- **PERMISSIE CONSISTENTIE**: Alle Content Types (Bestemmingen, Activiteiten, Hoogtepunten, Reisgidsen) nu consistent met granulaire permissies:
+  - Frontend: Alle content types gebruiken canCreateContent voor tab zichtbaarheid
+  - Backend: Highlights API endpoints aangepast van role=admin naar canCreateContent/canEditContent/canDeleteContent
+  - Resultaat: Niet-admin gebruikers kunnen nu alle content types volledig beheren
 
 **Stadium 12 Progress (2025-01-18)**: ✅ COMPLETE TECHNICAL PARITY BETWEEN REISGIDSEN AND BESTEMMINGEN
 ✅ **IDENTICAL TECHNICAL STRUCTURE IMPLEMENTED**:

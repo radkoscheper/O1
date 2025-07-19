@@ -1806,8 +1806,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/highlights", requireAuth, async (req, res) => {
     try {
       const user = await storage.getUser(req.session.userId!);
-      if (!user || user.role !== 'admin') {
-        return res.status(403).json({ message: "Alleen admins kunnen highlights maken" });
+      if (!user || !user.canCreateContent) {
+        return res.status(403).json({ message: "Geen toestemming om content te maken" });
       }
 
       const validation = z.object({
@@ -1846,8 +1846,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/admin/highlights/:id", requireAuth, async (req, res) => {
     try {
       const user = await storage.getUser(req.session.userId!);
-      if (!user || user.role !== 'admin') {
-        return res.status(403).json({ message: "Alleen admins kunnen highlights bewerken" });
+      if (!user || !user.canEditContent) {
+        return res.status(403).json({ message: "Geen toestemming om content te bewerken" });
       }
 
       const id = parseInt(req.params.id);
@@ -1879,8 +1879,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/admin/highlights/:id", requireAuth, async (req, res) => {
     try {
       const user = await storage.getUser(req.session.userId!);
-      if (!user || user.role !== 'admin') {
-        return res.status(403).json({ message: "Alleen admins kunnen highlights verwijderen" });
+      if (!user || !user.canDeleteContent) {
+        return res.status(403).json({ message: "Geen toestemming om content te verwijderen" });
       }
 
       const id = parseInt(req.params.id);
@@ -1900,8 +1900,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/admin/highlights/:id/ranking", requireAuth, async (req, res) => {
     try {
       const user = await storage.getUser(req.session.userId!);
-      if (!user || user.role !== 'admin') {
-        return res.status(403).json({ message: "Alleen admins kunnen ranking wijzigen" });
+      if (!user || !user.canEditContent) {
+        return res.status(403).json({ message: "Geen toestemming om content te bewerken" });
       }
 
       const id = parseInt(req.params.id);
@@ -1923,8 +1923,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/admin/highlights/:id/homepage", requireAuth, async (req, res) => {
     try {
       const user = await storage.getUser(req.session.userId!);
-      if (!user || user.role !== 'admin') {
-        return res.status(403).json({ message: "Alleen admins kunnen homepage zichtbaarheid wijzigen" });
+      if (!user || !user.canEditContent) {
+        return res.status(403).json({ message: "Geen toestemming om content te bewerken" });
       }
 
       const id = parseInt(req.params.id);
