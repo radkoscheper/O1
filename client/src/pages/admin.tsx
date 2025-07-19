@@ -2649,6 +2649,7 @@ export default function Admin() {
                 </div>
                 <Button onClick={() => {
                   console.log("Nieuwe Activiteit button clicked");
+                  console.log("Setting showCreateActivity to true");
                   setShowCreateActivity(true);
                 }} className="bg-green-600 hover:bg-green-700">
                   <Plus className="h-4 w-4 mr-2" />
@@ -2742,6 +2743,7 @@ export default function Admin() {
                           variant="outline"
                           onClick={() => {
                             console.log("Bewerken button clicked for activity:", activity.name);
+                            console.log("Setting selectedActivity:", activity);
                             setSelectedActivity(activity);
                             setEditActivityData({
                               name: activity.name,
@@ -2757,6 +2759,7 @@ export default function Admin() {
                               published: activity.published,
                               ranking: activity.ranking || 0
                             });
+                            console.log("Setting showEditActivity to true");
                             setShowEditActivity(true);
                           }}
                           className="flex-1 text-xs"
@@ -7024,6 +7027,7 @@ function PageManagement({ templates }: { templates: any[] }) {
       )}
 
       {/* Activity Create Dialog */}
+      {console.log("showCreateActivity:", showCreateActivity)}
       {showCreateActivity && (
         <Dialog open={showCreateActivity} onOpenChange={setShowCreateActivity}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -7206,6 +7210,7 @@ function PageManagement({ templates }: { templates: any[] }) {
       )}
 
       {/* Activity Edit Dialog */}
+      {console.log("showEditActivity:", showEditActivity, "selectedActivity:", selectedActivity)}
       {showEditActivity && selectedActivity && (
         <Dialog open={showEditActivity} onOpenChange={setShowEditActivity}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
