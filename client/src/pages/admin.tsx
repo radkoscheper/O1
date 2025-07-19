@@ -3018,13 +3018,8 @@ export default function Admin() {
                             size="sm" 
                             variant="outline"
                             onClick={() => {
-                              console.log('👁️ View clicked - Before:', { showViewSearchConfig, selectedSearchConfig });
-                              setSelectedSearchConfig(config);
-                              setShowViewSearchConfig(true);
-                              console.log('👁️ View clicked - After state update');
-                              setTimeout(() => {
-                                console.log('👁️ View clicked - After timeout:', { showViewSearchConfig, selectedSearchConfig });
-                              }, 100);
+                              console.log('🔧 DIRECT ALERT TEST:', config.context);
+                              alert(`Zoek configuratie: ${config.context}\nPlaceholder: ${config.placeholderText}\nZoekbereik: ${config.searchScope}\nStatus: ${config.isActive ? 'Actief' : 'Inactief'}`);
                             }}
                           >
                             <Eye className="h-4 w-4 mr-1" />
@@ -7293,37 +7288,7 @@ function PageManagement({ templates }: { templates: any[] }) {
 
 
 
-      {/* Simpele View Dialog - Alleen Bekijken */}
-      {showViewSearchConfig && selectedSearchConfig && (
-        <Dialog open={showViewSearchConfig} onOpenChange={setShowViewSearchConfig}>
-          <DialogContent className="max-w-lg">
-            <DialogHeader>
-              <DialogTitle>Zoek Configuratie: {selectedSearchConfig.context}</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-3">
-              <div>
-                <Label className="font-medium">Placeholder Tekst</Label>
-                <p className="text-sm text-gray-700">{selectedSearchConfig.placeholderText}</p>
-              </div>
-              <div>
-                <Label className="font-medium">Zoekbereik</Label>
-                <p className="text-sm text-gray-700">{selectedSearchConfig.searchScope}</p>
-              </div>
-              <div>
-                <Label className="font-medium">Status</Label>
-                <Badge variant={selectedSearchConfig.isActive ? "default" : "secondary"}>
-                  {selectedSearchConfig.isActive ? "Actief" : "Inactief"}
-                </Badge>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button onClick={() => setShowViewSearchConfig(false)}>
-                Sluiten
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
+
 
       {/* Activity dialogs */}
       {showEditActivity && selectedActivity && (
