@@ -3031,6 +3031,7 @@ export default function Admin() {
                 </div>
                 <Button 
                   onClick={() => {
+                    console.log('🟢 Nieuwe Zoek Configuratie clicked');
                     // Reset form data
                     setSearchConfigData({
                       context: '',
@@ -3043,7 +3044,9 @@ export default function Admin() {
                       isActive: true
                     });
                     
+                    console.log('🟢 About to set showCreateSearchConfig to true');
                     setShowCreateSearchConfig(true);
+                    console.log('🟢 showCreateSearchConfig state set to true');
                   }} 
                   className="bg-blue-600 hover:bg-blue-700"
                 >
