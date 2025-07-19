@@ -88,6 +88,11 @@ export default function Home() {
     queryKey: ["/api/search-config/homepage"],
   });
 
+  // Fetch motivation data for CTA section
+  const { data: motivationData } = useQuery({
+    queryKey: ["/api/motivation"],
+  });
+
   // Update document title and meta tags when site settings change
   useEffect(() => {
     if (siteSettings) {
@@ -454,34 +459,38 @@ export default function Home() {
 
 
 
-      {/* CTA Section */}
-      <section className="py-16 px-5 max-w-6xl mx-auto">
-        <div className="flex flex-wrap gap-8 items-center justify-between">
-          <div className="flex-1 min-w-80">
-            <h2 className="text-3xl font-bold mb-4 font-inter text-gray-900">
-              Laat je verrassen door het onbekende Polen
-            </h2>
-            <p className="text-lg mb-6 font-inter text-gray-700">
-              Bezoek historische steden, ontdek natuurparken en verborgen parels. 
-              Onze reisgidsen helpen je op weg!
-            </p>
-            <Button
-              onClick={handleReadGuides}
-              className="py-3 px-6 text-base font-inter hover:opacity-90 transition-all duration-200"
-              style={{ backgroundColor: "#2f3e46" }}
-            >
-              Lees onze gidsen
-            </Button>
+      {/* CTA Section - Dynamic from Database */}
+      {motivationData && motivationData.is_published && (
+        <section className="py-16 px-5 max-w-6xl mx-auto">
+          <div className="flex flex-wrap gap-8 items-center justify-between">
+            <div className="flex-1 min-w-80">
+              <h2 className="text-3xl font-bold mb-4 font-inter text-gray-900">
+                {motivationData.title || "Laat je verrassen door het onbekende Polen"}
+              </h2>
+              <p className="text-lg mb-6 font-inter text-gray-700">
+                {motivationData.description || "Bezoek historische steden, ontdek natuurparken en verborgen parels. Onze reisgidsen helpen je op weg!"}
+              </p>
+              <Button
+                onClick={handleReadGuides}
+                className="py-3 px-6 text-base font-inter hover:opacity-90 transition-all duration-200"
+                style={{ backgroundColor: "#2f3e46" }}
+              >
+                {motivationData.button_text || "Lees onze gidsen"}
+              </Button>
+            </div>
+            <div className="flex-1 min-w-80">
+              <img
+                src={motivationData.image || "/images/motivatie/tatra-valley.jpg"}
+                alt="Motivatie afbeelding"
+                className="w-full rounded-xl shadow-lg"
+                onError={(e) => {
+                  e.currentTarget.src = "/images/motivatie/tatra-valley.jpg";
+                }}
+              />
+            </div>
           </div>
-          <div className="flex-1 min-w-80">
-            <img
-              src="/images/tatra-vallei.jpg"
-              alt="Tatra Valley"
-              className="w-full rounded-xl shadow-lg"
-            />
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Highlights Section - From Database */}
       {highlights.length > 0 && (

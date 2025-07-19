@@ -378,3 +378,28 @@ export const updateSearchConfigSchema = insertSearchConfigSchema.partial();
 export type InsertSearchConfig = z.infer<typeof insertSearchConfigSchema>;
 export type UpdateSearchConfig = z.infer<typeof updateSearchConfigSchema>;
 export type SearchConfig = typeof searchConfigs.$inferSelect;
+
+// Motivation section table
+export const motivation = pgTable("motivation", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  buttonText: text("button_text").notNull(),
+  buttonAction: text("button_action"),
+  image: text("image"),
+  isPublished: boolean("is_published").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertMotivationSchema = createInsertSchema(motivation).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const updateMotivationSchema = insertMotivationSchema.partial();
+
+export type InsertMotivation = z.infer<typeof insertMotivationSchema>;
+export type UpdateMotivation = z.infer<typeof updateMotivationSchema>;
+export type SelectMotivation = typeof motivation.$inferSelect;

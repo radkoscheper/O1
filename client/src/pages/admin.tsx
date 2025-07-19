@@ -61,6 +61,12 @@ export default function Admin() {
     enabled: isAuthenticated && (currentUser?.canDeleteContent || currentUser?.canEditContent),
   });
 
+  // Motivation query
+  const motivationQuery = useQuery({
+    queryKey: ['/api/admin/motivation'],
+    enabled: isAuthenticated && currentUser?.canEditContent,
+  });
+
   // Site settings query
   const siteSettingsQuery = useQuery({
     queryKey: ['/api/site-settings'],
@@ -266,6 +272,16 @@ export default function Admin() {
     }
   };
 
+  // Motivation editing state
+  const [motivationData, setMotivationData] = useState({
+    title: '',
+    description: '',
+    buttonText: '',
+    buttonAction: '',
+    image: '',
+    isPublished: true
+  });
+
   const [newDestination, setNewDestination] = useState({
     name: '',
     location: '',
@@ -421,6 +437,20 @@ export default function Admin() {
       setSiteSettings(newSettings);
     }
   }, [siteSettingsQuery.data]);
+
+  // Load motivation data when query updates
+  useEffect(() => {
+    if (motivationQuery.data) {
+      setMotivationData({
+        title: motivationQuery.data.title || '',
+        description: motivationQuery.data.description || '',
+        buttonText: motivationQuery.data.button_text || '',
+        buttonAction: motivationQuery.data.button_action || '',
+        image: motivationQuery.data.image || '',
+        isPublished: motivationQuery.data.is_published ?? true
+      });
+    }
+  }, [motivationQuery.data]);
 
   const checkAuthStatus = async () => {
     try {
@@ -1006,7 +1036,24 @@ export default function Admin() {
     }
   };
 
+  const handleUpdateMotivation = async () => {
+    try {
+      const response = await apiRequest(`/api/admin/motivation/1`, {
+        method: 'PUT',
+        body: JSON.stringify(motivationData),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
 
+      if (response) {
+        toast({ title: "Succes", description: "Motivatie sectie bijgewerkt" });
+        motivationQuery.refetch();
+      }
+    } catch (error) {
+      toast({ title: "Fout", description: "Kon motivatie sectie niet bijwerken", variant: "destructive" });
+    }
+  };
 
   const handleSaveSiteSettings = async () => {
     try {
@@ -1225,6 +1272,9 @@ export default function Admin() {
                 </TabsTrigger>
                 <TabsTrigger value="ontdek-meer" className="flex items-center gap-2 ml-2">
                   📄 Ontdek Meer
+                </TabsTrigger>
+                <TabsTrigger value="motivatie" className="flex items-center gap-2 ml-2">
+                  💫 Motivatie
                 </TabsTrigger>
               </>
             )}
@@ -3189,6 +3239,133 @@ export default function Admin() {
               )}
 
 
+            </TabsContent>
+          )}
+
+          {/* Motivatie Tab */}
+          {currentUser?.canCreateContent && (
+            <TabsContent value="motivatie" className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <div>
+                  <h2 className="text-2xl font-semibold">Motivatie Sectie</h2>
+                  <p className="text-gray-600">Beheer de "Laat je verrassen door het onbekende Polen" sectie op de homepage</p>
+                </div>
+              </div>
+
+              {motivationQuery.isLoading ? (
+                <div className="text-center">Laden...</div>
+              ) : (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Homepage Motivatie Sectie</CardTitle>
+                    <CardDescription>Bewerk de tekst en afbeelding van de motivatie sectie</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="motivationTitle">Titel</Label>
+                      <Input
+                        id="motivationTitle"
+                        value={motivationData.title}
+                        onChange={(e) => setMotivationData({ ...motivationData, title: e.target.value })}
+                        placeholder="Laat je verrassen door het onbekende Polen"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="motivationDescription">Beschrijving</Label>
+                      <Textarea
+                        id="motivationDescription"
+                        value={motivationData.description}
+                        onChange={(e) => setMotivationData({ ...motivationData, description: e.target.value })}
+                        placeholder="Bezoek historische steden, ontdek natuurparken en verborgen parels..."
+                        rows={3}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="motivationButtonText">Button Tekst</Label>
+                        <Input
+                          id="motivationButtonText"
+                          value={motivationData.buttonText}
+                          onChange={(e) => setMotivationData({ ...motivationData, buttonText: e.target.value })}
+                          placeholder="Lees onze gidsen"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="motivationButtonAction">Button Actie</Label>
+                        <Input
+                          id="motivationButtonAction"
+                          value={motivationData.buttonAction}
+                          onChange={(e) => setMotivationData({ ...motivationData, buttonAction: e.target.value })}
+                          placeholder="guides"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Afbeelding</Label>
+                      {motivationData.image && (
+                        <div className="mb-4">
+                          <img 
+                            src={motivationData.image} 
+                            alt="Motivatie afbeelding"
+                            className="w-full max-w-md h-32 object-cover rounded-md border"
+                          />
+                        </div>
+                      )}
+                      <div className="flex gap-2">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              try {
+                                const imagePath = await uploadImageToFolder(file, 'motivatie', '', '');
+                                setMotivationData({ ...motivationData, image: imagePath });
+                              } catch (error) {
+                                toast({ 
+                                  title: "Fout", 
+                                  description: "Kon afbeelding niet uploaden", 
+                                  variant: "destructive" 
+                                });
+                              }
+                            }
+                          }}
+                          className="hidden"
+                          id="motivationImageUpload"
+                        />
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          onClick={() => document.getElementById('motivationImageUpload')?.click()}
+                        >
+                          <Upload className="h-4 w-4 mr-2" />
+                          Upload Afbeelding
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="motivationPublished"
+                        checked={motivationData.isPublished}
+                        onCheckedChange={(checked) => setMotivationData({ ...motivationData, isPublished: checked })}
+                      />
+                      <Label htmlFor="motivationPublished">Sectie tonen op homepage</Label>
+                    </div>
+
+                    <div className="flex justify-end">
+                      <Button onClick={handleUpdateMotivation}>
+                        <Save className="h-4 w-4 mr-2" />
+                        Wijzigingen Opslaan
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </TabsContent>
           )}
 
