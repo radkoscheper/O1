@@ -205,6 +205,9 @@ This is a full-stack web application for discovering beautiful places in Poland.
 - Gebruikers beheer onder Administrator sectie
 - Website Onderdelen groep behouden met content management (Bestemmingen, Activiteiten, Hoogtepunten, Reisgidsen, Pagina's, Ontdek Meer)
 - Account tab apart geplaatst voor persoonlijke instellingen
+- **TOEGANGSCONTROLE**: Hele Administrator sectie alleen zichtbaar voor gebruikers met role "admin"
+- **PERSONALISATIE**: Admin panel header toont gepersonaliseerde begroeting "Hoi [username], beheer je content voor Ontdek Polen"
+- **SUBGROEPEN**: Website Onderdelen opgedeeld in "Content Types" en "Pagina Management" subgroepen voor betere organisatie
 
 **Stadium 12 Progress (2025-01-18)**: ✅ COMPLETE TECHNICAL PARITY BETWEEN REISGIDSEN AND BESTEMMINGEN
 ✅ **IDENTICAL TECHNICAL STRUCTURE IMPLEMENTED**:

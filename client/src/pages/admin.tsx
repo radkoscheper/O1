@@ -1153,42 +1153,34 @@ export default function Admin() {
 
         <Tabs defaultValue="destinations" className="w-full">
           <TabsList className="h-auto w-full flex-wrap justify-start gap-2 p-2 bg-muted/30">
-            {/* Eerste regel: Administrator groep */}
-            <div className="w-full text-xs font-semibold text-gray-500 px-2 py-1">
-              Administrator
-            </div>
+            {/* Eerste regel: Administrator groep - alleen voor admin */}
             {currentUser?.role === 'admin' && (
-              <TabsTrigger value="site-settings" className="flex items-center gap-2">
-                <Shield className="h-4 w-4" />
-                Site Instellingen
-              </TabsTrigger>
-            )}
-            {currentUser?.canCreateContent && (
-              <TabsTrigger value="homepage-overview" className="flex items-center gap-2">
-                🏠 Homepage Overview
-              </TabsTrigger>
-            )}
-            {currentUser?.role === 'admin' && (
-              <TabsTrigger value="templates" className="flex items-center gap-2">
-                🎨 Templates
-              </TabsTrigger>
-            )}
-            {currentUser?.canEditContent && (
-              <TabsTrigger value="search-configs" className="flex items-center gap-2">
-                🔍 Zoekbalk CMS
-              </TabsTrigger>
-            )}
-            {(currentUser?.canDeleteContent || currentUser?.canEditContent) && (
-              <TabsTrigger value="recycle" className="flex items-center gap-2">
-                <Trash2 className="h-4 w-4" />
-                Prullenbak
-              </TabsTrigger>
-            )}
-            {currentUser?.canManageUsers && (
-              <TabsTrigger value="users" className="flex items-center gap-2">
-                <Users className="h-4 w-4" />
-                Gebruikers
-              </TabsTrigger>
+              <>
+                <div className="w-full text-xs font-semibold text-gray-500 px-2 py-1">
+                  Administrator
+                </div>
+                <TabsTrigger value="site-settings" className="flex items-center gap-2">
+                  <Shield className="h-4 w-4" />
+                  Site Instellingen
+                </TabsTrigger>
+                <TabsTrigger value="homepage-overview" className="flex items-center gap-2">
+                  🏠 Homepage Overview
+                </TabsTrigger>
+                <TabsTrigger value="templates" className="flex items-center gap-2">
+                  🎨 Templates
+                </TabsTrigger>
+                <TabsTrigger value="search-configs" className="flex items-center gap-2">
+                  🔍 Zoekbalk CMS
+                </TabsTrigger>
+                <TabsTrigger value="recycle" className="flex items-center gap-2">
+                  <Trash2 className="h-4 w-4" />
+                  Prullenbak
+                </TabsTrigger>
+                <TabsTrigger value="users" className="flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  Gebruikers
+                </TabsTrigger>
+              </>
             )}
 
             {/* Tweede regel: Website Onderdelen groep */}
