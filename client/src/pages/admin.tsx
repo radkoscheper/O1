@@ -2990,7 +2990,29 @@ export default function Admin() {
 
               {/* Search Configurations List */}
               <div className="space-y-4">
-                {searchConfigsQuery.data?.map((config: any) => (
+                {searchConfigsQuery.data?.map((config: any) => {
+                  // Calculate counter based on search scope
+                  const getConfigCounter = (scope: string) => {
+                    switch (scope) {
+                      case 'destinations':
+                        return destinationsQuery.data?.length || 0;
+                      case 'activities':
+                        return activitiesQuery.data?.length || 0;
+                      case 'guides':
+                        return guidesQuery.data?.length || 0;
+                      case 'highlights':
+                        return highlightsQuery.data?.length || 0;
+                      case 'all':
+                        return (destinationsQuery.data?.length || 0) + 
+                               (activitiesQuery.data?.length || 0) + 
+                               (guidesQuery.data?.length || 0) + 
+                               (highlightsQuery.data?.length || 0);
+                      default:
+                        return 0;
+                    }
+                  };
+                  
+                  return (
                   <Card key={config.id} className="border">
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between">
@@ -3001,6 +3023,9 @@ export default function Admin() {
                               {config.isActive ? "Actief" : "Inactief"}
                             </Badge>
                             <Badge variant="outline">{config.searchScope}</Badge>
+                            <Badge variant="secondary" className="text-xs">
+                              {getConfigCounter(config.searchScope)} items
+                            </Badge>
                           </div>
                           <p className="text-gray-600">{config.placeholderText}</p>
                           {config.customInstructions && (
@@ -3061,7 +3086,8 @@ export default function Admin() {
                       </div>
                     </CardContent>
                   </Card>
-                ))}
+                );
+                })}
               </div>
 
               {/* Loading state */}
