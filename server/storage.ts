@@ -1,5 +1,5 @@
 import { 
-  users, destinations, guides, siteSettings, pages, templates, highlights, activities,
+  users, destinations, guides, siteSettings, pages, templates, highlights, activities, searchConfigs,
   type User, type InsertUser, type UpdateUser,
   type Destination, type InsertDestination, type UpdateDestination,
   type Guide, type InsertGuide, type UpdateGuide,
@@ -7,7 +7,8 @@ import {
   type Page, type InsertPage, type UpdatePage,
   type Template, type InsertTemplate, type UpdateTemplate,
   type Highlight, type InsertHighlight, type UpdateHighlight,
-  type Activity, type InsertActivity, type UpdateActivity
+  type Activity, type InsertActivity, type UpdateActivity,
+  type SearchConfig, type InsertSearchConfig, type UpdateSearchConfig
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, ne, and, gte, lt, gt, lte, sql } from "drizzle-orm";
@@ -103,6 +104,20 @@ export interface IStorage {
   deleteActivity(id: number): Promise<void>;
   softDeleteActivity(id: number): Promise<void>;
   restoreActivity(id: number): Promise<Activity>;
+
+  // Search configuration operations
+  getSearchConfig(id: number): Promise<SearchConfig | undefined>;
+  getSearchConfigByContext(context: string): Promise<SearchConfig | undefined>;
+  getAllSearchConfigs(): Promise<SearchConfig[]>;
+  getActiveSearchConfigs(): Promise<SearchConfig[]>;
+  createSearchConfig(searchConfig: InsertSearchConfig): Promise<SearchConfig>;
+  updateSearchConfig(id: number, updates: UpdateSearchConfig): Promise<SearchConfig>;
+  deleteSearchConfig(id: number): Promise<void>;
+
+  // Search operations
+  searchDestinations(query: string, location?: string): Promise<Destination[]>;
+  searchActivities(query: string, location?: string, category?: string): Promise<Activity[]>;
+  searchGuides(query: string): Promise<Guide[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -763,6 +778,104 @@ export class DatabaseStorage implements IStorage {
       .where(eq(activities.id, id))
       .returning();
     return activity;
+  }
+
+  // Search configuration operations
+  async getSearchConfig(id: number): Promise<SearchConfig | undefined> {
+    const [config] = await db.select().from(searchConfigs).where(eq(searchConfigs.id, id));
+    return config || undefined;
+  }
+
+  async getSearchConfigByContext(context: string): Promise<SearchConfig | undefined> {
+    const [config] = await db.select().from(searchConfigs).where(eq(searchConfigs.context, context));
+    return config || undefined;
+  }
+
+  async getAllSearchConfigs(): Promise<SearchConfig[]> {
+    return db.select().from(searchConfigs);
+  }
+
+  async getActiveSearchConfigs(): Promise<SearchConfig[]> {
+    return db.select().from(searchConfigs).where(eq(searchConfigs.isActive, true));
+  }
+
+  async createSearchConfig(insertSearchConfig: InsertSearchConfig): Promise<SearchConfig> {
+    const [config] = await db
+      .insert(searchConfigs)
+      .values({
+        ...insertSearchConfig,
+        updatedAt: new Date(),
+      })
+      .returning();
+    return config;
+  }
+
+  async updateSearchConfig(id: number, updates: UpdateSearchConfig): Promise<SearchConfig> {
+    const [config] = await db
+      .update(searchConfigs)
+      .set({
+        ...updates,
+        updatedAt: new Date(),
+      })
+      .where(eq(searchConfigs.id, id))
+      .returning();
+    return config;
+  }
+
+  async deleteSearchConfig(id: number): Promise<void> {
+    await db.delete(searchConfigs).where(eq(searchConfigs.id, id));
+  }
+
+  // Search operations
+  async searchDestinations(query: string, location?: string): Promise<Destination[]> {
+    let whereCondition = and(
+      eq(destinations.published, true),
+      eq(destinations.is_deleted, false),
+      sql`${destinations.name} ILIKE '%' || ${query} || '%'`
+    );
+
+    if (location) {
+      whereCondition = and(
+        whereCondition,
+        sql`${destinations.location} ILIKE '%' || ${location} || '%'`
+      );
+    }
+
+    return db.select().from(destinations).where(whereCondition);
+  }
+
+  async searchActivities(query: string, location?: string, category?: string): Promise<Activity[]> {
+    let whereCondition = and(
+      eq(activities.published, true),
+      eq(activities.is_deleted, false),
+      sql`${activities.name} ILIKE '%' || ${query} || '%'`
+    );
+
+    if (location) {
+      whereCondition = and(
+        whereCondition,
+        sql`${activities.location} ILIKE '%' || ${location} || '%'`
+      );
+    }
+
+    if (category) {
+      whereCondition = and(
+        whereCondition,
+        sql`${activities.category} ILIKE '%' || ${category} || '%'`
+      );
+    }
+
+    return db.select().from(activities).where(whereCondition);
+  }
+
+  async searchGuides(query: string): Promise<Guide[]> {
+    const whereCondition = and(
+      eq(guides.published, true),
+      eq(guides.is_deleted, false),
+      sql`${guides.title} ILIKE '%' || ${query} || '%'`
+    );
+
+    return db.select().from(guides).where(whereCondition);
   }
 }
 

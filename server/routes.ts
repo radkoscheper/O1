@@ -2154,6 +2154,125 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Search configuration routes
+  app.get("/api/admin/search-configs", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user?.canEditContent) {
+        return res.status(403).json({ message: "Geen toestemming om zoek configuraties te bekijken" });
+      }
+
+      const configs = await storage.getAllSearchConfigs();
+      res.json(configs);
+    } catch (error) {
+      console.error("Error fetching search configs:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  app.post("/api/admin/search-configs", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user?.canCreateContent) {
+        return res.status(403).json({ message: "Geen toestemming om zoek configuraties aan te maken" });
+      }
+
+      const config = await storage.createSearchConfig({ ...req.body, createdBy: user.id });
+      res.json(config);
+    } catch (error) {
+      console.error("Error creating search config:", error);
+      res.status(500).json({ message: "Fout bij aanmaken zoek configuratie" });
+    }
+  });
+
+  app.put("/api/admin/search-configs/:id", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user?.canEditContent) {
+        return res.status(403).json({ message: "Geen toestemming om zoek configuraties te bewerken" });
+      }
+
+      const { id } = req.params;
+      const config = await storage.updateSearchConfig(parseInt(id), req.body);
+      res.json(config);
+    } catch (error) {
+      console.error("Error updating search config:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  app.delete("/api/admin/search-configs/:id", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user?.canDeleteContent) {
+        return res.status(403).json({ message: "Geen toestemming om zoek configuraties te verwijderen" });
+      }
+
+      const { id } = req.params;
+      await storage.deleteSearchConfig(parseInt(id));
+      res.json({ message: "Zoek configuratie verwijderd" });
+    } catch (error) {
+      console.error("Error deleting search config:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  app.get("/api/search-config/:context", async (req, res) => {
+    try {
+      const { context } = req.params;
+      const config = await storage.getSearchConfigByContext(context);
+      if (!config) {
+        return res.status(404).json({ message: "Zoek configuratie niet gevonden" });
+      }
+      res.json(config);
+    } catch (error) {
+      console.error("Error fetching search config by context:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Search API routes
+  app.get("/api/search", async (req, res) => {
+    try {
+      const { q: query, scope, location, category } = req.query;
+      
+      if (!query || typeof query !== 'string') {
+        return res.status(400).json({ message: "Zoekterm is verplicht" });
+      }
+
+      let results: any[] = [];
+
+      switch (scope) {
+        case 'destinations':
+          results = await storage.searchDestinations(query, location as string);
+          break;
+        case 'activities':
+          results = await storage.searchActivities(query, location as string, category as string);
+          break;
+        case 'guides':
+          results = await storage.searchGuides(query);
+          break;
+        default:
+          // Search all
+          const [destinations, activities, guides] = await Promise.all([
+            storage.searchDestinations(query, location as string),
+            storage.searchActivities(query, location as string, category as string),
+            storage.searchGuides(query)
+          ]);
+          results = [
+            ...destinations.map(d => ({ ...d, type: 'destination' })),
+            ...activities.map(a => ({ ...a, type: 'activity' })),
+            ...guides.map(g => ({ ...g, type: 'guide' }))
+          ];
+      }
+
+      res.json({ results, query, scope: scope || 'all' });
+    } catch (error) {
+      console.error("Search error:", error);
+      res.status(500).json({ message: "Zoekfout" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

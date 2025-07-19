@@ -341,3 +341,36 @@ export const updateActivitySchema = insertActivitySchema.partial();
 export type InsertActivity = z.infer<typeof insertActivitySchema>;
 export type UpdateActivity = z.infer<typeof updateActivitySchema>;
 export type Activity = typeof activities.$inferSelect;
+
+// Search Configuration table
+export const searchConfigs = pgTable("search_configs", {
+  id: serial("id").primaryKey(),
+  context: text("context").notNull(), // "homepage", "destination_page", "guide_page", etc.
+  placeholderText: text("placeholder_text").notNull(),
+  searchScope: text("search_scope").notNull(), // "destinations", "activities", "guides", "all"
+  enableLocationFilter: boolean("enable_location_filter").default(false),
+  enableCategoryFilter: boolean("enable_category_filter").default(false),
+  customInstructions: text("custom_instructions"), // Additional search instructions or context
+  redirectPattern: text("redirect_pattern"), // Pattern for redirects like "/{{slug}}" or "/bestemming/{{slug}}"
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdBy: integer("created_by").references(() => users.id),
+});
+
+export const insertSearchConfigSchema = createInsertSchema(searchConfigs).pick({
+  context: true,
+  placeholderText: true,
+  searchScope: true,
+  enableLocationFilter: true,
+  enableCategoryFilter: true,
+  customInstructions: true,
+  redirectPattern: true,
+  isActive: true,
+});
+
+export const updateSearchConfigSchema = insertSearchConfigSchema.partial();
+
+export type InsertSearchConfig = z.infer<typeof insertSearchConfigSchema>;
+export type UpdateSearchConfig = z.infer<typeof updateSearchConfigSchema>;
+export type SearchConfig = typeof searchConfigs.$inferSelect;
