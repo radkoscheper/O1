@@ -3018,11 +3018,8 @@ export default function Admin() {
                             size="sm" 
                             variant="outline"
                             onClick={() => {
-                              console.log('👁️ Bekijk button clicked for config:', config);
                               setSelectedSearchConfig(config);
-                              console.log('👁️ Selected config set, setting showViewSearchConfig to true');
                               setShowViewSearchConfig(true);
-                              console.log('👁️ showViewSearchConfig state should now be true');
                             }}
                           >
                             <Eye className="h-4 w-4 mr-1" />
@@ -3032,9 +3029,7 @@ export default function Admin() {
                             size="sm" 
                             variant="outline"
                             onClick={() => {
-                              console.log('🔧 Bewerk button clicked for config:', config);
                               setSelectedSearchConfig(config);
-                              console.log('🔧 Selected config set to:', config);
                               // Pre-populate form with current data
                               setSearchConfigData({
                                 context: config.context || '',
@@ -3046,9 +3041,7 @@ export default function Admin() {
                                 redirectPattern: config.redirectPattern || '',
                                 isActive: Boolean(config.isActive)
                               });
-                              console.log('🔧 Form data populated, setting showEditSearchConfig to true');
                               setShowEditSearchConfig(true);
-                              console.log('🔧 showEditSearchConfig state should now be true');
                             }}
                           >
                             <Edit className="h-4 w-4 mr-1" />
@@ -7304,11 +7297,12 @@ function PageManagement({ templates }: { templates: any[] }) {
 
 
 
+
+
+      {/* Search Config Edit Dialog */}
       {showEditSearchConfig && selectedSearchConfig && (
         <Dialog open={showEditSearchConfig} onOpenChange={(open) => {
-          console.log('🔧 Edit Dialog onOpenChange called with:', open);
           if (!open) {
-            console.log('🔧 Closing edit dialog, resetting state');
             setShowEditSearchConfig(false);
             setSelectedSearchConfig(null);
           }
@@ -7413,124 +7407,10 @@ function PageManagement({ templates }: { templates: any[] }) {
         </Dialog>
       )}
 
-      {console.log('🔍 Rendering check - showEditSearchConfig:', showEditSearchConfig, 'selectedSearchConfig:', selectedSearchConfig)}
-      {console.log('🔍 Rendering check - showViewSearchConfig:', showViewSearchConfig)}
-      
-      {showEditSearchConfig && selectedSearchConfig && (
-        <Dialog open={showEditSearchConfig} onOpenChange={(open) => {
-          console.log('🔧 Edit Dialog onOpenChange called with:', open);
-          if (!open) {
-            console.log('🔧 Closing edit dialog, resetting state');
-            setShowEditSearchConfig(false);
-            setSelectedSearchConfig(null);
-          }
-        }}>
-          <DialogContent className="max-w-2xl">
-            {console.log('🔧 Edit DialogContent is rendering')}
-            <DialogHeader>
-              <DialogTitle>Zoek Configuratie Bewerken</DialogTitle>
-              <DialogDescription>
-                Bewerk de zoek configuratie voor {selectedSearchConfig.context}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="edit-context">Context *</Label>
-                <Input
-                  id="edit-context"
-                  value={searchConfigData.context}
-                  onChange={(e) => setSearchConfigData({...searchConfigData, context: e.target.value})}
-                  placeholder="Bijvoorbeeld: homepage, destination, global"
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-placeholderText">Placeholder Tekst *</Label>
-                <Input
-                  id="edit-placeholderText"
-                  value={searchConfigData.placeholderText}
-                  onChange={(e) => setSearchConfigData({...searchConfigData, placeholderText: e.target.value})}
-                  placeholder="Bijvoorbeeld: Zoek bestemmingen..."
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-searchScope">Zoekbereik *</Label>
-                <select
-                  id="edit-searchScope"
-                  value={searchConfigData.searchScope}
-                  onChange={(e) => setSearchConfigData({...searchConfigData, searchScope: e.target.value})}
-                  className="w-full p-2 border rounded-md"
-                >
-                  <optgroup label="Website Onderdelen">
-                    <option value="destinations">🏔️ Bestemmingen</option>
-                    <option value="activities">🎯 Activiteiten</option>
-                    <option value="highlights">✨ Hoogtepunten</option>
-                    <option value="guides">📖 Reisgidsen</option>
-                  </optgroup>
-                </select>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="edit-enableLocationFilter"
-                    checked={searchConfigData.enableLocationFilter}
-                    onCheckedChange={(checked) => setSearchConfigData({...searchConfigData, enableLocationFilter: checked})}
-                  />
-                  <Label htmlFor="edit-enableLocationFilter">Locatie filter inschakelen</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="edit-enableCategoryFilter"
-                    checked={searchConfigData.enableCategoryFilter}
-                    onCheckedChange={(checked) => setSearchConfigData({...searchConfigData, enableCategoryFilter: checked})}
-                  />
-                  <Label htmlFor="edit-enableCategoryFilter">Categorie filter inschakelen</Label>
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="edit-redirectPattern">Redirect Patroon</Label>
-                <Input
-                  id="edit-redirectPattern"
-                  value={searchConfigData.redirectPattern}
-                  onChange={(e) => setSearchConfigData({...searchConfigData, redirectPattern: e.target.value})}
-                  placeholder="Bijvoorbeeld: /{slug} of /search?q={query}"
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-customInstructions">Aangepaste Instructies</Label>
-                <Textarea
-                  id="edit-customInstructions"
-                  value={searchConfigData.customInstructions}
-                  onChange={(e) => setSearchConfigData({...searchConfigData, customInstructions: e.target.value})}
-                  placeholder="Extra instructies voor deze zoek configuratie"
-                  rows={3}
-                />
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="edit-isActive"
-                  checked={searchConfigData.isActive}
-                  onCheckedChange={(checked) => setSearchConfigData({...searchConfigData, isActive: checked})}
-                />
-                <Label htmlFor="edit-isActive">Configuratie actief</Label>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowEditSearchConfig(false)}>
-                Annuleren
-              </Button>
-              <Button onClick={() => handleUpdateSearchConfig(selectedSearchConfig.id, searchConfigData)}>
-                Bijwerken
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
-
+      {/* Search Config View Dialog */}
       {showViewSearchConfig && selectedSearchConfig && (
         <Dialog open={showViewSearchConfig} onOpenChange={(open) => {
-          console.log('👁️ View Dialog onOpenChange called with:', open);
           if (!open) {
-            console.log('👁️ Closing view dialog, resetting state');
             setShowViewSearchConfig(false);
             setSelectedSearchConfig(null);
           }
@@ -7609,7 +7489,6 @@ function PageManagement({ templates }: { templates: any[] }) {
                 Sluiten
               </Button>
               <Button onClick={() => {
-                console.log('Switch from view to edit search config');
                 setSearchConfigData({
                   context: selectedSearchConfig.context || '',
                   placeholderText: selectedSearchConfig.placeholderText || '',
