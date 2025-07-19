@@ -233,14 +233,14 @@ export default function Page() {
         </div>
       </header>
 
-      {/* Floating Search Results Overlay */}
+      {/* Search Results Overlay */}
       {showSearchResults && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-start justify-center pt-20"
+          className="fixed inset-0 bg-black bg-opacity-30 z-50"
           onClick={() => setShowSearchResults(false)}
         >
           <div 
-            className="bg-white rounded-lg shadow-2xl p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto"
+            className="absolute top-72 left-1/2 transform -translate-x-1/2 bg-white rounded-lg shadow-2xl p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-4">

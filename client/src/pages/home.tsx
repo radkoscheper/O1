@@ -158,14 +158,18 @@ export default function Home() {
     e.preventDefault();
     if (!searchQuery.trim()) return;
     
+    console.log('Starting search for:', searchQuery);
     setIsSearching(true);
     setShowSearchResults(true);
     
     try {
       const searchScope = searchConfig?.searchScope || 'destinations';
-      const response = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}&scope=${searchScope}`);
+      const url = `/api/search?q=${encodeURIComponent(searchQuery)}&scope=${searchScope}`;
+      console.log('Fetching:', url);
+      const response = await fetch(url);
       const data = await response.json();
       
+      console.log('Search results:', data);
       setSearchResults(data.results || []);
       
       // If search config has redirect pattern and only one result, redirect immediately
@@ -225,7 +229,7 @@ export default function Home() {
             {siteSettings?.siteDescription || "Mooie plekken in Polen ontdekken"}
           </p>
           
-          <form onSubmit={handleSearch} className="mt-5 mb-5">
+          <form onSubmit={handleSearch} className="mt-5 mb-5 relative">
             <div className="relative inline-block">
               <Input
                 type="text"
@@ -236,6 +240,12 @@ export default function Home() {
               />
               <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
             </div>
+            {/* Debug state indicator */}
+            {showSearchResults && (
+              <div className="absolute top-16 left-0 bg-red-500 text-white px-2 py-1 text-xs rounded">
+                Search Active: {isSearching ? 'Searching...' : `${searchResults.length} results`}
+              </div>
+            )}
           </form>
           
 
@@ -250,14 +260,14 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Floating Search Results Overlay */}
+      {/* Search Results Overlay */}
       {showSearchResults && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-start justify-center pt-20"
+          className="fixed inset-0 bg-black bg-opacity-40 z-50"
           onClick={() => setShowSearchResults(false)}
         >
           <div 
-            className="bg-white rounded-lg shadow-2xl p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto"
+            className="absolute top-80 left-1/2 transform -translate-x-1/2 bg-white rounded-lg shadow-2xl p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto border-2 border-blue-200"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-4">
