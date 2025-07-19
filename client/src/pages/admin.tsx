@@ -3035,6 +3035,7 @@ export default function Admin() {
                 <div>Search configs loading: {String(searchConfigsQuery.isLoading)}</div>
                 <div>Search configs error: {searchConfigsQuery.error ? String(searchConfigsQuery.error) : 'None'}</div>
                 <div>Search configs data: {searchConfigsQuery.data ? `${searchConfigsQuery.data.length} items` : 'No data'}</div>
+                <div>Dialog states: Create={String(showCreateSearchConfig)}, Edit={String(showEditSearchConfig)}, View={String(showViewSearchConfig)}</div>
               </div>
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
@@ -3043,7 +3044,12 @@ export default function Admin() {
                 </div>
                 <Button 
                   onClick={() => {
-                    console.log('Create search config clicked');
+                    console.log('🔵 Create search config button clicked');
+                    console.log('🔵 Current showCreateSearchConfig state:', showCreateSearchConfig);
+                    
+                    // Test state immediately
+                    const beforeState = showCreateSearchConfig;
+                    
                     // Reset form data
                     setSearchConfigData({
                       context: '',
@@ -3055,7 +3061,14 @@ export default function Admin() {
                       redirectPattern: '',
                       isActive: true
                     });
+                    
+                    console.log('🔵 Setting showCreateSearchConfig to true');
                     setShowCreateSearchConfig(true);
+                    
+                    // Check state change after a brief delay
+                    setTimeout(() => {
+                      console.log('🔵 State after timeout - before:', beforeState, 'after setting true, current:', showCreateSearchConfig);
+                    }, 100);
                   }} 
                   className="bg-blue-600 hover:bg-blue-700"
                 >
@@ -7376,9 +7389,11 @@ function PageManagement({ templates }: { templates: any[] }) {
 
       {/* Search Configuration Dialogs */}
       {showCreateSearchConfig && (
-        <Dialog open={showCreateSearchConfig} onOpenChange={(open) => {
+        <Dialog open={true} onOpenChange={(open) => {
           console.log('Create dialog open state changed:', open);
-          setShowCreateSearchConfig(open);
+          if (!open) {
+            setShowCreateSearchConfig(false);
+          }
         }}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
@@ -7389,7 +7404,9 @@ function PageManagement({ templates }: { templates: any[] }) {
             </DialogHeader>
             {/* Debug form data */}
             <div className="bg-gray-50 p-2 text-xs rounded">
-              <strong>Form Debug:</strong> {JSON.stringify(searchConfigData, null, 2)}
+              <strong>Form Debug:</strong> 
+              <div>Dialog State: showCreateSearchConfig = {String(showCreateSearchConfig)}</div>
+              <div>Form Data: {JSON.stringify(searchConfigData, null, 2)}</div>
             </div>
             <div className="space-y-4">
               <div>
@@ -7495,7 +7512,12 @@ function PageManagement({ templates }: { templates: any[] }) {
       )}
 
       {showEditSearchConfig && selectedSearchConfig && (
-        <Dialog open={showEditSearchConfig} onOpenChange={setShowEditSearchConfig}>
+        <Dialog open={true} onOpenChange={(open) => {
+          console.log('Edit dialog open state changed:', open);
+          if (!open) {
+            setShowEditSearchConfig(false);
+          }
+        }}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Zoek Configuratie Bewerken</DialogTitle>
@@ -7601,7 +7623,12 @@ function PageManagement({ templates }: { templates: any[] }) {
       )}
 
       {showViewSearchConfig && selectedSearchConfig && (
-        <Dialog open={showViewSearchConfig} onOpenChange={setShowViewSearchConfig}>
+        <Dialog open={true} onOpenChange={(open) => {
+          console.log('View dialog open state changed:', open);
+          if (!open) {
+            setShowViewSearchConfig(false);
+          }
+        }}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Zoek Configuratie Details</DialogTitle>
