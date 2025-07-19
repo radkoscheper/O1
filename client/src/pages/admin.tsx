@@ -3018,8 +3018,13 @@ export default function Admin() {
                             size="sm" 
                             variant="outline"
                             onClick={() => {
+                              console.log('👁️ View clicked - Before:', { showViewSearchConfig, selectedSearchConfig });
                               setSelectedSearchConfig(config);
                               setShowViewSearchConfig(true);
+                              console.log('👁️ View clicked - After state update');
+                              setTimeout(() => {
+                                console.log('👁️ View clicked - After timeout:', { showViewSearchConfig, selectedSearchConfig });
+                              }, 100);
                             }}
                           >
                             <Eye className="h-4 w-4 mr-1" />
@@ -7300,14 +7305,17 @@ function PageManagement({ templates }: { templates: any[] }) {
 
 
       {/* Search Config Edit Dialog */}
+      {console.log('🔍 RENDER CHECK Edit:', { showEditSearchConfig, selectedSearchConfig: !!selectedSearchConfig })}
       {showEditSearchConfig && selectedSearchConfig && (
         <Dialog open={showEditSearchConfig} onOpenChange={(open) => {
+          console.log('🔧 Edit Dialog onOpenChange:', open);
           if (!open) {
             setShowEditSearchConfig(false);
             setSelectedSearchConfig(null);
           }
         }}>
           <DialogContent className="max-w-2xl">
+            {console.log('🔧 EDIT DIALOG CONTENT RENDERING')}
             <DialogHeader>
               <DialogTitle>Zoek Configuratie Bewerken</DialogTitle>
               <DialogDescription>
@@ -7408,14 +7416,17 @@ function PageManagement({ templates }: { templates: any[] }) {
       )}
 
       {/* Search Config View Dialog */}
+      {console.log('🔍 RENDER CHECK View:', { showViewSearchConfig, selectedSearchConfig: !!selectedSearchConfig })}
       {showViewSearchConfig && selectedSearchConfig && (
         <Dialog open={showViewSearchConfig} onOpenChange={(open) => {
+          console.log('👁️ Dialog onOpenChange:', open);
           if (!open) {
             setShowViewSearchConfig(false);
             setSelectedSearchConfig(null);
           }
         }}>
           <DialogContent className="max-w-2xl">
+            {console.log('👁️ DIALOG CONTENT RENDERING')}
             <DialogHeader>
               <DialogTitle>Zoek Configuratie Details</DialogTitle>
               <DialogDescription>
