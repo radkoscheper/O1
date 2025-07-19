@@ -466,7 +466,7 @@ export default function Page() {
                     
                     // Scroll to content section smoothly
                     setTimeout(() => {
-                      const contentSection = document.querySelector('section:last-of-type');
+                      const contentSection = document.getElementById('content-section');
                       if (contentSection) {
                         contentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                       }
