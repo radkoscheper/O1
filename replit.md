@@ -194,6 +194,14 @@ This is a full-stack web application for discovering beautiful places in Poland.
 - Zoekresultaten tonen categorie-indicatoren: 🏔️ Bestemmingen, 🎯 Activiteiten, ✨ Hoogtepunten, 📖 Reisgidsen
 - Type-velden toegevoegd aan alle zoek API responses voor correcte categorisatie
 
+**Stadium 16 Progress (2025-01-19)**: ✅ AUTOMATISCHE SEARCH REDIRECT VERWIJDERD
+✅ **AUTO-REDIRECT FUNCTIONALITEIT UITGESCHAKELD**:
+- Verwijderd auto-redirect logica uit homepage zoekfunctie
+- Verwijderd auto-redirect logica uit destination page zoekfunctie  
+- Gebruikers zien nu altijd zoekresultaten, ook bij 1 resultaat
+- Betere user experience: gebruikers kunnen kiezen wat ze willen openen
+- Geen automatische navigatie meer naar pagina's
+
 **Stadium 15 Progress (2025-01-19)**: ✅ ADMIN PANEL REORGANISATIE VOLTOOID
 ✅ **ADMINISTRATOR GROEP TOEGEVOEGD**:
 - Nieuwe "Administrator" groep toegevoegd aan CMS Admin Panel

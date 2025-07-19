@@ -231,20 +231,6 @@ export default function Home() {
       console.log('Results count:', data.results?.length || 0);
       
       setSearchResults(data.results || []);
-      
-      // If search config has redirect pattern and only one result, redirect immediately
-      if (searchConfig?.redirectPattern && data.results?.length === 1) {
-        const result = data.results[0];
-        let redirectUrl = searchConfig.redirectPattern;
-        
-        // Replace placeholders in redirect pattern
-        redirectUrl = redirectUrl.replace('{slug}', result.slug || result.name?.toLowerCase().replace(/\s+/g, '-'));
-        redirectUrl = redirectUrl.replace('{query}', encodeURIComponent(searchQuery));
-        
-        console.log('Redirecting to:', redirectUrl);
-        window.location.href = redirectUrl;
-        return;
-      }
     } catch (error) {
       console.error('Search error:', error);
       setSearchResults([]);
