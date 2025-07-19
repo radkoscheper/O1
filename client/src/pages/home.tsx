@@ -19,6 +19,46 @@ export default function Home() {
     setIsSearching(false);
     // Keep searchQuery and searchResults so user can re-open same search
   };
+
+  // Helper function to get type-specific styling for search results
+  const getTypeStyles = (type: string) => {
+    switch (type) {
+      case 'destination':
+        return 'bg-green-100 text-green-700';
+      case 'activity':
+        return 'bg-orange-100 text-orange-700';
+      case 'highlight':
+        return 'bg-yellow-100 text-yellow-700';
+      case 'guide':
+        return 'bg-blue-100 text-blue-700';
+      case 'page':
+        return 'bg-purple-100 text-purple-700';
+      case 'template':
+        return 'bg-gray-100 text-gray-700';
+      default:
+        return 'bg-blue-100 text-blue-600';
+    }
+  };
+
+  // Helper function to get user-friendly type labels
+  const getTypeLabel = (type: string) => {
+    switch (type) {
+      case 'destination':
+        return '🏔️ Bestemming';
+      case 'activity':
+        return '🎯 Activiteit';
+      case 'highlight':
+        return '✨ Hoogtepunt';
+      case 'guide':
+        return '📖 Reisgids';
+      case 'page':
+        return '📄 Pagina';
+      case 'template':
+        return '🎨 Template';
+      default:
+        return type;
+    }
+  };
   
   // Fetch destinations and guides from API (homepage specific)
   const { data: destinations = [], isLoading: destinationsLoading } = useQuery({
@@ -351,8 +391,8 @@ export default function Home() {
                         <div className="flex-1">
                           <h4 className="font-semibold text-gray-900 mb-1">{result.name || result.title}</h4>
                           <p className="text-sm text-gray-600 mb-2">{result.description}</p>
-                          <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded capitalize">
-                            {result.type}
+                          <span className={`text-xs px-2 py-1 rounded capitalize ${getTypeStyles(result.type)}`}>
+                            {getTypeLabel(result.type)}
                           </span>
                         </div>
                       </div>
