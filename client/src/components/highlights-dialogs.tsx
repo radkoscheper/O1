@@ -1158,12 +1158,13 @@ export function CreateActivityDialog({ open, onOpenChange, onActivityCreated }: 
 
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label htmlFor="activity-image">Afbeelding URL</Label>
-              <Input
-                id="activity-image"
-                placeholder="Bijv. /images/destinations/krakow.jpg"
+              <ImageUploadField
+                label="Afbeelding"
                 value={formData.image}
-                onChange={(e) => setFormData({...formData, image: e.target.value})}
+                onChange={(value) => setFormData({...formData, image: value})}
+                placeholder="/images/destinations/example.jpg"
+                fileName={`${formData.name.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`}
+                destination="destinations"
               />
             </div>
             <div>
@@ -1370,12 +1371,13 @@ export function EditActivityDialog({ open, onOpenChange, activity, onActivityUpd
 
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label htmlFor="edit-activity-image">Afbeelding URL</Label>
-              <Input
-                id="edit-activity-image"
-                placeholder="Bijv. /images/destinations/krakow.jpg"
+              <ImageUploadField
+                label="Afbeelding"
                 value={formData.image}
-                onChange={(e) => setFormData({...formData, image: e.target.value})}
+                onChange={(value) => setFormData({...formData, image: value})}
+                placeholder="/images/destinations/example.jpg"
+                fileName={`${formData.name.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`}
+                destination="destinations"
               />
             </div>
             <div>
