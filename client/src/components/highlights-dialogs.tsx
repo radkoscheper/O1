@@ -1003,3 +1003,228 @@ export function CreateGuideDialog({ open, onOpenChange, onGuideCreated }: {
     </Dialog>
   );
 }
+
+// Create Activity Dialog
+export function CreateActivityDialog({ open, onOpenChange, onActivityCreated }: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onActivityCreated: () => void;
+}) {
+  const [formData, setFormData] = useState({
+    name: '',
+    location: '',
+    category: '',
+    activityType: '',
+    description: '',
+    image: '',
+    alt: '',
+    content: '',
+    link: '',
+    featured: false,
+    published: true,
+    ranking: 0
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name.trim() || !formData.description.trim() || !formData.location.trim()) {
+      toast({ title: "Fout", description: "Naam, locatie en beschrijving zijn verplicht", variant: "destructive" });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/admin/activities', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        toast({ title: "Succes", description: "Activiteit succesvol aangemaakt" });
+        onActivityCreated();
+        setFormData({
+          name: '',
+          location: '',
+          category: '',
+          activityType: '',
+          description: '',
+          image: '',
+          alt: '',
+          content: '',
+          link: '',
+          featured: false,
+          published: true,
+          ranking: 0
+        });
+      } else {
+        const error = await response.json();
+        toast({ title: "Fout", description: error.message, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Nieuwe Activiteit Toevoegen</DialogTitle>
+          <DialogDescription>
+            Voeg een nieuwe activiteit toe zoals musea, bergen, restaurants of accommodatie
+          </DialogDescription>
+        </DialogHeader>
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <Label htmlFor="activity-name">Naam <span className="text-red-500">*</span></Label>
+              <Input
+                id="activity-name"
+                placeholder="Bijv. Wawel Kasteel"
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                className={!formData.name.trim() ? "border-red-300" : ""}
+              />
+            </div>
+            <div>
+              <Label htmlFor="activity-location">Locatie <span className="text-red-500">*</span></Label>
+              <Input
+                id="activity-location"
+                placeholder="Bijv. Krakow"
+                value={formData.location}
+                onChange={(e) => setFormData({...formData, location: e.target.value})}
+                className={!formData.location.trim() ? "border-red-300" : ""}
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <Label htmlFor="activity-category">Categorie</Label>
+              <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecteer categorie" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Museum">Museum</SelectItem>
+                  <SelectItem value="Natuur">Natuur</SelectItem>
+                  <SelectItem value="Restaurant">Restaurant</SelectItem>
+                  <SelectItem value="Accommodatie">Accommodatie</SelectItem>
+                  <SelectItem value="Historisch">Historisch</SelectItem>
+                  <SelectItem value="Berg">Berg</SelectItem>
+                  <SelectItem value="Plein">Plein</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="activity-type">Type</Label>
+              <Input
+                id="activity-type"
+                placeholder="Bijv. Kasteel, Restaurant, B&B"
+                value={formData.activityType}
+                onChange={(e) => setFormData({...formData, activityType: e.target.value})}
+              />
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="activity-description">Beschrijving <span className="text-red-500">*</span></Label>
+            <Textarea
+              id="activity-description"
+              placeholder="Korte beschrijving van de activiteit..."
+              value={formData.description}
+              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              className={!formData.description.trim() ? "border-red-300" : ""}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="activity-content">Uitgebreide Content</Label>
+            <Textarea
+              id="activity-content"
+              placeholder="Uitgebreide beschrijving, geschiedenis, tips..."
+              value={formData.content}
+              onChange={(e) => setFormData({...formData, content: e.target.value})}
+              rows={4}
+            />
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <Label htmlFor="activity-image">Afbeelding URL</Label>
+              <Input
+                id="activity-image"
+                placeholder="Bijv. /images/destinations/krakow.jpg"
+                value={formData.image}
+                onChange={(e) => setFormData({...formData, image: e.target.value})}
+              />
+            </div>
+            <div>
+              <Label htmlFor="activity-alt">Alt tekst</Label>
+              <Input
+                id="activity-alt"
+                placeholder="Beschrijving van de afbeelding"
+                value={formData.alt}
+                onChange={(e) => setFormData({...formData, alt: e.target.value})}
+              />
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="activity-link">Website Link</Label>
+            <Input
+              id="activity-link"
+              placeholder="https://example.com"
+              value={formData.link}
+              onChange={(e) => setFormData({...formData, link: e.target.value})}
+            />
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <div>
+              <Label htmlFor="activity-ranking">Ranking</Label>
+              <Input
+                id="activity-ranking"
+                type="number"
+                min="0"
+                max="100"
+                value={formData.ranking}
+                onChange={(e) => setFormData({...formData, ranking: parseInt(e.target.value) || 0})}
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                checked={formData.featured}
+                onCheckedChange={(checked) => setFormData({...formData, featured: checked})}
+              />
+              <Label>Uitgelicht</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                checked={formData.published}
+                onCheckedChange={(checked) => setFormData({...formData, published: checked})}
+              />
+              <Label>Gepubliceerd</Label>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Annuleren
+            </Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "Bezig..." : <><Plus className="h-4 w-4 mr-2" /> Activiteit Aanmaken</>}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}

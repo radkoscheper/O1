@@ -18,7 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import ReactCrop, { Crop, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
-import { CreateHighlightDialog, EditHighlightDialog, ViewHighlightDialog, CreateDestinationDialog, CreateGuideDialog } from '@/components/highlights-dialogs';
+import { CreateHighlightDialog, EditHighlightDialog, ViewHighlightDialog, CreateDestinationDialog, CreateGuideDialog, CreateActivityDialog } from '@/components/highlights-dialogs';
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -2646,11 +2646,7 @@ export default function Admin() {
                   <h2 className="text-2xl font-semibold">Activiteiten ({getFilteredActivities().length} van {activitiesQuery.data?.length || 0})</h2>
                   <p className="text-gray-600">Beheer activiteiten zoals musea, bergen, pleinen en restaurants</p>
                 </div>
-                <Button onClick={() => {
-                  console.log("Nieuwe Activiteit button clicked - before:", showCreateActivity);
-                  setShowCreateActivity(true);
-                  setTimeout(() => console.log("showCreateActivity after state change:", showCreateActivity), 100);
-                }} className="bg-green-600 hover:bg-green-700">
+                <Button onClick={() => setShowCreateActivity(true)} className="bg-green-600 hover:bg-green-700">
                   <Plus className="h-4 w-4 mr-2" />
                   Nieuwe Activiteit
                 </Button>
@@ -7027,184 +7023,14 @@ function PageManagement({ templates }: { templates: any[] }) {
 
       {/* Activity Create Dialog */}
       {showCreateActivity && (
-        <Dialog open={showCreateActivity} onOpenChange={setShowCreateActivity}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Nieuwe Activiteit Toevoegen</DialogTitle>
-              <DialogDescription>
-                Voeg een nieuwe activiteit toe zoals musea, bergen, restaurants of accommodatie.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="activity-name">Naam</Label>
-                  <Input
-                    id="activity-name"
-                    value={newActivity.name}
-                    onChange={(e) => setNewActivity({...newActivity, name: e.target.value})}
-                    placeholder="Bijv. Wawel Kasteel"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="activity-location">Locatie</Label>
-                  <Input
-                    id="activity-location"
-                    value={newActivity.location}
-                    onChange={(e) => setNewActivity({...newActivity, location: e.target.value})}
-                    placeholder="Bijv. Krakow"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="activity-category">Categorie</Label>
-                  <Select value={newActivity.category} onValueChange={(value) => setNewActivity({...newActivity, category: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecteer categorie" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Museum">Museum</SelectItem>
-                      <SelectItem value="Natuur">Natuur</SelectItem>
-                      <SelectItem value="Restaurant">Restaurant</SelectItem>
-                      <SelectItem value="Accommodatie">Accommodatie</SelectItem>
-                      <SelectItem value="Historisch">Historisch</SelectItem>
-                      <SelectItem value="Berg">Berg</SelectItem>
-                      <SelectItem value="Plein">Plein</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="activity-type">Type</Label>
-                  <Input
-                    id="activity-type"
-                    value={newActivity.activityType}
-                    onChange={(e) => setNewActivity({...newActivity, activityType: e.target.value})}
-                    placeholder="Bijv. Kasteel, Restaurant, B&B"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="activity-description">Beschrijving</Label>
-                <Textarea
-                  id="activity-description"
-                  value={newActivity.description}
-                  onChange={(e) => setNewActivity({...newActivity, description: e.target.value})}
-                  placeholder="Korte beschrijving van de activiteit..."
-                  rows={3}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="activity-image">Afbeelding URL</Label>
-                <Input
-                  id="activity-image"
-                  value={newActivity.image}
-                  onChange={(e) => setNewActivity({...newActivity, image: e.target.value})}
-                  placeholder="Bijv. /images/destinations/krakow.jpg"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="activity-alt">Alt tekst</Label>
-                <Input
-                  id="activity-alt"
-                  value={newActivity.alt}
-                  onChange={(e) => setNewActivity({...newActivity, alt: e.target.value})}
-                  placeholder="Alt tekst voor afbeelding"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="activity-link">Link (optioneel)</Label>
-                <Input
-                  id="activity-link"
-                  value={newActivity.link}
-                  onChange={(e) => setNewActivity({...newActivity, link: e.target.value})}
-                  placeholder="https://website.com"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="activity-content">Uitgebreide inhoud</Label>
-                <Textarea
-                  id="activity-content"
-                  value={newActivity.content}
-                  onChange={(e) => setNewActivity({...newActivity, content: e.target.value})}
-                  placeholder="Uitgebreide beschrijving van de activiteit..."
-                  rows={4}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="activity-featured"
-                    checked={newActivity.featured}
-                    onChange={(e) => setNewActivity({...newActivity, featured: e.target.checked})}
-                  />
-                  <Label htmlFor="activity-featured">Uitgelicht</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="activity-published"
-                    checked={newActivity.published}
-                    onChange={(e) => setNewActivity({...newActivity, published: e.target.checked})}
-                  />
-                  <Label htmlFor="activity-published">Gepubliceerd</Label>
-                </div>
-                <div>
-                  <Label htmlFor="activity-ranking">Ranking</Label>
-                  <Input
-                    id="activity-ranking"
-                    type="number"
-                    value={newActivity.ranking}
-                    onChange={(e) => setNewActivity({...newActivity, ranking: parseInt(e.target.value) || 0})}
-                    placeholder="0"
-                  />
-                </div>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowCreateActivity(false)}>
-                Annuleren
-              </Button>
-              <Button 
-                onClick={async () => {
-                  try {
-                    const response = await fetch('/api/admin/activities', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      credentials: 'include',
-                      body: JSON.stringify(newActivity)
-                    });
-                    
-                    if (response.ok) {
-                      toast({ title: "Activiteit toegevoegd", description: `${newActivity.name} is succesvol toegevoegd` });
-                      setNewActivity({
-                        name: '', location: '', category: '', activityType: '', description: '', 
-                        image: '', alt: '', content: '', link: '', featured: false, published: false, ranking: 0
-                      });
-                      setShowCreateActivity(false);
-                      activitiesQuery.refetch();
-                    } else {
-                      throw new Error('Fout bij toevoegen activiteit');
-                    }
-                  } catch (error) {
-                    toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
-                  }
-                }}
-                disabled={!newActivity.name || !newActivity.location}
-              >
-                Activiteit Toevoegen
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <CreateActivityDialog 
+          open={showCreateActivity} 
+          onOpenChange={setShowCreateActivity}
+          onActivityCreated={() => {
+            activitiesQuery.refetch();
+            setShowCreateActivity(false);
+          }}
+        />
       )}
 
       {/* Activity Edit Dialog */}
