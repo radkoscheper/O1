@@ -90,10 +90,10 @@ export default function Admin() {
     enabled: isAuthenticated && (currentUser?.canDeleteContent || currentUser?.canEditContent),
   });
 
-  // Highlights queries (voor alle gebruikers)
+  // Highlights queries (admin only)
   const highlightsQuery = useQuery({
-    queryKey: ['/api/highlights/all'],
-    enabled: isAuthenticated && !!currentUser,
+    queryKey: ['/api/admin/highlights'],
+    enabled: isAuthenticated && currentUser?.role === 'admin',
   });
 
   const activitiesQuery = useQuery({
@@ -1153,59 +1153,71 @@ export default function Admin() {
 
         <Tabs defaultValue="destinations" className="w-full">
           <TabsList className="h-auto w-full flex-wrap justify-start gap-2 p-2 bg-muted/30">
-            {/* Administrator groep - alleen zichtbaar voor administrators */}
+            {/* Eerste regel: Administrator groep */}
+            <div className="w-full text-xs font-semibold text-gray-500 px-2 py-1">
+              Administrator
+            </div>
             {currentUser?.role === 'admin' && (
-              <>
-                <div className="w-full text-xs font-semibold text-gray-500 px-2 py-1">
-                  Administrator
-                </div>
-                <TabsTrigger value="site-settings" className="flex items-center gap-2">
-                  <Shield className="h-4 w-4" />
-                  Site Instellingen
-                </TabsTrigger>
-                <TabsTrigger value="homepage-overview" className="flex items-center gap-2">
-                  🏠 Homepage Overview
-                </TabsTrigger>
-                <TabsTrigger value="templates" className="flex items-center gap-2">
-                  🎨 Templates
-                </TabsTrigger>
-                <TabsTrigger value="search-configs" className="flex items-center gap-2">
-                  🔍 Zoekbalk CMS
-                </TabsTrigger>
-                <TabsTrigger value="recycle" className="flex items-center gap-2">
-                  <Trash2 className="h-4 w-4" />
-                  Prullenbak
-                </TabsTrigger>
-                <TabsTrigger value="users" className="flex items-center gap-2">
-                  <Users className="h-4 w-4" />
-                  Gebruikers
-                </TabsTrigger>
-              </>
+              <TabsTrigger value="site-settings" className="flex items-center gap-2">
+                <Shield className="h-4 w-4" />
+                Site Instellingen
+              </TabsTrigger>
+            )}
+            {currentUser?.canCreateContent && (
+              <TabsTrigger value="homepage-overview" className="flex items-center gap-2">
+                🏠 Homepage Overview
+              </TabsTrigger>
+            )}
+            {currentUser?.role === 'admin' && (
+              <TabsTrigger value="templates" className="flex items-center gap-2">
+                🎨 Templates
+              </TabsTrigger>
+            )}
+            {currentUser?.canEditContent && (
+              <TabsTrigger value="search-configs" className="flex items-center gap-2">
+                🔍 Zoekbalk CMS
+              </TabsTrigger>
+            )}
+            {(currentUser?.canDeleteContent || currentUser?.canEditContent) && (
+              <TabsTrigger value="recycle" className="flex items-center gap-2">
+                <Trash2 className="h-4 w-4" />
+                Prullenbak
+              </TabsTrigger>
+            )}
+            {currentUser?.canManageUsers && (
+              <TabsTrigger value="users" className="flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                Gebruikers
+              </TabsTrigger>
             )}
 
-            {/* Website Onderdelen groep - zichtbaar voor alle gebruikers */}
+            {/* Tweede regel: Website Onderdelen groep */}
             <div className="w-full" />
             <div className="w-full text-xs font-semibold text-gray-500 px-2 py-1">
               Website Onderdelen
             </div>
             
             {/* Content Types Subgroep */}
-            <div className="w-full pl-4 text-xs font-medium text-gray-400 px-2 py-1">
-              Content Types
-            </div>
             {currentUser?.canCreateContent && (
-              <TabsTrigger value="destinations" className="flex items-center gap-2 ml-2">
-                🏔️ Bestemmingen
-              </TabsTrigger>
+              <div className="w-full pl-4 text-xs font-medium text-gray-400 px-2 py-1">
+                Content Types
+              </div>
             )}
             {currentUser?.canCreateContent && (
-              <TabsTrigger value="activities" className="flex items-center gap-2 ml-2">
-                🎯 Activiteiten
+              <>
+                <TabsTrigger value="destinations" className="flex items-center gap-2 ml-2">
+                  🏔️ Bestemmingen
+                </TabsTrigger>
+                <TabsTrigger value="activities" className="flex items-center gap-2 ml-2">
+                  🎯 Activiteiten
+                </TabsTrigger>
+              </>
+            )}
+            {currentUser?.role === 'admin' && (
+              <TabsTrigger value="highlights" className="flex items-center gap-2 ml-2">
+                ✨ Hoogtepunten
               </TabsTrigger>
             )}
-            <TabsTrigger value="highlights" className="flex items-center gap-2 ml-2">
-              ✨ Hoogtepunten
-            </TabsTrigger>
             {currentUser?.canCreateContent && (
               <TabsTrigger value="guides" className="flex items-center gap-2 ml-2">
                 📖 Reisgidsen
@@ -1213,18 +1225,20 @@ export default function Admin() {
             )}
             
             {/* Pagina Management Subgroep */}
-            <div className="w-full pl-4 text-xs font-medium text-gray-400 px-2 py-1">
-              Pagina Management
-            </div>
             {currentUser?.canCreateContent && (
-              <TabsTrigger value="pages" className="flex items-center gap-2 ml-2">
-                📄 Pagina's
-              </TabsTrigger>
+              <div className="w-full pl-4 text-xs font-medium text-gray-400 px-2 py-1">
+                Pagina Management
+              </div>
             )}
             {currentUser?.canCreateContent && (
-              <TabsTrigger value="ontdek-meer" className="flex items-center gap-2 ml-2">
-                📄 Ontdek Meer
-              </TabsTrigger>
+              <>
+                <TabsTrigger value="pages" className="flex items-center gap-2 ml-2">
+                  📄 Pagina's
+                </TabsTrigger>
+                <TabsTrigger value="ontdek-meer" className="flex items-center gap-2 ml-2">
+                  📄 Ontdek Meer
+                </TabsTrigger>
+              </>
             )}
             
             {/* Derde regel: Account */}
@@ -1745,7 +1759,7 @@ export default function Admin() {
                               <ViewHighlightDialog highlight={highlight} />
                               <EditHighlightDialog 
                                 highlight={highlight} 
-                                onUpdate={() => queryClient.invalidateQueries({ queryKey: ['/api/highlights/all'] })} 
+                                onUpdate={() => queryClient.invalidateQueries({ queryKey: ['/api/admin/highlights'] })} 
                               />
                             </div>
                           </div>
@@ -1898,7 +1912,7 @@ export default function Admin() {
                       <h3 className="text-xl font-semibold">Highlights Beheer ({highlightsQuery.data?.length || 0})</h3>
                       <p className="text-gray-600">Beheer alle Polish highlights en attracties</p>
                     </div>
-                    <CreateHighlightDialog onUpdate={() => queryClient.invalidateQueries({ queryKey: ['/api/highlights/all'] })} />
+                    <CreateHighlightDialog onUpdate={() => queryClient.invalidateQueries({ queryKey: ['/api/admin/highlights'] })} />
                   </div>
                   
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -1929,7 +1943,7 @@ export default function Admin() {
                               <ViewHighlightDialog highlight={highlight} />
                               <EditHighlightDialog 
                                 highlight={highlight} 
-                                onUpdate={() => queryClient.invalidateQueries({ queryKey: ['/api/highlights/all'] })} 
+                                onUpdate={() => queryClient.invalidateQueries({ queryKey: ['/api/admin/highlights'] })} 
                               />
                             </div>
                           </div>
@@ -1956,7 +1970,7 @@ export default function Admin() {
                           Nieuwe Bestemming
                         </Button>
                         <CreateHighlightDialog 
-                          onUpdate={() => queryClient.invalidateQueries({ queryKey: ['/api/highlights/all'] })}
+                          onUpdate={() => queryClient.invalidateQueries({ queryKey: ['/api/admin/highlights'] })}
                           className="w-full"
                         />
                       </CardContent>
@@ -2620,8 +2634,9 @@ export default function Admin() {
             </TabsContent>
           )}
 
-          {/* Highlights Tab Content - Voor alle gebruikers */}
-          <TabsContent value="highlights" className="space-y-6">
+          {/* Highlights Tab Content - Admin Only */}
+          {currentUser?.role === 'admin' && (
+            <TabsContent value="highlights" className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
                   <h2 className="text-2xl font-semibold">Highlights ({highlightsQuery.data?.length || 0})</h2>
@@ -2725,6 +2740,7 @@ export default function Admin() {
                 ))}
               </div>
             </TabsContent>
+          )}
 
           {/* Activiteiten Tab */}
           <TabsContent value="activities" className="space-y-6">
