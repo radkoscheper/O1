@@ -1153,11 +1153,14 @@ export default function Admin() {
 
         <Tabs defaultValue="destinations" className="w-full">
           <TabsList className="h-auto w-full flex-wrap justify-start gap-2 p-2 bg-muted/30">
-            {/* Eerste regel: Pagina's en Templates */}
-
-            {currentUser?.canCreateContent && (
-              <TabsTrigger value="pages" className="flex items-center gap-2">
-                📄 Pagina's
+            {/* Eerste regel: Administrator groep */}
+            <div className="w-full text-xs font-semibold text-gray-500 px-2 py-1">
+              Administrator
+            </div>
+            {currentUser?.role === 'admin' && (
+              <TabsTrigger value="site-settings" className="flex items-center gap-2">
+                <Shield className="h-4 w-4" />
+                Site Instellingen
               </TabsTrigger>
             )}
             {currentUser?.canCreateContent && (
@@ -1165,19 +1168,11 @@ export default function Admin() {
                 🏠 Homepage Overview
               </TabsTrigger>
             )}
-            {currentUser?.canCreateContent && (
-              <TabsTrigger value="ontdek-meer" className="flex items-center gap-2">
-                📄 Ontdek Meer
-              </TabsTrigger>
-            )}
             {currentUser?.role === 'admin' && (
               <TabsTrigger value="templates" className="flex items-center gap-2">
                 🎨 Templates
               </TabsTrigger>
             )}
-            
-            {/* Tweede regel: Beheer & Instellingen */}
-            <div className="w-full" />
             {currentUser?.canEditContent && (
               <TabsTrigger value="search-configs" className="flex items-center gap-2">
                 🔍 Zoekbalk CMS
@@ -1195,17 +1190,8 @@ export default function Admin() {
                 Gebruikers
               </TabsTrigger>
             )}
-            {currentUser?.role === 'admin' && (
-              <TabsTrigger value="site-settings" className="flex items-center gap-2">
-                <Shield className="h-4 w-4" />
-                Site Instellingen
-              </TabsTrigger>
-            )}
-            <TabsTrigger value="account" className="flex items-center gap-2">
-              👤 Account
-            </TabsTrigger>
 
-            {/* Derde regel: Website Onderdelen groep */}
+            {/* Tweede regel: Website Onderdelen groep */}
             <div className="w-full" />
             <div className="w-full text-xs font-semibold text-gray-500 px-2 py-1">
               Website Onderdelen
@@ -1230,6 +1216,22 @@ export default function Admin() {
                 📖 Reisgidsen
               </TabsTrigger>
             )}
+            {currentUser?.canCreateContent && (
+              <TabsTrigger value="pages" className="flex items-center gap-2">
+                📄 Pagina's
+              </TabsTrigger>
+            )}
+            {currentUser?.canCreateContent && (
+              <TabsTrigger value="ontdek-meer" className="flex items-center gap-2">
+                📄 Ontdek Meer
+              </TabsTrigger>
+            )}
+            
+            {/* Derde regel: Account */}
+            <div className="w-full" />
+            <TabsTrigger value="account" className="flex items-center gap-2">
+              👤 Account
+            </TabsTrigger>
           </TabsList>
 
           {/* Content Manager - Unified CMS for Bestemmingen + Ontdek Meer */}
