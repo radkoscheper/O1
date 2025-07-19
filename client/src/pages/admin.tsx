@@ -3023,6 +3023,8 @@ export default function Admin() {
                           
                           {/* Toggle buttons for Hoogtepunten and Reisgidsen */}
                           <div className="flex gap-2 mt-3">
+                            <p className="text-sm text-blue-600">DEBUG: Buttons should appear here</p>
+                            {console.log('Config data:', config)}
                             <Button
                               size="sm"
                               variant={config.enableHighlights ? "default" : "outline"}
