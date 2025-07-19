@@ -2641,16 +2641,15 @@ export default function Admin() {
 
           {/* Activiteiten Tab */}
           <TabsContent value="activities" className="space-y-6">
-            {console.log("Activities data:", activitiesQuery.data, "Loading:", activitiesQuery.isLoading)}
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
                   <h2 className="text-2xl font-semibold">Activiteiten ({getFilteredActivities().length} van {activitiesQuery.data?.length || 0})</h2>
                   <p className="text-gray-600">Beheer activiteiten zoals musea, bergen, pleinen en restaurants</p>
                 </div>
                 <Button onClick={() => {
-                  console.log("Nieuwe Activiteit button clicked");
-                  console.log("Setting showCreateActivity to true");
+                  console.log("Nieuwe Activiteit button clicked - before:", showCreateActivity);
                   setShowCreateActivity(true);
+                  setTimeout(() => console.log("showCreateActivity after state change:", showCreateActivity), 100);
                 }} className="bg-green-600 hover:bg-green-700">
                   <Plus className="h-4 w-4 mr-2" />
                   Nieuwe Activiteit
@@ -7027,7 +7026,6 @@ function PageManagement({ templates }: { templates: any[] }) {
       )}
 
       {/* Activity Create Dialog */}
-      {console.log("showCreateActivity:", showCreateActivity)}
       {showCreateActivity && (
         <Dialog open={showCreateActivity} onOpenChange={setShowCreateActivity}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -7210,7 +7208,6 @@ function PageManagement({ templates }: { templates: any[] }) {
       )}
 
       {/* Activity Edit Dialog */}
-      {console.log("showEditActivity:", showEditActivity, "selectedActivity:", selectedActivity)}
       {showEditActivity && selectedActivity && (
         <Dialog open={showEditActivity} onOpenChange={setShowEditActivity}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
