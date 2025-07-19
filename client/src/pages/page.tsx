@@ -10,6 +10,9 @@ import { Link } from "wouter";
 export default function Page() {
   const { slug } = useParams<{ slug: string }>();
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
   
   const { data: page, isLoading, error } = useQuery({
     queryKey: ['/api/pages', slug],
@@ -25,6 +28,11 @@ export default function Page() {
   // Fetch site settings for consistent styling
   const { data: siteSettings } = useQuery({
     queryKey: ["/api/site-settings"],
+  });
+
+  // Fetch search configuration for destination context
+  const { data: searchConfig } = useQuery({
+    queryKey: ["/api/search-config/destination"],
   });
 
   // Update document title and meta tags
@@ -113,10 +121,45 @@ export default function Page() {
     );
   }
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Searching for:", searchQuery);
-    // TODO: Implement search functionality
+    if (!searchQuery.trim()) return;
+    
+    setIsSearching(true);
+    setShowSearchResults(true);
+    
+    try {
+      // Search scope - for destination pages, search activities or use config
+      const searchScope = searchConfig?.searchScope || 'activities';
+      let url = `/api/search?q=${encodeURIComponent(searchQuery)}&scope=${searchScope}`;
+      
+      // Add location filter if enabled and we have page location info
+      if (searchConfig?.enableLocationFilter && page?.title) {
+        url += `&location=${encodeURIComponent(page.title)}`;
+      }
+      
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      setSearchResults(data.results || []);
+      
+      // Auto-redirect logic if configured
+      if (searchConfig?.redirectPattern && data.results?.length === 1) {
+        const result = data.results[0];
+        let redirectUrl = searchConfig.redirectPattern;
+        
+        redirectUrl = redirectUrl.replace('{slug}', result.slug || result.name?.toLowerCase().replace(/\s+/g, '-'));
+        redirectUrl = redirectUrl.replace('{query}', encodeURIComponent(searchQuery));
+        
+        window.location.href = redirectUrl;
+        return;
+      }
+    } catch (error) {
+      console.error('Search error:', error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
   };
 
   // Get the background image from database or fallback to default
@@ -166,7 +209,7 @@ export default function Page() {
             <div className="relative inline-block">
               <Input
                 type="text"
-                placeholder="Zoek bestemming"
+                placeholder={searchConfig?.placeholderText || "Zoek activiteiten..."}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="py-3 px-5 w-80 max-w-full border-none rounded-lg text-base text-gray-900 font-inter"
@@ -175,9 +218,60 @@ export default function Page() {
             </div>
           </form>
           
+          {/* Search Results */}
+          {showSearchResults && (
+            <div className="mt-6 bg-white rounded-lg shadow-lg p-4 max-w-2xl mx-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Zoekresultaten{searchQuery && ` voor "${searchQuery}"`}
+                </h3>
+                <button 
+                  onClick={() => setShowSearchResults(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  ×
+                </button>
+              </div>
+              
+              {isSearching ? (
+                <div className="text-center py-4">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
+                  <p className="mt-2 text-gray-600">Zoeken...</p>
+                </div>
+              ) : searchResults.length > 0 ? (
+                <div className="space-y-2">
+                  {searchResults.map((result: any) => (
+                    <Link key={result.id} href={result.link || `/${result.slug}`}>
+                      <div className="p-3 hover:bg-gray-50 rounded-lg cursor-pointer border border-gray-200">
+                        <div className="flex items-center space-x-3">
+                          {result.image && (
+                            <img 
+                              src={result.image} 
+                              alt={result.alt || result.name} 
+                              className="w-12 h-12 object-cover rounded"
+                            />
+                          )}
+                          <div className="flex-1">
+                            <h4 className="font-medium text-gray-900">{result.name || result.title}</h4>
+                            <p className="text-sm text-gray-600">{result.description}</p>
+                            <span className="text-xs text-blue-600 capitalize">{result.type}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-600 text-center py-4">
+                  Geen resultaten gevonden voor "{searchQuery}"
+                </p>
+              )}
+            </div>
+          )}
+          
           <Button
             asChild
-            className="mt-2 py-3 px-6 text-base font-inter hover:opacity-90 transition-all duration-200"
+            className="mt-4 py-3 px-6 text-base font-inter hover:opacity-90 transition-all duration-200"
             style={{ backgroundColor: "#2f3e46" }}
           >
             <Link href="/">
