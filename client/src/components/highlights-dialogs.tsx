@@ -575,7 +575,7 @@ function ImageUploadField({ label, value, onChange, placeholder, fileName, desti
       </div>
       {value && (
         <div className="mt-2">
-          <img src={value} alt="Preview" className="h-20 w-20 object-cover rounded" />
+          <img src={value} alt="Preview" className="h-32 w-48 object-cover rounded border" />
         </div>
       )}
     </div>
