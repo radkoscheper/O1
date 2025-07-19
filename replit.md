@@ -173,6 +173,21 @@ This is a full-stack web application for discovering beautiful places in Poland.
 - Schone lei voor eventuele herbouw van create functionaliteit
 - Alle overige CMS functies blijven volledig werkend
 
+**Stadium 14 Progress (2025-01-19)**: ✅ ZOEKBALK CMS UITGEBREID MET HOOGTEPUNTEN EN REISGIDSEN
+✅ **NIEUWE ZOEK CONFIGURATIES TOEGEVOEGD**:
+- Toegevoegd "Hoogtepunten" als aparte zoek configuratie met highlights scope
+- Toegevoegd "Reisgidsen" als aparte zoek configuratie met guides scope  
+- Zoekbalk CMS toont nu 5 configuraties: homepage, destination, global, hoogtepunten, reisgidsen
+- Counter toegevoegd aan Zoekbalk CMS header toont aantal configuraties "Zoekbalk CMS (5)"
+- Elke nieuwe configuratie heeft eigen context, placeholder text en search scope
+- Database entries correct geconfigureerd met juiste enable flags
+- Verwijderd onjuiste toggle button implementatie
+
+**Stadium 14 Status**: ✅ COMPLEET EN UITGEBREID
+- Zoekbalk CMS volledig uitgebreid met alle gewenste configuraties
+- Duidelijke weergave van aantal beschikbare zoek configuraties
+- Consistente structuur met bestaande CMS functionaliteit
+
 **Stadium 12 Progress (2025-01-18)**: ✅ COMPLETE TECHNICAL PARITY BETWEEN REISGIDSEN AND BESTEMMINGEN
 ✅ **IDENTICAL TECHNICAL STRUCTURE IMPLEMENTED**:
 - Complete technical parity achieved between reisgidsen and bestemmingen sections

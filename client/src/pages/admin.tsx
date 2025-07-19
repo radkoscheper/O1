@@ -2983,7 +2983,7 @@ export default function Admin() {
             <TabsContent value="search-configs" className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
-                  <h2 className="text-2xl font-semibold">Zoekbalk CMS</h2>
+                  <h2 className="text-2xl font-semibold">Zoekbalk CMS ({searchConfigsQuery.data?.length || 0})</h2>
                   <p className="text-gray-600">Beheer zoekfunctionaliteit en configuraties per context</p>
                 </div>
               </div>
