@@ -18,7 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import ReactCrop, { Crop, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
-import { CreateHighlightDialog, EditHighlightDialog, ViewHighlightDialog, CreateDestinationDialog, CreateGuideDialog, CreateActivityDialog } from '@/components/highlights-dialogs';
+import { CreateHighlightDialog, EditHighlightDialog, ViewHighlightDialog, CreateDestinationDialog, CreateGuideDialog, CreateActivityDialog, EditActivityDialog, ViewActivityDialog } from '@/components/highlights-dialogs';
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -2779,6 +2779,15 @@ export default function Admin() {
                           <Eye className="h-3 w-3 mr-1" />
                           Bekijken
                         </Button>
+                        <Button 
+                          size="sm" 
+                          variant="destructive"
+                          onClick={() => handleDeleteActivity(activity.id, activity.name, activitiesQuery, toast)}
+                          className="text-xs"
+                        >
+                          <Trash2 className="h-3 w-3 mr-1" />
+                          Prullenbak
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -3686,6 +3695,28 @@ export default function Admin() {
               activitiesQuery.refetch();
               setShowCreateActivity(false);
             }}
+          />
+        )}
+
+        {/* Activity Edit Dialog */}
+        {showEditActivity && selectedActivity && (
+          <EditActivityDialog 
+            open={showEditActivity} 
+            onOpenChange={setShowEditActivity}
+            activity={selectedActivity}
+            onActivityUpdated={() => {
+              activitiesQuery.refetch();
+              setShowEditActivity(false);
+            }}
+          />
+        )}
+
+        {/* Activity View Dialog */}
+        {showViewActivity && selectedActivity && (
+          <ViewActivityDialog 
+            open={showViewActivity} 
+            onOpenChange={setShowViewActivity}
+            activity={selectedActivity}
           />
         )}
       </div>
@@ -7037,284 +7068,52 @@ function PageManagement({ templates }: { templates: any[] }) {
         />
       )}
 
-      {/* Activity Edit Dialog */}
+      {/* Activity dialogs */}
       {showEditActivity && selectedActivity && (
-        <Dialog open={showEditActivity} onOpenChange={setShowEditActivity}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Activiteit Bewerken</DialogTitle>
-              <DialogDescription>
-                Bewerk de details van "{selectedActivity.name}"
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="edit-activity-name">Naam</Label>
-                  <Input
-                    id="edit-activity-name"
-                    value={editActivityData.name}
-                    onChange={(e) => setEditActivityData({...editActivityData, name: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="edit-activity-location">Locatie</Label>
-                  <Input
-                    id="edit-activity-location"
-                    value={editActivityData.location}
-                    onChange={(e) => setEditActivityData({...editActivityData, location: e.target.value})}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="edit-activity-category">Categorie</Label>
-                  <Select value={editActivityData.category} onValueChange={(value) => setEditActivityData({...editActivityData, category: value})}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Museum">Museum</SelectItem>
-                      <SelectItem value="Natuur">Natuur</SelectItem>
-                      <SelectItem value="Restaurant">Restaurant</SelectItem>
-                      <SelectItem value="Accommodatie">Accommodatie</SelectItem>
-                      <SelectItem value="Historisch">Historisch</SelectItem>
-                      <SelectItem value="Berg">Berg</SelectItem>
-                      <SelectItem value="Plein">Plein</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="edit-activity-type">Type</Label>
-                  <Input
-                    id="edit-activity-type"
-                    value={editActivityData.activityType}
-                    onChange={(e) => setEditActivityData({...editActivityData, activityType: e.target.value})}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="edit-activity-description">Beschrijving</Label>
-                <Textarea
-                  id="edit-activity-description"
-                  value={editActivityData.description}
-                  onChange={(e) => setEditActivityData({...editActivityData, description: e.target.value})}
-                  rows={3}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="edit-activity-content">Uitgebreide inhoud</Label>
-                <Textarea
-                  id="edit-activity-content"
-                  value={editActivityData.content}
-                  onChange={(e) => setEditActivityData({...editActivityData, content: e.target.value})}
-                  rows={4}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="edit-activity-image">Afbeelding URL</Label>
-                  <Input
-                    id="edit-activity-image"
-                    value={editActivityData.image}
-                    onChange={(e) => setEditActivityData({...editActivityData, image: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="edit-activity-alt">Alt tekst</Label>
-                  <Input
-                    id="edit-activity-alt"
-                    value={editActivityData.alt}
-                    onChange={(e) => setEditActivityData({...editActivityData, alt: e.target.value})}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="edit-activity-link">Link (optioneel)</Label>
-                <Input
-                  id="edit-activity-link"
-                  value={editActivityData.link}
-                  onChange={(e) => setEditActivityData({...editActivityData, link: e.target.value})}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="edit-activity-featured"
-                    checked={editActivityData.featured}
-                    onChange={(e) => setEditActivityData({...editActivityData, featured: e.target.checked})}
-                  />
-                  <Label htmlFor="edit-activity-featured">Uitgelicht</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="edit-activity-published"
-                    checked={editActivityData.published}
-                    onChange={(e) => setEditActivityData({...editActivityData, published: e.target.checked})}
-                  />
-                  <Label htmlFor="edit-activity-published">Gepubliceerd</Label>
-                </div>
-                <div>
-                  <Label htmlFor="edit-activity-ranking">Ranking</Label>
-                  <Input
-                    id="edit-activity-ranking"
-                    type="number"
-                    value={editActivityData.ranking}
-                    onChange={(e) => setEditActivityData({...editActivityData, ranking: parseInt(e.target.value) || 0})}
-                  />
-                </div>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowEditActivity(false)}>
-                Annuleren
-              </Button>
-              <Button 
-                onClick={async () => {
-                  try {
-                    const response = await fetch(`/api/admin/activities/${selectedActivity.id}`, {
-                      method: 'PUT',
-                      headers: { 'Content-Type': 'application/json' },
-                      credentials: 'include',
-                      body: JSON.stringify(editActivityData)
-                    });
-                    
-                    if (response.ok) {
-                      toast({ title: "Succesvol bijgewerkt", description: `${editActivityData.name} is bijgewerkt` });
-                      setShowEditActivity(false);
-                      activitiesQuery.refetch();
-                    } else {
-                      throw new Error('Fout bij bijwerken activiteit');
-                    }
-                  } catch (error) {
-                    toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
-                  }
-                }}
-                disabled={!editActivityData.name}
-              >
-                Activiteit Bijwerken
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <EditActivityDialog
+          open={showEditActivity}
+          onOpenChange={setShowEditActivity}
+          activity={selectedActivity}
+          onActivityUpdated={() => {
+            activitiesQuery.refetch();
+            setShowEditActivity(false);
+          }}
+        />
       )}
 
-      {/* Activity View Dialog */}
       {showViewActivity && selectedActivity && (
-        <Dialog open={showViewActivity} onOpenChange={setShowViewActivity}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>{selectedActivity.name}</DialogTitle>
-              <DialogDescription>
-                {selectedActivity.category} in {selectedActivity.location}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              {selectedActivity.image && (
-                <div className="w-full h-48 rounded-lg overflow-hidden bg-gray-100">
-                  <img 
-                    src={selectedActivity.image} 
-                    alt={selectedActivity.alt || selectedActivity.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                      e.currentTarget.nextElementSibling.style.display = 'block';
-                    }}
-                  />
-                  <div className="hidden w-full h-full flex items-center justify-center text-gray-400">
-                    Afbeelding niet beschikbaar
-                  </div>
-                </div>
-              )}
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="font-medium">Locatie</Label>
-                  <p className="text-sm text-gray-600">{selectedActivity.location || 'Niet opgegeven'}</p>
-                </div>
-                <div>
-                  <Label className="font-medium">Type</Label>
-                  <p className="text-sm text-gray-600">{selectedActivity.activityType || 'Niet opgegeven'}</p>
-                </div>
-              </div>
-
-              <div>
-                <Label className="font-medium">Beschrijving</Label>
-                <p className="text-sm text-gray-600 mt-1">{selectedActivity.description || 'Geen beschrijving'}</p>
-              </div>
-
-              {selectedActivity.content && (
-                <div>
-                  <Label className="font-medium">Uitgebreide inhoud</Label>
-                  <div className="text-sm text-gray-600 mt-1 whitespace-pre-wrap">{selectedActivity.content}</div>
-                </div>
-              )}
-
-              {selectedActivity.link && (
-                <div>
-                  <Label className="font-medium">Website</Label>
-                  <a 
-                    href={selectedActivity.link} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-sm text-blue-600 hover:underline block mt-1"
-                  >
-                    {selectedActivity.link}
-                  </a>
-                </div>
-              )}
-
-              <div className="flex gap-2 flex-wrap">
-                <Badge variant={selectedActivity.featured ? "default" : "outline"}>
-                  {selectedActivity.featured ? "✨ Uitgelicht" : "Standaard"}
-                </Badge>
-                <Badge variant={selectedActivity.published ? "default" : "secondary"}>
-                  {selectedActivity.published ? "✅ Gepubliceerd" : "📋 Concept"}
-                </Badge>
-                <Badge variant="outline">
-                  Ranking: {selectedActivity.ranking || 0}
-                </Badge>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowViewActivity(false)}>
-                Sluiten
-              </Button>
-              <Button 
-                onClick={() => {
-                  setEditActivityData({
-                    name: selectedActivity.name,
-                    location: selectedActivity.location || '',
-                    category: selectedActivity.category || '',
-                    activityType: selectedActivity.activityType || '',
-                    description: selectedActivity.description,
-                    image: selectedActivity.image,
-                    alt: selectedActivity.alt || '',
-                    content: selectedActivity.content || '',
-                    link: selectedActivity.link || '',
-                    featured: selectedActivity.featured,
-                    published: selectedActivity.published,
-                    ranking: selectedActivity.ranking || 0
-                  });
-                  setShowViewActivity(false);
-                  setShowEditActivity(true);
-                }}
-              >
-                <Edit className="h-4 w-4 mr-2" />
-                Bewerken
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <ViewActivityDialog
+          open={showViewActivity}
+          onOpenChange={setShowViewActivity}
+          activity={selectedActivity}
+        />
       )}
     </div>
   );
+}
+
+// Activity Delete Function
+async function handleDeleteActivity(activityId: number, activityName: string, activitiesQuery: any, toast: any) {
+  try {
+    const response = await fetch(`/api/admin/activities/${activityId}/soft-delete`, {
+      method: 'PATCH',
+      credentials: 'include'
+    });
+
+    if (response.ok) {
+      toast({ 
+        title: "Activiteit verwijderd", 
+        description: `${activityName} is naar de prullenbak verplaatst` 
+      });
+      activitiesQuery.refetch();
+    } else {
+      throw new Error('Fout bij verwijderen activiteit');
+    }
+  } catch (error) {
+    toast({ 
+      title: "Fout", 
+      description: "Er is een fout opgetreden bij het verwijderen", 
+      variant: "destructive" 
+    });
+  }
 }
