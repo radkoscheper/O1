@@ -2244,22 +2244,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       switch (scope) {
         case 'destinations':
-          results = await storage.searchDestinations(query, location as string);
+          results = (await storage.searchDestinations(query, location as string)).map(d => ({ ...d, type: 'destination' }));
           break;
         case 'activities':
-          results = await storage.searchActivities(query, location as string, category as string);
+          results = (await storage.searchActivities(query, location as string, category as string)).map(a => ({ ...a, type: 'activity' }));
           break;
         case 'highlights':
-          results = await storage.searchHighlights(query);
+          results = (await storage.searchHighlights(query)).map(h => ({ ...h, type: 'highlight' }));
           break;
         case 'guides':
-          results = await storage.searchGuides(query);
+          results = (await storage.searchGuides(query)).map(g => ({ ...g, type: 'guide' }));
           break;
         case 'pages':
-          results = await storage.searchPages(query);
+          results = (await storage.searchPages(query)).map(p => ({ ...p, type: 'page' }));
           break;
         case 'templates':
-          results = await storage.searchTemplates(query);
+          results = (await storage.searchTemplates(query)).map(t => ({ ...t, type: 'template' }));
           break;
         case 'content':
           // Search all Website Onderdelen (destinations, activities, highlights, guides)
