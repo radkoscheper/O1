@@ -1203,11 +1203,9 @@ export default function Admin() {
                 🎯 Activiteiten
               </TabsTrigger>
             )}
-            {currentUser?.role === 'admin' && (
-              <TabsTrigger value="highlights" className="flex items-center gap-2 ml-2">
-                ✨ Hoogtepunten
-              </TabsTrigger>
-            )}
+            <TabsTrigger value="highlights" className="flex items-center gap-2 ml-2">
+              ✨ Hoogtepunten
+            </TabsTrigger>
             {currentUser?.canCreateContent && (
               <TabsTrigger value="guides" className="flex items-center gap-2 ml-2">
                 📖 Reisgidsen
