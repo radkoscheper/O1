@@ -8,7 +8,7 @@ import { Search, Settings, ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
 
 // Activities section component
-function ActivitiesSection({ pageTitle }: { pageTitle?: string }) {
+function ActivitiesSection({ pageTitle, setSelectedActivityId }: { pageTitle?: string, setSelectedActivityId: (id: string | null) => void }) {
   const { data: locationActivities, isLoading } = useQuery({
     queryKey: ['/api/activities/location', pageTitle],
     queryFn: async () => {
@@ -33,9 +33,27 @@ function ActivitiesSection({ pageTitle }: { pageTitle?: string }) {
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {locationActivities.map((activity: any) => {
-          const CardContent = (
+          // Handler for activity click to show details in content section
+          const handleActivityClick = (e: React.MouseEvent) => {
+            e.preventDefault();
+            setSelectedActivityId(activity.id.toString());
+            
+            // Update URL with activity parameter
+            const newUrl = `${window.location.pathname}?activity=${activity.id}`;
+            window.history.pushState({}, '', newUrl);
+            
+            // Scroll to content section smoothly
+            const contentSection = document.getElementById('content-section');
+            if (contentSection) {
+              contentSection.scrollIntoView({ behavior: 'smooth' });
+            }
+          };
+
+          return (
             <Card 
+              key={activity.id}
               className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer"
+              onClick={handleActivityClick}
             >
               {activity.image && (
                 <img
@@ -43,7 +61,7 @@ function ActivitiesSection({ pageTitle }: { pageTitle?: string }) {
                   alt={activity.alt || activity.name}
                   className="w-full h-40 object-cover"
                   onError={(e) => {
-                    e.currentTarget.src = '/images/destinations/krakow.jpg';
+                    e.currentTarget.src = '/images/activities/placeholder.svg';
                   }}
                 />
               )}
@@ -64,33 +82,6 @@ function ActivitiesSection({ pageTitle }: { pageTitle?: string }) {
               </div>
             </Card>
           );
-
-          // If activity has a link, wrap in Link component or external link
-          if (activity.link) {
-            // Check if it's an external link (starts with http)
-            if (activity.link.startsWith('http')) {
-              return (
-                <a
-                  key={activity.id}
-                  href={activity.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {CardContent}
-                </a>
-              );
-            } else {
-              // Internal link
-              return (
-                <Link key={activity.id} href={activity.link}>
-                  {CardContent}
-                </Link>
-              );
-            }
-          }
-
-          // No link, just return the card
-          return <div key={activity.id}>{CardContent}</div>;
         })}
       </div>
     </section>
@@ -547,10 +538,10 @@ export default function Page() {
       )}
 
       {/* Activities Section - same style as homepage destinations grid */}
-      <ActivitiesSection pageTitle={page?.title} />
+      <ActivitiesSection pageTitle={page?.title} setSelectedActivityId={setSelectedActivityId} />
 
       {/* Content Section */}
-      <section className="py-16 px-5 max-w-6xl mx-auto">
+      <section id="content-section" className="py-16 px-5 max-w-6xl mx-auto">
         <Card className="bg-white rounded-xl shadow-lg border-none p-8">
           {selectedActivity ? (
             // Show selected activity content
@@ -576,7 +567,7 @@ export default function Page() {
                   alt={selectedActivity.alt || selectedActivity.name}
                   className="w-full h-64 object-cover rounded-lg mb-6"
                   onError={(e) => {
-                    e.currentTarget.src = '/images/destinations/krakow.jpg';
+                    e.currentTarget.src = '/images/activities/placeholder.svg';
                   }}
                 />
               )}
