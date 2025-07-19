@@ -3026,7 +3026,21 @@ export default function Admin() {
                   <p className="text-gray-600">Beheer zoekfunctionaliteit en configuraties per context</p>
                 </div>
                 <Button 
-                  onClick={() => setShowCreateSearchConfig(true)} 
+                  onClick={() => {
+                    console.log('Create search config clicked');
+                    // Reset form data
+                    setSearchConfigData({
+                      context: '',
+                      placeholderText: '',
+                      searchScope: 'destinations',
+                      enableLocationFilter: false,
+                      enableCategoryFilter: false,
+                      customInstructions: '',
+                      redirectPattern: '',
+                      isActive: true
+                    });
+                    setShowCreateSearchConfig(true);
+                  }} 
                   className="bg-blue-600 hover:bg-blue-700"
                 >
                   <Plus className="h-4 w-4 mr-2" />
@@ -3066,6 +3080,7 @@ export default function Admin() {
                             size="sm" 
                             variant="outline"
                             onClick={() => {
+                              console.log('View search config clicked:', config);
                               setSelectedSearchConfig(config);
                               setShowViewSearchConfig(true);
                             }}
@@ -3077,8 +3092,19 @@ export default function Admin() {
                             size="sm" 
                             variant="outline"
                             onClick={() => {
+                              console.log('Edit search config clicked:', config);
                               setSelectedSearchConfig(config);
-                              setSearchConfigData(config);
+                              // Pre-populate form with current data
+                              setSearchConfigData({
+                                context: config.context || '',
+                                placeholderText: config.placeholderText || '',
+                                searchScope: config.searchScope || 'destinations',
+                                enableLocationFilter: Boolean(config.enableLocationFilter),
+                                enableCategoryFilter: Boolean(config.enableCategoryFilter),
+                                customInstructions: config.customInstructions || '',
+                                redirectPattern: config.redirectPattern || '',
+                                isActive: Boolean(config.isActive)
+                              });
                               setShowEditSearchConfig(true);
                             }}
                           >
@@ -3110,7 +3136,21 @@ export default function Admin() {
                         Maak je eerste zoek configuratie aan om de zoekfunctionaliteit te beheren
                       </p>
                       <Button 
-                        onClick={() => setShowCreateSearchConfig(true)}
+                        onClick={() => {
+                          console.log('Create first search config clicked');
+                          // Reset form data
+                          setSearchConfigData({
+                            context: '',
+                            placeholderText: '',
+                            searchScope: 'destinations',
+                            enableLocationFilter: false,
+                            enableCategoryFilter: false,
+                            customInstructions: '',
+                            redirectPattern: '',
+                            isActive: true
+                          });
+                          setShowCreateSearchConfig(true);
+                        }}
                         className="bg-blue-600 hover:bg-blue-700 mt-4"
                       >
                         <Plus className="h-4 w-4 mr-2" />
@@ -7390,10 +7430,16 @@ function PageManagement({ templates }: { templates: any[] }) {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowCreateSearchConfig(false)}>
+              <Button variant="outline" onClick={() => {
+                console.log('Cancel create search config');
+                setShowCreateSearchConfig(false);
+              }}>
                 Annuleren
               </Button>
-              <Button onClick={() => handleCreateSearchConfig(searchConfigData)}>
+              <Button onClick={() => {
+                console.log('Submit create search config with data:', searchConfigData);
+                handleCreateSearchConfig(searchConfigData);
+              }}>
                 Aanmaken
               </Button>
             </DialogFooter>
@@ -7490,10 +7536,16 @@ function PageManagement({ templates }: { templates: any[] }) {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowEditSearchConfig(false)}>
+              <Button variant="outline" onClick={() => {
+                console.log('Cancel edit search config');
+                setShowEditSearchConfig(false);
+              }}>
                 Annuleren
               </Button>
-              <Button onClick={() => handleUpdateSearchConfig(selectedSearchConfig.id, searchConfigData)}>
+              <Button onClick={() => {
+                console.log('Submit edit search config with data:', searchConfigData);
+                handleUpdateSearchConfig(selectedSearchConfig.id, searchConfigData);
+              }}>
                 Bijwerken
               </Button>
             </DialogFooter>
@@ -7577,7 +7629,17 @@ function PageManagement({ templates }: { templates: any[] }) {
                 Sluiten
               </Button>
               <Button onClick={() => {
-                setSearchConfigData(selectedSearchConfig);
+                console.log('Switch from view to edit search config');
+                setSearchConfigData({
+                  context: selectedSearchConfig.context || '',
+                  placeholderText: selectedSearchConfig.placeholderText || '',
+                  searchScope: selectedSearchConfig.searchScope || 'destinations',
+                  enableLocationFilter: Boolean(selectedSearchConfig.enableLocationFilter),
+                  enableCategoryFilter: Boolean(selectedSearchConfig.enableCategoryFilter),
+                  customInstructions: selectedSearchConfig.customInstructions || '',
+                  redirectPattern: selectedSearchConfig.redirectPattern || '',
+                  isActive: Boolean(selectedSearchConfig.isActive)
+                });
                 setShowViewSearchConfig(false);
                 setShowEditSearchConfig(true);
               }}>
