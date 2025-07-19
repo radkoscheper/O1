@@ -95,11 +95,18 @@ export default function Admin() {
     queryKey: ['/api/admin/highlights'],
     enabled: isAuthenticated && currentUser?.role === 'admin',
   });
+
+  const activitiesQuery = useQuery({
+    queryKey: ['/api/admin/activities'],
+    enabled: isAuthenticated && currentUser?.canCreateContent,
+  });
   const [showCreateUser, setShowCreateUser] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showEditUser, setShowEditUser] = useState(false);
   const [showResetPassword, setShowResetPassword] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
+
+
   
   // Content editing states
   const [showCreateDestination, setShowCreateDestination] = useState(false);
@@ -164,6 +171,40 @@ export default function Admin() {
     showOnHomepage: true
   });
 
+  // Activities management state
+  const [showCreateActivity, setShowCreateActivity] = useState(false);
+  const [showEditActivity, setShowEditActivity] = useState(false);
+  const [showViewActivity, setShowViewActivity] = useState(false);
+  const [selectedActivity, setSelectedActivity] = useState<any>(null);
+  const [newActivity, setNewActivity] = useState({
+    name: '',
+    location: '',
+    category: '',
+    activityType: '',
+    description: '',
+    image: '',
+    alt: '',
+    content: '',
+    link: '',
+    featured: false,
+    published: false,
+    ranking: 0
+  });
+  const [editActivityData, setEditActivityData] = useState({
+    name: '',
+    location: '',
+    category: '',
+    activityType: '',
+    description: '',
+    image: '',
+    alt: '',
+    content: '',
+    link: '',
+    featured: false,
+    published: false,
+    ranking: 0
+  });
+
   const { toast } = useToast();
 
   // Image upload helpers
@@ -198,6 +239,8 @@ export default function Admin() {
   // Location filter state
   const [locationFilter, setLocationFilter] = useState<string>('all');
   const [guideFilter, setGuideFilter] = useState<string>('all');
+  const [activityLocationFilter, setActivityLocationFilter] = useState<string>('all');
+  const [activityCategoryFilter, setActivityCategoryFilter] = useState<string>('all');
 
   // Get unique locations from destinations for filter
   const getUniqueLocations = () => {
@@ -238,6 +281,44 @@ export default function Admin() {
       const firstWord = guide.title.split(' ')[0] || 'Overig';
       return firstWord === guideFilter;
     });
+  };
+
+  // Get unique locations from activities for filter
+  const getUniqueActivityLocations = () => {
+    if (!activitiesQuery.data) return [];
+    const locations = activitiesQuery.data
+      .map((activity: any) => activity.location)
+      .filter((location: string) => location && location.trim() !== '')
+      .filter((location: string, index: number, arr: string[]) => arr.indexOf(location) === index)
+      .sort();
+    return locations;
+  };
+
+  // Get unique categories from activities for filter
+  const getUniqueActivityCategories = () => {
+    if (!activitiesQuery.data) return [];
+    const categories = activitiesQuery.data
+      .map((activity: any) => activity.category)
+      .filter((category: string) => category && category.trim() !== '')
+      .filter((category: string, index: number, arr: string[]) => arr.indexOf(category) === index)
+      .sort();
+    return categories;
+  };
+
+  // Filter activities by location
+  const getFilteredActivities = () => {
+    if (!activitiesQuery.data) return [];
+    let filtered = activitiesQuery.data;
+    
+    if (activityLocationFilter !== 'all') {
+      filtered = filtered.filter((activity: any) => activity.location === activityLocationFilter);
+    }
+    
+    if (activityCategoryFilter !== 'all') {
+      filtered = filtered.filter((activity: any) => activity.category === activityCategoryFilter);
+    }
+    
+    return filtered;
   };
 
 
@@ -979,10 +1060,20 @@ export default function Admin() {
 
         <Tabs defaultValue="destinations" className="w-full">
           <TabsList className="h-auto w-full flex-wrap justify-start gap-2 p-2 bg-muted/30">
-            {/* Content Beheer */}
+            {/* Eerste regel: Bestemmingen, Activiteiten, Hoogtepunten, Reisgidsen */}
             {currentUser?.canCreateContent && (
-              <TabsTrigger value="destinations" className="flex items-center gap-2">
-                🏔️ Bestemmingen
+              <>
+                <TabsTrigger value="destinations" className="flex items-center gap-2">
+                  🏔️ Bestemmingen
+                </TabsTrigger>
+                <TabsTrigger value="activities" className="flex items-center gap-2">
+                  🎯 Activiteiten
+                </TabsTrigger>
+              </>
+            )}
+            {currentUser?.role === 'admin' && (
+              <TabsTrigger value="highlights" className="flex items-center gap-2">
+                ✨ Hoogtepunten
               </TabsTrigger>
             )}
             {currentUser?.canCreateContent && (
@@ -991,7 +1082,8 @@ export default function Admin() {
               </TabsTrigger>
             )}
 
-    
+            {/* Tweede regel: Pagina's en Templates */}
+            <div className="w-full" />
             {currentUser?.canCreateContent && (
               <TabsTrigger value="pages" className="flex items-center gap-2">
                 📄 Pagina's
@@ -1012,13 +1104,9 @@ export default function Admin() {
                 🎨 Templates
               </TabsTrigger>
             )}
-            {currentUser?.role === 'admin' && (
-              <TabsTrigger value="highlights" className="flex items-center gap-2">
-                ✨ Highlights
-              </TabsTrigger>
-            )}
             
-            {/* Beheer & Instellingen */}
+            {/* Derde regel: Beheer & Instellingen */}
+            <div className="w-full" />
             {(currentUser?.canDeleteContent || currentUser?.canEditContent) && (
               <TabsTrigger value="recycle" className="flex items-center gap-2">
                 <Trash2 className="h-4 w-4" />
@@ -2536,9 +2624,167 @@ export default function Admin() {
             </TabsContent>
           )}
 
+          {/* Activiteiten Tab */}
+          {currentUser?.canCreateContent && (
+            <TabsContent value="activities" className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <div>
+                  <h2 className="text-2xl font-semibold">Activiteiten ({getFilteredActivities().length} van {activitiesQuery.data?.length || 0})</h2>
+                  <p className="text-gray-600">Beheer activiteiten zoals musea, bergen, pleinen en restaurants</p>
+                </div>
+                <Button onClick={() => setShowCreateActivity(true)} className="bg-green-600 hover:bg-green-700">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nieuwe Activiteit
+                </Button>
+              </div>
 
+              {/* Filter Controls */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex-1">
+                  <Label htmlFor="activity-location-filter">Filter op locatie</Label>
+                  <Select value={activityLocationFilter} onValueChange={setActivityLocationFilter}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Alle locaties" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Alle locaties ({activitiesQuery.data?.length || 0})</SelectItem>
+                      {getUniqueActivityLocations().map((location) => {
+                        const count = activitiesQuery.data?.filter((a: any) => a.location === location).length || 0;
+                        return (
+                          <SelectItem key={location} value={location}>
+                            {location} ({count})
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex-1">
+                  <Label htmlFor="activity-category-filter">Filter op categorie</Label>
+                  <Select value={activityCategoryFilter} onValueChange={setActivityCategoryFilter}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Alle categorieën" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Alle categorieën ({activitiesQuery.data?.length || 0})</SelectItem>
+                      {getUniqueActivityCategories().map((category) => {
+                        const count = activitiesQuery.data?.filter((a: any) => a.category === category).length || 0;
+                        return (
+                          <SelectItem key={category} value={category}>
+                            {category} ({count})
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
 
+              {/* Activities Grid */}
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {getFilteredActivities().map((activity: any) => (
+                  <Card key={activity.id} className="hover:shadow-lg transition-shadow">
+                    <div className="relative">
+                      {activity.image && (
+                        <div className="h-32 w-full overflow-hidden rounded-t-lg">
+                          <img
+                            src={activity.image}
+                            alt={activity.alt || activity.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <Badge variant="outline" className="absolute top-2 right-2 text-xs bg-white/90">
+                        #{activity.ranking || 0}
+                      </Badge>
+                    </div>
+                    <CardHeader className="pb-3">
+                      <div className="flex justify-between items-start gap-2">
+                        <CardTitle className="text-lg leading-tight">{activity.name}</CardTitle>
+                      </div>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        <Badge variant="secondary" className="text-xs">
+                          📍 {activity.location || 'Geen locatie'}
+                        </Badge>
+                        <Badge variant="outline" className="text-xs">
+                          🎯 {activity.category || 'Geen categorie'}
+                        </Badge>
+                        {activity.activityType && (
+                          <Badge variant="outline" className="text-xs">
+                            {activity.activityType}
+                          </Badge>
+                        )}
+                      </div>
+                      <CardDescription className="text-sm mt-2">{activity.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="flex flex-wrap gap-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedActivity(activity);
+                            setEditActivityData({
+                              name: activity.name,
+                              location: activity.location || '',
+                              category: activity.category || '',
+                              activityType: activity.activityType || '',
+                              description: activity.description,
+                              image: activity.image,
+                              alt: activity.alt || '',
+                              content: activity.content || '',
+                              link: activity.link || '',
+                              featured: activity.featured,
+                              published: activity.published,
+                              ranking: activity.ranking || 0
+                            });
+                            setShowEditActivity(true);
+                          }}
+                          className="flex-1 text-xs"
+                        >
+                          <Edit className="h-3 w-3 mr-1" />
+                          Bewerken
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedActivity(activity);
+                            setShowViewActivity(true);
+                          }}
+                          className="flex-1 text-xs"
+                        >
+                          <Eye className="h-3 w-3 mr-1" />
+                          Bekijken
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
 
+              {getFilteredActivities().length === 0 && (
+                <div className="text-center py-12">
+                  <div className="text-gray-400 mb-4">
+                    <Plus className="h-12 w-12 mx-auto" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-600 mb-2">Geen activiteiten gevonden</h3>
+                  <p className="text-gray-500 mb-4">
+                    {activitiesQuery.data?.length === 0 
+                      ? "Begin met het toevoegen van je eerste activiteit."
+                      : "Probeer je filters aan te passen om meer resultaten te zien."
+                    }
+                  </p>
+                  {activitiesQuery.data?.length === 0 && (
+                    <Button onClick={() => setShowCreateActivity(true)} className="bg-green-600 hover:bg-green-700">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Nieuwe Activiteit
+                    </Button>
+                  )}
+                </div>
+              )}
+            </TabsContent>
+          )}
 
           {/* Gebruikersbeheer Tab - alleen voor admins */}
           {currentUser?.canManageUsers && (

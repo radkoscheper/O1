@@ -2018,6 +2018,163 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Activities routes
+  app.get("/api/activities", async (req, res) => {
+    try {
+      const activities = await storage.getPublishedActivities();
+      res.json(activities);
+    } catch (error) {
+      console.error("Error fetching activities:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  app.get("/api/activities/homepage", async (req, res) => {
+    try {
+      const activities = await storage.getHomepageActivities();
+      res.json(activities);
+    } catch (error) {
+      console.error("Error fetching homepage activities:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  app.get("/api/admin/activities", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || (!user.canCreateContent && !user.canEditContent)) {
+        return res.status(403).json({ message: "Geen toestemming om activiteiten te bekijken" });
+      }
+
+      const activities = await storage.getAllActivities();
+      res.json(activities);
+    } catch (error) {
+      console.error("Error fetching admin activities:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  app.post("/api/activities", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || !user.canCreateContent) {
+        return res.status(403).json({ message: "Geen toestemming om activiteiten aan te maken" });
+      }
+
+      // Generate slug from name
+      const slug = req.body.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+
+      const activityData = {
+        ...req.body,
+        slug,
+        createdBy: user.id,
+      };
+
+      const activity = await storage.createActivity(activityData);
+      res.json(activity);
+    } catch (error) {
+      console.error("Error creating activity:", error);
+      res.status(500).json({ message: "Fout bij aanmaken activiteit" });
+    }
+  });
+
+  app.put("/api/admin/activities/:id", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || !user.canEditContent) {
+        return res.status(403).json({ message: "Geen toestemming om activiteiten te bewerken" });
+      }
+
+      const { id } = req.params;
+      
+      // Update slug if name changes
+      if (req.body.name) {
+        req.body.slug = req.body.name
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '');
+      }
+
+      const activity = await storage.updateActivity(parseInt(id), req.body);
+      res.json(activity);
+    } catch (error) {
+      console.error("Error updating activity:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  app.patch("/api/admin/activities/:id/homepage", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user?.canEditContent) {
+        return res.status(403).json({ message: "Geen toestemming om activiteiten te bewerken" });
+      }
+
+      const { id } = req.params;
+      const { showOnHomepage } = req.body;
+      
+      if (typeof showOnHomepage !== 'boolean') {
+        return res.status(400).json({ message: "showOnHomepage waarde moet boolean zijn" });
+      }
+
+      const activity = await storage.updateActivity(parseInt(id), { showOnHomepage });
+      res.json(activity);
+    } catch (error) {
+      console.error("Error toggling activity homepage:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  app.patch("/api/admin/activities/:id/soft-delete", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user?.canDeleteContent) {
+        return res.status(403).json({ message: "Geen toestemming om activiteiten te verwijderen" });
+      }
+
+      const { id } = req.params;
+      await storage.softDeleteActivity(parseInt(id));
+      res.json({ message: "Activiteit naar prullenbak verplaatst" });
+    } catch (error) {
+      console.error("Error soft deleting activity:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  app.patch("/api/admin/activities/:id/restore", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user?.canEditContent) {
+        return res.status(403).json({ message: "Geen toestemming om activiteiten te herstellen" });
+      }
+
+      const { id } = req.params;
+      const activity = await storage.restoreActivity(parseInt(id));
+      res.json(activity);
+    } catch (error) {
+      console.error("Error restoring activity:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  app.get("/api/admin/activities/deleted", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || !user.canEditContent) {
+        return res.status(403).json({ message: "Geen toestemming om content te bekijken" });
+      }
+
+      const activities = await storage.getDeletedActivities();
+      res.json(activities);
+    } catch (error) {
+      console.error("Get deleted activities error:", error);
+      res.status(500).json({ message: "Fout bij ophalen verwijderde activiteiten" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
