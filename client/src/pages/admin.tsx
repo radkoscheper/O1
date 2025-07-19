@@ -727,7 +727,18 @@ export default function Admin() {
   };
 
   const handleCreateSearchConfig = async (data: any) => {
+    // Validatie van verplichte velden
+    if (!data.context || !data.placeholderText) {
+      toast({ 
+        title: "Validatiefout", 
+        description: "Context en placeholder tekst zijn verplicht", 
+        variant: "destructive" 
+      });
+      return;
+    }
+
     try {
+      console.log('Creating search config with data:', data);
       const response = await fetch('/api/admin/search-configs', {
         method: 'POST',
         headers: {
@@ -737,7 +748,11 @@ export default function Admin() {
         body: JSON.stringify(data),
       });
       
+      console.log('Response status:', response.status);
+      
       if (response.ok) {
+        const result = await response.json();
+        console.log('Created search config:', result);
         toast({ title: "Succes", description: "Zoek configuratie aangemaakt" });
         searchConfigsQuery.refetch();
         setShowCreateSearchConfig(false);
@@ -753,10 +768,12 @@ export default function Admin() {
         });
       } else {
         const error = await response.json();
-        toast({ title: "Fout", description: error.message, variant: "destructive" });
+        console.error('Error creating search config:', error);
+        toast({ title: "Fout", description: error.message || "Onbekende fout", variant: "destructive" });
       }
     } catch (error) {
-      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+      console.error('Network error creating search config:', error);
+      toast({ title: "Fout", description: "Er is een netwerkfout opgetreden", variant: "destructive" });
     }
   };
 
