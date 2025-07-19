@@ -2640,8 +2640,7 @@ export default function Admin() {
           )}
 
           {/* Activiteiten Tab */}
-          {currentUser?.canCreateContent && (
-            <TabsContent value="activities" className="space-y-6">
+          <TabsContent value="activities" className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
                   <h2 className="text-2xl font-semibold">Activiteiten ({getFilteredActivities().length} van {activitiesQuery.data?.length || 0})</h2>
@@ -2804,7 +2803,6 @@ export default function Admin() {
                 </div>
               )}
             </TabsContent>
-          )}
 
           {/* Gebruikersbeheer Tab - alleen voor admins */}
           {currentUser?.canManageUsers && (
