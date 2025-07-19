@@ -189,6 +189,8 @@ This is a full-stack web application for discovering beautiful places in Poland.
 - Consistente structuur met bestaande CMS functionaliteit
 - Toggle buttons toegevoegd voor eenvoudig aan/uit schakelen van zoekfuncties
 - Knoppen gepositioneerd onder "Bekijk" button voor intuïtieve toegang
+- Kleurgecodeerde toggle buttons: groen voor ingeschakeld, rood voor uitgeschakeld
+- Duidelijke status weergave: "✅ Ingeschakeld" (groen) / "❌ Uitgeschakeld" (rood)
 
 **Stadium 12 Progress (2025-01-18)**: ✅ COMPLETE TECHNICAL PARITY BETWEEN REISGIDSEN AND BESTEMMINGEN
 ✅ **IDENTICAL TECHNICAL STRUCTURE IMPLEMENTED**:

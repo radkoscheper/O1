@@ -3118,9 +3118,9 @@ export default function Admin() {
                                 });
                               }
                             }}
-                            className="w-full"
+                            className={`w-full ${config.isActive ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-red-100 hover:bg-red-200 text-red-700 border-red-300'}`}
                           >
-                            {config.isActive ? '❌ Uitschakelen' : '✅ Inschakelen'}
+                            {config.isActive ? '✅ Ingeschakeld' : '❌ Uitgeschakeld'}
                           </Button>
                         </div>
                       </div>
