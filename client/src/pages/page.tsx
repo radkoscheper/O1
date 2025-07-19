@@ -133,15 +133,14 @@ export default function Page() {
     e.preventDefault();
     if (!searchQuery.trim()) return;
     
+    console.log('=== DESTINATION PAGE SEARCH DEBUG ===');
     console.log('Starting destination page search for:', searchQuery);
+    console.log('Current showSearchResults:', showSearchResults);
+    console.log('Current searchResults length:', searchResults.length);
+    console.log('Current isSearching:', isSearching);
+    console.log('Page title:', page?.title);
     
-    // If we already have results for this query and overlay is closed, just show it again
-    if (searchResults.length > 0 && !showSearchResults) {
-      console.log('Re-opening existing search results');
-      setShowSearchResults(true);
-      return;
-    }
-    
+    // Always perform fresh search - don't cache results
     setIsSearching(true);
     setShowSearchResults(true);
     
@@ -155,11 +154,17 @@ export default function Page() {
         url += `&location=${encodeURIComponent(page.title)}`;
       }
       
-      console.log('Fetching:', url);
+      console.log('Fetching URL:', url);
       const response = await fetch(url);
-      const data = await response.json();
       
-      console.log('Search results:', data);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      console.log('API Response:', data);
+      console.log('Results count:', data.results?.length || 0);
+      
       setSearchResults(data.results || []);
       
       // Auto-redirect logic if configured
@@ -170,6 +175,7 @@ export default function Page() {
         redirectUrl = redirectUrl.replace('{slug}', result.slug || result.name?.toLowerCase().replace(/\s+/g, '-'));
         redirectUrl = redirectUrl.replace('{query}', encodeURIComponent(searchQuery));
         
+        console.log('Redirecting to:', redirectUrl);
         window.location.href = redirectUrl;
         return;
       }
@@ -178,6 +184,7 @@ export default function Page() {
       setSearchResults([]);
     } finally {
       setIsSearching(false);
+      console.log('=== DESTINATION PAGE SEARCH COMPLETE ===');
     }
   };
 
@@ -224,16 +231,42 @@ export default function Page() {
             Mooie plekken in {page.title} ontdekken
           </p>
           
-          <form onSubmit={handleSearch} className="mt-5 mb-5 relative">
+          <form 
+            onSubmit={(e) => {
+              console.log('Destination page form submit event triggered');
+              handleSearch(e);
+            }} 
+            className="mt-5 mb-5 relative"
+          >
             <div className="relative inline-block">
               <Input
                 type="text"
                 placeholder={searchConfig?.placeholderText || "Zoek activiteiten..."}
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  console.log('Destination page search input changed:', e.target.value);
+                  setSearchQuery(e.target.value);
+                }}
+                onKeyDown={(e) => {
+                  console.log('Destination page key pressed:', e.key);
+                  if (e.key === 'Enter') {
+                    console.log('Enter key detected, form should submit');
+                  }
+                }}
                 className="py-3 px-5 w-80 max-w-full border-none rounded-lg text-base text-gray-900 font-inter"
               />
-              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
+              <Search 
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4 cursor-pointer" 
+                onClick={() => {
+                  console.log('Destination page search icon clicked');
+                  if (searchQuery.trim()) {
+                    const form = document.querySelector('form');
+                    if (form) {
+                      form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+                    }
+                  }
+                }}
+              />
             </div>
             {/* Debug state indicator */}
             {showSearchResults && (
