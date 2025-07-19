@@ -3036,23 +3036,37 @@ export default function Admin() {
                 <div>Search configs error: {searchConfigsQuery.error ? String(searchConfigsQuery.error) : 'None'}</div>
                 <div>Search configs data: {searchConfigsQuery.data ? `${searchConfigsQuery.data.length} items` : 'No data'}</div>
                 <div>Dialog states: Create={String(showCreateSearchConfig)}, Edit={String(showEditSearchConfig)}, View={String(showViewSearchConfig)}</div>
-                <div>🔧 Test Button: 
+                <div>🔧 Test Buttons: 
                   <button 
                     onClick={() => {
                       console.log('🔧 FORCE CREATE DIALOG TEST');
-                      setShowCreateSearchConfig(true);
-                      console.log('🔧 showCreateSearchConfig set to:', true);
+                      setShowCreateSearchConfig(prev => {
+                        console.log('🔧 Previous state:', prev, 'Setting to:', !prev);
+                        return true;
+                      });
                       // Force re-render
                       setTimeout(() => {
                         console.log('🔧 AFTER TIMEOUT - showCreateSearchConfig:', showCreateSearchConfig);
                         const dialogs = document.querySelectorAll('[role="dialog"]');
+                        const divs = document.querySelectorAll('div[style*="position: fixed"]');
                         console.log('🔧 Found dialogs:', dialogs.length);
-                        dialogs.forEach((dialog, i) => console.log(`🔧 Dialog ${i}:`, dialog));
+                        console.log('🔧 Found fixed divs:', divs.length);
+                        divs.forEach((div, i) => console.log(`🔧 Fixed Div ${i}:`, div));
                       }, 500);
                     }}
                     style={{marginLeft: '10px', padding: '5px', background: 'red', color: 'white', border: 'none', borderRadius: '3px'}}
                   >
-                    FORCE OPEN + DEBUG
+                    FORCE OPEN
+                  </button>
+                  <button 
+                    onClick={() => {
+                      console.log('🔧 FORCE RENDER TEST');
+                      setShowCreateSearchConfig(false);
+                      setTimeout(() => setShowCreateSearchConfig(true), 100);
+                    }}
+                    style={{marginLeft: '10px', padding: '5px', background: 'orange', color: 'white', border: 'none', borderRadius: '3px'}}
+                  >
+                    TOGGLE TEST
                   </button>
                 </div>
               </div>
@@ -7406,8 +7420,9 @@ function PageManagement({ templates }: { templates: any[] }) {
         />
       )}
 
-      {/* Search Configuration Dialogs */}
-      {showCreateSearchConfig && (
+      {/* Search Configuration Dialogs - FORCE RENDER TEST */}
+      {console.log('🟥 RENDER CHECK: showCreateSearchConfig =', showCreateSearchConfig)}
+      {(showCreateSearchConfig || false) && (
         <div 
           style={{
             position: 'fixed', 
@@ -7436,7 +7451,7 @@ function PageManagement({ templates }: { templates: any[] }) {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 style={{margin: '0 0 16px 0', fontSize: '20px', fontWeight: 'bold'}}>🔧 DIRECT TEST DIALOG</h2>
+            <h2 style={{margin: '0 0 16px 0', fontSize: '20px', fontWeight: 'bold'}}>🔧 DIRECT TEST DIALOG - STATE: {String(showCreateSearchConfig)}</h2>
             <div style={{marginBottom: '16px', padding: '10px', backgroundColor: '#f0f0f0', fontSize: '14px'}}>
               <strong>Dialog State:</strong> showCreateSearchConfig = {String(showCreateSearchConfig)}
             </div>
