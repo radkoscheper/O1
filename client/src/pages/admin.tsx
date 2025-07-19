@@ -98,7 +98,7 @@ export default function Admin() {
 
   const activitiesQuery = useQuery({
     queryKey: ['/api/admin/activities'],
-    enabled: isAuthenticated && currentUser?.canCreateContent,
+    enabled: isAuthenticated,
   });
   const [showCreateUser, setShowCreateUser] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
@@ -2641,6 +2641,7 @@ export default function Admin() {
 
           {/* Activiteiten Tab */}
           <TabsContent value="activities" className="space-y-6">
+            {console.log("Activities data:", activitiesQuery.data, "Loading:", activitiesQuery.isLoading)}
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
                   <h2 className="text-2xl font-semibold">Activiteiten ({getFilteredActivities().length} van {activitiesQuery.data?.length || 0})</h2>
