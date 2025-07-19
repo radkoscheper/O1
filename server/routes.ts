@@ -2249,20 +2249,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
         case 'activities':
           results = await storage.searchActivities(query, location as string, category as string);
           break;
+        case 'highlights':
+          results = await storage.searchHighlights(query);
+          break;
         case 'guides':
           results = await storage.searchGuides(query);
           break;
-        default:
-          // Search all
-          const [destinations, activities, guides] = await Promise.all([
+        case 'pages':
+          results = await storage.searchPages(query);
+          break;
+        case 'templates':
+          results = await storage.searchTemplates(query);
+          break;
+        case 'content':
+          // Search all Website Onderdelen (destinations, activities, highlights, guides)
+          const [destinations, activities, highlights, guides] = await Promise.all([
             storage.searchDestinations(query, location as string),
             storage.searchActivities(query, location as string, category as string),
+            storage.searchHighlights(query),
             storage.searchGuides(query)
           ]);
           results = [
             ...destinations.map(d => ({ ...d, type: 'destination' })),
             ...activities.map(a => ({ ...a, type: 'activity' })),
+            ...highlights.map(h => ({ ...h, type: 'highlight' })),
             ...guides.map(g => ({ ...g, type: 'guide' }))
+          ];
+          break;
+        default:
+          // Search all (including pages and templates)
+          const [allDestinations, allActivities, allHighlights, allGuides, allPages, allTemplates] = await Promise.all([
+            storage.searchDestinations(query, location as string),
+            storage.searchActivities(query, location as string, category as string),
+            storage.searchHighlights(query),
+            storage.searchGuides(query),
+            storage.searchPages(query),
+            storage.searchTemplates(query)
+          ]);
+          results = [
+            ...allDestinations.map(d => ({ ...d, type: 'destination' })),
+            ...allActivities.map(a => ({ ...a, type: 'activity' })),
+            ...allHighlights.map(h => ({ ...h, type: 'highlight' })),
+            ...allGuides.map(g => ({ ...g, type: 'guide' })),
+            ...allPages.map(p => ({ ...p, type: 'page' })),
+            ...allTemplates.map(t => ({ ...t, type: 'template' }))
           ];
       }
 
