@@ -117,7 +117,10 @@ export interface IStorage {
   // Search operations
   searchDestinations(query: string, location?: string): Promise<Destination[]>;
   searchActivities(query: string, location?: string, category?: string): Promise<Activity[]>;
+  searchHighlights(query: string): Promise<Highlight[]>;
   searchGuides(query: string): Promise<Guide[]>;
+  searchPages(query: string): Promise<Page[]>;
+  searchTemplates(query: string): Promise<Template[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -876,6 +879,34 @@ export class DatabaseStorage implements IStorage {
     );
 
     return db.select().from(guides).where(whereCondition);
+  }
+
+  async searchHighlights(query: string): Promise<Highlight[]> {
+    const whereCondition = and(
+      eq(highlights.active, true),
+      sql`${highlights.name} ILIKE '%' || ${query} || '%'`
+    );
+
+    return db.select().from(highlights).where(whereCondition);
+  }
+
+  async searchPages(query: string): Promise<Page[]> {
+    const whereCondition = and(
+      eq(pages.published, true),
+      eq(pages.is_deleted, false),
+      sql`(${pages.title} ILIKE '%' || ${query} || '%' OR ${pages.content} ILIKE '%' || ${query} || '%')`
+    );
+
+    return db.select().from(pages).where(whereCondition);
+  }
+
+  async searchTemplates(query: string): Promise<Template[]> {
+    const whereCondition = and(
+      eq(templates.isActive, true),
+      sql`(${templates.name} ILIKE '%' || ${query} || '%' OR ${templates.content} ILIKE '%' || ${query} || '%')`
+    );
+
+    return db.select().from(templates).where(whereCondition);
   }
 }
 

@@ -242,7 +242,7 @@ export default function Admin() {
   const [searchConfigData, setSearchConfigData] = useState({
     context: '',
     placeholderText: '',
-    searchScope: 'destinations',
+    searchScope: 'destinations', // Default to destinations (part of Website Onderdelen)
     enableLocationFilter: false,
     enableCategoryFilter: false,
     customInstructions: '',
@@ -7555,6 +7555,29 @@ function PageManagement({ templates }: { templates: any[] }) {
                 placeholder="Placeholder tekst"
               />
             </div>
+            <div style={{marginBottom: '16px'}}>
+              <label style={{display: 'block', marginBottom: '4px', fontWeight: 'bold'}}>Zoekbereik:</label>
+              <select 
+                value={searchConfigData.searchScope || 'destinations'}
+                onChange={(e) => setSearchConfigData({...searchConfigData, searchScope: e.target.value})}
+                style={{width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px'}}
+              >
+                <optgroup label="Website Onderdelen">
+                  <option value="destinations">🏔️ Bestemmingen</option>
+                  <option value="activities">🎯 Activiteiten</option>
+                  <option value="highlights">✨ Hoogtepunten</option>
+                  <option value="guides">📖 Reisgidsen</option>
+                </optgroup>
+                <optgroup label="Overige Content">
+                  <option value="pages">📄 Pagina's</option>
+                  <option value="templates">🎨 Templates</option>
+                </optgroup>
+                <optgroup label="Combinaties">
+                  <option value="content">🗂️ Alle Website Onderdelen</option>
+                  <option value="all">🔍 Alles (inclusief pagina's)</option>
+                </optgroup>
+              </select>
+            </div>
             <div style={{display: 'flex', gap: '10px', justifyContent: 'flex-end'}}>
               <button 
                 onClick={() => setShowCreateSearchConfig(false)}
@@ -7628,10 +7651,20 @@ function PageManagement({ templates }: { templates: any[] }) {
                   onChange={(e) => setSearchConfigData({...searchConfigData, searchScope: e.target.value})}
                   className="w-full p-2 border rounded-md"
                 >
-                  <option value="destinations">Bestemmingen</option>
-                  <option value="activities">Activiteiten</option>
-                  <option value="guides">Reisgidsen</option>
-                  <option value="all">Alles</option>
+                  <optgroup label="Website Onderdelen">
+                    <option value="destinations">🏔️ Bestemmingen</option>
+                    <option value="activities">🎯 Activiteiten</option>
+                    <option value="highlights">✨ Hoogtepunten</option>
+                    <option value="guides">📖 Reisgidsen</option>
+                  </optgroup>
+                  <optgroup label="Overige Content">
+                    <option value="pages">📄 Pagina's</option>
+                    <option value="templates">🎨 Templates</option>
+                  </optgroup>
+                  <optgroup label="Combinaties">
+                    <option value="content">🗂️ Alle Website Onderdelen</option>
+                    <option value="all">🔍 Alles (inclusief pagina's)</option>
+                  </optgroup>
                 </select>
               </div>
               <div className="flex items-center gap-4">
@@ -7741,10 +7774,20 @@ function PageManagement({ templates }: { templates: any[] }) {
                   onChange={(e) => setSearchConfigData({...searchConfigData, searchScope: e.target.value})}
                   className="w-full p-2 border rounded-md"
                 >
-                  <option value="destinations">Bestemmingen</option>
-                  <option value="activities">Activiteiten</option>
-                  <option value="guides">Reisgidsen</option>
-                  <option value="all">Alles</option>
+                  <optgroup label="Website Onderdelen">
+                    <option value="destinations">🏔️ Bestemmingen</option>
+                    <option value="activities">🎯 Activiteiten</option>
+                    <option value="highlights">✨ Hoogtepunten</option>
+                    <option value="guides">📖 Reisgidsen</option>
+                  </optgroup>
+                  <optgroup label="Overige Content">
+                    <option value="pages">📄 Pagina's</option>
+                    <option value="templates">🎨 Templates</option>
+                  </optgroup>
+                  <optgroup label="Combinaties">
+                    <option value="content">🗂️ Alle Website Onderdelen</option>
+                    <option value="all">🔍 Alles (inclusief pagina's)</option>
+                  </optgroup>
                 </select>
               </div>
               <div className="flex items-center gap-4">
