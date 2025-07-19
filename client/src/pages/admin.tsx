@@ -2622,8 +2622,8 @@ export default function Admin() {
             </TabsContent>
           )}
 
-          {/* Highlights Tab Content - Admin Only */}
-          {currentUser?.role === 'admin' && (
+          {/* Highlights Tab Content */}
+          {currentUser?.canCreateContent && (
             <TabsContent value="highlights" className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
