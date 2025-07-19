@@ -18,7 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import ReactCrop, { Crop, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
-import { CreateHighlightDialog, EditHighlightDialog, ViewHighlightDialog, CreateDestinationDialog } from '@/components/highlights-dialogs';
+import { CreateHighlightDialog, EditHighlightDialog, ViewHighlightDialog, CreateDestinationDialog, CreateGuideDialog, CreateActivityDialog, EditActivityDialog, ViewActivityDialog } from '@/components/highlights-dialogs';
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -95,16 +95,38 @@ export default function Admin() {
     queryKey: ['/api/admin/highlights'],
     enabled: isAuthenticated && currentUser?.role === 'admin',
   });
+
+  const activitiesQuery = useQuery({
+    queryKey: ['/api/admin/activities'],
+    enabled: isAuthenticated,
+  });
+
+  // Search configuration queries
+  const searchConfigsQuery = useQuery({
+    queryKey: ['/api/admin/search-configs'],
+    enabled: isAuthenticated && currentUser?.canEditContent,
+    retry: 1,
+    staleTime: 0,
+    onError: (error) => {
+      console.error('Search configs query error:', error);
+    },
+    onSuccess: (data) => {
+      console.log('Search configs loaded successfully:', data);
+    }
+  });
   const [showCreateUser, setShowCreateUser] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showEditUser, setShowEditUser] = useState(false);
   const [showResetPassword, setShowResetPassword] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
+
+
   
   // Content editing states
   const [showCreateDestination, setShowCreateDestination] = useState(false);
   const [showEditDestination, setShowEditDestination] = useState(false);
   const [showViewDestination, setShowViewDestination] = useState(false);
+  const [showCreateGuide, setShowCreateGuide] = useState(false);
   const [showEditGuide, setShowEditGuide] = useState(false);
   const [showViewGuide, setShowViewGuide] = useState(false);
   const [selectedDestination, setSelectedDestination] = useState<any>(null);
@@ -163,6 +185,71 @@ export default function Admin() {
     showOnHomepage: true
   });
 
+  // Activities management state
+  const [showCreateActivity, setShowCreateActivity] = useState(false);
+  const [showEditActivity, setShowEditActivity] = useState(false);
+  const [showViewActivity, setShowViewActivity] = useState(false);
+  const [selectedActivity, setSelectedActivity] = useState<any>(null);
+  const [newActivity, setNewActivity] = useState({
+    name: '',
+    location: '',
+    category: '',
+    activityType: '',
+    description: '',
+    image: '',
+    alt: '',
+    content: '',
+    link: '',
+    featured: false,
+    published: true,
+    ranking: 0
+  });
+  const [createActivityData, setCreateActivityData] = useState({
+    name: '',
+    location: '',
+    category: '',
+    activityType: '',
+    description: '',
+    image: '',
+    alt: '',
+    content: '',
+    link: '',
+    featured: false,
+    published: false,
+    ranking: 0
+  });
+
+  const [editActivityData, setEditActivityData] = useState({
+    name: '',
+    location: '',
+    category: '',
+    activityType: '',
+    description: '',
+    image: '',
+    alt: '',
+    content: '',
+    link: '',
+    featured: false,
+    published: false,
+    ranking: 0
+  });
+
+  // Search configuration management state
+  const [showCreateSearchConfig, setShowCreateSearchConfig] = useState(false);
+  const [showEditSearchConfig, setShowEditSearchConfig] = useState(false);
+  const [showViewSearchConfig, setShowViewSearchConfig] = useState(false);
+  const [selectedSearchConfig, setSelectedSearchConfig] = useState<any>(null);
+  const [searchConfigData, setSearchConfigData] = useState({
+    context: '',
+    placeholderText: '',
+    searchScope: 'destinations',
+    enableLocationFilter: false,
+    enableCategoryFilter: false,
+    customInstructions: '',
+    redirectPattern: '',
+    isActive: true
+  });
+
   const { toast } = useToast();
 
   // Image upload helpers
@@ -196,6 +283,9 @@ export default function Admin() {
 
   // Location filter state
   const [locationFilter, setLocationFilter] = useState<string>('all');
+  const [guideFilter, setGuideFilter] = useState<string>('all');
+  const [activityLocationFilter, setActivityLocationFilter] = useState<string>('all');
+  const [activityCategoryFilter, setActivityCategoryFilter] = useState<string>('all');
 
   // Get unique locations from destinations for filter
   const getUniqueLocations = () => {
@@ -208,6 +298,19 @@ export default function Admin() {
     return locations;
   };
 
+  // Get unique titles from guides for filter (first word)
+  const getUniqueGuideCategories = () => {
+    if (!guidesQuery.data) return [];
+    const categories = guidesQuery.data
+      .map((guide: any) => {
+        const firstWord = guide.title.split(' ')[0];
+        return firstWord || 'Overig';
+      })
+      .filter((category: string, index: number, arr: string[]) => arr.indexOf(category) === index)
+      .sort();
+    return categories;
+  };
+
   // Filter destinations by location
   const getFilteredDestinations = () => {
     if (!destinationsQuery.data) return [];
@@ -215,17 +318,55 @@ export default function Admin() {
     return destinationsQuery.data.filter((dest: any) => dest.location === locationFilter);
   };
 
-  const [newGuide, setNewGuide] = useState({
-    title: '',
-    description: '',
-    image: '',
-    alt: '',
-    content: '',
-    link: '',
-    featured: false,
-    published: false,
-    ranking: 0
-  });
+  // Filter guides by category
+  const getFilteredGuides = () => {
+    if (!guidesQuery.data) return [];
+    if (guideFilter === 'all') return guidesQuery.data;
+    return guidesQuery.data.filter((guide: any) => {
+      const firstWord = guide.title.split(' ')[0] || 'Overig';
+      return firstWord === guideFilter;
+    });
+  };
+
+  // Get unique locations from activities for filter
+  const getUniqueActivityLocations = () => {
+    if (!activitiesQuery.data) return [];
+    const locations = activitiesQuery.data
+      .map((activity: any) => activity.location)
+      .filter((location: string) => location && location.trim() !== '')
+      .filter((location: string, index: number, arr: string[]) => arr.indexOf(location) === index)
+      .sort();
+    return locations;
+  };
+
+  // Get unique categories from activities for filter
+  const getUniqueActivityCategories = () => {
+    if (!activitiesQuery.data) return [];
+    const categories = activitiesQuery.data
+      .map((activity: any) => activity.category)
+      .filter((category: string) => category && category.trim() !== '')
+      .filter((category: string, index: number, arr: string[]) => arr.indexOf(category) === index)
+      .sort();
+    return categories;
+  };
+
+  // Filter activities by location
+  const getFilteredActivities = () => {
+    if (!activitiesQuery.data) return [];
+    let filtered = activitiesQuery.data;
+    
+    if (activityLocationFilter !== 'all') {
+      filtered = filtered.filter((activity: any) => activity.location === activityLocationFilter);
+    }
+    
+    if (activityCategoryFilter !== 'all') {
+      filtered = filtered.filter((activity: any) => activity.category === activityCategoryFilter);
+    }
+    
+    return filtered;
+  };
+
+
 
   // Site settings state
   const [siteSettings, setSiteSettings] = useState({
@@ -569,6 +710,105 @@ export default function Admin() {
     }
   };
 
+  // Search configuration handlers
+  const handleDeleteSearchConfig = async (id: number) => {
+    if (!confirm('Weet je zeker dat je deze zoek configuratie wilt verwijderen?')) {
+      return;
+    }
+    
+    try {
+      const response = await fetch(`/api/admin/search-configs/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        toast({ title: "Succes", description: "Zoek configuratie verwijderd" });
+        searchConfigsQuery.refetch();
+      } else {
+        const error = await response.json();
+        toast({ title: "Fout", description: error.message, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+    }
+  };
+
+  const handleCreateSearchConfig = async (data: any) => {
+    // Validatie van verplichte velden
+    if (!data.context || !data.placeholderText) {
+      toast({ 
+        title: "Validatiefout", 
+        description: "Context en placeholder tekst zijn verplicht", 
+        variant: "destructive" 
+      });
+      return;
+    }
+
+    try {
+      console.log('Creating search config with data:', data);
+      const response = await fetch('/api/admin/search-configs', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(data),
+      });
+      
+      console.log('Response status:', response.status);
+      
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Created search config:', result);
+        toast({ title: "Succes", description: "Zoek configuratie aangemaakt" });
+        searchConfigsQuery.refetch();
+        setShowCreateSearchConfig(false);
+        setSearchConfigData({
+          context: '',
+          placeholderText: '',
+          searchScope: 'destinations',
+          enableLocationFilter: false,
+          enableCategoryFilter: false,
+          customInstructions: '',
+          redirectPattern: '',
+          isActive: true
+        });
+      } else {
+        const error = await response.json();
+        console.error('Error creating search config:', error);
+        toast({ title: "Fout", description: error.message || "Onbekende fout", variant: "destructive" });
+      }
+    } catch (error) {
+      console.error('Network error creating search config:', error);
+      toast({ title: "Fout", description: "Er is een netwerkfout opgetreden", variant: "destructive" });
+    }
+  };
+
+  const handleUpdateSearchConfig = async (id: number, data: any) => {
+    try {
+      const response = await fetch(`/api/admin/search-configs/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(data),
+      });
+      
+      if (response.ok) {
+        toast({ title: "Succes", description: "Zoek configuratie bijgewerkt" });
+        searchConfigsQuery.refetch();
+        setShowEditSearchConfig(false);
+      } else {
+        const error = await response.json();
+        toast({ title: "Fout", description: error.message, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Fout", description: "Er is een fout opgetreden", variant: "destructive" });
+    }
+  };
+
   const handleToggleHighlightHomepage = async (id: number, showOnHomepage: boolean) => {
     try {
       const response = await fetch(`/api/admin/highlights/${id}/homepage`, {
@@ -817,102 +1057,7 @@ export default function Admin() {
     }
   };
 
-  const handleCreateGuide = async () => {
-    // Validate required fields
-    if (!newGuide.title.trim()) {
-      toast({
-        title: "Validatie fout",
-        description: "Titel is verplicht",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    if (!newGuide.description.trim()) {
-      toast({
-        title: "Validatie fout",
-        description: "Beschrijving is verplicht", 
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    if (!newGuide.image.trim()) {
-      toast({
-        title: "Validatie fout",
-        description: "Afbeelding is verplicht",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    if (!newGuide.alt.trim()) {
-      toast({
-        title: "Validatie fout",
-        description: "Alt-tekst is verplicht",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    if (!newGuide.content.trim()) {
-      toast({
-        title: "Validatie fout",
-        description: "Content is verplicht",
-        variant: "destructive",
-      });
-      return;
-    }
 
-    try {
-      console.log('Creating guide:', newGuide);
-      
-      const response = await fetch('/api/guides', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(newGuide),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Fout bij aanmaken reisgids');
-      }
-
-      const result = await response.json();
-      
-      toast({
-        title: "Succes",
-        description: `Reisgids "${newGuide.title}" is succesvol aangemaakt!`,
-      });
-      
-      // Reset form
-      setNewGuide({
-        title: '',
-        description: '',
-        image: '',
-        alt: '',
-        content: '',
-        link: '',
-        featured: false,
-        published: false,
-        ranking: 0
-      });
-
-      // Refresh data
-      guidesQuery.refetch();
-      
-    } catch (error) {
-      console.error('Error creating guide:', error);
-      toast({
-        title: "Fout",
-        description: error instanceof Error ? error.message : "Er is een fout opgetreden bij het aanmaken van de reisgids",
-        variant: "destructive",
-      });
-    }
-  };
 
   const handleSaveSiteSettings = async () => {
     try {
@@ -1057,22 +1202,22 @@ export default function Admin() {
           </Button>
         </div>
 
-        <Tabs defaultValue="content-manager" className="w-full">
+        <Tabs defaultValue="destinations" className="w-full">
           <TabsList className="h-auto w-full flex-wrap justify-start gap-2 p-2 bg-muted/30">
-            {/* Content Beheer */}
+            {/* Eerste regel: Bestemmingen, Activiteiten, Hoogtepunten, Reisgidsen */}
             {currentUser?.canCreateContent && (
-              <TabsTrigger value="content-manager" className="flex items-center gap-2">
-                🎯 Content Manager
-              </TabsTrigger>
+              <>
+                <TabsTrigger value="destinations" className="flex items-center gap-2">
+                  🏔️ Bestemmingen
+                </TabsTrigger>
+                <TabsTrigger value="activities" className="flex items-center gap-2">
+                  🎯 Activiteiten
+                </TabsTrigger>
+              </>
             )}
-            {currentUser?.canCreateContent && (
-              <TabsTrigger value="content-manager-1" className="flex items-center gap-2">
-                🎯 Content Manager 1
-              </TabsTrigger>
-            )}
-            {currentUser?.canCreateContent && (
-              <TabsTrigger value="destinations" className="flex items-center gap-2">
-                🏔️ Bestemmingen
+            {currentUser?.role === 'admin' && (
+              <TabsTrigger value="highlights" className="flex items-center gap-2">
+                ✨ Hoogtepunten
               </TabsTrigger>
             )}
             {currentUser?.canCreateContent && (
@@ -1081,11 +1226,8 @@ export default function Admin() {
               </TabsTrigger>
             )}
 
-            {currentUser?.canCreateContent && (
-              <TabsTrigger value="new-guide" className="flex items-center gap-2">
-                📝 Nieuwe Gids
-              </TabsTrigger>
-            )}
+            {/* Tweede regel: Pagina's en Templates */}
+            <div className="w-full" />
             {currentUser?.canCreateContent && (
               <TabsTrigger value="pages" className="flex items-center gap-2">
                 📄 Pagina's
@@ -1106,13 +1248,14 @@ export default function Admin() {
                 🎨 Templates
               </TabsTrigger>
             )}
-            {currentUser?.role === 'admin' && (
-              <TabsTrigger value="highlights" className="flex items-center gap-2">
-                ✨ Highlights
+            
+            {/* Derde regel: Beheer & Instellingen */}
+            <div className="w-full" />
+            {currentUser?.canEditContent && (
+              <TabsTrigger value="search-configs" className="flex items-center gap-2">
+                🔍 Zoekbalk CMS
               </TabsTrigger>
             )}
-            
-            {/* Beheer & Instellingen */}
             {(currentUser?.canDeleteContent || currentUser?.canEditContent) && (
               <TabsTrigger value="recycle" className="flex items-center gap-2">
                 <Trash2 className="h-4 w-4" />
@@ -1137,7 +1280,7 @@ export default function Admin() {
           </TabsList>
 
           {/* Content Manager - Unified CMS for Bestemmingen + Ontdek Meer */}
-          {currentUser?.canCreateContent && (
+          {false && currentUser?.canCreateContent && (
             <TabsContent value="content-manager" className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
@@ -1556,7 +1699,7 @@ export default function Admin() {
           )}
 
           {/* Content Manager 1 - Bestemmingen + Highlights */}
-          {currentUser?.canCreateContent && (
+          {false && currentUser?.canCreateContent && (
             <TabsContent value="content-manager-1" className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
@@ -2049,13 +2192,35 @@ export default function Admin() {
             <TabsContent value="guides" className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
-                  <h2 className="text-2xl font-semibold">Reisgidsen ({guidesQuery.data?.length || 0})</h2>
+                  <h2 className="text-2xl font-semibold">Reisgidsen ({getFilteredGuides().length} van {guidesQuery.data?.length || 0})</h2>
                   <p className="text-gray-600">Beheer al je Polish reisgidsen en tips</p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Select value={guideFilter} onValueChange={setGuideFilter}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Filter op categorie" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Alle categorieën</SelectItem>
+                      {getUniqueGuideCategories().map((category) => (
+                        <SelectItem key={category} value={category}>
+                          📖 {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button 
+                    onClick={() => setShowCreateGuide(true)}
+                    className="flex items-center gap-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Nieuwe Reisgids
+                  </Button>
                 </div>
               </div>
               
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {(guidesQuery.data || []).map((guide: any) => (
+              {getFilteredGuides().map((guide: any) => (
                 <Card key={guide.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader className="pb-3">
                     <div className="flex flex-col gap-3">
@@ -2064,6 +2229,9 @@ export default function Admin() {
                         <Badge variant="outline" className="text-xs">#{guide.ranking || 0}</Badge>
                       </div>
                       <div className="flex flex-wrap gap-2">
+                        <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                          📖 {guide.title.split(' ')[0] || 'Overig'}
+                        </Badge>
                         {guide.featured && <Badge variant="secondary" className="text-xs">⭐ Featured</Badge>}
                         <Badge variant={guide.published ? "default" : "outline"} className="text-xs">
                           {guide.published ? "✅ Gepubliceerd" : "📝 Concept"}
@@ -2075,17 +2243,29 @@ export default function Admin() {
                   </CardHeader>
                   <CardContent className="pt-0">
                     <div className="flex flex-col gap-3">
-                      {/* Quick Homepage Toggle */}
-                      <Button 
-                        size="sm" 
-                        variant={guide.showOnHomepage ? "default" : "outline"}
-                        onClick={() => handleToggleGuideHomepage(guide.id, !guide.showOnHomepage)}
-                        className="w-full"
-                      >
-                        {guide.showOnHomepage ? "🏠 Op Homepage" : "➕ Naar Homepage"}
-                      </Button>
+                      {guide.image && (
+                        <div className="relative h-32 w-full overflow-hidden rounded-md">
+                          <img 
+                            src={guide.image} 
+                            alt={guide.alt || guide.title}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      )}
                       
                       <div className="flex flex-wrap gap-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleToggleGuideHomepage(guide.id, !guide.showOnHomepage)}
+                          className="text-xs flex-1"
+                        >
+                          {guide.showOnHomepage ? (
+                            <>❌ Van Homepage</>
+                          ) : (
+                            <>✅ Op Homepage</>
+                          )}
+                        </Button>
                         <Button 
                           size="sm" 
                           variant="outline"
@@ -2105,32 +2285,37 @@ export default function Admin() {
                             });
                             setShowEditGuide(true);
                           }}
+                          className="text-xs"
                         >
-                          <Edit className="h-4 w-4 mr-2" />
+                          <Edit className="h-3 w-3 mr-1" />
                           Bewerken
                         </Button>
+                      </div>
+
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedGuide(guide);
+                          setShowViewGuide(true);
+                        }}
+                        className="text-xs w-full"
+                      >
+                        <Eye className="h-3 w-3 mr-1" />
+                        Bekijken
+                      </Button>
+                      
+                      {currentUser?.canDeleteContent && (
                         <Button 
                           size="sm" 
                           variant="outline"
-                          onClick={() => {
-                            setSelectedGuide(guide);
-                            setShowViewGuide(true);
-                          }}
+                          onClick={() => handleSoftDeleteGuide(guide.id)}
+                          className="text-xs w-full"
                         >
-                          <Eye className="h-4 w-4 mr-2" />
-                          Bekijken
+                          <Trash2 className="h-3 w-3 mr-1" />
+                          🗑️ Naar Prullenbak
                         </Button>
-                        {currentUser?.canDeleteContent && (
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => handleSoftDeleteGuide(guide.id)}
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            🗑️ Naar Prullenbak
-                          </Button>
-                        )}
-                      </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -2588,121 +2773,182 @@ export default function Admin() {
             </TabsContent>
           )}
 
-
-
-          {/* Nieuwe Reisgids */}
-          {currentUser?.canCreateContent && (
-            <TabsContent value="new-guide" className="space-y-4">
-              <Card>
-              <CardHeader>
-                <CardTitle>Nieuwe Reisgids Toevoegen</CardTitle>
-                <CardDescription>Voeg een nieuwe reisgids toe aan je website</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <Label htmlFor="guide-title">Titel <span className="text-red-500">*</span></Label>
-                    <Input
-                      id="guide-title"
-                      placeholder="Bijv. Weekend in Warsaw"
-                      value={newGuide.title}
-                      onChange={(e) => setNewGuide({...newGuide, title: e.target.value})}
-                      className={!newGuide.title.trim() ? "border-red-300" : ""}
-                    />
-                  </div>
-                  <ImageUploadField
-                    label="Afbeelding *"
-                    value={newGuide.image}
-                    onChange={(value) => setNewGuide({...newGuide, image: value})}
-                    placeholder="/images/guides/warsaw-guide.jpg"
-                    fileName={newGuide.title}
-                    destination="guides"
-                  />
-                </div>
-                
+          {/* Activiteiten Tab */}
+          <TabsContent value="activities" className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
-                  <Label htmlFor="guide-alt">Alt-tekst *</Label>
-                  <Input
-                    id="guide-alt"
-                    placeholder="Bijv. Krakow marktplein reisgids"
-                    value={newGuide.alt}
-                    onChange={(e) => setNewGuide({...newGuide, alt: e.target.value})}
-                    className={!newGuide.alt.trim() ? "border-red-300" : ""}
-                  />
+                  <h2 className="text-2xl font-semibold">Activiteiten ({getFilteredActivities().length} van {activitiesQuery.data?.length || 0})</h2>
+                  <p className="text-gray-600">Beheer activiteiten zoals musea, bergen, pleinen en restaurants</p>
                 </div>
-                
-                <div>
-                  <Label htmlFor="guide-description">Beschrijving <span className="text-red-500">*</span></Label>
-                  <Textarea
-                    id="guide-description"
-                    placeholder="Korte beschrijving van de reisgids..."
-                    value={newGuide.description}
-                    onChange={(e) => setNewGuide({...newGuide, description: e.target.value})}
-                    className={!newGuide.description.trim() ? "border-red-300" : ""}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="guide-content">Content (Markdown) <span className="text-red-500">*</span></Label>
-                  <Textarea
-                    id="guide-content"
-                    placeholder="# Titel&#10;&#10;Volledige reisgids in Markdown formaat..."
-                    className={`min-h-32 ${!newGuide.content.trim() ? "border-red-300" : ""}`}
-                    value={newGuide.content}
-                    onChange={(e) => setNewGuide({...newGuide, content: e.target.value})}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="guide-link">Link (optioneel)</Label>
-                  <Input
-                    id="guide-link"
-                    placeholder="Bijv. /krakow-gids of https://example.com"
-                    value={newGuide.link}
-                    onChange={(e) => setNewGuide({...newGuide, link: e.target.value})}
-                  />
-                  <p className="text-sm text-gray-500 mt-1">
-                    Link waar de afbeelding naartoe moet leiden. Gebruik interne links (bijv. /pagina) of externe links (bijv. https://website.com)
-                  </p>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-3">
-                  <div>
-                    <Label htmlFor="guide-ranking">Ranking</Label>
-                    <Input
-                      id="guide-ranking"
-                      type="number"
-                      placeholder="0"
-                      value={newGuide.ranking}
-                      onChange={(e) => setNewGuide({...newGuide, ranking: parseInt(e.target.value) || 0})}
-                    />
-                  </div>
-                  <div className="flex items-center space-x-2 pt-6">
-                    <Switch 
-                      id="guide-featured"
-                      checked={newGuide.featured}
-                      onCheckedChange={(checked) => setNewGuide({...newGuide, featured: checked})}
-                    />
-                    <Label htmlFor="guide-featured">Featured</Label>
-                  </div>
-                  <div className="flex items-center space-x-2 pt-6">
-                    <Switch 
-                      id="guide-published"
-                      checked={newGuide.published}
-                      onCheckedChange={(checked) => setNewGuide({...newGuide, published: checked})}
-                    />
-                    <Label htmlFor="guide-published">Publiceren</Label>
-                  </div>
-                </div>
-
-                <Button onClick={handleCreateGuide} className="w-full">
+                <Button onClick={() => {
+                  console.log("DEBUG: Nieuwe Activiteit clicked, current state:", showCreateActivity);
+                  setShowCreateActivity(true);
+                  console.log("DEBUG: After setShowCreateActivity(true)");
+                }} className="bg-green-600 hover:bg-green-700">
                   <Plus className="h-4 w-4 mr-2" />
-                  Reisgids Aanmaken
+                  Nieuwe Activiteit
                 </Button>
-              </CardContent>
-              </Card>
+              </div>
+
+              {/* Filter Controls */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex-1">
+                  <Label htmlFor="activity-location-filter">Filter op locatie</Label>
+                  <Select value={activityLocationFilter} onValueChange={setActivityLocationFilter}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Alle locaties" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Alle locaties ({activitiesQuery.data?.length || 0})</SelectItem>
+                      {getUniqueActivityLocations().map((location) => {
+                        const count = activitiesQuery.data?.filter((a: any) => a.location === location).length || 0;
+                        return (
+                          <SelectItem key={location} value={location}>
+                            {location} ({count})
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex-1">
+                  <Label htmlFor="activity-category-filter">Filter op categorie</Label>
+                  <Select value={activityCategoryFilter} onValueChange={setActivityCategoryFilter}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Alle categorieën" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Alle categorieën ({activitiesQuery.data?.length || 0})</SelectItem>
+                      {getUniqueActivityCategories().map((category) => {
+                        const count = activitiesQuery.data?.filter((a: any) => a.category === category).length || 0;
+                        return (
+                          <SelectItem key={category} value={category}>
+                            {category} ({count})
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Activities Grid */}
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {getFilteredActivities().map((activity: any) => (
+                  <Card key={activity.id} className="hover:shadow-lg transition-shadow">
+                    <div className="relative">
+                      {activity.image && (
+                        <div className="h-32 w-full overflow-hidden rounded-t-lg">
+                          <img
+                            src={activity.image}
+                            alt={activity.alt || activity.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <Badge variant="outline" className="absolute top-2 right-2 text-xs bg-white/90">
+                        #{activity.ranking || 0}
+                      </Badge>
+                    </div>
+                    <CardHeader className="pb-3">
+                      <div className="flex justify-between items-start gap-2">
+                        <CardTitle className="text-lg leading-tight">{activity.name}</CardTitle>
+                      </div>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        <Badge variant="secondary" className="text-xs">
+                          📍 {activity.location || 'Geen locatie'}
+                        </Badge>
+                        <Badge variant="outline" className="text-xs">
+                          🎯 {activity.category || 'Geen categorie'}
+                        </Badge>
+                        {activity.activityType && (
+                          <Badge variant="outline" className="text-xs">
+                            {activity.activityType}
+                          </Badge>
+                        )}
+                      </div>
+                      <CardDescription className="text-sm mt-2">{activity.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="flex flex-wrap gap-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => {
+                            console.log("Bewerken button clicked for activity:", activity.name);
+                            console.log("Setting selectedActivity:", activity);
+                            setSelectedActivity(activity);
+                            setEditActivityData({
+                              name: activity.name,
+                              location: activity.location || '',
+                              category: activity.category || '',
+                              activityType: activity.activityType || '',
+                              description: activity.description,
+                              image: activity.image,
+                              alt: activity.alt || '',
+                              content: activity.content || '',
+                              link: activity.link || '',
+                              featured: activity.featured,
+                              published: activity.published,
+                              ranking: activity.ranking || 0
+                            });
+                            console.log("Setting showEditActivity to true");
+                            setShowEditActivity(true);
+                          }}
+                          className="flex-1 text-xs"
+                        >
+                          <Edit className="h-3 w-3 mr-1" />
+                          Bewerken
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => {
+                            console.log("Bekijken button clicked for activity:", activity.name);
+                            setSelectedActivity(activity);
+                            setShowViewActivity(true);
+                          }}
+                          className="flex-1 text-xs"
+                        >
+                          <Eye className="h-3 w-3 mr-1" />
+                          Bekijken
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="destructive"
+                          onClick={() => handleDeleteActivity(activity.id, activity.name, activitiesQuery, toast)}
+                          className="text-xs"
+                        >
+                          <Trash2 className="h-3 w-3 mr-1" />
+                          Prullenbak
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {getFilteredActivities().length === 0 && (
+                <div className="text-center py-12">
+                  <div className="text-gray-400 mb-4">
+                    <Plus className="h-12 w-12 mx-auto" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-600 mb-2">Geen activiteiten gevonden</h3>
+                  <p className="text-gray-500 mb-4">
+                    {activitiesQuery.data?.length === 0 
+                      ? "Begin met het toevoegen van je eerste activiteit."
+                      : "Probeer je filters aan te passen om meer resultaten te zien."
+                    }
+                  </p>
+                  {activitiesQuery.data?.length === 0 && (
+                    <Button onClick={() => setShowCreateActivity(true)} className="bg-green-600 hover:bg-green-700">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Nieuwe Activiteit
+                    </Button>
+                  )}
+                </div>
+              )}
             </TabsContent>
-          )}
 
           {/* Gebruikersbeheer Tab - alleen voor admins */}
           {currentUser?.canManageUsers && (
@@ -2776,6 +3022,300 @@ export default function Admin() {
                   </Card>
                 ))}
               </div>
+            </TabsContent>
+          )}
+
+          {/* Search Configuration Tab */}
+          {currentUser?.canEditContent && (
+            <TabsContent value="search-configs" className="space-y-6">
+              {/* Debug information */}
+              <div className="bg-blue-50 p-3 rounded border text-sm">
+                <strong>Debug Info:</strong> 
+                <div>User can edit: {String(currentUser?.canEditContent)}</div>
+                <div>Search configs loading: {String(searchConfigsQuery.isLoading)}</div>
+                <div>Search configs error: {searchConfigsQuery.error ? String(searchConfigsQuery.error) : 'None'}</div>
+                <div>Search configs data: {searchConfigsQuery.data ? `${searchConfigsQuery.data.length} items` : 'No data'}</div>
+                <div>Dialog states: Create={String(showCreateSearchConfig)}, Edit={String(showEditSearchConfig)}, View={String(showViewSearchConfig)}</div>
+                <div>🔧 Test Buttons: 
+                  <button 
+                    onClick={() => {
+                      console.log('🔧 FORCE CREATE DIALOG TEST');
+                      setShowCreateSearchConfig(prev => {
+                        console.log('🔧 Previous state:', prev, 'Setting to:', !prev);
+                        return true;
+                      });
+                      // Force re-render
+                      setTimeout(() => {
+                        console.log('🔧 AFTER TIMEOUT - showCreateSearchConfig:', showCreateSearchConfig);
+                        const dialogs = document.querySelectorAll('[role="dialog"]');
+                        const divs = document.querySelectorAll('div[style*="position: fixed"]');
+                        console.log('🔧 Found dialogs:', dialogs.length);
+                        console.log('🔧 Found fixed divs:', divs.length);
+                        divs.forEach((div, i) => console.log(`🔧 Fixed Div ${i}:`, div));
+                      }, 500);
+                    }}
+                    style={{marginLeft: '10px', padding: '5px', background: 'red', color: 'white', border: 'none', borderRadius: '3px'}}
+                  >
+                    FORCE OPEN
+                  </button>
+                  <button 
+                    onClick={() => {
+                      console.log('🔧 FORCE RENDER TEST');
+                      setShowCreateSearchConfig(false);
+                      setTimeout(() => setShowCreateSearchConfig(true), 100);
+                    }}
+                    style={{marginLeft: '10px', padding: '5px', background: 'orange', color: 'white', border: 'none', borderRadius: '3px'}}
+                  >
+                    TOGGLE TEST
+                  </button>
+                </div>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <div>
+                  <h2 className="text-2xl font-semibold">Zoekbalk CMS</h2>
+                  <p className="text-gray-600">Beheer zoekfunctionaliteit en configuraties per context</p>
+                </div>
+                <Button 
+                  onClick={() => {
+                    console.log('🔵 Create search config button clicked');
+                    console.log('🔵 Current showCreateSearchConfig state:', showCreateSearchConfig);
+                    
+                    // Test state immediately
+                    const beforeState = showCreateSearchConfig;
+                    
+                    // Reset form data
+                    setSearchConfigData({
+                      context: '',
+                      placeholderText: '',
+                      searchScope: 'destinations',
+                      enableLocationFilter: false,
+                      enableCategoryFilter: false,
+                      customInstructions: '',
+                      redirectPattern: '',
+                      isActive: true
+                    });
+                    
+                    console.log('🔵 Setting showCreateSearchConfig to true');
+                    setShowCreateSearchConfig(true);
+                    
+                    // Check state change after a brief delay
+                    setTimeout(() => {
+                      console.log('🔵 State after timeout - before:', beforeState, 'after setting true, current:', showCreateSearchConfig);
+                    }, 100);
+                  }} 
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nieuwe Zoek Configuratie
+                </Button>
+              </div>
+
+              {/* Search Configurations List */}
+              <div className="space-y-4">
+                {searchConfigsQuery.data?.map((config: any) => (
+                  <Card key={config.id} className="border">
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-2 flex-1">
+                          <div className="flex items-center gap-3">
+                            <h3 className="text-lg font-semibold">{config.context}</h3>
+                            <Badge variant={config.isActive ? "default" : "secondary"}>
+                              {config.isActive ? "Actief" : "Inactief"}
+                            </Badge>
+                            <Badge variant="outline">{config.searchScope}</Badge>
+                          </div>
+                          <p className="text-gray-600">{config.placeholderText}</p>
+                          {config.customInstructions && (
+                            <p className="text-sm text-gray-500">{config.customInstructions}</p>
+                          )}
+                          <div className="flex gap-2">
+                            {config.enableLocationFilter && (
+                              <Badge variant="outline" className="text-xs">📍 Locatie filter</Badge>
+                            )}
+                            {config.enableCategoryFilter && (
+                              <Badge variant="outline" className="text-xs">🏷️ Categorie filter</Badge>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => {
+                              console.log('View search config clicked:', config);
+                              setSelectedSearchConfig(config);
+                              setShowViewSearchConfig(true);
+                            }}
+                          >
+                            <Eye className="h-4 w-4 mr-1" />
+                            Bekijk
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => {
+                              console.log('Edit search config clicked:', config);
+                              setSelectedSearchConfig(config);
+                              // Pre-populate form with current data
+                              setSearchConfigData({
+                                context: config.context || '',
+                                placeholderText: config.placeholderText || '',
+                                searchScope: config.searchScope || 'destinations',
+                                enableLocationFilter: Boolean(config.enableLocationFilter),
+                                enableCategoryFilter: Boolean(config.enableCategoryFilter),
+                                customInstructions: config.customInstructions || '',
+                                redirectPattern: config.redirectPattern || '',
+                                isActive: Boolean(config.isActive)
+                              });
+                              setShowEditSearchConfig(true);
+                            }}
+                          >
+                            <Edit className="h-4 w-4 mr-1" />
+                            Bewerk
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="destructive"
+                            onClick={() => handleDeleteSearchConfig(config.id)}
+                          >
+                            <Trash2 className="h-4 w-4 mr-1" />
+                            Verwijder
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Loading state */}
+              {searchConfigsQuery.isLoading && (
+                <div className="text-center py-8">
+                  <div className="text-gray-400">Zoek configuraties laden...</div>
+                </div>
+              )}
+
+              {/* Error state */}
+              {searchConfigsQuery.error && (
+                <div className="text-center py-8 text-red-600">
+                  <div>Fout bij laden: {String(searchConfigsQuery.error)}</div>
+                  <Button onClick={() => searchConfigsQuery.refetch()} className="mt-2">
+                    Opnieuw proberen
+                  </Button>
+                </div>
+              )}
+
+              {/* Empty state */}
+              {searchConfigsQuery.data?.length === 0 && !searchConfigsQuery.isLoading && (
+                <Card>
+                  <CardContent className="p-12 text-center">
+                    <div className="space-y-3">
+                      <div className="text-4xl">🔍</div>
+                      <h3 className="text-lg font-semibold">Geen zoek configuraties</h3>
+                      <p className="text-gray-600 max-w-md mx-auto">
+                        Maak je eerste zoek configuratie aan om de zoekfunctionaliteit te beheren
+                      </p>
+                      <Button 
+                        onClick={() => {
+                          console.log('Create first search config clicked');
+                          // Reset form data
+                          setSearchConfigData({
+                            context: '',
+                            placeholderText: '',
+                            searchScope: 'destinations',
+                            enableLocationFilter: false,
+                            enableCategoryFilter: false,
+                            customInstructions: '',
+                            redirectPattern: '',
+                            isActive: true
+                          });
+                          setShowCreateSearchConfig(true);
+                        }}
+                        className="bg-blue-600 hover:bg-blue-700 mt-4"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Eerste Configuratie Aanmaken
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Search Configuration Dialogs - MOVED INSIDE TAB */}
+              {console.log('🟥 RENDER CHECK INSIDE TAB: showCreateSearchConfig =', showCreateSearchConfig)}
+              {showCreateSearchConfig && (
+                <div 
+                  style={{
+                    position: 'fixed', 
+                    top: '0', 
+                    left: '0', 
+                    width: '100vw', 
+                    height: '100vh', 
+                    backgroundColor: 'rgba(0,0,0,0.5)', 
+                    zIndex: 9999,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  onClick={() => setShowCreateSearchConfig(false)}
+                >
+                  <div 
+                    style={{
+                      backgroundColor: 'white', 
+                      padding: '20px', 
+                      borderRadius: '8px',
+                      border: '2px solid red',
+                      maxWidth: '600px',
+                      width: '90%',
+                      maxHeight: '80vh',
+                      overflow: 'auto'
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <h2 style={{margin: '0 0 16px 0', fontSize: '20px', fontWeight: 'bold'}}>🔧 INSIDE TAB DIALOG - STATE: {String(showCreateSearchConfig)}</h2>
+                    <div style={{marginBottom: '16px', padding: '10px', backgroundColor: '#f0f0f0', fontSize: '14px'}}>
+                      <strong>Dialog State:</strong> showCreateSearchConfig = {String(showCreateSearchConfig)}
+                    </div>
+                    <div style={{marginBottom: '16px'}}>
+                      <label style={{display: 'block', marginBottom: '4px', fontWeight: 'bold'}}>Context:</label>
+                      <input 
+                        type="text" 
+                        value={searchConfigData.context}
+                        onChange={(e) => setSearchConfigData({...searchConfigData, context: e.target.value})}
+                        style={{width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px'}}
+                        placeholder="Context naam"
+                      />
+                    </div>
+                    <div style={{marginBottom: '16px'}}>
+                      <label style={{display: 'block', marginBottom: '4px', fontWeight: 'bold'}}>Placeholder Text:</label>
+                      <input 
+                        type="text" 
+                        value={searchConfigData.placeholderText}
+                        onChange={(e) => setSearchConfigData({...searchConfigData, placeholderText: e.target.value})}
+                        style={{width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px'}}
+                        placeholder="Placeholder tekst"
+                      />
+                    </div>
+                    <div style={{display: 'flex', gap: '10px', justifyContent: 'flex-end'}}>
+                      <button 
+                        onClick={() => setShowCreateSearchConfig(false)}
+                        style={{padding: '8px 16px', border: '1px solid #ccc', borderRadius: '4px', backgroundColor: '#f0f0f0'}}
+                      >
+                        Annuleren
+                      </button>
+                      <button 
+                        onClick={() => {
+                          console.log('🟢 INSIDE TAB DIALOG SUBMIT:', searchConfigData);
+                          handleCreateSearchConfig(searchConfigData);
+                        }}
+                        style={{padding: '8px 16px', border: 'none', borderRadius: '4px', backgroundColor: '#007bff', color: 'white'}}
+                      >
+                        Aanmaken
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </TabsContent>
           )}
 
@@ -3337,23 +3877,31 @@ export default function Admin() {
             </TabsContent>
           )}
 
-          {/* Templates Tab Content - Admin Only */}
-          {currentUser?.role === 'admin' && (
-            <TabsContent value="templates" className="space-y-6">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h2 className="text-2xl font-semibold">Templates</h2>
-                  <p className="text-gray-600">Beheer templates voor pagina's en content</p>
+          {/* Templates Tab Content */}
+          <TabsContent value="templates" className="space-y-6">
+            {currentUser && currentUser.role !== 'admin' ? (
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <p className="text-gray-600">Je hebt geen toegang tot deze functie. Alleen administrators kunnen templates beheren.</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h2 className="text-2xl font-semibold">Templates</h2>
+                    <p className="text-gray-600">Beheer templates voor pagina's en content</p>
+                  </div>
+                  <Button variant="outline" onClick={() => setShowCreateTemplate(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Nieuwe Template
+                  </Button>
                 </div>
-                <Button variant="outline" onClick={() => setShowCreateTemplate(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nieuwe Template
-                </Button>
-              </div>
-              
-              <TemplateManagement />
-            </TabsContent>
-          )}
+                
+                <TemplateManagement />
+              </>
+            )}
+          </TabsContent>
 
         </Tabs>
 
@@ -3551,6 +4099,52 @@ export default function Admin() {
               destinationsQuery.refetch();
               setShowCreateDestination(false);
             }}
+          />
+        )}
+
+        {/* Create Guide Dialog */}
+        {showCreateGuide && (
+          <CreateGuideDialog 
+            open={showCreateGuide} 
+            onOpenChange={setShowCreateGuide}
+            onGuideCreated={() => {
+              guidesQuery.refetch();
+              setShowCreateGuide(false);
+            }}
+          />
+        )}
+
+        {/* Activity Create Dialog */}
+        {showCreateActivity && (
+          <CreateActivityDialog 
+            open={showCreateActivity} 
+            onOpenChange={setShowCreateActivity}
+            onActivityCreated={() => {
+              activitiesQuery.refetch();
+              setShowCreateActivity(false);
+            }}
+          />
+        )}
+
+        {/* Activity Edit Dialog */}
+        {showEditActivity && selectedActivity && (
+          <EditActivityDialog 
+            open={showEditActivity} 
+            onOpenChange={setShowEditActivity}
+            activity={selectedActivity}
+            onActivityUpdated={() => {
+              activitiesQuery.refetch();
+              setShowEditActivity(false);
+            }}
+          />
+        )}
+
+        {/* Activity View Dialog */}
+        {showViewActivity && selectedActivity && (
+          <ViewActivityDialog 
+            open={showViewActivity} 
+            onOpenChange={setShowViewActivity}
+            activity={selectedActivity}
           />
         )}
       </div>
@@ -6901,6 +7495,468 @@ function PageManagement({ templates }: { templates: any[] }) {
           }}
         />
       )}
+
+      {/* Search Configuration Dialogs - FORCE RENDER TEST */}
+      {console.log('🟥 RENDER CHECK: showCreateSearchConfig =', showCreateSearchConfig)}
+      {(showCreateSearchConfig || false) && (
+        <div 
+          style={{
+            position: 'fixed', 
+            top: '0', 
+            left: '0', 
+            width: '100vw', 
+            height: '100vh', 
+            backgroundColor: 'rgba(0,0,0,0.5)', 
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+          onClick={() => setShowCreateSearchConfig(false)}
+        >
+          <div 
+            style={{
+              backgroundColor: 'white', 
+              padding: '20px', 
+              borderRadius: '8px',
+              border: '2px solid red',
+              maxWidth: '600px',
+              width: '90%',
+              maxHeight: '80vh',
+              overflow: 'auto'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 style={{margin: '0 0 16px 0', fontSize: '20px', fontWeight: 'bold'}}>🔧 DIRECT TEST DIALOG - STATE: {String(showCreateSearchConfig)}</h2>
+            <div style={{marginBottom: '16px', padding: '10px', backgroundColor: '#f0f0f0', fontSize: '14px'}}>
+              <strong>Dialog State:</strong> showCreateSearchConfig = {String(showCreateSearchConfig)}
+            </div>
+            <div style={{marginBottom: '16px'}}>
+              <label style={{display: 'block', marginBottom: '4px', fontWeight: 'bold'}}>Context:</label>
+              <input 
+                type="text" 
+                value={searchConfigData.context}
+                onChange={(e) => setSearchConfigData({...searchConfigData, context: e.target.value})}
+                style={{width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px'}}
+                placeholder="Context naam"
+              />
+            </div>
+            <div style={{marginBottom: '16px'}}>
+              <label style={{display: 'block', marginBottom: '4px', fontWeight: 'bold'}}>Placeholder Text:</label>
+              <input 
+                type="text" 
+                value={searchConfigData.placeholderText}
+                onChange={(e) => setSearchConfigData({...searchConfigData, placeholderText: e.target.value})}
+                style={{width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px'}}
+                placeholder="Placeholder tekst"
+              />
+            </div>
+            <div style={{display: 'flex', gap: '10px', justifyContent: 'flex-end'}}>
+              <button 
+                onClick={() => setShowCreateSearchConfig(false)}
+                style={{padding: '8px 16px', border: '1px solid #ccc', borderRadius: '4px', backgroundColor: '#f0f0f0'}}
+              >
+                Annuleren
+              </button>
+              <button 
+                onClick={() => {
+                  console.log('🟢 DIRECT DIALOG SUBMIT:', searchConfigData);
+                  handleCreateSearchConfig(searchConfigData);
+                }}
+                style={{padding: '8px 16px', border: 'none', borderRadius: '4px', backgroundColor: '#007bff', color: 'white'}}
+              >
+                Aanmaken
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* FALLBACK: Original Dialog (Hidden) */}
+      {false && showCreateSearchConfig && (
+        <Dialog open={showCreateSearchConfig} onOpenChange={(open) => {
+          console.log('🟢 Create dialog open state changed:', open);
+          setShowCreateSearchConfig(open);
+        }}>
+          <DialogContent className="max-w-2xl" style={{position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 9999, backgroundColor: 'white', border: '2px solid red'}}>
+            <DialogHeader>
+              <DialogTitle>Nieuwe Zoek Configuratie</DialogTitle>
+              <DialogDescription>
+                Maak een nieuwe zoek configuratie aan voor een specifieke context
+              </DialogDescription>
+            </DialogHeader>
+            {/* Debug form data */}
+            <div className="bg-gray-50 p-2 text-xs rounded">
+              <strong>Form Debug:</strong> 
+              <div>Dialog State: showCreateSearchConfig = {String(showCreateSearchConfig)}</div>
+              <div>Form Data: {JSON.stringify(searchConfigData, null, 2)}</div>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="context">Context *</Label>
+                <Input
+                  id="context"
+                  value={searchConfigData.context}
+                  onChange={(e) => {
+                    console.log('Context input changed:', e.target.value);
+                    setSearchConfigData({...searchConfigData, context: e.target.value});
+                  }}
+                  placeholder="Bijvoorbeeld: homepage, destination, global"
+                />
+              </div>
+              <div>
+                <Label htmlFor="placeholderText">Placeholder Tekst *</Label>
+                <Input
+                  id="placeholderText"
+                  value={searchConfigData.placeholderText}
+                  onChange={(e) => {
+                    console.log('Placeholder text changed:', e.target.value);
+                    setSearchConfigData({...searchConfigData, placeholderText: e.target.value});
+                  }}
+                  placeholder="Bijvoorbeeld: Zoek bestemmingen..."
+                />
+              </div>
+              <div>
+                <Label htmlFor="searchScope">Zoekbereik *</Label>
+                <select
+                  id="searchScope"
+                  value={searchConfigData.searchScope}
+                  onChange={(e) => setSearchConfigData({...searchConfigData, searchScope: e.target.value})}
+                  className="w-full p-2 border rounded-md"
+                >
+                  <option value="destinations">Bestemmingen</option>
+                  <option value="activities">Activiteiten</option>
+                  <option value="guides">Reisgidsen</option>
+                  <option value="all">Alles</option>
+                </select>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="enableLocationFilter"
+                    checked={searchConfigData.enableLocationFilter}
+                    onCheckedChange={(checked) => setSearchConfigData({...searchConfigData, enableLocationFilter: checked})}
+                  />
+                  <Label htmlFor="enableLocationFilter">Locatie filter inschakelen</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="enableCategoryFilter"
+                    checked={searchConfigData.enableCategoryFilter}
+                    onCheckedChange={(checked) => setSearchConfigData({...searchConfigData, enableCategoryFilter: checked})}
+                  />
+                  <Label htmlFor="enableCategoryFilter">Categorie filter inschakelen</Label>
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="redirectPattern">Redirect Patroon</Label>
+                <Input
+                  id="redirectPattern"
+                  value={searchConfigData.redirectPattern}
+                  onChange={(e) => setSearchConfigData({...searchConfigData, redirectPattern: e.target.value})}
+                  placeholder="Bijvoorbeeld: /{slug} of /search?q={query}"
+                />
+              </div>
+              <div>
+                <Label htmlFor="customInstructions">Aangepaste Instructies</Label>
+                <Textarea
+                  id="customInstructions"
+                  value={searchConfigData.customInstructions}
+                  onChange={(e) => setSearchConfigData({...searchConfigData, customInstructions: e.target.value})}
+                  placeholder="Extra instructies voor deze zoek configuratie"
+                  rows={3}
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="isActive"
+                  checked={searchConfigData.isActive}
+                  onCheckedChange={(checked) => setSearchConfigData({...searchConfigData, isActive: checked})}
+                />
+                <Label htmlFor="isActive">Configuratie actief</Label>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => {
+                console.log('Cancel create search config');
+                setShowCreateSearchConfig(false);
+              }}>
+                Annuleren
+              </Button>
+              <Button onClick={() => {
+                console.log('🟢 Submit create search config with data:', searchConfigData);
+                console.log('🟢 Calling handleCreateSearchConfig...');
+                handleCreateSearchConfig(searchConfigData);
+              }}>
+                Aanmaken
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {showEditSearchConfig && selectedSearchConfig && (
+        <Dialog open={showEditSearchConfig} onOpenChange={(open) => {
+          console.log('🟡 Edit dialog open state changed:', open);
+          if (!open) {
+            setShowEditSearchConfig(false);
+            setSelectedSearchConfig(null);
+          }
+        }}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Zoek Configuratie Bewerken</DialogTitle>
+              <DialogDescription>
+                Bewerk de zoek configuratie voor {selectedSearchConfig.context}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="edit-context">Context *</Label>
+                <Input
+                  id="edit-context"
+                  value={searchConfigData.context}
+                  onChange={(e) => setSearchConfigData({...searchConfigData, context: e.target.value})}
+                  placeholder="Bijvoorbeeld: homepage, destination, global"
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-placeholderText">Placeholder Tekst *</Label>
+                <Input
+                  id="edit-placeholderText"
+                  value={searchConfigData.placeholderText}
+                  onChange={(e) => setSearchConfigData({...searchConfigData, placeholderText: e.target.value})}
+                  placeholder="Bijvoorbeeld: Zoek bestemmingen..."
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-searchScope">Zoekbereik *</Label>
+                <select
+                  id="edit-searchScope"
+                  value={searchConfigData.searchScope}
+                  onChange={(e) => setSearchConfigData({...searchConfigData, searchScope: e.target.value})}
+                  className="w-full p-2 border rounded-md"
+                >
+                  <option value="destinations">Bestemmingen</option>
+                  <option value="activities">Activiteiten</option>
+                  <option value="guides">Reisgidsen</option>
+                  <option value="all">Alles</option>
+                </select>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="edit-enableLocationFilter"
+                    checked={searchConfigData.enableLocationFilter}
+                    onCheckedChange={(checked) => setSearchConfigData({...searchConfigData, enableLocationFilter: checked})}
+                  />
+                  <Label htmlFor="edit-enableLocationFilter">Locatie filter inschakelen</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="edit-enableCategoryFilter"
+                    checked={searchConfigData.enableCategoryFilter}
+                    onCheckedChange={(checked) => setSearchConfigData({...searchConfigData, enableCategoryFilter: checked})}
+                  />
+                  <Label htmlFor="edit-enableCategoryFilter">Categorie filter inschakelen</Label>
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="edit-redirectPattern">Redirect Patroon</Label>
+                <Input
+                  id="edit-redirectPattern"
+                  value={searchConfigData.redirectPattern}
+                  onChange={(e) => setSearchConfigData({...searchConfigData, redirectPattern: e.target.value})}
+                  placeholder="Bijvoorbeeld: /{slug} of /search?q={query}"
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-customInstructions">Aangepaste Instructies</Label>
+                <Textarea
+                  id="edit-customInstructions"
+                  value={searchConfigData.customInstructions}
+                  onChange={(e) => setSearchConfigData({...searchConfigData, customInstructions: e.target.value})}
+                  placeholder="Extra instructies voor deze zoek configuratie"
+                  rows={3}
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="edit-isActive"
+                  checked={searchConfigData.isActive}
+                  onCheckedChange={(checked) => setSearchConfigData({...searchConfigData, isActive: checked})}
+                />
+                <Label htmlFor="edit-isActive">Configuratie actief</Label>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => {
+                console.log('Cancel edit search config');
+                setShowEditSearchConfig(false);
+              }}>
+                Annuleren
+              </Button>
+              <Button onClick={() => {
+                console.log('Submit edit search config with data:', searchConfigData);
+                handleUpdateSearchConfig(selectedSearchConfig.id, searchConfigData);
+              }}>
+                Bijwerken
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {showViewSearchConfig && selectedSearchConfig && (
+        <Dialog open={showViewSearchConfig} onOpenChange={(open) => {
+          console.log('🟠 View dialog open state changed:', open);
+          if (!open) {
+            setShowViewSearchConfig(false);
+            setSelectedSearchConfig(null);
+          }
+        }}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Zoek Configuratie Details</DialogTitle>
+              <DialogDescription>
+                Details van zoek configuratie: {selectedSearchConfig?.context || 'Onbekend'}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="font-semibold">Context</Label>
+                  <p className="text-sm text-gray-600">{selectedSearchConfig?.context || 'Onbekend'}</p>
+                </div>
+                <div>
+                  <Label className="font-semibold">Status</Label>
+                  <p className="text-sm text-gray-600">
+                    <Badge variant={selectedSearchConfig?.isActive ? "default" : "secondary"}>
+                      {selectedSearchConfig?.isActive ? "Actief" : "Inactief"}
+                    </Badge>
+                  </p>
+                </div>
+              </div>
+              <div>
+                <Label className="font-semibold">Placeholder Tekst</Label>
+                <p className="text-sm text-gray-600">{selectedSearchConfig?.placeholderText || 'Geen tekst'}</p>
+              </div>
+              <div>
+                <Label className="font-semibold">Zoekbereik</Label>
+                <p className="text-sm text-gray-600">
+                  <Badge variant="outline">{selectedSearchConfig.searchScope}</Badge>
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="font-semibold">Locatie Filter</Label>
+                  <p className="text-sm text-gray-600">
+                    {selectedSearchConfig.enableLocationFilter ? "Ingeschakeld" : "Uitgeschakeld"}
+                  </p>
+                </div>
+                <div>
+                  <Label className="font-semibold">Categorie Filter</Label>
+                  <p className="text-sm text-gray-600">
+                    {selectedSearchConfig.enableCategoryFilter ? "Ingeschakeld" : "Uitgeschakeld"}
+                  </p>
+                </div>
+              </div>
+              {selectedSearchConfig.redirectPattern && (
+                <div>
+                  <Label className="font-semibold">Redirect Patroon</Label>
+                  <p className="text-sm text-gray-600">{selectedSearchConfig.redirectPattern}</p>
+                </div>
+              )}
+              {selectedSearchConfig.customInstructions && (
+                <div>
+                  <Label className="font-semibold">Aangepaste Instructies</Label>
+                  <p className="text-sm text-gray-600">{selectedSearchConfig.customInstructions}</p>
+                </div>
+              )}
+              <div className="grid grid-cols-2 gap-4 text-xs text-gray-500">
+                <div>
+                  <Label className="font-semibold">Aangemaakt</Label>
+                  <p>{new Date(selectedSearchConfig.createdAt).toLocaleString('nl-NL')}</p>
+                </div>
+                <div>
+                  <Label className="font-semibold">Laatst bijgewerkt</Label>
+                  <p>{new Date(selectedSearchConfig.updatedAt).toLocaleString('nl-NL')}</p>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowViewSearchConfig(false)}>
+                Sluiten
+              </Button>
+              <Button onClick={() => {
+                console.log('Switch from view to edit search config');
+                setSearchConfigData({
+                  context: selectedSearchConfig.context || '',
+                  placeholderText: selectedSearchConfig.placeholderText || '',
+                  searchScope: selectedSearchConfig.searchScope || 'destinations',
+                  enableLocationFilter: Boolean(selectedSearchConfig.enableLocationFilter),
+                  enableCategoryFilter: Boolean(selectedSearchConfig.enableCategoryFilter),
+                  customInstructions: selectedSearchConfig.customInstructions || '',
+                  redirectPattern: selectedSearchConfig.redirectPattern || '',
+                  isActive: Boolean(selectedSearchConfig.isActive)
+                });
+                setShowViewSearchConfig(false);
+                setShowEditSearchConfig(true);
+              }}>
+                <Edit className="h-4 w-4 mr-2" />
+                Bewerken
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Activity dialogs */}
+      {showEditActivity && selectedActivity && (
+        <EditActivityDialog
+          open={showEditActivity}
+          onOpenChange={setShowEditActivity}
+          activity={selectedActivity}
+          onActivityUpdated={() => {
+            activitiesQuery.refetch();
+            setShowEditActivity(false);
+          }}
+        />
+      )}
+
+      {showViewActivity && selectedActivity && (
+        <ViewActivityDialog
+          open={showViewActivity}
+          onOpenChange={setShowViewActivity}
+          activity={selectedActivity}
+        />
+      )}
     </div>
   );
+}
+
+// Activity Delete Function
+async function handleDeleteActivity(activityId: number, activityName: string, activitiesQuery: any, toast: any) {
+  try {
+    const response = await fetch(`/api/admin/activities/${activityId}/soft-delete`, {
+      method: 'PATCH',
+      credentials: 'include'
+    });
+
+    if (response.ok) {
+      toast({ 
+        title: "Activiteit verwijderd", 
+        description: `${activityName} is naar de prullenbak verplaatst` 
+      });
+      activitiesQuery.refetch();
+    } else {
+      throw new Error('Fout bij verwijderen activiteit');
+    }
+  } catch (error) {
+    toast({ 
+      title: "Fout", 
+      description: "Er is een fout opgetreden bij het verwijderen", 
+      variant: "destructive" 
+    });
+  }
 }
