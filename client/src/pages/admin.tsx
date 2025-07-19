@@ -3042,10 +3042,17 @@ export default function Admin() {
                       console.log('🔧 FORCE CREATE DIALOG TEST');
                       setShowCreateSearchConfig(true);
                       console.log('🔧 showCreateSearchConfig set to:', true);
+                      // Force re-render
+                      setTimeout(() => {
+                        console.log('🔧 AFTER TIMEOUT - showCreateSearchConfig:', showCreateSearchConfig);
+                        const dialogs = document.querySelectorAll('[role="dialog"]');
+                        console.log('🔧 Found dialogs:', dialogs.length);
+                        dialogs.forEach((dialog, i) => console.log(`🔧 Dialog ${i}:`, dialog));
+                      }, 500);
                     }}
                     style={{marginLeft: '10px', padding: '5px', background: 'red', color: 'white', border: 'none', borderRadius: '3px'}}
                   >
-                    FORCE OPEN
+                    FORCE OPEN + DEBUG
                   </button>
                 </div>
               </div>
@@ -7401,11 +7408,86 @@ function PageManagement({ templates }: { templates: any[] }) {
 
       {/* Search Configuration Dialogs */}
       {showCreateSearchConfig && (
+        <div 
+          style={{
+            position: 'fixed', 
+            top: '0', 
+            left: '0', 
+            width: '100vw', 
+            height: '100vh', 
+            backgroundColor: 'rgba(0,0,0,0.5)', 
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+          onClick={() => setShowCreateSearchConfig(false)}
+        >
+          <div 
+            style={{
+              backgroundColor: 'white', 
+              padding: '20px', 
+              borderRadius: '8px',
+              border: '2px solid red',
+              maxWidth: '600px',
+              width: '90%',
+              maxHeight: '80vh',
+              overflow: 'auto'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 style={{margin: '0 0 16px 0', fontSize: '20px', fontWeight: 'bold'}}>🔧 DIRECT TEST DIALOG</h2>
+            <div style={{marginBottom: '16px', padding: '10px', backgroundColor: '#f0f0f0', fontSize: '14px'}}>
+              <strong>Dialog State:</strong> showCreateSearchConfig = {String(showCreateSearchConfig)}
+            </div>
+            <div style={{marginBottom: '16px'}}>
+              <label style={{display: 'block', marginBottom: '4px', fontWeight: 'bold'}}>Context:</label>
+              <input 
+                type="text" 
+                value={searchConfigData.context}
+                onChange={(e) => setSearchConfigData({...searchConfigData, context: e.target.value})}
+                style={{width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px'}}
+                placeholder="Context naam"
+              />
+            </div>
+            <div style={{marginBottom: '16px'}}>
+              <label style={{display: 'block', marginBottom: '4px', fontWeight: 'bold'}}>Placeholder Text:</label>
+              <input 
+                type="text" 
+                value={searchConfigData.placeholderText}
+                onChange={(e) => setSearchConfigData({...searchConfigData, placeholderText: e.target.value})}
+                style={{width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px'}}
+                placeholder="Placeholder tekst"
+              />
+            </div>
+            <div style={{display: 'flex', gap: '10px', justifyContent: 'flex-end'}}>
+              <button 
+                onClick={() => setShowCreateSearchConfig(false)}
+                style={{padding: '8px 16px', border: '1px solid #ccc', borderRadius: '4px', backgroundColor: '#f0f0f0'}}
+              >
+                Annuleren
+              </button>
+              <button 
+                onClick={() => {
+                  console.log('🟢 DIRECT DIALOG SUBMIT:', searchConfigData);
+                  handleCreateSearchConfig(searchConfigData);
+                }}
+                style={{padding: '8px 16px', border: 'none', borderRadius: '4px', backgroundColor: '#007bff', color: 'white'}}
+              >
+                Aanmaken
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* FALLBACK: Original Dialog (Hidden) */}
+      {false && showCreateSearchConfig && (
         <Dialog open={showCreateSearchConfig} onOpenChange={(open) => {
           console.log('🟢 Create dialog open state changed:', open);
           setShowCreateSearchConfig(open);
         }}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl" style={{position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 9999, backgroundColor: 'white', border: '2px solid red'}}>
             <DialogHeader>
               <DialogTitle>Nieuwe Zoek Configuratie</DialogTitle>
               <DialogDescription>
