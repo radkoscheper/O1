@@ -12,6 +12,14 @@ export default function Home() {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   
+  // Close search handler that preserves ability to re-search
+  const closeSearch = () => {
+    console.log('Closing search overlay');
+    setShowSearchResults(false);
+    setIsSearching(false);
+    // Keep searchQuery and searchResults so user can re-open same search
+  };
+  
   // Fetch destinations and guides from API (homepage specific)
   const { data: destinations = [], isLoading: destinationsLoading } = useQuery({
     queryKey: ["/api/destinations/homepage"],
@@ -159,6 +167,14 @@ export default function Home() {
     if (!searchQuery.trim()) return;
     
     console.log('Starting search for:', searchQuery);
+    
+    // If we already have results for this query and overlay is closed, just show it again
+    if (searchResults.length > 0 && !showSearchResults) {
+      console.log('Re-opening existing search results');
+      setShowSearchResults(true);
+      return;
+    }
+    
     setIsSearching(true);
     setShowSearchResults(true);
     
@@ -264,7 +280,7 @@ export default function Home() {
       {showSearchResults && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-40 z-50"
-          onClick={() => setShowSearchResults(false)}
+          onClick={closeSearch}
         >
           <div 
             className="absolute top-80 left-1/2 transform -translate-x-1/2 bg-white rounded-lg shadow-2xl p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto border-2 border-blue-200"
@@ -275,7 +291,7 @@ export default function Home() {
                 Zoekresultaten{searchQuery && ` voor "${searchQuery}"`}
               </h3>
               <button 
-                onClick={() => setShowSearchResults(false)}
+                onClick={closeSearch}
                 className="text-gray-500 hover:text-gray-700 text-2xl leading-none"
               >
                 ×

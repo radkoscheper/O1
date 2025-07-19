@@ -14,6 +14,14 @@ export default function Page() {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   
+  // Close search handler that preserves ability to re-search
+  const closeSearch = () => {
+    console.log('Closing search overlay');
+    setShowSearchResults(false);
+    setIsSearching(false);
+    // Keep searchQuery and searchResults so user can re-open same search
+  };
+  
   const { data: page, isLoading, error } = useQuery({
     queryKey: ['/api/pages', slug],
     queryFn: async () => {
@@ -125,6 +133,15 @@ export default function Page() {
     e.preventDefault();
     if (!searchQuery.trim()) return;
     
+    console.log('Starting destination page search for:', searchQuery);
+    
+    // If we already have results for this query and overlay is closed, just show it again
+    if (searchResults.length > 0 && !showSearchResults) {
+      console.log('Re-opening existing search results');
+      setShowSearchResults(true);
+      return;
+    }
+    
     setIsSearching(true);
     setShowSearchResults(true);
     
@@ -138,9 +155,11 @@ export default function Page() {
         url += `&location=${encodeURIComponent(page.title)}`;
       }
       
+      console.log('Fetching:', url);
       const response = await fetch(url);
       const data = await response.json();
       
+      console.log('Search results:', data);
       setSearchResults(data.results || []);
       
       // Auto-redirect logic if configured
@@ -205,7 +224,7 @@ export default function Page() {
             Mooie plekken in {page.title} ontdekken
           </p>
           
-          <form onSubmit={handleSearch} className="mt-5 mb-5">
+          <form onSubmit={handleSearch} className="mt-5 mb-5 relative">
             <div className="relative inline-block">
               <Input
                 type="text"
@@ -216,6 +235,12 @@ export default function Page() {
               />
               <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
             </div>
+            {/* Debug state indicator */}
+            {showSearchResults && (
+              <div className="absolute top-16 left-0 bg-red-500 text-white px-2 py-1 text-xs rounded">
+                Search Active: {isSearching ? 'Searching...' : `${searchResults.length} results`}
+              </div>
+            )}
           </form>
           
 
@@ -236,11 +261,11 @@ export default function Page() {
       {/* Search Results Overlay */}
       {showSearchResults && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-30 z-50"
-          onClick={() => setShowSearchResults(false)}
+          className="fixed inset-0 bg-black bg-opacity-40 z-50"
+          onClick={closeSearch}
         >
           <div 
-            className="absolute top-72 left-1/2 transform -translate-x-1/2 bg-white rounded-lg shadow-2xl p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto"
+            className="absolute top-80 left-1/2 transform -translate-x-1/2 bg-white rounded-lg shadow-2xl p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto border-2 border-blue-200"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-4">
@@ -248,7 +273,7 @@ export default function Page() {
                 Zoekresultaten{searchQuery && ` voor "${searchQuery}"`}
               </h3>
               <button 
-                onClick={() => setShowSearchResults(false)}
+                onClick={closeSearch}
                 className="text-gray-500 hover:text-gray-700 text-2xl leading-none"
               >
                 ×
