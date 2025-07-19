@@ -218,56 +218,7 @@ export default function Page() {
             </div>
           </form>
           
-          {/* Search Results */}
-          {showSearchResults && (
-            <div className="mt-6 bg-white rounded-lg shadow-lg p-4 max-w-2xl mx-auto">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Zoekresultaten{searchQuery && ` voor "${searchQuery}"`}
-                </h3>
-                <button 
-                  onClick={() => setShowSearchResults(false)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  ×
-                </button>
-              </div>
-              
-              {isSearching ? (
-                <div className="text-center py-4">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
-                  <p className="mt-2 text-gray-600">Zoeken...</p>
-                </div>
-              ) : searchResults.length > 0 ? (
-                <div className="space-y-2">
-                  {searchResults.map((result: any) => (
-                    <Link key={result.id} href={result.link || `/${result.slug}`}>
-                      <div className="p-3 hover:bg-gray-50 rounded-lg cursor-pointer border border-gray-200">
-                        <div className="flex items-center space-x-3">
-                          {result.image && (
-                            <img 
-                              src={result.image} 
-                              alt={result.alt || result.name} 
-                              className="w-12 h-12 object-cover rounded"
-                            />
-                          )}
-                          <div className="flex-1">
-                            <h4 className="font-medium text-gray-900">{result.name || result.title}</h4>
-                            <p className="text-sm text-gray-600">{result.description}</p>
-                            <span className="text-xs text-blue-600 capitalize">{result.type}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-600 text-center py-4">
-                  Geen resultaten gevonden voor "{searchQuery}"
-                </p>
-              )}
-            </div>
-          )}
+
           
           <Button
             asChild
@@ -281,6 +232,72 @@ export default function Page() {
           </Button>
         </div>
       </header>
+
+      {/* Floating Search Results Overlay */}
+      {showSearchResults && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-start justify-center pt-20"
+          onClick={() => setShowSearchResults(false)}
+        >
+          <div 
+            className="bg-white rounded-lg shadow-2xl p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Zoekresultaten{searchQuery && ` voor "${searchQuery}"`}
+              </h3>
+              <button 
+                onClick={() => setShowSearchResults(false)}
+                className="text-gray-500 hover:text-gray-700 text-2xl leading-none"
+              >
+                ×
+              </button>
+            </div>
+            
+            {isSearching ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="mt-4 text-gray-600">Zoeken...</p>
+              </div>
+            ) : searchResults.length > 0 ? (
+              <div className="space-y-3">
+                {searchResults.map((result: any) => (
+                  <Link key={result.id} href={result.link || `/${result.slug}`}>
+                    <div className="p-4 hover:bg-gray-50 rounded-lg cursor-pointer border border-gray-200 transition-all duration-200">
+                      <div className="flex items-center space-x-4">
+                        {result.image && (
+                          <img 
+                            src={result.image} 
+                            alt={result.alt || result.name} 
+                            className="w-16 h-16 object-cover rounded-lg"
+                          />
+                        )}
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-gray-900 mb-1">{result.name || result.title}</h4>
+                          <p className="text-sm text-gray-600 mb-2">{result.description}</p>
+                          <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded capitalize">
+                            {result.type}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-600">
+                  Geen resultaten gevonden voor "{searchQuery}"
+                </p>
+                <p className="text-sm text-gray-500 mt-2">
+                  Probeer een andere zoekterm
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Highlight Section - same style as homepage destination grid */}
       {page.highlightSections && (
