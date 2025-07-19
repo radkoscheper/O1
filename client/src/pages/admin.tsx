@@ -1141,7 +1141,7 @@ export default function Admin() {
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">CMS Admin Panel</h1>
             <div className="text-gray-600">
-              Beheer je content voor Ontdek Polen
+              Hoi {currentUser?.username}, beheer je content voor Ontdek Polen
               {isSimpleMode && <Badge variant="secondary" className="ml-2">Lokale Modus</Badge>}
             </div>
           </div>
