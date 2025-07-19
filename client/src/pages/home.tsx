@@ -363,28 +363,58 @@ export default function Home() {
               </div>
             ) : searchResults.length > 0 ? (
               <div className="space-y-3">
-                {searchResults.map((result: any) => (
-                  <Link key={result.id} href={result.link || `/${result.slug}`}>
-                    <div className="p-4 hover:bg-gray-50 rounded-lg cursor-pointer border border-gray-200 transition-all duration-200">
-                      <div className="flex items-center space-x-4">
-                        {result.image && (
-                          <img 
-                            src={result.image} 
-                            alt={result.alt || result.name} 
-                            className="w-16 h-16 object-cover rounded-lg"
-                          />
-                        )}
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-gray-900 mb-1">{result.name || result.title}</h4>
-                          <p className="text-sm text-gray-600 mb-2">{result.description}</p>
-                          <span className={`text-xs px-2 py-1 rounded capitalize ${getTypeStyles(result.type)}`}>
-                            {getTypeLabel(result.type)}
-                          </span>
+                {searchResults.map((result: any) => {
+                  const isExternalLink = result.link && (result.link.startsWith('http://') || result.link.startsWith('https://'));
+                  const href = result.link || `/${result.slug}`;
+                  
+                  if (isExternalLink) {
+                    return (
+                      <a key={result.id} href={href} target="_blank" rel="noopener noreferrer">
+                        <div className="p-4 hover:bg-gray-50 rounded-lg cursor-pointer border border-gray-200 transition-all duration-200">
+                          <div className="flex items-center space-x-4">
+                            {result.image && (
+                              <img 
+                                src={result.image} 
+                                alt={result.alt || result.name} 
+                                className="w-16 h-16 object-cover rounded-lg"
+                              />
+                            )}
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-gray-900 mb-1">{result.name || result.title}</h4>
+                              <p className="text-sm text-gray-600 mb-2">{result.description}</p>
+                              <span className={`text-xs px-2 py-1 rounded capitalize ${getTypeStyles(result.type)}`}>
+                                {getTypeLabel(result.type)}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
+                      </a>
+                    );
+                  } else {
+                    return (
+                      <Link key={result.id} href={href}>
+                        <div className="p-4 hover:bg-gray-50 rounded-lg cursor-pointer border border-gray-200 transition-all duration-200">
+                          <div className="flex items-center space-x-4">
+                            {result.image && (
+                              <img 
+                                src={result.image} 
+                                alt={result.alt || result.name} 
+                                className="w-16 h-16 object-cover rounded-lg"
+                              />
+                            )}
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-gray-900 mb-1">{result.name || result.title}</h4>
+                              <p className="text-sm text-gray-600 mb-2">{result.description}</p>
+                              <span className={`text-xs px-2 py-1 rounded capitalize ${getTypeStyles(result.type)}`}>
+                                {getTypeLabel(result.type)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    );
+                  }
+                })}
               </div>
             ) : (
               <div className="text-center py-8">
