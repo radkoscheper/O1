@@ -3018,8 +3018,13 @@ export default function Admin() {
                             size="sm" 
                             variant="outline"
                             onClick={() => {
-                              console.log('🔧 DIRECT ALERT TEST:', config.context);
-                              alert(`Zoek configuratie: ${config.context}\nPlaceholder: ${config.placeholderText}\nZoekbereik: ${config.searchScope}\nStatus: ${config.isActive ? 'Actief' : 'Inactief'}`);
+                              console.log('👁️ View clicked - Before:', { showViewSearchConfig, selectedSearchConfig });
+                              setSelectedSearchConfig(config);
+                              setShowViewSearchConfig(true);
+                              console.log('👁️ View clicked - After state update');
+                              setTimeout(() => {
+                                console.log('👁️ View clicked - After timeout:', { showViewSearchConfig, selectedSearchConfig });
+                              }, 100);
                             }}
                           >
                             <Eye className="h-4 w-4 mr-1" />
@@ -3749,6 +3754,15 @@ export default function Admin() {
             open={showViewDestination} 
             onOpenChange={setShowViewDestination}
             destination={selectedDestination}
+          />
+        )}
+
+        {/* View Search Config Dialog */}
+        {showViewSearchConfig && selectedSearchConfig && (
+          <ViewSearchConfigDialog 
+            open={showViewSearchConfig} 
+            onOpenChange={setShowViewSearchConfig}
+            searchConfig={selectedSearchConfig}
           />
         )}
 
@@ -5674,6 +5688,73 @@ function ViewDestinationDialog({ open, onOpenChange, destination }: {
             <Badge variant={destination?.published ? "default" : "outline"}>
               {destination?.published ? "Gepubliceerd" : "Concept"}
             </Badge>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button onClick={() => onOpenChange(false)}>Sluiten</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Component voor zoek configuratie bekijken
+function ViewSearchConfigDialog({ open, onOpenChange, searchConfig }: { 
+  open: boolean; 
+  onOpenChange: (open: boolean) => void;
+  searchConfig: any;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{searchConfig?.context}</DialogTitle>
+          <DialogDescription>
+            Vooruitblik van de zoek configuratie
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <h3 className="font-semibold mb-2">Context</h3>
+            <p className="text-gray-700">{searchConfig?.context}</p>
+          </div>
+          <div>
+            <h3 className="font-semibold mb-2">Placeholder Tekst</h3>
+            <p className="text-gray-700">{searchConfig?.placeholderText}</p>
+          </div>
+          <div>
+            <h3 className="font-semibold mb-2">Zoekbereik</h3>
+            <p className="text-gray-700 capitalize">{searchConfig?.searchScope}</p>
+          </div>
+          {searchConfig?.customInstructions && (
+            <div>
+              <h3 className="font-semibold mb-2">Aangepaste Instructies</h3>
+              <div className="bg-gray-50 p-4 rounded-md">
+                <pre className="whitespace-pre-wrap text-sm">{searchConfig.customInstructions}</pre>
+              </div>
+            </div>
+          )}
+          {searchConfig?.redirectPattern && (
+            <div>
+              <h3 className="font-semibold mb-2">Redirect Pattern</h3>
+              <div className="bg-gray-50 p-4 rounded-md">
+                <code className="text-sm">{searchConfig.redirectPattern}</code>
+              </div>
+            </div>
+          )}
+          <div className="flex gap-2 flex-wrap">
+            <Badge variant={searchConfig?.isActive ? "default" : "outline"}>
+              {searchConfig?.isActive ? "Actief" : "Inactief"}
+            </Badge>
+            <Badge variant="outline" className="capitalize">
+              {searchConfig?.searchScope}
+            </Badge>
+            {searchConfig?.enableLocationFilter && (
+              <Badge variant="secondary">📍 Locatie filter</Badge>
+            )}
+            {searchConfig?.enableCategoryFilter && (
+              <Badge variant="secondary">🏷️ Categorie filter</Badge>
+            )}
           </div>
         </div>
         <DialogFooter>
