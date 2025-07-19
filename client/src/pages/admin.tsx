@@ -90,10 +90,10 @@ export default function Admin() {
     enabled: isAuthenticated && (currentUser?.canDeleteContent || currentUser?.canEditContent),
   });
 
-  // Highlights queries (admin only)
+  // Highlights queries
   const highlightsQuery = useQuery({
     queryKey: ['/api/admin/highlights'],
-    enabled: isAuthenticated && currentUser?.role === 'admin',
+    enabled: isAuthenticated && currentUser?.canCreateContent,
   });
 
   const activitiesQuery = useQuery({
