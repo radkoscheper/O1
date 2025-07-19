@@ -1204,30 +1204,8 @@ export default function Admin() {
 
         <Tabs defaultValue="destinations" className="w-full">
           <TabsList className="h-auto w-full flex-wrap justify-start gap-2 p-2 bg-muted/30">
-            {/* Eerste regel: Bestemmingen, Activiteiten, Hoogtepunten, Reisgidsen */}
-            {currentUser?.canCreateContent && (
-              <>
-                <TabsTrigger value="destinations" className="flex items-center gap-2">
-                  🏔️ Bestemmingen
-                </TabsTrigger>
-                <TabsTrigger value="activities" className="flex items-center gap-2">
-                  🎯 Activiteiten
-                </TabsTrigger>
-              </>
-            )}
-            {currentUser?.role === 'admin' && (
-              <TabsTrigger value="highlights" className="flex items-center gap-2">
-                ✨ Hoogtepunten
-              </TabsTrigger>
-            )}
-            {currentUser?.canCreateContent && (
-              <TabsTrigger value="guides" className="flex items-center gap-2">
-                📖 Reisgidsen
-              </TabsTrigger>
-            )}
+            {/* Eerste regel: Pagina's en Templates */}
 
-            {/* Tweede regel: Pagina's en Templates */}
-            <div className="w-full" />
             {currentUser?.canCreateContent && (
               <TabsTrigger value="pages" className="flex items-center gap-2">
                 📄 Pagina's
@@ -1249,7 +1227,7 @@ export default function Admin() {
               </TabsTrigger>
             )}
             
-            {/* Derde regel: Beheer & Instellingen */}
+            {/* Tweede regel: Beheer & Instellingen */}
             <div className="w-full" />
             {currentUser?.canEditContent && (
               <TabsTrigger value="search-configs" className="flex items-center gap-2">
@@ -1277,6 +1255,32 @@ export default function Admin() {
             <TabsTrigger value="account" className="flex items-center gap-2">
               👤 Account
             </TabsTrigger>
+
+            {/* Derde regel: Website Onderdelen groep */}
+            <div className="w-full" />
+            <div className="w-full text-xs font-semibold text-gray-500 px-2 py-1">
+              Website Onderdelen
+            </div>
+            {currentUser?.canCreateContent && (
+              <>
+                <TabsTrigger value="destinations" className="flex items-center gap-2">
+                  🏔️ Bestemmingen
+                </TabsTrigger>
+                <TabsTrigger value="activities" className="flex items-center gap-2">
+                  🎯 Activiteiten
+                </TabsTrigger>
+              </>
+            )}
+            {currentUser?.role === 'admin' && (
+              <TabsTrigger value="highlights" className="flex items-center gap-2">
+                ✨ Hoogtepunten
+              </TabsTrigger>
+            )}
+            {currentUser?.canCreateContent && (
+              <TabsTrigger value="guides" className="flex items-center gap-2">
+                📖 Reisgidsen
+              </TabsTrigger>
+            )}
           </TabsList>
 
           {/* Content Manager - Unified CMS for Bestemmingen + Ontdek Meer */}
