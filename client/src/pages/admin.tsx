@@ -3036,6 +3036,18 @@ export default function Admin() {
                 <div>Search configs error: {searchConfigsQuery.error ? String(searchConfigsQuery.error) : 'None'}</div>
                 <div>Search configs data: {searchConfigsQuery.data ? `${searchConfigsQuery.data.length} items` : 'No data'}</div>
                 <div>Dialog states: Create={String(showCreateSearchConfig)}, Edit={String(showEditSearchConfig)}, View={String(showViewSearchConfig)}</div>
+                <div>🔧 Test Button: 
+                  <button 
+                    onClick={() => {
+                      console.log('🔧 FORCE CREATE DIALOG TEST');
+                      setShowCreateSearchConfig(true);
+                      console.log('🔧 showCreateSearchConfig set to:', true);
+                    }}
+                    style={{marginLeft: '10px', padding: '5px', background: 'red', color: 'white', border: 'none', borderRadius: '3px'}}
+                  >
+                    FORCE OPEN
+                  </button>
+                </div>
               </div>
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
@@ -7499,7 +7511,8 @@ function PageManagement({ templates }: { templates: any[] }) {
                 Annuleren
               </Button>
               <Button onClick={() => {
-                console.log('Submit create search config with data:', searchConfigData);
+                console.log('🟢 Submit create search config with data:', searchConfigData);
+                console.log('🟢 Calling handleCreateSearchConfig...');
                 handleCreateSearchConfig(searchConfigData);
               }}>
                 Aanmaken
