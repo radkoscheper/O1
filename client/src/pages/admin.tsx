@@ -2646,7 +2646,11 @@ export default function Admin() {
                   <h2 className="text-2xl font-semibold">Activiteiten ({getFilteredActivities().length} van {activitiesQuery.data?.length || 0})</h2>
                   <p className="text-gray-600">Beheer activiteiten zoals musea, bergen, pleinen en restaurants</p>
                 </div>
-                <Button onClick={() => setShowCreateActivity(true)} className="bg-green-600 hover:bg-green-700">
+                <Button onClick={() => {
+                  console.log("DEBUG: Nieuwe Activiteit clicked, current state:", showCreateActivity);
+                  setShowCreateActivity(true);
+                  console.log("DEBUG: After setShowCreateActivity(true)");
+                }} className="bg-green-600 hover:bg-green-700">
                   <Plus className="h-4 w-4 mr-2" />
                   Nieuwe Activiteit
                 </Button>
@@ -7022,6 +7026,7 @@ function PageManagement({ templates }: { templates: any[] }) {
       )}
 
       {/* Activity Create Dialog */}
+      {console.log("DEBUG: Rendering dialog section, showCreateActivity:", showCreateActivity)}
       {showCreateActivity && (
         <CreateActivityDialog 
           open={showCreateActivity} 
