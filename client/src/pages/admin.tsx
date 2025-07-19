@@ -7389,11 +7389,9 @@ function PageManagement({ templates }: { templates: any[] }) {
 
       {/* Search Configuration Dialogs */}
       {showCreateSearchConfig && (
-        <Dialog open={true} onOpenChange={(open) => {
-          console.log('Create dialog open state changed:', open);
-          if (!open) {
-            setShowCreateSearchConfig(false);
-          }
+        <Dialog open={showCreateSearchConfig} onOpenChange={(open) => {
+          console.log('🟢 Create dialog open state changed:', open);
+          setShowCreateSearchConfig(open);
         }}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
@@ -7512,10 +7510,11 @@ function PageManagement({ templates }: { templates: any[] }) {
       )}
 
       {showEditSearchConfig && selectedSearchConfig && (
-        <Dialog open={true} onOpenChange={(open) => {
-          console.log('Edit dialog open state changed:', open);
+        <Dialog open={showEditSearchConfig} onOpenChange={(open) => {
+          console.log('🟡 Edit dialog open state changed:', open);
           if (!open) {
             setShowEditSearchConfig(false);
+            setSelectedSearchConfig(null);
           }
         }}>
           <DialogContent className="max-w-2xl">
@@ -7623,37 +7622,38 @@ function PageManagement({ templates }: { templates: any[] }) {
       )}
 
       {showViewSearchConfig && selectedSearchConfig && (
-        <Dialog open={true} onOpenChange={(open) => {
-          console.log('View dialog open state changed:', open);
+        <Dialog open={showViewSearchConfig} onOpenChange={(open) => {
+          console.log('🟠 View dialog open state changed:', open);
           if (!open) {
             setShowViewSearchConfig(false);
+            setSelectedSearchConfig(null);
           }
         }}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Zoek Configuratie Details</DialogTitle>
               <DialogDescription>
-                Details van zoek configuratie: {selectedSearchConfig.context}
+                Details van zoek configuratie: {selectedSearchConfig?.context || 'Onbekend'}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label className="font-semibold">Context</Label>
-                  <p className="text-sm text-gray-600">{selectedSearchConfig.context}</p>
+                  <p className="text-sm text-gray-600">{selectedSearchConfig?.context || 'Onbekend'}</p>
                 </div>
                 <div>
                   <Label className="font-semibold">Status</Label>
                   <p className="text-sm text-gray-600">
-                    <Badge variant={selectedSearchConfig.isActive ? "default" : "secondary"}>
-                      {selectedSearchConfig.isActive ? "Actief" : "Inactief"}
+                    <Badge variant={selectedSearchConfig?.isActive ? "default" : "secondary"}>
+                      {selectedSearchConfig?.isActive ? "Actief" : "Inactief"}
                     </Badge>
                   </p>
                 </div>
               </div>
               <div>
                 <Label className="font-semibold">Placeholder Tekst</Label>
-                <p className="text-sm text-gray-600">{selectedSearchConfig.placeholderText}</p>
+                <p className="text-sm text-gray-600">{selectedSearchConfig?.placeholderText || 'Geen tekst'}</p>
               </div>
               <div>
                 <Label className="font-semibold">Zoekbereik</Label>
