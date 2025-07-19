@@ -303,22 +303,20 @@ export type Highlight = typeof highlights.$inferSelect;
 // Activities table
 export const activities = pgTable("activities", {
   id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  location: text("location").notNull(), // City/region where activity is located
-  category: text("category").notNull(), // museum, gebergte, plein, kerk, horeca, hotel, camping, etc.
-  slug: text("slug").notNull().unique(),
-  description: text("description").notNull(),
-  image: text("image").notNull(),
-  alt: text("alt").notNull(),
-  content: text("content").notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  location: varchar("location", { length: 255 }), // City/region where activity is located
+  category: varchar("category", { length: 100 }), // museum, gebergte, plein, kerk, horeca, hotel, camping, etc.
+  activityType: varchar("activitytype", { length: 100 }), // More specific type within category
+  description: text("description"),
+  image: text("image"),
+  alt: text("alt"),
+  content: text("content"),
   link: text("link"), // Optional link URL for the activity
   featured: boolean("featured").default(false),
   published: boolean("published").default(true),
-  showOnHomepage: boolean("show_on_homepage").default(false).notNull(), // Not shown on homepage by default
   ranking: integer("ranking").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-  createdBy: integer("created_by").references(() => users.id),
   is_deleted: boolean("is_deleted").default(false),
   deleted_at: timestamp("deleted_at"),
 });
@@ -327,7 +325,7 @@ export const insertActivitySchema = createInsertSchema(activities).pick({
   name: true,
   location: true,
   category: true,
-  slug: true,
+  activityType: true,
   description: true,
   image: true,
   alt: true,
@@ -335,9 +333,7 @@ export const insertActivitySchema = createInsertSchema(activities).pick({
   link: true,
   featured: true,
   published: true,
-  showOnHomepage: true,
   ranking: true,
-  createdBy: true,
 });
 
 export const updateActivitySchema = insertActivitySchema.partial();
