@@ -2647,7 +2647,10 @@ export default function Admin() {
                   <h2 className="text-2xl font-semibold">Activiteiten ({getFilteredActivities().length} van {activitiesQuery.data?.length || 0})</h2>
                   <p className="text-gray-600">Beheer activiteiten zoals musea, bergen, pleinen en restaurants</p>
                 </div>
-                <Button onClick={() => setShowCreateActivity(true)} className="bg-green-600 hover:bg-green-700">
+                <Button onClick={() => {
+                  console.log("Nieuwe Activiteit button clicked");
+                  setShowCreateActivity(true);
+                }} className="bg-green-600 hover:bg-green-700">
                   <Plus className="h-4 w-4 mr-2" />
                   Nieuwe Activiteit
                 </Button>
@@ -2738,6 +2741,7 @@ export default function Admin() {
                           size="sm" 
                           variant="outline"
                           onClick={() => {
+                            console.log("Bewerken button clicked for activity:", activity.name);
                             setSelectedActivity(activity);
                             setEditActivityData({
                               name: activity.name,
@@ -2764,6 +2768,7 @@ export default function Admin() {
                           size="sm" 
                           variant="outline"
                           onClick={() => {
+                            console.log("Bekijken button clicked for activity:", activity.name);
                             setSelectedActivity(activity);
                             setShowViewActivity(true);
                           }}
