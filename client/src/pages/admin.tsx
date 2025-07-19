@@ -3676,6 +3676,18 @@ export default function Admin() {
             }}
           />
         )}
+
+        {/* Activity Create Dialog */}
+        {showCreateActivity && (
+          <CreateActivityDialog 
+            open={showCreateActivity} 
+            onOpenChange={setShowCreateActivity}
+            onActivityCreated={() => {
+              activitiesQuery.refetch();
+              setShowCreateActivity(false);
+            }}
+          />
+        )}
       </div>
     </div>
   );
@@ -7021,18 +7033,6 @@ function PageManagement({ templates }: { templates: any[] }) {
           onPageUpdated={() => {
             pagesQuery.refetch();
             setShowEditPage(false);
-          }}
-        />
-      )}
-
-      {/* Activity Create Dialog */}
-      {showCreateActivity && (
-        <CreateActivityDialog 
-          open={showCreateActivity} 
-          onOpenChange={setShowCreateActivity}
-          onActivityCreated={() => {
-            activitiesQuery.refetch();
-            setShowCreateActivity(false);
           }}
         />
       )}
