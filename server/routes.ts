@@ -47,12 +47,13 @@ const createUploadConfig = (uploadType: 'image' | 'favicon') => {
           const entityId = req.body.entityId;
           const entityName = req.body.entityName;
           
-          if (destination && ['background', 'logo', 'social'].includes(destination)) {
+          if (destination && ['background', 'logo', 'social', 'motivatie'].includes(destination)) {
             // Map imageType to actual folder names (handle plural forms)
             const folderMap = {
               background: 'backgrounds',
               logo: 'logo', 
-              social: 'social'
+              social: 'social',
+              motivatie: 'motivatie'
             };
             const actualFolder = folderMap[destination as keyof typeof folderMap];
             const destDir = path.join(process.cwd(), 'client', 'public', 'images', actualFolder);
@@ -2359,6 +2360,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Search error:", error);
       res.status(500).json({ message: "Zoekfout" });
+    }
+  });
+
+  // ========================================
+  // MOTIVATION ENDPOINTS
+  // ========================================
+
+  // Get motivation (public)
+  app.get("/api/motivation", async (req, res) => {
+    try {
+      const result = await db.execute(sql`SELECT * FROM motivation WHERE is_published = true ORDER BY id LIMIT 1`);
+      res.json(result.rows[0] || null);
+    } catch (error) {
+      console.error("Get motivation error:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Get motivation for admin
+  app.get("/api/admin/motivation", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || !user.canEditContent) {
+        return res.status(403).json({ message: "Geen toestemming om content te bekijken" });
+      }
+
+      const result = await db.execute(sql`SELECT * FROM motivation ORDER BY id LIMIT 1`);
+      res.json(result.rows[0] || null);
+    } catch (error) {
+      console.error("Get admin motivation error:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Update motivation
+  app.put("/api/admin/motivation/:id", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || !user.canEditContent) {
+        return res.status(403).json({ message: "Geen toestemming om content te bewerken" });
+      }
+
+      const id = parseInt(req.params.id);
+      const { title, description, buttonText, buttonAction, image, isPublished } = req.body;
+
+      await db.execute(sql`
+        UPDATE motivation 
+        SET title = ${title}, 
+            description = ${description}, 
+            button_text = ${buttonText}, 
+            button_action = ${buttonAction}, 
+            image = ${image}, 
+            is_published = ${isPublished}, 
+            updated_at = NOW() 
+        WHERE id = ${id}
+      `);
+
+      const result = await db.execute(sql`SELECT * FROM motivation WHERE id = ${id}`);
+      res.json(result.rows[0]);
+    } catch (error) {
+      console.error("Update motivation error:", error);
+      res.status(500).json({ message: "Server error" });
     }
   });
 
