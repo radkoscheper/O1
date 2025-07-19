@@ -1196,35 +1196,49 @@ export default function Admin() {
             <div className="w-full text-xs font-semibold text-gray-500 px-2 py-1">
               Website Onderdelen
             </div>
+            
+            {/* Content Types Subgroep */}
+            {currentUser?.canCreateContent && (
+              <div className="w-full pl-4 text-xs font-medium text-gray-400 px-2 py-1">
+                Content Types
+              </div>
+            )}
             {currentUser?.canCreateContent && (
               <>
-                <TabsTrigger value="destinations" className="flex items-center gap-2">
+                <TabsTrigger value="destinations" className="flex items-center gap-2 ml-2">
                   🏔️ Bestemmingen
                 </TabsTrigger>
-                <TabsTrigger value="activities" className="flex items-center gap-2">
+                <TabsTrigger value="activities" className="flex items-center gap-2 ml-2">
                   🎯 Activiteiten
                 </TabsTrigger>
               </>
             )}
             {currentUser?.role === 'admin' && (
-              <TabsTrigger value="highlights" className="flex items-center gap-2">
+              <TabsTrigger value="highlights" className="flex items-center gap-2 ml-2">
                 ✨ Hoogtepunten
               </TabsTrigger>
             )}
             {currentUser?.canCreateContent && (
-              <TabsTrigger value="guides" className="flex items-center gap-2">
+              <TabsTrigger value="guides" className="flex items-center gap-2 ml-2">
                 📖 Reisgidsen
               </TabsTrigger>
             )}
+            
+            {/* Pagina Management Subgroep */}
             {currentUser?.canCreateContent && (
-              <TabsTrigger value="pages" className="flex items-center gap-2">
-                📄 Pagina's
-              </TabsTrigger>
+              <div className="w-full pl-4 text-xs font-medium text-gray-400 px-2 py-1">
+                Pagina Management
+              </div>
             )}
             {currentUser?.canCreateContent && (
-              <TabsTrigger value="ontdek-meer" className="flex items-center gap-2">
-                📄 Ontdek Meer
-              </TabsTrigger>
+              <>
+                <TabsTrigger value="pages" className="flex items-center gap-2 ml-2">
+                  📄 Pagina's
+                </TabsTrigger>
+                <TabsTrigger value="ontdek-meer" className="flex items-center gap-2 ml-2">
+                  📄 Ontdek Meer
+                </TabsTrigger>
+              </>
             )}
             
             {/* Derde regel: Account */}
