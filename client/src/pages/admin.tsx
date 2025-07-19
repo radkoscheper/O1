@@ -4712,13 +4712,15 @@ function HeaderImageSelector({ destination, currentImage, onImageSelect }: {
   );
 }
 
-function ImageUploadField({ label, value, onChange, placeholder, fileName, destination }: {
+function ImageUploadField({ label, value, onChange, placeholder, fileName, destination, entityId, entityName }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   placeholder: string;
   fileName?: string;
   destination?: string;
+  entityId?: string | number;
+  entityName?: string;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -4731,7 +4733,9 @@ function ImageUploadField({ label, value, onChange, placeholder, fileName, desti
         file, 
         fileName, 
         destination,
-        type: 'image' 
+        type: 'image',
+        entityId,
+        entityName
       });
       onChange(result.imagePath || '');
     } catch (error) {
