@@ -108,10 +108,7 @@ export default function Admin() {
     retry: 1,
     staleTime: 0,
     onError: (error) => {
-      console.error('Search configs query error:', error);
-    },
-    onSuccess: (data) => {
-      console.log('Search configs loaded successfully:', data);
+      toast({ title: "Fout", description: "Kon zoekconfiguratties niet laden", variant: "destructive" });
     }
   });
   const [showCreateUser, setShowCreateUser] = useState(false);
@@ -746,7 +743,6 @@ export default function Admin() {
     }
 
     try {
-      console.log('Creating search config with data:', data);
       const response = await fetch('/api/admin/search-configs', {
         method: 'POST',
         headers: {
@@ -756,11 +752,7 @@ export default function Admin() {
         body: JSON.stringify(data),
       });
       
-      console.log('Response status:', response.status);
-      
       if (response.ok) {
-        const result = await response.json();
-        console.log('Created search config:', result);
         toast({ title: "Succes", description: "Zoek configuratie aangemaakt" });
         searchConfigsQuery.refetch();
         setShowCreateSearchConfig(false);
@@ -776,11 +768,9 @@ export default function Admin() {
         });
       } else {
         const error = await response.json();
-        console.error('Error creating search config:', error);
         toast({ title: "Fout", description: error.message || "Onbekende fout", variant: "destructive" });
       }
     } catch (error) {
-      console.error('Network error creating search config:', error);
       toast({ title: "Fout", description: "Er is een netwerkfout opgetreden", variant: "destructive" });
     }
   };
@@ -3033,47 +3023,7 @@ export default function Admin() {
           {currentUser?.canEditContent && (
             <TabsContent value="search-configs" className="space-y-6">
               {/* Debug information */}
-              <div className="bg-blue-50 p-3 rounded border text-sm">
-                <strong>Debug Info:</strong> 
-                <div>User can edit: {String(currentUser?.canEditContent)}</div>
-                <div>Search configs loading: {String(searchConfigsQuery.isLoading)}</div>
-                <div>Search configs error: {searchConfigsQuery.error ? String(searchConfigsQuery.error) : 'None'}</div>
-                <div>Search configs data: {searchConfigsQuery.data ? `${searchConfigsQuery.data.length} items` : 'No data'}</div>
-                <div>Dialog states: Create={String(showCreateSearchConfig)}, Edit={String(showEditSearchConfig)}, View={String(showViewSearchConfig)}</div>
-                <div>🔧 Test Buttons: 
-                  <button 
-                    onClick={() => {
-                      console.log('🔧 FORCE CREATE DIALOG TEST');
-                      setShowCreateSearchConfig(prev => {
-                        console.log('🔧 Previous state:', prev, 'Setting to:', !prev);
-                        return true;
-                      });
-                      // Force re-render
-                      setTimeout(() => {
-                        console.log('🔧 AFTER TIMEOUT - showCreateSearchConfig:', showCreateSearchConfig);
-                        const dialogs = document.querySelectorAll('[role="dialog"]');
-                        const divs = document.querySelectorAll('div[style*="position: fixed"]');
-                        console.log('🔧 Found dialogs:', dialogs.length);
-                        console.log('🔧 Found fixed divs:', divs.length);
-                        divs.forEach((div, i) => console.log(`🔧 Fixed Div ${i}:`, div));
-                      }, 500);
-                    }}
-                    style={{marginLeft: '10px', padding: '5px', background: 'red', color: 'white', border: 'none', borderRadius: '3px'}}
-                  >
-                    FORCE OPEN
-                  </button>
-                  <button 
-                    onClick={() => {
-                      console.log('🔧 FORCE RENDER TEST');
-                      setShowCreateSearchConfig(false);
-                      setTimeout(() => setShowCreateSearchConfig(true), 100);
-                    }}
-                    style={{marginLeft: '10px', padding: '5px', background: 'orange', color: 'white', border: 'none', borderRadius: '3px'}}
-                  >
-                    TOGGLE TEST
-                  </button>
-                </div>
-              </div>
+
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
                   <h2 className="text-2xl font-semibold">Zoekbalk CMS</h2>
@@ -3081,12 +3031,6 @@ export default function Admin() {
                 </div>
                 <Button 
                   onClick={() => {
-                    console.log('🔵 Create search config button clicked');
-                    console.log('🔵 Current showCreateSearchConfig state:', showCreateSearchConfig);
-                    
-                    // Test state immediately
-                    const beforeState = showCreateSearchConfig;
-                    
                     // Reset form data
                     setSearchConfigData({
                       context: '',
@@ -3099,13 +3043,7 @@ export default function Admin() {
                       isActive: true
                     });
                     
-                    console.log('🔵 Setting showCreateSearchConfig to true');
                     setShowCreateSearchConfig(true);
-                    
-                    // Check state change after a brief delay
-                    setTimeout(() => {
-                      console.log('🔵 State after timeout - before:', beforeState, 'after setting true, current:', showCreateSearchConfig);
-                    }, 100);
                   }} 
                   className="bg-blue-600 hover:bg-blue-700"
                 >
@@ -3146,7 +3084,6 @@ export default function Admin() {
                             size="sm" 
                             variant="outline"
                             onClick={() => {
-                              console.log('View search config clicked:', config);
                               setSelectedSearchConfig(config);
                               setShowViewSearchConfig(true);
                             }}
@@ -3158,7 +3095,6 @@ export default function Admin() {
                             size="sm" 
                             variant="outline"
                             onClick={() => {
-                              console.log('Edit search config clicked:', config);
                               setSelectedSearchConfig(config);
                               // Pre-populate form with current data
                               setSearchConfigData({
@@ -3246,7 +3182,7 @@ export default function Admin() {
               )}
 
               {/* Search Configuration Dialogs - MOVED INSIDE TAB */}
-              {console.log('🟥 RENDER CHECK INSIDE TAB: showCreateSearchConfig =', showCreateSearchConfig)}
+
               {showCreateSearchConfig && (
                 <div 
                   style={{
@@ -7501,7 +7437,7 @@ function PageManagement({ templates }: { templates: any[] }) {
       )}
 
       {/* Search Configuration Dialogs - FORCE RENDER TEST */}
-      {console.log('🟥 RENDER CHECK: showCreateSearchConfig =', showCreateSearchConfig)}
+
       {(showCreateSearchConfig || false) && (
         <div 
           style={{
@@ -7612,12 +7548,7 @@ function PageManagement({ templates }: { templates: any[] }) {
                 Maak een nieuwe zoek configuratie aan voor een specifieke context
               </DialogDescription>
             </DialogHeader>
-            {/* Debug form data */}
-            <div className="bg-gray-50 p-2 text-xs rounded">
-              <strong>Form Debug:</strong> 
-              <div>Dialog State: showCreateSearchConfig = {String(showCreateSearchConfig)}</div>
-              <div>Form Data: {JSON.stringify(searchConfigData, null, 2)}</div>
-            </div>
+
             <div className="space-y-4">
               <div>
                 <Label htmlFor="context">Context *</Label>
@@ -7625,7 +7556,6 @@ function PageManagement({ templates }: { templates: any[] }) {
                   id="context"
                   value={searchConfigData.context}
                   onChange={(e) => {
-                    console.log('Context input changed:', e.target.value);
                     setSearchConfigData({...searchConfigData, context: e.target.value});
                   }}
                   placeholder="Bijvoorbeeld: homepage, destination, global"
@@ -7637,7 +7567,6 @@ function PageManagement({ templates }: { templates: any[] }) {
                   id="placeholderText"
                   value={searchConfigData.placeholderText}
                   onChange={(e) => {
-                    console.log('Placeholder text changed:', e.target.value);
                     setSearchConfigData({...searchConfigData, placeholderText: e.target.value});
                   }}
                   placeholder="Bijvoorbeeld: Zoek bestemmingen..."
@@ -7656,14 +7585,6 @@ function PageManagement({ templates }: { templates: any[] }) {
                     <option value="activities">🎯 Activiteiten</option>
                     <option value="highlights">✨ Hoogtepunten</option>
                     <option value="guides">📖 Reisgidsen</option>
-                  </optgroup>
-                  <optgroup label="Overige Content">
-                    <option value="pages">📄 Pagina's</option>
-                    <option value="templates">🎨 Templates</option>
-                  </optgroup>
-                  <optgroup label="Combinaties">
-                    <option value="content">🗂️ Alle Website Onderdelen</option>
-                    <option value="all">🔍 Alles (inclusief pagina's)</option>
                   </optgroup>
                 </select>
               </div>
@@ -7714,17 +7635,10 @@ function PageManagement({ templates }: { templates: any[] }) {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => {
-                console.log('Cancel create search config');
-                setShowCreateSearchConfig(false);
-              }}>
+              <Button variant="outline" onClick={() => setShowCreateSearchConfig(false)}>
                 Annuleren
               </Button>
-              <Button onClick={() => {
-                console.log('🟢 Submit create search config with data:', searchConfigData);
-                console.log('🟢 Calling handleCreateSearchConfig...');
-                handleCreateSearchConfig(searchConfigData);
-              }}>
+              <Button onClick={() => handleCreateSearchConfig(searchConfigData)}>
                 Aanmaken
               </Button>
             </DialogFooter>
@@ -7734,7 +7648,6 @@ function PageManagement({ templates }: { templates: any[] }) {
 
       {showEditSearchConfig && selectedSearchConfig && (
         <Dialog open={showEditSearchConfig} onOpenChange={(open) => {
-          console.log('🟡 Edit dialog open state changed:', open);
           if (!open) {
             setShowEditSearchConfig(false);
             setSelectedSearchConfig(null);
@@ -7779,14 +7692,6 @@ function PageManagement({ templates }: { templates: any[] }) {
                     <option value="activities">🎯 Activiteiten</option>
                     <option value="highlights">✨ Hoogtepunten</option>
                     <option value="guides">📖 Reisgidsen</option>
-                  </optgroup>
-                  <optgroup label="Overige Content">
-                    <option value="pages">📄 Pagina's</option>
-                    <option value="templates">🎨 Templates</option>
-                  </optgroup>
-                  <optgroup label="Combinaties">
-                    <option value="content">🗂️ Alle Website Onderdelen</option>
-                    <option value="all">🔍 Alles (inclusief pagina's)</option>
                   </optgroup>
                 </select>
               </div>
@@ -7837,16 +7742,10 @@ function PageManagement({ templates }: { templates: any[] }) {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => {
-                console.log('Cancel edit search config');
-                setShowEditSearchConfig(false);
-              }}>
+              <Button variant="outline" onClick={() => setShowEditSearchConfig(false)}>
                 Annuleren
               </Button>
-              <Button onClick={() => {
-                console.log('Submit edit search config with data:', searchConfigData);
-                handleUpdateSearchConfig(selectedSearchConfig.id, searchConfigData);
-              }}>
+              <Button onClick={() => handleUpdateSearchConfig(selectedSearchConfig.id, searchConfigData)}>
                 Bijwerken
               </Button>
             </DialogFooter>
@@ -7856,7 +7755,6 @@ function PageManagement({ templates }: { templates: any[] }) {
 
       {showViewSearchConfig && selectedSearchConfig && (
         <Dialog open={showViewSearchConfig} onOpenChange={(open) => {
-          console.log('🟠 View dialog open state changed:', open);
           if (!open) {
             setShowViewSearchConfig(false);
             setSelectedSearchConfig(null);
