@@ -1791,7 +1791,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin routes for highlights
+  // Get all highlights (voor alle gebruikers, geen admin vereist)
+  app.get("/api/highlights/all", requireAuth, async (req, res) => {
+    try {
+      const highlights = await storage.getAllHighlights();
+      res.json(highlights);
+    } catch (error) {
+      console.error("Error fetching all highlights:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Admin routes for highlights (zichtbaar voor alle ingelogde gebruikers)
   app.get("/api/admin/highlights", requireAuth, async (req, res) => {
     try {
       const highlights = await storage.getAllHighlights();

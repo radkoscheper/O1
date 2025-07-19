@@ -90,10 +90,10 @@ export default function Admin() {
     enabled: isAuthenticated && (currentUser?.canDeleteContent || currentUser?.canEditContent),
   });
 
-  // Highlights queries (admin only)
+  // Highlights queries (voor alle gebruikers)
   const highlightsQuery = useQuery({
-    queryKey: ['/api/admin/highlights'],
-    enabled: isAuthenticated && currentUser?.role === 'admin',
+    queryKey: ['/api/highlights/all'],
+    enabled: isAuthenticated && !!currentUser,
   });
 
   const activitiesQuery = useQuery({
@@ -1745,7 +1745,7 @@ export default function Admin() {
                               <ViewHighlightDialog highlight={highlight} />
                               <EditHighlightDialog 
                                 highlight={highlight} 
-                                onUpdate={() => queryClient.invalidateQueries({ queryKey: ['/api/admin/highlights'] })} 
+                                onUpdate={() => queryClient.invalidateQueries({ queryKey: ['/api/highlights/all'] })} 
                               />
                             </div>
                           </div>
@@ -1898,7 +1898,7 @@ export default function Admin() {
                       <h3 className="text-xl font-semibold">Highlights Beheer ({highlightsQuery.data?.length || 0})</h3>
                       <p className="text-gray-600">Beheer alle Polish highlights en attracties</p>
                     </div>
-                    <CreateHighlightDialog onUpdate={() => queryClient.invalidateQueries({ queryKey: ['/api/admin/highlights'] })} />
+                    <CreateHighlightDialog onUpdate={() => queryClient.invalidateQueries({ queryKey: ['/api/highlights/all'] })} />
                   </div>
                   
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -1929,7 +1929,7 @@ export default function Admin() {
                               <ViewHighlightDialog highlight={highlight} />
                               <EditHighlightDialog 
                                 highlight={highlight} 
-                                onUpdate={() => queryClient.invalidateQueries({ queryKey: ['/api/admin/highlights'] })} 
+                                onUpdate={() => queryClient.invalidateQueries({ queryKey: ['/api/highlights/all'] })} 
                               />
                             </div>
                           </div>
@@ -1956,7 +1956,7 @@ export default function Admin() {
                           Nieuwe Bestemming
                         </Button>
                         <CreateHighlightDialog 
-                          onUpdate={() => queryClient.invalidateQueries({ queryKey: ['/api/admin/highlights'] })}
+                          onUpdate={() => queryClient.invalidateQueries({ queryKey: ['/api/highlights/all'] })}
                           className="w-full"
                         />
                       </CardContent>
@@ -2620,9 +2620,8 @@ export default function Admin() {
             </TabsContent>
           )}
 
-          {/* Highlights Tab Content - Admin Only */}
-          {currentUser?.role === 'admin' && (
-            <TabsContent value="highlights" className="space-y-6">
+          {/* Highlights Tab Content - Voor alle gebruikers */}
+          <TabsContent value="highlights" className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
                   <h2 className="text-2xl font-semibold">Highlights ({highlightsQuery.data?.length || 0})</h2>
@@ -2726,7 +2725,6 @@ export default function Admin() {
                 ))}
               </div>
             </TabsContent>
-          )}
 
           {/* Activiteiten Tab */}
           <TabsContent value="activities" className="space-y-6">
