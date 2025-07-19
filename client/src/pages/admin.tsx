@@ -7025,18 +7025,21 @@ function PageManagement({ templates }: { templates: any[] }) {
         />
       )}
 
-      {/* Activity Create Dialog */}
-      {console.log("DEBUG: Rendering dialog section, showCreateActivity:", showCreateActivity)}
-      {showCreateActivity && (
-        <CreateActivityDialog 
-          open={showCreateActivity} 
-          onOpenChange={setShowCreateActivity}
-          onActivityCreated={() => {
-            activitiesQuery.refetch();
-            setShowCreateActivity(false);
-          }}
-        />
-      )}
+      {/* Activity Create Dialog - DEBUG */}
+      {(() => {
+        console.log("DEBUG: Dialog render check - showCreateActivity:", showCreateActivity);
+        console.log("DEBUG: Dialog render check - typeof CreateActivityDialog:", typeof CreateActivityDialog);
+        return null;
+      })()}
+      
+      <CreateActivityDialog 
+        open={showCreateActivity} 
+        onOpenChange={setShowCreateActivity}
+        onActivityCreated={() => {
+          activitiesQuery.refetch();
+          setShowCreateActivity(false);
+        }}
+      />
 
       {/* Activity Edit Dialog */}
       {showEditActivity && selectedActivity && (
