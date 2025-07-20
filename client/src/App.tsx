@@ -16,6 +16,7 @@ function Router() {
       <Route path="/admin" component={Admin} />
       <Route path="/ontdek-meer" component={OntdekMeer} />
       <Route path="/:slug" component={Page} />
+      <Route path="/destination/:slug" component={Page} />
       <Route component={NotFound} />
     </Switch>
   );
