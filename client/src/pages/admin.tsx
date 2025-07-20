@@ -3307,15 +3307,15 @@ export default function Admin() {
                     <MotivationImageSelector
                       currentImage={motivationData.image}
                       onImageSelect={(imagePath) => setMotivationData({ ...motivationData, image: imagePath })}
-                      onImageUpload={async (file) => {
+                      onImageUpload={async (file, locationName) => {
                         try {
-                          console.log('Uploading motivation image:', file.name);
-                          const imagePath = await uploadImageToFolder(file, 'motivatie', '', '');
+                          console.log('Uploading motivation image:', file.name, 'with location:', locationName);
+                          const imagePath = await uploadImageToFolder(file, 'motivatie', '', '', locationName);
                           console.log('Upload success, image path:', imagePath);
                           setMotivationData({ ...motivationData, image: imagePath });
                           toast({ 
                             title: "Succes", 
-                            description: "Afbeelding succesvol geüpload!" 
+                            description: `Afbeelding succesvol geüpload${locationName ? ` met locatie: ${locationName}` : ''}!` 
                           });
                           return imagePath;
                         } catch (error) {
@@ -7652,7 +7652,7 @@ function MotivationImageSelector({
 }: { 
   currentImage: string | null, 
   onImageSelect: (imagePath: string) => void,
-  onImageUpload: (file: File) => Promise<string>
+  onImageUpload: (file: File, locationName?: string) => Promise<string>
 }) {
   const [availableImages, setAvailableImages] = useState<Array<{
     name: string,
@@ -7663,6 +7663,7 @@ function MotivationImageSelector({
   const [isLoading, setIsLoading] = useState(false);
   const [editingLocation, setEditingLocation] = useState<string | null>(null);
   const [editLocationName, setEditLocationName] = useState('');
+  const [newImageLocationName, setNewImageLocationName] = useState('');
   const { toast } = useToast();
 
   // Load available motivation images
@@ -7729,7 +7730,8 @@ function MotivationImageSelector({
   const handleUpload = async (file: File) => {
     setIsLoading(true);
     try {
-      await onImageUpload(file);
+      await onImageUpload(file, newImageLocationName.trim() || undefined);
+      setNewImageLocationName(''); // Clear the input after successful upload
       await loadAvailableImages(); // Refresh the list
     } catch (error) {
       // Error handling is done in parent
@@ -7779,31 +7781,50 @@ function MotivationImageSelector({
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="space-y-2">
         <Label>Motivatie Afbeeldingen</Label>
-        <div className="flex gap-2">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) {
-                handleUpload(file);
-              }
-            }}
-            className="hidden"
-            id="motivationImageUpload"
-          />
-          <Button 
-            type="button" 
-            variant="outline" 
-            size="sm"
-            onClick={() => document.getElementById('motivationImageUpload')?.click()}
-            disabled={isLoading}
-          >
-            <Upload className="h-4 w-4 mr-2" />
-            {isLoading ? 'Uploading...' : 'Upload Nieuwe'}
-          </Button>
+        
+        {/* Upload Section */}
+        <div className="border rounded-lg p-3 bg-gray-50">
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="newLocationName" className="text-sm">Locatie naam (optioneel)</Label>
+              <Input
+                id="newLocationName"
+                type="text"
+                placeholder="Bijv. Tatra Mountains, Krakow..."
+                value={newImageLocationName}
+                onChange={(e) => setNewImageLocationName(e.target.value)}
+                className="mt-1"
+              />
+            </div>
+            
+            <div className="flex gap-2">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    handleUpload(file);
+                  }
+                }}
+                className="hidden"
+                id="motivationImageUpload"
+              />
+              <Button 
+                type="button" 
+                variant="outline" 
+                size="sm"
+                onClick={() => document.getElementById('motivationImageUpload')?.click()}
+                disabled={isLoading}
+                className="flex-1"
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                {isLoading ? 'Uploading...' : 'Upload Nieuwe Afbeelding'}
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
 
