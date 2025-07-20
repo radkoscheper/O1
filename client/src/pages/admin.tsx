@@ -2886,61 +2886,149 @@ export default function Admin() {
                             {activity.activityType}
                           </Badge>
                         )}
+                        {activity.featured && <Badge variant="secondary" className="text-xs">⭐ Featured</Badge>}
+                        <Badge variant={activity.published ? "default" : "outline"} className="text-xs">
+                          {activity.published ? "✅ Gepubliceerd" : "📝 Concept"}
+                        </Badge>
                       </div>
                       <CardDescription className="text-sm mt-2">{activity.description}</CardDescription>
                     </CardHeader>
                     <CardContent className="pt-0">
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-col gap-2">
+                        <div className="flex flex-wrap gap-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={async () => {
+                              try {
+                                const response = await apiRequest(`/api/admin/activities/${activity.id}`, {
+                                  method: 'PUT',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ featured: !activity.featured }),
+                                });
+                                
+                                if (response.ok) {
+                                  toast({ 
+                                    title: "Succes", 
+                                    description: `Activiteit ${!activity.featured ? 'toegevoegd aan' : 'verwijderd van'} featured` 
+                                  });
+                                  queryClient.invalidateQueries({ queryKey: ['/api/admin/activities'] });
+                                } else {
+                                  toast({ 
+                                    title: "Fout", 
+                                    description: "Er is een fout opgetreden", 
+                                    variant: "destructive" 
+                                  });
+                                }
+                              } catch (error) {
+                                toast({ 
+                                  title: "Fout", 
+                                  description: "Er is een fout opgetreden", 
+                                  variant: "destructive" 
+                                });
+                              }
+                            }}
+                            className="text-xs flex-1"
+                          >
+                            {activity.featured ? (
+                              <>❌ Unfeatured</>
+                            ) : (
+                              <>⭐ Featured</>
+                            )}
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={async () => {
+                              try {
+                                const response = await apiRequest(`/api/admin/activities/${activity.id}`, {
+                                  method: 'PUT',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ published: !activity.published }),
+                                });
+                                
+                                if (response.ok) {
+                                  toast({ 
+                                    title: "Succes", 
+                                    description: `Activiteit ${!activity.published ? 'gepubliceerd' : 'als concept ingesteld'}` 
+                                  });
+                                  queryClient.invalidateQueries({ queryKey: ['/api/admin/activities'] });
+                                } else {
+                                  toast({ 
+                                    title: "Fout", 
+                                    description: "Er is een fout opgetreden", 
+                                    variant: "destructive" 
+                                  });
+                                }
+                              } catch (error) {
+                                toast({ 
+                                  title: "Fout", 
+                                  description: "Er is een fout opgetreden", 
+                                  variant: "destructive" 
+                                });
+                              }
+                            }}
+                            className="text-xs flex-1"
+                          >
+                            {activity.published ? (
+                              <>📝 Concept</>
+                            ) : (
+                              <>✅ Publiceer</>
+                            )}
+                          </Button>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => {
+                              console.log("Bewerken button clicked for activity:", activity.name);
+                              console.log("Setting selectedActivity:", activity);
+                              setSelectedActivity(activity);
+                              setEditActivityData({
+                                name: activity.name,
+                                location: activity.location || '',
+                                category: activity.category || '',
+                                activityType: activity.activityType || '',
+                                description: activity.description,
+                                image: activity.image,
+                                alt: activity.alt || '',
+                                content: activity.content || '',
+                                link: activity.link || '',
+                                featured: activity.featured,
+                                published: activity.published,
+                                ranking: activity.ranking || 0
+                              });
+                              console.log("Setting showEditActivity to true");
+                              setShowEditActivity(true);
+                            }}
+                            className="flex-1 text-xs"
+                          >
+                            <Edit className="h-3 w-3 mr-1" />
+                            Bewerken
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => {
+                              console.log("Bekijken button clicked for activity:", activity.name);
+                              setSelectedActivity(activity);
+                              setShowViewActivity(true);
+                            }}
+                            className="flex-1 text-xs"
+                          >
+                            <Eye className="h-3 w-3 mr-1" />
+                            Bekijken
+                          </Button>
+                        </div>
                         <Button 
                           size="sm" 
                           variant="outline"
-                          onClick={() => {
-                            console.log("Bewerken button clicked for activity:", activity.name);
-                            console.log("Setting selectedActivity:", activity);
-                            setSelectedActivity(activity);
-                            setEditActivityData({
-                              name: activity.name,
-                              location: activity.location || '',
-                              category: activity.category || '',
-                              activityType: activity.activityType || '',
-                              description: activity.description,
-                              image: activity.image,
-                              alt: activity.alt || '',
-                              content: activity.content || '',
-                              link: activity.link || '',
-                              featured: activity.featured,
-                              published: activity.published,
-                              ranking: activity.ranking || 0
-                            });
-                            console.log("Setting showEditActivity to true");
-                            setShowEditActivity(true);
-                          }}
-                          className="flex-1 text-xs"
-                        >
-                          <Edit className="h-3 w-3 mr-1" />
-                          Bewerken
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => {
-                            console.log("Bekijken button clicked for activity:", activity.name);
-                            setSelectedActivity(activity);
-                            setShowViewActivity(true);
-                          }}
-                          className="flex-1 text-xs"
-                        >
-                          <Eye className="h-3 w-3 mr-1" />
-                          Bekijken
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="destructive"
                           onClick={() => handleDeleteActivity(activity.id, activity.name, activitiesQuery, toast)}
-                          className="text-xs"
+                          className="text-xs w-full"
                         >
                           <Trash2 className="h-3 w-3 mr-1" />
-                          Prullenbak
+                          🗑️ Naar Prullenbak
                         </Button>
                       </div>
                     </CardContent>
