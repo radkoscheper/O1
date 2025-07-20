@@ -279,7 +279,8 @@ export default function Admin() {
     buttonText: '',
     buttonAction: '',
     image: '',
-    isPublished: true
+    isPublished: true,
+    showOnHomepage: true
   });
 
   const [newDestination, setNewDestination] = useState({
@@ -399,8 +400,7 @@ export default function Admin() {
     customCSS: '',
     customJS: '',
     googleAnalyticsId: '',
-    showMotivationOnHomepage: true,
-    showOntdekMeerOnHomepage: true,
+    showOntdekMeerSection: true,
   });
 
   // Check authentication status on component mount
@@ -434,8 +434,7 @@ export default function Admin() {
         customCSS: siteSettingsQuery.data.customCSS || '',
         customJS: siteSettingsQuery.data.customJS || '',
         googleAnalyticsId: siteSettingsQuery.data.googleAnalyticsId || '',
-        showMotivationOnHomepage: siteSettingsQuery.data.showMotivationOnHomepage ?? true,
-        showOntdekMeerOnHomepage: siteSettingsQuery.data.showOntdekMeerOnHomepage ?? true,
+        showOntdekMeerSection: siteSettingsQuery.data.showOntdekMeerSection ?? true,
       };
       console.log('Setting new site settings state:', newSettings);
       setSiteSettings(newSettings);
@@ -451,7 +450,8 @@ export default function Admin() {
         buttonText: motivationQuery.data.button_text || '',
         buttonAction: motivationQuery.data.button_action || '',
         image: motivationQuery.data.image || '',
-        isPublished: motivationQuery.data.is_published ?? true
+        isPublished: motivationQuery.data.is_published ?? true,
+        showOnHomepage: motivationQuery.data.show_on_homepage ?? true
       });
     }
   }, [motivationQuery.data]);
@@ -3346,13 +3346,24 @@ export default function Admin() {
                       }}
                     />
 
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        id="motivationPublished"
-                        checked={motivationData.isPublished}
-                        onCheckedChange={(checked) => setMotivationData({ ...motivationData, isPublished: checked })}
-                      />
-                      <Label htmlFor="motivationPublished">Sectie tonen op homepage</Label>
+                    <div className="flex gap-6">
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id="motivationPublished"
+                          checked={motivationData.isPublished}
+                          onCheckedChange={(checked) => setMotivationData({ ...motivationData, isPublished: checked })}
+                        />
+                        <Label htmlFor="motivationPublished">Sectie publiceren</Label>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id="motivationHomepage"
+                          checked={motivationData.showOnHomepage}
+                          onCheckedChange={(checked) => setMotivationData({ ...motivationData, showOnHomepage: checked })}
+                        />
+                        <Label htmlFor="motivationHomepage">Tonen op homepage</Label>
+                      </div>
                     </div>
 
                     <div className="flex justify-end">
@@ -3865,6 +3876,29 @@ export default function Admin() {
                   </CardContent>
                 </Card>
 
+                {/* Homepage Sectie Beheer */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Homepage Secties</CardTitle>
+                    <CardDescription>Beheer welke secties worden getoond op de homepage</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label htmlFor="showOntdekMeerSection">Ontdek Meer Sectie</Label>
+                        <p className="text-sm text-gray-600">
+                          Toon de "Ontdek Meer" sectie met pagina's op de homepage
+                        </p>
+                      </div>
+                      <Switch
+                        id="showOntdekMeerSection"
+                        checked={siteSettings.showOntdekMeerSection}
+                        onCheckedChange={(checked) => setSiteSettings({...siteSettings, showOntdekMeerSection: checked})}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+
                 {/* Custom Code */}
                 <Card>
                   <CardHeader>
@@ -3897,61 +3931,12 @@ export default function Admin() {
                     </div>
                   </CardContent>
                 </Card>
-
-                {/* Homepage Sectie Zichtbaarheid */}
-                <Card className="lg:col-span-2">
-                  <CardHeader>
-                    <CardTitle>Homepage Sectie Zichtbaarheid</CardTitle>
-                    <CardDescription>Beheer welke secties zichtbaar zijn op de homepage</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <div className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="space-y-0.5">
-                          <Label htmlFor="showMotivationOnHomepage" className="font-medium">Motivatie Sectie</Label>
-                          <p className="text-sm text-gray-600">
-                            Toon de motivatie sectie met afbeelding en call-to-action op de homepage
-                          </p>
-                        </div>
-                        <Switch
-                          id="showMotivationOnHomepage"
-                          checked={siteSettings.showMotivationOnHomepage}
-                          onCheckedChange={(checked) => setSiteSettings({...siteSettings, showMotivationOnHomepage: checked})}
-                        />
-                      </div>
-                      
-                      <div className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="space-y-0.5">
-                          <Label htmlFor="showOntdekMeerOnHomepage" className="font-medium">Ontdek Meer Sectie</Label>
-                          <p className="text-sm text-gray-600">
-                            Toon de "Ontdek Meer" sectie met featured pagina's op de homepage
-                          </p>
-                        </div>
-                        <Switch
-                          id="showOntdekMeerOnHomepage"
-                          checked={siteSettings.showOntdekMeerOnHomepage}
-                          onCheckedChange={(checked) => setSiteSettings({...siteSettings, showOntdekMeerOnHomepage: checked})}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="bg-blue-50 p-4 rounded-lg">
-                      <p className="text-sm text-blue-800 font-medium mb-2">📝 Sectie Beheer Info</p>
-                      <div className="grid gap-2 text-sm text-blue-700">
-                        <p>• <strong>Motivatie Sectie:</strong> Beheer content via "Ontdek Meer" tab</p>
-                        <p>• <strong>Ontdek Meer Sectie:</strong> Beheer content via "Pagina's" tab (featured pagina's)</p>
-                        <p>• Wijzigingen worden direct doorgevoerd na het opslaan van de site instellingen</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
               </div>
               
               <div className="text-sm text-gray-600 pt-4 border-t">
                 <p>💡 Tip: Gebruik de achtergrond afbeelding voor een mooie header op je website</p>
                 <p>🎨 Custom CSS en JavaScript worden automatisch geladen op alle pagina's</p>
                 <p>📊 Google Analytics tracking wordt actief zodra je een geldig tracking ID invult</p>
-                <p>🏠 Homepage secties kunnen individueel in- of uitgeschakeld worden</p>
               </div>
             </TabsContent>
           )}
