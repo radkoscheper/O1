@@ -1,0 +1,200 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 480">
+  <defs>
+    <linearGradient id="seaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#87CEEB;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4682B4;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="pierGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#DEB887;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8B7355;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Baltic Sea -->
+  <rect width="1200" height="350" fill="url(#seaGrad)"/>
+  
+  <!-- Waves -->
+  <path d="M0 300 Q50 290 100 300 Q150 310 200 300 Q250 290 300 300 Q350 310 400 300 Q450 290 500 300 Q550 310 600 300 Q650 290 700 300 Q750 310 800 300 Q850 290 900 300 Q950 310 1000 300 Q1050 290 1100 300 Q1150 310 1200 300 L1200 350 L0 350 Z" fill="#FFFFFF" opacity="0.5"/>
+  
+  <path d="M0 320 Q30 315 60 320 Q90 325 120 320 Q150 315 180 320 Q210 325 240 320 Q270 315 300 320 Q330 325 360 320 Q390 315 420 320 Q450 325 480 320 Q510 315 540 320 Q570 325 600 320 Q630 315 660 320 Q690 325 720 320 Q750 315 780 320 Q810 325 840 320 Q870 315 900 320 Q930 325 960 320 Q990 315 1020 320 Q1050 325 1080 320 Q1110 315 1140 320 Q1170 325 1200 320 L1200 350 L0 350 Z" fill="#FFFFFF" opacity="0.3"/>
+  
+  <!-- Sandy beach -->
+  <rect x="0" y="350" width="1200" height="130" fill="#F5DEB3"/>
+  
+  <!-- Famous Sopot Pier (511m long) -->
+  <rect x="400" y="250" width="600" height="12" fill="url(#pierGrad)"/>
+  
+  <!-- Pier support pillars -->
+  <rect x="450" y="250" width="6" height="50" fill="#654321"/>
+  <rect x="500" y="250" width="6" height="45" fill="#654321"/>
+  <rect x="550" y="250" width="6" height="50" fill="#654321"/>
+  <rect x="600" y="250" width="6" height="45" fill="#654321"/>
+  <rect x="650" y="250" width="6" height="50" fill="#654321"/>
+  <rect x="700" y="250" width="6" height="45" fill="#654321"/>
+  <rect x="750" y="250" width="6" height="50" fill="#654321"/>
+  <rect x="800" y="250" width="6" height="45" fill="#654321"/>
+  <rect x="850" y="250" width="6" height="50" fill="#654321"/>
+  <rect x="900" y="250" width="6" height="45" fill="#654321"/>
+  <rect x="950" y="250" width="6" height="50" fill="#654321"/>
+  
+  <!-- Pier pavilion at the end -->
+  <rect x="950" y="200" width="100" height="50" fill="#F5F5DC"/>
+  <polygon points="950,200 1000,180 1050,200" fill="#8B4513"/>
+  <rect x="975" y="220" width="15" height="20" fill="#4A4A4A"/>
+  <rect x="1010" y="220" width="15" height="20" fill="#4A4A4A"/>
+  
+  <!-- Grand Hotel Sopot (Belle Époque) -->
+  <rect x="100" y="280" width="200" height="100" fill="#F0F8FF"/>
+  <polygon points="100,280 200,250 300,280" fill="#8B4513"/>
+  
+  <!-- Hotel windows in rows -->
+  <rect x="120" y="300" width="12" height="18" fill="#4A4A4A"/>
+  <rect x="145" y="300" width="12" height="18" fill="#4A4A4A"/>
+  <rect x="170" y="300" width="12" height="18" fill="#4A4A4A"/>
+  <rect x="195" y="300" width="12" height="18" fill="#4A4A4A"/>
+  <rect x="220" y="300" width="12" height="18" fill="#4A4A4A"/>
+  <rect x="245" y="300" width="12" height="18" fill="#4A4A4A"/>
+  <rect x="270" y="300" width="12" height="18" fill="#4A4A4A"/>
+  
+  <rect x="120" y="330" width="12" height="18" fill="#4A4A4A"/>
+  <rect x="145" y="330" width="12" height="18" fill="#4A4A4A"/>
+  <rect x="170" y="330" width="12" height="18" fill="#4A4A4A"/>
+  <rect x="195" y="330" width="12" height="18" fill="#4A4A4A"/>
+  <rect x="220" y="330" width="12" height="18" fill="#4A4A4A"/>
+  <rect x="245" y="330" width="12" height="18" fill="#4A4A4A"/>
+  <rect x="270" y="330" width="12" height="18" fill="#4A4A4A"/>
+  
+  <!-- Hotel entrance -->
+  <rect x="185" y="350" width="30" height="30" fill="#8B4513"/>
+  <polygon points="185,350 200,340 215,350" fill="#654321"/>
+  
+  <!-- Monte Cassino Street -->
+  <rect x="200" y="400" width="800" height="30" fill="#D3D3D3"/>
+  
+  <!-- Elegant boutiques and cafes -->
+  <rect x="320" y="370" width="60" height="60" fill="#FFE4E1"/>
+  <polygon points="320,370 350,355 380,370" fill="#FF69B4"/>
+  <rect x="335" y="390" width="12" height="15" fill="#4A4A4A"/>
+  <rect x="355" y="390" width="12" height="15" fill="#4A4A4A"/>
+  <rect x="340" y="410" width="20" height="20" fill="#8B4513"/>
+  
+  <rect x="420" y="375" width="60" height="55" fill="#E6E6FA"/>
+  <polygon points="420,375 450,360 480,375" fill="#9370DB"/>
+  <rect x="435" y="395" width="12" height="15" fill="#4A4A4A"/>
+  <rect x="455" y="395" width="12" height="15" fill="#4A4A4A"/>
+  <rect x="440" y="415" width="20" height="15" fill="#8B4513"/>
+  
+  <rect x="520" y="370" width="60" height="60" fill="#F0E68C"/>
+  <polygon points="520,370 550,355 580,370" fill="#BDB76B"/>
+  <rect x="535" y="390" width="12" height="15" fill="#4A4A4A"/>
+  <rect x="555" y="390" width="12" height="15" fill="#4A4A4A"/>
+  <rect x="540" y="410" width="20" height="20" fill="#8B4513"/>
+  
+  <!-- Crooked House (Krzywy Domek) -->
+  <g id="crookedHouse">
+    <path d="M620 370 Q630 350 650 365 Q670 380 690 370 Q700 375 700 390 Q695 410 680 420 Q665 425 650 420 Q635 415 625 400 Q620 385 620 370 Z" fill="#87CEEB"/>
+    <path d="M620 370 Q640 355 670 365 Q690 375 700 390" stroke="#4169E1" stroke-width="3" fill="none"/>
+    
+    <!-- Wavy windows -->
+    <ellipse cx="640" cy="385" rx="6" ry="8" fill="#4A4A4A"/>
+    <ellipse cx="665" cy="390" rx="6" ry="8" fill="#4A4A4A"/>
+    
+    <!-- Curved door -->
+    <path d="M650 405 Q660 400 665 410 Q660 420 650 415 Q645 410 650 405 Z" fill="#8B4513"/>
+  </g>
+  
+  <!-- Art Nouveau villa -->
+  <rect x="750" y="360" width="80" height="70" fill="#DDA0DD"/>
+  <polygon points="750,360 790,340 830,360" fill="#8B008B"/>
+  
+  <!-- Art Nouveau decorative elements -->
+  <circle cx="790" cy="380" r="8" fill="#FFD700"/>
+  <path d="M780 370 Q790 365 800 370" stroke="#FF69B4" stroke-width="2" fill="none"/>
+  <path d="M780 390 Q790 385 800 390" stroke="#FF69B4" stroke-width="2" fill="none"/>
+  
+  <!-- Villa windows -->
+  <rect x="765" y="380" width="12" height="18" fill="#4A4A4A"/>
+  <rect x="803" y="380" width="12" height="18" fill="#4A4A4A"/>
+  <rect x="780" y="405" width="20" height="25" fill="#8B4513"/>
+  
+  <!-- Beach cabins -->
+  <rect x="150" y="400" width="20" height="30" fill="#FF6347"/>
+  <polygon points="150,400 160,390 170,400" fill="#DC143C"/>
+  
+  <rect x="180" y="400" width="20" height="30" fill="#4169E1"/>
+  <polygon points="180,400 190,390 200,400" fill="#0000CD"/>
+  
+  <rect x="210" y="400" width="20" height="30" fill="#32CD32"/>
+  <polygon points="210,400 220,390 230,400" fill="#228B22"/>
+  
+  <!-- People on beach -->
+  <circle cx="100" cy="420" r="3" fill="#FFE4C4"/>
+  <rect x="97" y="423" width="6" height="10" fill="#FF69B4"/>
+  <rect x="99" y="433" width="2" height="6" fill="#8B4513"/>
+  
+  <circle cx="250" cy="425" r="3" fill="#FFE4C4"/>
+  <rect x="247" y="428" width="6" height="10" fill="#4169E1"/>
+  <rect x="249" y="438" width="2" height="6" fill="#8B4513"/>
+  
+  <circle cx="1100" cy="430" r="3" fill="#FFE4C4"/>
+  <rect x="1097" y="433" width="6" height="10" fill="#FFD700"/>
+  <rect x="1099" y="443" width="2" height="6" fill="#8B4513"/>
+  
+  <!-- Seagulls -->
+  <path d="M300 150 Q305 145 310 150 Q315 145 320 150" stroke="#FFFFFF" stroke-width="2" fill="none"/>
+  <path d="M500 120 Q505 115 510 120 Q515 115 520 120" stroke="#FFFFFF" stroke-width="2" fill="none"/>
+  <path d="M800 180 Q805 175 810 180 Q815 175 820 180" stroke="#FFFFFF" stroke-width="2" fill="none"/>
+  <path d="M1000 140 Q1005 135 1010 140 Q1015 135 1020 140" stroke="#FFFFFF" stroke-width="2" fill="none"/>
+  
+  <!-- Elegant promenade with people -->
+  <circle cx="350" cy="415" r="3" fill="#FFE4C4"/>
+  <rect x="347" y="418" width="6" height="12" fill="#000000"/>
+  <rect x="349" y="430" width="2" height="8" fill="#8B4513"/>
+  <!-- Elegant hat -->
+  <ellipse cx="350" cy="410" rx="6" ry="3" fill="#8B008B"/>
+  
+  <circle cx="450" cy="410" r="3" fill="#FFE4C4"/>
+  <rect x="447" y="413" width="6" height="12" fill="#4169E1"/>
+  <rect x="449" y="425" width="2" height="8" fill="#8B4513"/>
+  <!-- Top hat -->
+  <rect x="448" y="405" width="4" height="8" fill="#000000"/>
+  <rect x="446" y="412" width="8" height="2" fill="#000000"/>
+  
+  <!-- Sunset reflection on water -->
+  <ellipse cx="900" cy="200" rx="50" ry="15" fill="#FFD700" opacity="0.6"/>
+  <ellipse cx="900" cy="210" rx="40" ry="12" fill="#FFA500" opacity="0.4"/>
+  <ellipse cx="900" cy="220" rx="30" ry="8" fill="#FF6347" opacity="0.3"/>
+  
+  <!-- Palm trees (exotic touch for resort atmosphere) -->
+  <g id="palm1" transform="translate(50,400)">
+    <rect x="0" y="0" width="6" height="50" fill="#8B4513"/>
+    <ellipse cx="3" cy="-5" rx="15" ry="8" fill="#228B22" transform="rotate(-20)"/>
+    <ellipse cx="3" cy="-5" rx="15" ry="8" fill="#228B22" transform="rotate(20)"/>
+    <ellipse cx="3" cy="-5" rx="15" ry="8" fill="#228B22" transform="rotate(60)"/>
+    <ellipse cx="3" cy="-5" rx="15" ry="8" fill="#228B22" transform="rotate(-60)"/>
+  </g>
+  
+  <g id="palm2" transform="translate(1130,390)">
+    <rect x="0" y="0" width="6" height="60" fill="#8B4513"/>
+    <ellipse cx="3" cy="-5" rx="15" ry="8" fill="#228B22" transform="rotate(-25)"/>
+    <ellipse cx="3" cy="-5" rx="15" ry="8" fill="#228B22" transform="rotate(25)"/>
+    <ellipse cx="3" cy="-5" rx="15" ry="8" fill="#228B22" transform="rotate(65)"/>
+    <ellipse cx="3" cy="-5" rx="15" ry="8" fill="#228B22" transform="rotate(-65)"/>
+  </g>
+  
+  <!-- Festival stage (Sopot Festival) -->
+  <rect x="850" y="380" width="100" height="50" fill="#8B008B"/>
+  <polygon points="850,380 900,360 950,380" fill="#9370DB"/>
+  <rect x="870" y="400" width="15" height="20" fill="#4A4A4A"/>
+  <rect x="895" y="400" width="15" height="20" fill="#4A4A4A"/>
+  <rect x="920" y="400" width="15" height="20" fill="#4A4A4A"/>
+  
+  <!-- Stage lights -->
+  <circle cx="875" cy="370" r="3" fill="#FFD700"/>
+  <circle cx="900" cy="370" r="3" fill="#FFD700"/>
+  <circle cx="925" cy="370" r="3" fill="#FFD700"/>
+  
+  <!-- Title -->
+  <text x="600" y="40" text-anchor="middle" font-family="serif" font-size="36" font-weight="bold" fill="#4169E1">SOPOT</text>
+  <text x="600" y="70" text-anchor="middle" font-family="serif" font-size="18" fill="#2F4F4F">Monte Carlo van het Noorden</text>
+</svg>
