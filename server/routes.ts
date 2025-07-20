@@ -2527,10 +2527,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (nameWithoutExt.toLowerCase().includes('warsaw') || nameWithoutExt.toLowerCase().includes('warschau')) return 'Warsaw';
     if (nameWithoutExt.toLowerCase().includes('bialowieza')) return 'Bialowieza';
     
-    // Default fallback
-    return nameWithoutExt.split('-').map(word => 
-      word.charAt(0).toUpperCase() + word.slice(1)
-    ).join(' ') || 'Onbekende Locatie';
+    // Default fallback - clean up filename to readable format
+    let cleanName = nameWithoutExt
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+    
+    // Remove common file extensions that might be in the name
+    cleanName = cleanName.replace(/\s*(Jpg|Jpeg|Png|Gif|Webp)$/i, '');
+    
+    return cleanName || 'Onbekende Locatie';
   }
 
   // Helper function to convert location name to filename
