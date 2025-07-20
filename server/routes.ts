@@ -277,9 +277,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let newFileName = '';
       
       if (req.body?.destination === 'motivatie' && req.body?.locationName && req.body.locationName.trim()) {
-        // For motivatie images, prioritize location name over fileName
+        // For motivatie images with locationName, use original filename extension but location-based name
         customName = locationNameToFilename(req.body.locationName.trim());
-        newFileName = getUniqueFilename(finalDirectory, customName, '.jpg');
+        const originalExtension = path.extname(req.file!.originalname);
+        newFileName = getUniqueFilename(finalDirectory, customName, originalExtension || '.jpg');
       } else if (req.body.fileName && req.body.fileName.trim()) {
         customName = req.body.fileName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
         // Voor gecroppte afbeeldingen, altijd .jpg gebruiken
