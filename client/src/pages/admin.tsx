@@ -1252,6 +1252,23 @@ export default function Admin() {
               Website Onderdelen
             </div>
             
+            {/* Pagina Management Subgroep */}
+            {currentUser?.canCreateContent && (
+              <div className="w-full pl-4 text-xs font-medium text-gray-400 px-2 py-1">
+                Pagina Management
+              </div>
+            )}
+            {currentUser?.canCreateContent && (
+              <>
+                <TabsTrigger value="pages" className="flex items-center gap-2 ml-2">
+                  📄 Pagina's
+                </TabsTrigger>
+                <TabsTrigger value="motivatie" className="flex items-center gap-2 ml-2">
+                  💫 Motivatie
+                </TabsTrigger>
+              </>
+            )}
+            
             {/* Content Types Subgroep */}
             {currentUser?.canCreateContent && (
               <div className="w-full pl-4 text-xs font-medium text-gray-400 px-2 py-1">
@@ -1271,23 +1288,6 @@ export default function Admin() {
                 </TabsTrigger>
                 <TabsTrigger value="featured" className="flex items-center gap-2 ml-2">
                   ⭐ Featured
-                </TabsTrigger>
-              </>
-            )}
-            
-            {/* Pagina Management Subgroep */}
-            {currentUser?.canCreateContent && (
-              <div className="w-full pl-4 text-xs font-medium text-gray-400 px-2 py-1">
-                Pagina Management
-              </div>
-            )}
-            {currentUser?.canCreateContent && (
-              <>
-                <TabsTrigger value="pages" className="flex items-center gap-2 ml-2">
-                  📄 Pagina's
-                </TabsTrigger>
-                <TabsTrigger value="motivatie" className="flex items-center gap-2 ml-2">
-                  💫 Motivatie
                 </TabsTrigger>
               </>
             )}
