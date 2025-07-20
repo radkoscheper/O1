@@ -223,6 +223,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log("File uploaded:", req.file.filename);
       console.log("Request body after multer:", req.body);
+      console.log("locationName received:", req.body?.locationName);
+      console.log("fileName received:", req.body?.fileName);
+      console.log("destination received:", req.body?.destination);
       
       let finalFileName = req.file.filename;
       
@@ -278,8 +281,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (req.body?.destination === 'motivatie' && req.body?.locationName && req.body.locationName.trim()) {
         // For motivatie images, prioritize location name over fileName
+        console.log("Using locationName for motivatie image:", req.body.locationName.trim());
         customName = locationNameToFilename(req.body.locationName.trim());
         newFileName = getUniqueFilename(finalDirectory, customName, '.jpg');
+        console.log("Generated filename from location:", newFileName);
       } else if (req.body.fileName && req.body.fileName.trim()) {
         customName = req.body.fileName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
         // Voor gecroppte afbeeldingen, altijd .jpg gebruiken
