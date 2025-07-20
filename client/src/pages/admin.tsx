@@ -1301,7 +1301,7 @@ export default function Admin() {
                   🎯 Activiteiten
                 </TabsTrigger>
                 <TabsTrigger value="guides" className="flex items-center gap-2 ml-2">
-                  📖 Reisgidsen
+                  📖 Reizen
                 </TabsTrigger>
                 <TabsTrigger value="featured" className="flex items-center gap-2 ml-2">
                   ⭐ Featured
@@ -2224,13 +2224,13 @@ export default function Admin() {
             </TabsContent>
           )}
 
-          {/* Bestaande Reisgidsen */}
+          {/* Bestaande Reizen */}
           {currentUser?.canCreateContent && (
             <TabsContent value="guides" className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
-                  <h2 className="text-2xl font-semibold">Reisgidsen ({getFilteredGuides().length} van {guidesQuery.data?.length || 0})</h2>
-                  <p className="text-gray-600">Beheer al je Polish reisgidsen en tips</p>
+                  <h2 className="text-2xl font-semibold">Reizen ({getFilteredGuides().length} van {guidesQuery.data?.length || 0})</h2>
+                  <p className="text-gray-600">Beheer al je Polish reizen en tips</p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2">
                   <Select value={guideFilter} onValueChange={setGuideFilter}>
@@ -2251,7 +2251,7 @@ export default function Admin() {
                     className="flex items-center gap-2"
                   >
                     <Plus className="h-4 w-4" />
-                    Nieuwe Reisgids
+                    Nieuwe Reis
                   </Button>
                 </div>
               </div>
@@ -2521,14 +2521,14 @@ export default function Admin() {
                 )}
               </div>
 
-              {/* Reisgidsen Sectie */}
+              {/* Reizen Sectie */}
               <div className="bg-purple-50 rounded-lg p-6">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-xl font-semibold text-purple-900">
-                    Reisgidsen ({guidesQuery.data?.filter((g: any) => g.showOnHomepage).length || 0} op homepage)
+                    Reizen ({guidesQuery.data?.filter((g: any) => g.showOnHomepage).length || 0} op homepage)
                   </h3>
                   <div className="text-sm text-purple-700">
-                    Totaal: {guidesQuery.data?.length || 0} reisgidsen
+                    Totaal: {guidesQuery.data?.length || 0} reizen
                   </div>
                 </div>
                 
@@ -2584,7 +2584,7 @@ export default function Admin() {
                 
                 {guidesQuery.data?.filter((g: any) => g.showOnHomepage).length === 0 && (
                   <div className="text-center py-8 text-purple-700">
-                    Geen reisgidsen geselecteerd voor homepage
+                    Geen reizen geselecteerd voor homepage
                   </div>
                 )}
               </div>
@@ -3847,12 +3847,12 @@ export default function Admin() {
                 {/* Verwijderde Reisgidsen */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Verwijderde Reisgidsen</CardTitle>
+                    <CardTitle>Verwijderde Reizen</CardTitle>
                     <CardDescription>Items die naar de prullenbak zijn verplaatst</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="text-sm text-gray-500">
-                      Verwijderde reisgidsen verschijnen hier
+                      Verwijderde reizen verschijnen hier
                     </div>
                     <div className="space-y-2">
                       {deletedGuidesQuery.data && deletedGuidesQuery.data.length > 0 ? (
@@ -4338,13 +4338,13 @@ export default function Admin() {
                       />
                     </div>
 
-                    {/* Reisgidsen Sectie */}
+                    {/* Reizen Sectie */}
                     <div className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex items-center space-x-3">
                         <div className="text-2xl">📖</div>
                         <div>
-                          <p className="font-medium">Reisgidsen</p>
-                          <p className="text-sm text-gray-500">Travel guides sectie</p>
+                          <p className="font-medium">Reizen</p>
+                          <p className="text-sm text-gray-500">Reizen sectie</p>
                         </div>
                       </div>
                       <Switch

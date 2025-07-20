@@ -1018,7 +1018,7 @@ export class DatabaseStorage implements IStorage {
           count: sql<number>`count(*)`,
           latest: sql<string>`max(updated_at)::text`
         }).from(guides).then(result => ({
-          tableName: 'Reisgidsen',
+          tableName: 'Reizen',
           recordCount: result[0].count,
           lastUpdated: result[0].latest ? new Date(result[0].latest).toLocaleDateString('nl-NL') : 'Onbekend'
         })),
