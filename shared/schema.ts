@@ -164,6 +164,7 @@ export const siteSettings = pgTable("site_settings", {
   customCSS: text("custom_css"),
   customJS: text("custom_js"),
   googleAnalyticsId: varchar("google_analytics_id", { length: 50 }),
+  showOntdekMeerSection: boolean("show_ontdek_meer_section").default(true).notNull(),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -185,6 +186,7 @@ export const insertSiteSettingsSchema = createInsertSchema(siteSettings).pick({
   customCSS: true,
   customJS: true,
   googleAnalyticsId: true,
+  showOntdekMeerSection: true,
   isActive: true,
 });
 
