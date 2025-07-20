@@ -2425,7 +2425,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get motivation (public)
   app.get("/api/motivation", async (req, res) => {
     try {
-      const result = await db.execute(sql`SELECT * FROM motivation WHERE is_published = true ORDER BY id LIMIT 1`);
+      const result = await db.execute(sql`SELECT * FROM motivation WHERE is_published = true AND show_on_homepage = true ORDER BY id LIMIT 1`);
       res.json(result.rows[0] || null);
     } catch (error) {
       console.error("Get motivation error:", error);
@@ -2458,7 +2458,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const id = parseInt(req.params.id);
-      const { title, description, buttonText, buttonAction, image, isPublished } = req.body;
+      const { title, description, buttonText, buttonAction, image, isPublished, showOnHomepage } = req.body;
 
       await db.execute(sql`
         UPDATE motivation 
@@ -2467,7 +2467,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             button_text = ${buttonText}, 
             button_action = ${buttonAction}, 
             image = ${image}, 
-            is_published = ${isPublished}, 
+            is_published = ${isPublished},
+            show_on_homepage = ${showOnHomepage ?? true}, 
             updated_at = NOW() 
         WHERE id = ${id}
       `);
