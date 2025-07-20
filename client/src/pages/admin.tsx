@@ -2693,6 +2693,14 @@ export default function Admin() {
                 <div>
                   <h2 className="text-2xl font-semibold">Activiteiten ({getFilteredActivities().length} van {activitiesQuery.data?.length || 0})</h2>
                   <p className="text-gray-600">Beheer activiteiten zoals musea, bergen, pleinen en restaurants</p>
+                  <div className="mt-2 flex items-center gap-2">
+                    <Badge variant="secondary" className="text-sm bg-amber-100 text-amber-800 border-amber-200">
+                      ⭐ Featured: {activitiesQuery.data?.filter((a: any) => a.featured).length || 0} van {activitiesQuery.data?.length || 0}
+                    </Badge>
+                    <Badge variant="outline" className="text-sm bg-green-50 text-green-700 border-green-200">
+                      ✅ Gepubliceerd: {activitiesQuery.data?.filter((a: any) => a.published).length || 0} van {activitiesQuery.data?.length || 0}
+                    </Badge>
+                  </div>
                 </div>
                 <Button onClick={() => {
                   console.log("DEBUG: Nieuwe Activiteit clicked, current state:", showCreateActivity);
