@@ -126,9 +126,12 @@ export const uploadImageToFolder = async (
   locationName?: string
 ): Promise<string> => {
   try {
+    // For motivatie images with locationName, don't use fileName
+    const finalFileName = (destination === 'motivatie' && locationName) ? '' : (fileName || file.name);
+    
     const result = await uploadFile({
       file,
-      fileName: fileName || file.name,
+      fileName: finalFileName,
       destination,
       type: 'image',
       entityName,
