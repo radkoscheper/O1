@@ -1007,56 +1007,56 @@ export class DatabaseStorage implements IStorage {
       const tableStats = await Promise.all([
         db.select({ 
           count: sql<number>`count(*)`,
-          latest: sql<Date>`max(updated_at)`
+          latest: sql<string>`max(updated_at)::text`
         }).from(destinations).then(result => ({
           tableName: 'Bestemmingen',
           recordCount: result[0].count,
-          lastUpdated: result[0].latest?.toLocaleDateString('nl-NL') || 'Onbekend'
+          lastUpdated: result[0].latest ? new Date(result[0].latest).toLocaleDateString('nl-NL') : 'Onbekend'
         })),
         
         db.select({ 
           count: sql<number>`count(*)`,
-          latest: sql<Date>`max(updated_at)`
+          latest: sql<string>`max(updated_at)::text`
         }).from(guides).then(result => ({
           tableName: 'Reisgidsen',
           recordCount: result[0].count,
-          lastUpdated: result[0].latest?.toLocaleDateString('nl-NL') || 'Onbekend'
+          lastUpdated: result[0].latest ? new Date(result[0].latest).toLocaleDateString('nl-NL') : 'Onbekend'
         })),
         
         db.select({ 
           count: sql<number>`count(*)`,
-          latest: sql<Date>`max(updated_at)`
+          latest: sql<string>`max(updated_at)::text`
         }).from(pages).then(result => ({
           tableName: 'Pagina\'s',
           recordCount: result[0].count,
-          lastUpdated: result[0].latest?.toLocaleDateString('nl-NL') || 'Onbekend'
+          lastUpdated: result[0].latest ? new Date(result[0].latest).toLocaleDateString('nl-NL') : 'Onbekend'
         })),
         
         db.select({ 
           count: sql<number>`count(*)`,
-          latest: sql<Date>`max(updated_at)`
+          latest: sql<string>`max(updated_at)::text`
         }).from(activities).then(result => ({
           tableName: 'Activiteiten',
           recordCount: result[0].count,
-          lastUpdated: result[0].latest?.toLocaleDateString('nl-NL') || 'Onbekend'
+          lastUpdated: result[0].latest ? new Date(result[0].latest).toLocaleDateString('nl-NL') : 'Onbekend'
         })),
         
         db.select({ 
           count: sql<number>`count(*)`,
-          latest: sql<Date>`max(updated_at)`
+          latest: sql<string>`max(updated_at)::text`
         }).from(highlights).then(result => ({
           tableName: 'Hoogtepunten',
           recordCount: result[0].count,
-          lastUpdated: result[0].latest?.toLocaleDateString('nl-NL') || 'Onbekend'
+          lastUpdated: result[0].latest ? new Date(result[0].latest).toLocaleDateString('nl-NL') : 'Onbekend'
         })),
         
         db.select({ 
           count: sql<number>`count(*)`,
-          latest: sql<Date>`max(updated_at)`
+          latest: sql<string>`max(updated_at)::text`
         }).from(users).then(result => ({
           tableName: 'Gebruikers',
           recordCount: result[0].count,
-          lastUpdated: result[0].latest?.toLocaleDateString('nl-NL') || 'Onbekend'
+          lastUpdated: result[0].latest ? new Date(result[0].latest).toLocaleDateString('nl-NL') : 'Onbekend'
         })),
         
         db.select({ 
