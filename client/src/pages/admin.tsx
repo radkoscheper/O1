@@ -3517,14 +3517,7 @@ export default function Admin() {
                       }}
                     />
 
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        id="motivationPublished"
-                        checked={motivationData.isPublished}
-                        onCheckedChange={(checked) => setMotivationData({ ...motivationData, isPublished: checked })}
-                      />
-                      <Label htmlFor="motivationPublished">Sectie tonen op homepage</Label>
-                    </div>
+
 
                     <div className="flex justify-end">
                       <Button onClick={handleUpdateMotivation}>
