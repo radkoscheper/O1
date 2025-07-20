@@ -276,14 +276,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let customName = '';
       let newFileName = '';
       
-      if (req.body.fileName && req.body.fileName.trim()) {
+      if (req.body?.destination === 'motivatie' && req.body?.locationName && req.body.locationName.trim()) {
+        // For motivatie images, prioritize location name over fileName
+        customName = locationNameToFilename(req.body.locationName.trim());
+        newFileName = getUniqueFilename(finalDirectory, customName, '.jpg');
+      } else if (req.body.fileName && req.body.fileName.trim()) {
         customName = req.body.fileName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
         // Voor gecroppte afbeeldingen, altijd .jpg gebruiken
         newFileName = customName + '.jpg';
-      } else if (req.body?.destination === 'motivatie' && req.body?.locationName) {
-        // Automatically name motivatie images based on location name
-        customName = locationNameToFilename(req.body.locationName);
-        newFileName = getUniqueFilename(finalDirectory, customName, '.jpg');
       }
 
       // Check if custom filename was provided and rename file
