@@ -1266,11 +1266,11 @@ export default function Admin() {
                 <TabsTrigger value="activities" className="flex items-center gap-2 ml-2">
                   🎯 Activiteiten
                 </TabsTrigger>
-                <TabsTrigger value="featured" className="flex items-center gap-2 ml-2">
-                  ⭐ Featured
-                </TabsTrigger>
                 <TabsTrigger value="guides" className="flex items-center gap-2 ml-2">
                   📖 Reisgidsen
+                </TabsTrigger>
+                <TabsTrigger value="featured" className="flex items-center gap-2 ml-2">
+                  ⭐ Featured
                 </TabsTrigger>
               </>
             )}
