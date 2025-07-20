@@ -279,7 +279,8 @@ export default function Admin() {
     buttonText: '',
     buttonAction: '',
     image: '',
-    isPublished: true
+    isPublished: true,
+    showOnHomepage: true
   });
 
   const [newDestination, setNewDestination] = useState({
@@ -447,7 +448,8 @@ export default function Admin() {
         buttonText: motivationQuery.data.button_text || '',
         buttonAction: motivationQuery.data.button_action || '',
         image: motivationQuery.data.image || '',
-        isPublished: motivationQuery.data.is_published ?? true
+        isPublished: motivationQuery.data.is_published ?? true,
+        showOnHomepage: motivationQuery.data.show_on_homepage ?? true
       });
     }
   }, [motivationQuery.data]);
@@ -3342,13 +3344,24 @@ export default function Admin() {
                       }}
                     />
 
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        id="motivationPublished"
-                        checked={motivationData.isPublished}
-                        onCheckedChange={(checked) => setMotivationData({ ...motivationData, isPublished: checked })}
-                      />
-                      <Label htmlFor="motivationPublished">Sectie tonen op homepage</Label>
+                    <div className="flex gap-6">
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id="motivationPublished"
+                          checked={motivationData.isPublished}
+                          onCheckedChange={(checked) => setMotivationData({ ...motivationData, isPublished: checked })}
+                        />
+                        <Label htmlFor="motivationPublished">Sectie publiceren</Label>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id="motivationHomepage"
+                          checked={motivationData.showOnHomepage}
+                          onCheckedChange={(checked) => setMotivationData({ ...motivationData, showOnHomepage: checked })}
+                        />
+                        <Label htmlFor="motivationHomepage">Tonen op homepage</Label>
+                      </div>
                     </div>
 
                     <div className="flex justify-end">

@@ -387,6 +387,7 @@ export const motivation = pgTable("motivation", {
   buttonText: text("button_text").notNull(),
   buttonAction: text("button_action"),
   image: text("image"),
+  showOnHomepage: boolean("show_on_homepage").default(true),
   isPublished: boolean("is_published").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
