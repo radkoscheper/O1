@@ -112,3 +112,30 @@ export const validateFileSize = (file: File, type: 'image' | 'favicon'): boolean
   const maxSize = type === 'favicon' ? 1024 * 1024 : 5 * 1024 * 1024;
   return file.size <= maxSize;
 };
+
+// Specific function for uploading images to folders (like motivatie, backgrounds, etc.)
+export const uploadImageToFolder = async (
+  file: File, 
+  destination: string, 
+  fileName: string = '', 
+  entityName: string = ''
+): Promise<string> => {
+  try {
+    const result = await uploadFile({
+      file,
+      fileName: fileName || file.name,
+      destination,
+      type: 'image',
+      entityName
+    });
+
+    if (result.success && result.imagePath) {
+      return result.imagePath;
+    } else {
+      throw new Error(result.message || 'Upload gefaald');
+    }
+  } catch (error) {
+    console.error('uploadImageToFolder error:', error);
+    throw error;
+  }
+};
