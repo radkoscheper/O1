@@ -93,6 +93,12 @@ export default function Home() {
     queryKey: ["/api/motivation"],
   });
 
+  // Fetch motivation image location name
+  const { data: motivationImageLocation } = useQuery({
+    queryKey: ["/api/motivation/image-location", motivationData?.image],
+    enabled: !!motivationData?.image,
+  });
+
   // Update document title and meta tags when site settings change
   useEffect(() => {
     if (siteSettings) {
@@ -478,7 +484,7 @@ export default function Home() {
                 {motivationData.button_text || "Lees onze gidsen"}
               </Button>
             </div>
-            <div className="flex-1 min-w-80">
+            <div className="flex-1 min-w-80 relative">
               <img
                 src={motivationData.image || "/images/motivatie/tatra-valley.jpg"}
                 alt="Motivatie afbeelding"
@@ -487,6 +493,12 @@ export default function Home() {
                   e.currentTarget.src = "/images/motivatie/tatra-valley.jpg";
                 }}
               />
+              {/* Location name overlay */}
+              {motivationImageLocation?.locationName && (
+                <div className="absolute bottom-4 right-4 bg-black bg-opacity-60 text-white px-3 py-2 rounded-lg text-sm font-medium">
+                  📍 {motivationImageLocation.locationName}
+                </div>
+              )}
             </div>
           </div>
         </section>

@@ -403,3 +403,24 @@ export const updateMotivationSchema = insertMotivationSchema.partial();
 export type InsertMotivation = z.infer<typeof insertMotivationSchema>;
 export type UpdateMotivation = z.infer<typeof updateMotivationSchema>;
 export type SelectMotivation = typeof motivation.$inferSelect;
+
+// Motivation Image Locations table
+export const motivationImageLocations = pgTable("motivation_image_locations", {
+  id: serial("id").primaryKey(),
+  imagePath: text("image_path").notNull().unique(), // Full path to the image
+  locationName: text("location_name").notNull(), // User-defined location name
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertMotivationImageLocationSchema = createInsertSchema(motivationImageLocations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const updateMotivationImageLocationSchema = insertMotivationImageLocationSchema.partial();
+
+export type InsertMotivationImageLocation = z.infer<typeof insertMotivationImageLocationSchema>;
+export type UpdateMotivationImageLocation = z.infer<typeof updateMotivationImageLocationSchema>;
+export type SelectMotivationImageLocation = typeof motivationImageLocations.$inferSelect;
