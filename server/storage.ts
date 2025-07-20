@@ -122,6 +122,22 @@ export interface IStorage {
   searchGuides(query: string): Promise<Guide[]>;
   searchPages(query: string): Promise<Page[]>;
   searchTemplates(query: string): Promise<Template[]>;
+
+  // Database monitoring operations
+  getDatabaseStatus(): Promise<{
+    connectionStatus: 'connected' | 'disconnected';
+    databaseName: string;
+    totalTables: number;
+    totalRecords: number;
+    lastBackup?: string;
+    storageSize?: string;
+    uptime?: string;
+  }>;
+  getTableStatistics(): Promise<{
+    tableName: string;
+    recordCount: number;
+    lastUpdated?: string;
+  }[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -922,6 +938,149 @@ export class DatabaseStorage implements IStorage {
     );
 
     return db.select().from(templates).where(whereCondition);
+  }
+
+  async getDatabaseStatus() {
+    try {
+      // Test database connection and get basic info
+      const connectionTest = await db.execute(sql`SELECT 1`);
+      const dbNameResult = await db.execute(sql`SELECT current_database()`);
+      
+      // Count all tables
+      const tablesResult = await db.execute(sql`
+        SELECT COUNT(*) as table_count 
+        FROM information_schema.tables 
+        WHERE table_schema = 'public'
+      `);
+      
+      // Get total records across all content tables
+      const recordCounts = await Promise.all([
+        db.select({ count: sql<number>`count(*)` }).from(destinations),
+        db.select({ count: sql<number>`count(*)` }).from(guides),
+        db.select({ count: sql<number>`count(*)` }).from(pages),
+        db.select({ count: sql<number>`count(*)` }).from(activities),
+        db.select({ count: sql<number>`count(*)` }).from(highlights),
+        db.select({ count: sql<number>`count(*)` }).from(users),
+        db.select({ count: sql<number>`count(*)` }).from(templates),
+        db.select({ count: sql<number>`count(*)` }).from(searchConfigs)
+      ]);
+      
+      const totalRecords = recordCounts.reduce((sum, result) => sum + result[0].count, 0);
+      
+      // Get database size (Neon specific)
+      let storageSize = 'N/A';
+      try {
+        const sizeResult = await db.execute(sql`
+          SELECT pg_size_pretty(pg_database_size(current_database())) as size
+        `);
+        storageSize = (sizeResult.rows[0] as any)?.size || 'N/A';
+      } catch {
+        // Fallback if permissions don't allow
+        storageSize = 'Beperkte toegang';
+      }
+
+      return {
+        connectionStatus: 'connected' as const,
+        databaseName: (dbNameResult.rows[0] as any)?.current_database || 'ontdek-polen',
+        totalTables: Number((tablesResult.rows[0] as any)?.table_count || 0),
+        totalRecords,
+        storageSize,
+        uptime: 'N/A (Serverless)',
+        lastBackup: 'Automatisch (Neon)'
+      };
+    } catch (error) {
+      console.error('Database status check failed:', error);
+      return {
+        connectionStatus: 'disconnected' as const,
+        databaseName: 'Onbekend',
+        totalTables: 0,
+        totalRecords: 0,
+        storageSize: 'N/A',
+        uptime: 'N/A',
+        lastBackup: 'N/A'
+      };
+    }
+  }
+
+  async getTableStatistics() {
+    try {
+      const tableStats = await Promise.all([
+        db.select({ 
+          count: sql<number>`count(*)`,
+          latest: sql<Date>`max(updated_at)`
+        }).from(destinations).then(result => ({
+          tableName: 'Bestemmingen',
+          recordCount: result[0].count,
+          lastUpdated: result[0].latest?.toLocaleDateString('nl-NL') || 'Onbekend'
+        })),
+        
+        db.select({ 
+          count: sql<number>`count(*)`,
+          latest: sql<Date>`max(updated_at)`
+        }).from(guides).then(result => ({
+          tableName: 'Reisgidsen',
+          recordCount: result[0].count,
+          lastUpdated: result[0].latest?.toLocaleDateString('nl-NL') || 'Onbekend'
+        })),
+        
+        db.select({ 
+          count: sql<number>`count(*)`,
+          latest: sql<Date>`max(updated_at)`
+        }).from(pages).then(result => ({
+          tableName: 'Pagina\'s',
+          recordCount: result[0].count,
+          lastUpdated: result[0].latest?.toLocaleDateString('nl-NL') || 'Onbekend'
+        })),
+        
+        db.select({ 
+          count: sql<number>`count(*)`,
+          latest: sql<Date>`max(updated_at)`
+        }).from(activities).then(result => ({
+          tableName: 'Activiteiten',
+          recordCount: result[0].count,
+          lastUpdated: result[0].latest?.toLocaleDateString('nl-NL') || 'Onbekend'
+        })),
+        
+        db.select({ 
+          count: sql<number>`count(*)`,
+          latest: sql<Date>`max(updated_at)`
+        }).from(highlights).then(result => ({
+          tableName: 'Hoogtepunten',
+          recordCount: result[0].count,
+          lastUpdated: result[0].latest?.toLocaleDateString('nl-NL') || 'Onbekend'
+        })),
+        
+        db.select({ 
+          count: sql<number>`count(*)`,
+          latest: sql<Date>`max(updated_at)`
+        }).from(users).then(result => ({
+          tableName: 'Gebruikers',
+          recordCount: result[0].count,
+          lastUpdated: result[0].latest?.toLocaleDateString('nl-NL') || 'Onbekend'
+        })),
+        
+        db.select({ 
+          count: sql<number>`count(*)`
+        }).from(templates).then(result => ({
+          tableName: 'Templates',
+          recordCount: result[0].count,
+          lastUpdated: 'Statisch'
+        })),
+        
+        db.select({ 
+          count: sql<number>`count(*)`
+        }).from(searchConfigs).then(result => ({
+          tableName: 'Zoek Configuraties',
+          recordCount: result[0].count,
+          lastUpdated: 'Statisch'
+        }))
+      ]);
+
+      return tableStats;
+    } catch (error) {
+      console.error('Table statistics failed:', error);
+      return [];
+    }
   }
 }
 
