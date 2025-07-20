@@ -470,9 +470,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create admin user (for initial setup)
+  // Create admin user (for initial setup only - disabled if admin users already exist)
   app.post("/api/setup-admin", async (req, res) => {
     try {
+      // Security: Check if any admin users already exist
+      const allUsers = await storage.getAllUsers();
+      const adminUsers = allUsers.filter(user => user.role === 'admin');
+      
+      if (adminUsers.length > 0) {
+        return res.status(403).json({ 
+          message: "Setup disabled: Admin users already exist. Use normal user creation process." 
+        });
+      }
+
       const validation = insertUserSchema.safeParse(req.body);
       if (!validation.success) {
         return res.status(400).json({ message: "Invalid input" });
@@ -480,16 +490,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { username, password } = validation.data as { username: string; password: string };
       
-      // Check if admin already exists
+      // Check if username already exists
       const existingUser = await storage.getUserByUsername(username);
       if (existingUser) {
         return res.status(400).json({ message: "User already exists" });
       }
 
+      // Create admin user with full permissions
       const hashedPassword = await bcrypt.hash(password, 10);
-      const user = await storage.createUser({ username, password: hashedPassword });
+      const user = await storage.createUser({ 
+        username, 
+        password: hashedPassword,
+        role: 'admin',
+        canCreateContent: true,
+        canEditContent: true,
+        canDeleteContent: true,
+        canManageUsers: true
+      });
       
-      res.json({ message: "Admin user created", user: { id: user.id, username: user.username } });
+      res.json({ message: "Initial admin user created", user: { id: user.id, username: user.username } });
     } catch (error) {
       res.status(500).json({ message: "Server error" });
     }
