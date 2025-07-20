@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
-import { Plus, Edit, Eye, Save, LogIn, LogOut, Shield, Users, UserPlus, Trash2, Key, Upload, X, Image as ImageIcon, RotateCcw, Trash, Copy, Crop as CropIcon, Move, RotateCw, Check, RefreshCw, FolderOpen, ExternalLink } from "lucide-react";
+import { Plus, Edit, Eye, Save, LogIn, LogOut, Shield, Users, UserPlus, Trash2, Key, Upload, X, Image as ImageIcon, RotateCcw, Trash, Copy, Crop as CropIcon, Move, RotateCw, Check, RefreshCw, FolderOpen, ExternalLink, Edit2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { uploadFile, uploadImageToFolder } from "@/lib/uploadUtils";
 import { useQuery } from "@tanstack/react-query";
@@ -7654,8 +7654,15 @@ function MotivationImageSelector({
   onImageSelect: (imagePath: string) => void,
   onImageUpload: (file: File) => Promise<string>
 }) {
-  const [availableImages, setAvailableImages] = useState<string[]>([]);
+  const [availableImages, setAvailableImages] = useState<Array<{
+    name: string,
+    path: string,
+    fullPath: string,
+    locationName: string
+  }>>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [editingLocation, setEditingLocation] = useState<string | null>(null);
+  const [editLocationName, setEditLocationName] = useState('');
   const { toast } = useToast();
 
   // Load available motivation images
@@ -7665,17 +7672,57 @@ function MotivationImageSelector({
 
   const loadAvailableImages = async () => {
     try {
-      // Get all files in motivatie folder
+      // Get all files in motivatie folder with location names
       const response = await fetch('/api/admin/images/motivatie', {
         credentials: 'include'
       });
       
       if (response.ok) {
         const images = await response.json();
-        setAvailableImages(images.map((img: any) => img.path));
+        setAvailableImages(images);
       }
     } catch (error) {
       console.error('Error loading motivation images:', error);
+    }
+  };
+
+  const handleLocationNameUpdate = async (imagePath: string, newLocationName: string) => {
+    try {
+      const response = await fetch('/api/admin/images/motivatie/location', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ imagePath, locationName: newLocationName })
+      });
+
+      if (response.ok) {
+        toast({ 
+          title: "Succes", 
+          description: "Locatie naam bijgewerkt" 
+        });
+        
+        // Update local state
+        setAvailableImages(images => 
+          images.map(img => 
+            img.path === imagePath 
+              ? { ...img, locationName: newLocationName }
+              : img
+          )
+        );
+        
+        setEditingLocation(null);
+        setEditLocationName('');
+      } else {
+        throw new Error('Kon locatie naam niet bijwerken');
+      }
+    } catch (error) {
+      toast({ 
+        title: "Fout", 
+        description: "Kon locatie naam niet bijwerken", 
+        variant: "destructive" 
+      });
     }
   };
 
@@ -7783,26 +7830,87 @@ function MotivationImageSelector({
       {/* Available Images Gallery */}
       <div className="space-y-2">
         <Label className="text-sm text-gray-600">Beschikbare afbeeldingen ({availableImages.length}):</Label>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {availableImages.map((imagePath, index) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {availableImages.map((image, index) => (
             <div 
               key={index} 
-              className={`relative group cursor-pointer border rounded-md overflow-hidden transition-all ${
-                currentImage === imagePath ? 'ring-2 ring-blue-500' : 'hover:ring-2 hover:ring-gray-300'
+              className={`relative group border rounded-md overflow-hidden transition-all ${
+                currentImage === image.path ? 'ring-2 ring-blue-500' : 'hover:ring-2 hover:ring-gray-300'
               }`}
-              onClick={() => onImageSelect(imagePath)}
             >
-              <img 
-                src={imagePath} 
-                alt={`Motivatie afbeelding ${index + 1}`}
-                className="w-full h-24 object-cover"
-                onError={(e) => {
-                  e.currentTarget.src = "/images/motivatie/tatra-valley.jpg";
-                }}
-              />
+              <div className="cursor-pointer" onClick={() => onImageSelect(image.path)}>
+                <img 
+                  src={image.path} 
+                  alt={`Motivatie afbeelding: ${image.locationName}`}
+                  className="w-full h-32 object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = "/images/motivatie/tatra-valley.jpg";
+                  }}
+                />
+                
+                {/* Location name overlay */}
+                <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 text-white p-2">
+                  {editingLocation === image.path ? (
+                    <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                      <input
+                        type="text"
+                        value={editLocationName}
+                        onChange={(e) => setEditLocationName(e.target.value)}
+                        className="flex-1 px-2 py-1 text-xs bg-white text-black rounded"
+                        placeholder="Locatie naam"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            handleLocationNameUpdate(image.path, editLocationName);
+                          } else if (e.key === 'Escape') {
+                            setEditingLocation(null);
+                            setEditLocationName('');
+                          }
+                        }}
+                        autoFocus
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => handleLocationNameUpdate(image.path, editLocationName)}
+                      >
+                        <Check className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setEditingLocation(null);
+                          setEditLocationName('');
+                        }}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">{image.locationName}</span>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 w-6 p-0 text-white hover:bg-white hover:text-black"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingLocation(image.path);
+                          setEditLocationName(image.locationName);
+                        }}
+                      >
+                        <Edit className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
               
-              {/* Overlay with actions */}
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all flex items-center justify-center">
+              {/* Action buttons overlay */}
+              <div className="absolute top-0 right-0 p-2">
                 <div className="hidden group-hover:flex gap-2">
                   <Button
                     type="button"
@@ -7810,7 +7918,7 @@ function MotivationImageSelector({
                     variant="secondary"
                     onClick={(e) => {
                       e.stopPropagation();
-                      onImageSelect(imagePath);
+                      onImageSelect(image.path);
                     }}
                   >
                     <Check className="h-3 w-3" />
@@ -7821,7 +7929,7 @@ function MotivationImageSelector({
                     variant="destructive"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleDelete(imagePath);
+                      handleDelete(image.path);
                     }}
                   >
                     <Trash className="h-3 w-3" />
@@ -7830,8 +7938,8 @@ function MotivationImageSelector({
               </div>
               
               {/* Selected indicator */}
-              {currentImage === imagePath && (
-                <div className="absolute top-1 right-1">
+              {currentImage === image.path && (
+                <div className="absolute top-2 left-2">
                   <div className="bg-blue-500 text-white rounded-full p-1">
                     <Check className="h-3 w-3" />
                   </div>

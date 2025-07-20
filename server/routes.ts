@@ -2427,7 +2427,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get motivation images
+  // Get motivation images with location names
   app.get("/api/admin/images/motivatie", requireAuth, async (req, res) => {
     try {
       const user = await storage.getUser(req.session.userId!);
@@ -2447,15 +2447,118 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'].includes(ext);
       });
 
-      const images = imageFiles.map(file => ({
-        name: file,
-        path: `/images/motivatie/${file}`,
-        fullPath: path.join(motivatiePath, file)
-      }));
+      // Get location names from database
+      const locationNamesResult = await db.execute(sql`
+        SELECT image_path, location_name 
+        FROM motivation_image_locations
+      `);
+
+      const locationNamesMap = new Map();
+      locationNamesResult.rows.forEach((row: any) => {
+        locationNamesMap.set(row.image_path, row.location_name);
+      });
+
+      const images = imageFiles.map(file => {
+        const imagePath = `/images/motivatie/${file}`;
+        return {
+          name: file,
+          path: imagePath,
+          fullPath: path.join(motivatiePath, file),
+          locationName: locationNamesMap.get(imagePath) || extractLocationFromFilename(file)
+        };
+      });
 
       res.json(images);
     } catch (error) {
       console.error("Error loading motivation images:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Helper function to extract location name from filename
+  function extractLocationFromFilename(filename: string): string {
+    const nameWithoutExt = filename.replace(/\.[^/.]+$/, "");
+    
+    // Check for common location patterns
+    if (nameWithoutExt.toLowerCase().includes('tatra')) return 'Tatra Mountains';
+    if (nameWithoutExt.toLowerCase().includes('krakow')) return 'Krakow';
+    if (nameWithoutExt.toLowerCase().includes('gdansk')) return 'Gdansk';
+    if (nameWithoutExt.toLowerCase().includes('warsaw') || nameWithoutExt.toLowerCase().includes('warschau')) return 'Warsaw';
+    if (nameWithoutExt.toLowerCase().includes('bialowieza')) return 'Bialowieza';
+    
+    // Default fallback
+    return nameWithoutExt.split('-').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ') || 'Onbekende Locatie';
+  }
+
+  // Update motivation image location name
+  app.put("/api/admin/images/motivatie/location", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || !user.canEditContent) {
+        return res.status(403).json({ message: "Geen toestemming om content te bewerken" });
+      }
+
+      const { imagePath, locationName } = req.body;
+
+      if (!imagePath || !locationName) {
+        return res.status(400).json({ message: "Image path en locatie naam zijn verplicht" });
+      }
+
+      // Check if record exists, update or insert
+      const existingResult = await db.execute(sql`
+        SELECT id FROM motivation_image_locations 
+        WHERE image_path = ${imagePath}
+      `);
+
+      if (existingResult.rows.length > 0) {
+        // Update existing
+        await db.execute(sql`
+          UPDATE motivation_image_locations 
+          SET location_name = ${locationName}, updated_at = NOW()
+          WHERE image_path = ${imagePath}
+        `);
+      } else {
+        // Insert new
+        await db.execute(sql`
+          INSERT INTO motivation_image_locations (image_path, location_name)
+          VALUES (${imagePath}, ${locationName})
+        `);
+      }
+
+      res.json({ success: true, message: "Locatie naam succesvol bijgewerkt" });
+    } catch (error) {
+      console.error("Error updating motivation image location:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Get motivation image location name for homepage display
+  app.get("/api/motivation/image-location", async (req, res) => {
+    try {
+      const { imagePath } = req.query;
+
+      if (!imagePath) {
+        return res.status(400).json({ message: "Image path is required" });
+      }
+
+      const result = await db.execute(sql`
+        SELECT location_name 
+        FROM motivation_image_locations 
+        WHERE image_path = ${imagePath as string}
+      `);
+
+      if (result.rows.length > 0) {
+        res.json({ locationName: result.rows[0].location_name });
+      } else {
+        // Fallback to extracted name from filename
+        const filename = (imagePath as string).split('/').pop() || '';
+        const fallbackName = extractLocationFromFilename(filename);
+        res.json({ locationName: fallbackName });
+      }
+    } catch (error) {
+      console.error("Error getting motivation image location:", error);
       res.status(500).json({ message: "Server error" });
     }
   });
