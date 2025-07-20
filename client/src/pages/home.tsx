@@ -73,9 +73,18 @@ export default function Home() {
     queryKey: ["/api/pages"],
   });
 
-  // Fetch highlights from database
-  const { data: highlights = [], isLoading: highlightsLoading } = useQuery({
-    queryKey: ["/api/highlights"],
+  // Fetch featured activities from database (replaces old highlights)
+  const { data: featuredActivities = [], isLoading: featuredLoading } = useQuery({
+    queryKey: ["/api/admin/activities"],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/activities');
+      if (!response.ok) {
+        throw new Error('Failed to fetch activities');
+      }
+      const activities = await response.json();
+      // Filter for featured and published activities only
+      return activities.filter(activity => activity.featured === true && activity.published === true);
+    },
   });
 
   // Fetch site settings
@@ -208,7 +217,7 @@ export default function Home() {
   const publishedPages = pages.filter((page: any) => page.published);
   
   // Show loading state
-  if (destinationsLoading || guidesLoading || pagesLoading || highlightsLoading || settingsLoading) {
+  if (destinationsLoading || guidesLoading || pagesLoading || featuredLoading || settingsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#f8f6f1" }}>
         <div className="text-center">
@@ -509,33 +518,57 @@ export default function Home() {
         </section>
       )}
 
-      {/* Highlights Section - From Database */}
-      {siteSettings?.showHighlights && highlights.length > 0 && (
+      {/* Featured Activities Section - From Database */}
+      {siteSettings?.showHighlights && featuredActivities.length > 0 && (
         <section className="py-16 px-5 max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
-            Hoogtepunten van Polen
+            Hoogtepunten van Polen ({featuredActivities.length})
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {highlights.map((highlight) => (
-              <div key={highlight.id} className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer text-center">
-                <img
-                  src={highlight.iconPath}
-                  alt={highlight.name}
-                  className="w-16 h-16 mx-auto mb-3"
-                  onError={(e) => {
-                    e.currentTarget.src = '/images/highlights/placeholder.svg';
-                  }}
-                />
-                <h3 className="font-bold font-inter text-gray-900 text-sm">
-                  {highlight.name}
-                </h3>
-                {highlight.category !== 'general' && (
-                  <p className="text-xs text-gray-500 mt-1 capitalize">
-                    {highlight.category}
-                  </p>
-                )}
-              </div>
-            ))}
+            {featuredActivities
+              .sort((a, b) => (a.ranking || 0) - (b.ranking || 0)) // Sort by ranking
+              .map((activity) => {
+                const CardContent = (
+                  <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer text-center">
+                    <img
+                      src={activity.image || '/images/activities/placeholder.svg'}
+                      alt={activity.alt || activity.name}
+                      className="w-16 h-16 mx-auto mb-3 object-cover rounded-lg"
+                      onError={(e) => {
+                        e.currentTarget.src = '/images/activities/placeholder.svg';
+                      }}
+                    />
+                    <h3 className="font-bold font-inter text-gray-900 text-sm">
+                      {activity.name}
+                    </h3>
+                    <p className="text-xs text-gray-500 mt-1">
+                      📍 {activity.location}
+                    </p>
+                    {activity.category && (
+                      <p className="text-xs text-blue-600 mt-1 capitalize">
+                        {activity.category}
+                      </p>
+                    )}
+                  </div>
+                );
+
+                // Handle external links
+                if (activity.link && activity.link.startsWith('http')) {
+                  return (
+                    <a
+                      key={activity.id}
+                      href={activity.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {CardContent}
+                    </a>
+                  );
+                }
+
+                // Internal link or no link
+                return <div key={activity.id}>{CardContent}</div>;
+              })}
           </div>
         </section>
       )}
