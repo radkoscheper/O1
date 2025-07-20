@@ -472,7 +472,7 @@ export default function Home() {
 
 
       {/* CTA Section - Dynamic from Database */}
-      {motivationData && motivationData.is_published && (
+      {motivationData && motivationData.is_published && siteSettings?.showMotivationOnHomepage && (
         <section className="py-16 px-5 max-w-6xl mx-auto">
           <div className="flex flex-wrap gap-8 items-center justify-between">
             <div className="flex-1 min-w-80">
@@ -542,7 +542,7 @@ export default function Home() {
       )}
 
       {/* Published Pages */}
-      {publishedPages.length > 0 && (
+      {publishedPages.length > 0 && siteSettings?.showOntdekMeerOnHomepage && (
         <section className="py-16 px-5 max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl font-bold font-inter text-gray-900">
