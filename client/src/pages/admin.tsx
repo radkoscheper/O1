@@ -399,6 +399,11 @@ export default function Admin() {
     customCSS: '',
     customJS: '',
     googleAnalyticsId: '',
+    showDestinations: true,
+    showMotivation: true,
+    showHighlights: true,
+    showOntdekMeer: true,
+    showGuides: true,
   });
 
   // Check authentication status on component mount
@@ -432,6 +437,11 @@ export default function Admin() {
         customCSS: siteSettingsQuery.data.customCSS || '',
         customJS: siteSettingsQuery.data.customJS || '',
         googleAnalyticsId: siteSettingsQuery.data.googleAnalyticsId || '',
+        showDestinations: siteSettingsQuery.data.showDestinations ?? true,
+        showMotivation: siteSettingsQuery.data.showMotivation ?? true,
+        showHighlights: siteSettingsQuery.data.showHighlights ?? true,
+        showOntdekMeer: siteSettingsQuery.data.showOntdekMeer ?? true,
+        showGuides: siteSettingsQuery.data.showGuides ?? true,
       };
       console.log('Setting new site settings state:', newSettings);
       setSiteSettings(newSettings);
@@ -3894,6 +3904,109 @@ export default function Admin() {
                   </CardContent>
                 </Card>
               </div>
+
+              {/* Homepage Content Visibility Controls */}
+              <Card className="lg:col-span-2">
+                <CardHeader>
+                  <CardTitle>Homepage Content Zichtbaarheid</CardTitle>
+                  <CardDescription>Beheer welke secties zichtbaar zijn op de homepage</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {/* Bestemmingen Sectie */}
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className="text-2xl">🏔️</div>
+                        <div>
+                          <p className="font-medium">Bestemmingen</p>
+                          <p className="text-sm text-gray-500">Hoofdcards van bestemmingen</p>
+                        </div>
+                      </div>
+                      <Switch
+                        checked={siteSettings.showDestinations}
+                        onCheckedChange={(checked) => 
+                          setSiteSettings({...siteSettings, showDestinations: checked})
+                        }
+                      />
+                    </div>
+
+                    {/* Motivatie Sectie */}
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className="text-2xl">💫</div>
+                        <div>
+                          <p className="font-medium">Motivatie Sectie</p>
+                          <p className="text-sm text-gray-500">Call-to-action banner</p>
+                        </div>
+                      </div>
+                      <Switch
+                        checked={siteSettings.showMotivation}
+                        onCheckedChange={(checked) => 
+                          setSiteSettings({...siteSettings, showMotivation: checked})
+                        }
+                      />
+                    </div>
+
+                    {/* Hoogtepunten Sectie */}
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className="text-2xl">✨</div>
+                        <div>
+                          <p className="font-medium">Hoogtepunten</p>
+                          <p className="text-sm text-gray-500">Featured highlights grid</p>
+                        </div>
+                      </div>
+                      <Switch
+                        checked={siteSettings.showHighlights}
+                        onCheckedChange={(checked) => 
+                          setSiteSettings({...siteSettings, showHighlights: checked})
+                        }
+                      />
+                    </div>
+
+                    {/* Ontdek Meer Sectie */}
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className="text-2xl">📄</div>
+                        <div>
+                          <p className="font-medium">Ontdek Meer</p>
+                          <p className="text-sm text-gray-500">Template-gebaseerde pagina's</p>
+                        </div>
+                      </div>
+                      <Switch
+                        checked={siteSettings.showOntdekMeer}
+                        onCheckedChange={(checked) => 
+                          setSiteSettings({...siteSettings, showOntdekMeer: checked})
+                        }
+                      />
+                    </div>
+
+                    {/* Reisgidsen Sectie */}
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className="text-2xl">📖</div>
+                        <div>
+                          <p className="font-medium">Reisgidsen</p>
+                          <p className="text-sm text-gray-500">Travel guides sectie</p>
+                        </div>
+                      </div>
+                      <Switch
+                        checked={siteSettings.showGuides}
+                        onCheckedChange={(checked) => 
+                          setSiteSettings({...siteSettings, showGuides: checked})
+                        }
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-sm text-blue-800">
+                      <strong>💡 Tip:</strong> Uitgeschakelde secties worden volledig verborgen op de homepage. 
+                      Content blijft wel beschikbaar via directe links en in de admin interface.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
               
               <div className="text-sm text-gray-600 pt-4 border-t">
                 <p>💡 Tip: Gebruik de achtergrond afbeelding voor een mooie header op je website</p>
