@@ -1588,7 +1588,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get page by slug (public)
+  // Get destination by slug (public) - NEW OPTIMIZED ROUTE
+  app.get("/api/destinations/:slug", async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const destination = await storage.getDestinationBySlug(slug);
+      
+      if (!destination || !destination.published || destination.is_deleted) {
+        return res.status(404).json({ message: "Destination not found" });
+      }
+      
+      // Transform destination to page-like format for frontend compatibility
+      const destinationPage = {
+        id: destination.id,
+        title: destination.name,
+        slug: destination.slug,
+        content: destination.content,
+        metaTitle: `${destination.name} - Ontdek Polen`,
+        metaDescription: `Mooie plekken in ${destination.name} ontdekken`,
+        metaKeywords: `${destination.name}, Polen, reizen, ${destination.location}`,
+        template: "destination",
+        headerImage: destination.image,
+        headerImageAlt: destination.alt,
+        published: destination.published,
+        featured: destination.featured,
+        ranking: destination.ranking,
+        createdAt: destination.createdAt,
+        updatedAt: destination.updatedAt,
+        // Additional destination-specific fields
+        location: destination.location,
+        description: destination.description,
+        link: destination.link,
+        type: "destination"
+      };
+      
+      res.json(destinationPage);
+    } catch (error) {
+      console.error("Error fetching destination:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Get page by slug (public) - FALLBACK FOR EXISTING PAGES
   app.get("/api/pages/:slug", async (req, res) => {
     try {
       const { slug } = req.params;

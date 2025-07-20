@@ -440,32 +440,29 @@ export default function Home() {
               </Card>
             );
 
-            // If destination has a link, wrap in Link component or external link
-            if (destination.link) {
-              // Check if it's an external link (starts with http)
-              if (destination.link.startsWith('http')) {
-                return (
-                  <a
-                    key={destination.id}
-                    href={destination.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {CardContent}
-                  </a>
-                );
-              } else {
-                // Internal link
-                return (
-                  <Link key={destination.id} href={destination.link}>
-                    {CardContent}
-                  </Link>
-                );
-              }
+            // OPTIMIZED: Auto-link all destinations to their optimized routes
+            // External links take precedence, then auto-generated destination links
+            if (destination.link && destination.link.startsWith('http')) {
+              // External link - open in new tab
+              return (
+                <a
+                  key={destination.id}
+                  href={destination.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {CardContent}
+                </a>
+              );
+            } else {
+              // Auto-link to destination slug (optimized route)
+              // This uses the new destination-first API that tries destinations before pages
+              return (
+                <Link key={destination.id} href={`/${destination.slug}`}>
+                  {CardContent}
+                </Link>
+              );
             }
-
-            // No link, just return the card
-            return <div key={destination.id}>{CardContent}</div>;
           })}
         </div>
         </section>

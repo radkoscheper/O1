@@ -153,14 +153,30 @@ export default function Page() {
     }
   };
   
+  // Try destinations first, fallback to pages - OPTIMIZED APPROACH
   const { data: page, isLoading, error } = useQuery({
-    queryKey: ['/api/pages', slug],
+    queryKey: ['/api/content', slug],
     queryFn: async () => {
-      const response = await fetch(`/api/pages/${slug}`);
-      if (!response.ok) {
-        throw new Error('Page not found');
+      // First try destinations (most likely for Polish travel content)
+      try {
+        const destResponse = await fetch(`/api/destinations/${slug}`);
+        if (destResponse.ok) {
+          const destinationData = await destResponse.json();
+          console.log('Found destination:', destinationData.title);
+          return destinationData;
+        }
+      } catch (error) {
+        console.log('Destination not found, trying pages...');
       }
-      return response.json();
+      
+      // Fallback to pages for custom content
+      const pageResponse = await fetch(`/api/pages/${slug}`);
+      if (!pageResponse.ok) {
+        throw new Error('Content not found');
+      }
+      const pageData = await pageResponse.json();
+      console.log('Found page:', pageData.title);
+      return pageData;
     },
   });
 
