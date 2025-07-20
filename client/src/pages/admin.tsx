@@ -1219,6 +1219,9 @@ export default function Admin() {
                 <TabsTrigger value="templates" className="flex items-center gap-2">
                   🎨 Templates
                 </TabsTrigger>
+                <TabsTrigger value="ontdek-meer" className="flex items-center gap-2">
+                  📄 Ontdek Meer
+                </TabsTrigger>
                 <TabsTrigger value="search-configs" className="flex items-center gap-2">
                   🔍 Zoekbalk CMS
                 </TabsTrigger>
@@ -1272,9 +1275,6 @@ export default function Admin() {
               <>
                 <TabsTrigger value="pages" className="flex items-center gap-2 ml-2">
                   📄 Pagina's
-                </TabsTrigger>
-                <TabsTrigger value="ontdek-meer" className="flex items-center gap-2 ml-2">
-                  📄 Ontdek Meer
                 </TabsTrigger>
                 <TabsTrigger value="motivatie" className="flex items-center gap-2 ml-2">
                   💫 Motivatie
@@ -2565,7 +2565,7 @@ export default function Admin() {
           )}
 
           {/* Ontdek Meer Tab Content */}
-          {currentUser?.canCreateContent && (
+          {currentUser?.role === 'admin' && (
             <TabsContent value="ontdek-meer" className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
