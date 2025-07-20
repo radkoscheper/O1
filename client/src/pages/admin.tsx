@@ -400,6 +400,7 @@ export default function Admin() {
     customCSS: '',
     customJS: '',
     googleAnalyticsId: '',
+    showOntdekMeerSection: true,
   });
 
   // Check authentication status on component mount
@@ -433,6 +434,7 @@ export default function Admin() {
         customCSS: siteSettingsQuery.data.customCSS || '',
         customJS: siteSettingsQuery.data.customJS || '',
         googleAnalyticsId: siteSettingsQuery.data.googleAnalyticsId || '',
+        showOntdekMeerSection: siteSettingsQuery.data.showOntdekMeerSection ?? true,
       };
       console.log('Setting new site settings state:', newSettings);
       setSiteSettings(newSettings);
@@ -3869,6 +3871,29 @@ export default function Admin() {
                         value={siteSettings.googleAnalyticsId}
                         onChange={(e) => setSiteSettings({...siteSettings, googleAnalyticsId: e.target.value})}
                         placeholder="G-XXXXXXXXXX"
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Homepage Sectie Beheer */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Homepage Secties</CardTitle>
+                    <CardDescription>Beheer welke secties worden getoond op de homepage</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label htmlFor="showOntdekMeerSection">Ontdek Meer Sectie</Label>
+                        <p className="text-sm text-gray-600">
+                          Toon de "Ontdek Meer" sectie met pagina's op de homepage
+                        </p>
+                      </div>
+                      <Switch
+                        id="showOntdekMeerSection"
+                        checked={siteSettings.showOntdekMeerSection}
+                        onCheckedChange={(checked) => setSiteSettings({...siteSettings, showOntdekMeerSection: checked})}
                       />
                     </div>
                   </CardContent>
