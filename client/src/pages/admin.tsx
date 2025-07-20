@@ -1266,6 +1266,9 @@ export default function Admin() {
                 <TabsTrigger value="activities" className="flex items-center gap-2 ml-2">
                   🎯 Activiteiten
                 </TabsTrigger>
+                <TabsTrigger value="featured" className="flex items-center gap-2 ml-2">
+                  ⭐ Featured
+                </TabsTrigger>
                 <TabsTrigger value="guides" className="flex items-center gap-2 ml-2">
                   📖 Reisgidsen
                 </TabsTrigger>
@@ -3020,6 +3023,157 @@ export default function Admin() {
                     </CardContent>
                   </Card>
                 ))}
+              </div>
+            </TabsContent>
+          )}
+
+          {/* Featured Tab Content */}
+          {currentUser?.canCreateContent && (
+            <TabsContent value="featured" className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <div>
+                  <h2 className="text-2xl font-semibold">Featured Overzicht</h2>
+                  <p className="text-gray-600">Overzicht van alle featured (actieve) content uit bestemmingen en activiteiten</p>
+                </div>
+              </div>
+
+              {/* Featured Destinations Section */}
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold flex items-center gap-2">
+                  🏔️ Featured Bestemmingen
+                  <Badge variant="secondary" className="text-xs">
+                    {destinationsQuery.data?.filter((d: any) => d.featured).length || 0} van {destinationsQuery.data?.length || 0}
+                  </Badge>
+                </h3>
+                
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {destinationsQuery.data?.filter((destination: any) => destination.featured).map((destination: any) => (
+                    <Card key={destination.id} className="hover:shadow-lg transition-shadow">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-lg">{destination.name}</CardTitle>
+                          <Badge variant="default" className="text-xs">⭐ Featured</Badge>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant="outline" className="text-xs">📍 {destination.location}</Badge>
+                          <Badge variant="outline" className="text-xs">#{destination.ranking || 0}</Badge>
+                          {destination.showOnHomepage && (
+                            <Badge variant="default" className="text-xs">🏠 Homepage</Badge>
+                          )}
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-gray-600 mb-3">{destination.description}</p>
+                        <div className="flex gap-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => window.open(`/${destination.slug}`, '_blank')}
+                          >
+                            <Eye className="h-4 w-4 mr-1" />
+                            Bekijken
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+                
+                {(!destinationsQuery.data?.filter((d: any) => d.featured).length) && (
+                  <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-lg">
+                    <div className="text-gray-400">
+                      <h4 className="text-lg font-medium mb-2">Geen featured bestemmingen</h4>
+                      <p className="text-sm">Markeer bestemmingen als featured in de Bestemmingen sectie</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Featured Activities Section */}
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold flex items-center gap-2">
+                  🎯 Featured Activiteiten
+                  <Badge variant="secondary" className="text-xs">
+                    {activitiesQuery.data?.filter((a: any) => a.featured).length || 0} van {activitiesQuery.data?.length || 0}
+                  </Badge>
+                </h3>
+                
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {activitiesQuery.data?.filter((activity: any) => activity.featured).map((activity: any) => (
+                    <Card key={activity.id} className="hover:shadow-lg transition-shadow">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-lg">{activity.name}</CardTitle>
+                          <Badge variant="default" className="text-xs">⭐ Featured</Badge>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant="outline" className="text-xs">📍 {activity.location}</Badge>
+                          <Badge variant="outline" className="text-xs">🏷️ {activity.category}</Badge>
+                          <Badge variant="outline" className="text-xs">#{activity.ranking || 0}</Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-gray-600 mb-3">{activity.description}</p>
+                        <div className="flex gap-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => {
+                              if (activity.websiteUrl) {
+                                window.open(activity.websiteUrl, '_blank');
+                              }
+                            }}
+                            disabled={!activity.websiteUrl}
+                          >
+                            <Eye className="h-4 w-4 mr-1" />
+                            {activity.websiteUrl ? 'Website' : 'Geen link'}
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+                
+                {(!activitiesQuery.data?.filter((a: any) => a.featured).length) && (
+                  <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-lg">
+                    <div className="text-gray-400">
+                      <h4 className="text-lg font-medium mb-2">Geen featured activiteiten</h4>
+                      <p className="text-sm">Markeer activiteiten als featured in de Activiteiten sectie</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Summary Statistics */}
+              <div className="bg-gray-50 rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4">Featured Content Statistieken</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-600">
+                      {destinationsQuery.data?.filter((d: any) => d.featured).length || 0}
+                    </div>
+                    <div className="text-sm text-gray-600">Featured Bestemmingen</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600">
+                      {activitiesQuery.data?.filter((a: any) => a.featured).length || 0}
+                    </div>
+                    <div className="text-sm text-gray-600">Featured Activiteiten</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-purple-600">
+                      {destinationsQuery.data?.filter((d: any) => d.featured && d.showOnHomepage).length || 0}
+                    </div>
+                    <div className="text-sm text-gray-600">Homepage Bestemmingen</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-orange-600">
+                      {(destinationsQuery.data?.filter((d: any) => d.featured).length || 0) + 
+                       (activitiesQuery.data?.filter((a: any) => a.featured).length || 0)}
+                    </div>
+                    <div className="text-sm text-gray-600">Totaal Featured</div>
+                  </div>
+                </div>
               </div>
             </TabsContent>
           )}
