@@ -418,7 +418,8 @@ export default function Home() {
       )}
 
       {/* Destinations Section */}
-      <section className="py-16 px-5 max-w-6xl mx-auto">
+      {siteSettings?.showDestinations && (
+        <section className="py-16 px-5 max-w-6xl mx-auto">
         <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
           Bestemmingen
         </h2>
@@ -467,12 +468,13 @@ export default function Home() {
             return <div key={destination.id}>{CardContent}</div>;
           })}
         </div>
-      </section>
+        </section>
+      )}
 
 
 
       {/* CTA Section - Dynamic from Database */}
-      {motivationData && motivationData.is_published && (
+      {siteSettings?.showMotivation && motivationData && motivationData.is_published && (
         <section className="py-16 px-5 max-w-6xl mx-auto">
           <div className="flex flex-wrap gap-8 items-center justify-between">
             <div className="flex-1 min-w-80">
@@ -511,7 +513,7 @@ export default function Home() {
       )}
 
       {/* Highlights Section - From Database */}
-      {highlights.length > 0 && (
+      {siteSettings?.showHighlights && highlights.length > 0 && (
         <section className="py-16 px-5 max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
             Hoogtepunten van Polen
@@ -542,7 +544,7 @@ export default function Home() {
       )}
 
       {/* Published Pages */}
-      {publishedPages.length > 0 && (
+      {siteSettings?.showOntdekMeer && publishedPages.length > 0 && (
         <section className="py-16 px-5 max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl font-bold font-inter text-gray-900">
@@ -592,12 +594,13 @@ export default function Home() {
       )}
 
       {/* Travel Guides */}
-      <section className="py-16 px-5 max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
+      {siteSettings?.showGuides && (
+        <section className="py-16 px-5 max-w-6xl mx-auto">
+          <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
           Reisgidsen en Tips
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {publishedGuides.map((guide) => {
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {publishedGuides.map((guide) => {
             const CardContent = (
               <Card 
                 className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer"
@@ -639,9 +642,10 @@ export default function Home() {
 
             // No link, just return the card
             return <div key={guide.id}>{CardContent}</div>;
-          })}
-        </div>
-      </section>
+            })}
+          </div>
+        </section>
+      )}
 
       {/* Footer */}
       <footer 

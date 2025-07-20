@@ -164,6 +164,12 @@ export const siteSettings = pgTable("site_settings", {
   customCSS: text("custom_css"),
   customJS: text("custom_js"),
   googleAnalyticsId: varchar("google_analytics_id", { length: 50 }),
+  // Homepage Section Visibility Controls
+  showDestinations: boolean("show_destinations").default(true).notNull(),
+  showMotivation: boolean("show_motivation").default(true).notNull(),
+  showHighlights: boolean("show_highlights").default(true).notNull(),
+  showOntdekMeer: boolean("show_ontdek_meer").default(true).notNull(),
+  showGuides: boolean("show_guides").default(true).notNull(),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -185,6 +191,11 @@ export const insertSiteSettingsSchema = createInsertSchema(siteSettings).pick({
   customCSS: true,
   customJS: true,
   googleAnalyticsId: true,
+  showDestinations: true,
+  showMotivation: true,
+  showHighlights: true,
+  showOntdekMeer: true,
+  showGuides: true,
   isActive: true,
 });
 
