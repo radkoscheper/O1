@@ -1266,9 +1266,6 @@ export default function Admin() {
                 <TabsTrigger value="activities" className="flex items-center gap-2 ml-2">
                   🎯 Activiteiten
                 </TabsTrigger>
-                <TabsTrigger value="highlights" className="flex items-center gap-2 ml-2">
-                  ✨ Hoogtepunten (Featured)
-                </TabsTrigger>
                 <TabsTrigger value="guides" className="flex items-center gap-2 ml-2">
                   📖 Reisgidsen
                 </TabsTrigger>
@@ -2686,113 +2683,6 @@ export default function Admin() {
           )}
 
 
-          {/* Highlights Tab Content - Featured Activities */}
-          {currentUser?.canCreateContent && (
-            <TabsContent value="highlights" className="space-y-6">
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-                <div>
-                  <h2 className="text-2xl font-semibold">Hoogtepunten - Featured Activiteiten ({highlightsQuery.data?.length || 0})</h2>
-                  <p className="text-gray-600">Beheer featured activiteiten die als hoogtepunten worden getoond op verschillende pagina's</p>
-                </div>
-                <div className="text-sm text-gray-500 bg-blue-50 p-3 rounded-lg">
-                  💡 <strong>Tip:</strong> Featured activiteiten worden automatisch als hoogtepunten getoond. 
-                  Ga naar "Activiteiten" tab om de featured status aan/uit te zetten.
-                </div>
-              </div>
-              
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {(highlightsQuery.data || []).map((highlight: any) => (
-                  <Card key={highlight.id} className="hover:shadow-lg transition-shadow border-green-200">
-                    <CardHeader className="pb-3">
-                      <div className="flex flex-col gap-3">
-                        <div className="flex justify-between items-start">
-                          <CardTitle className="text-lg leading-tight">{highlight.name}</CardTitle>
-                          <Badge variant="default" className="text-xs bg-green-600">Featured</Badge>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          <Badge variant="secondary" className="text-xs">
-                            🏔️ {highlight.location || 'Algemeen'}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            #{highlight.ranking || 0}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center justify-center p-4 bg-gray-50 rounded-lg">
-                          <img
-                            src={highlight.iconPath}
-                            alt={highlight.name}
-                            className="w-12 h-12 object-cover rounded"
-                            onError={(e) => {
-                              e.currentTarget.src = '/images/activities/placeholder.svg';
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                      <div className="flex flex-col gap-3">
-                        <p className="text-sm text-gray-600 line-clamp-2">
-                          {highlight.description || 'Geen beschrijving beschikbaar'}
-                        </p>
-                        
-                        <div className="flex flex-wrap gap-2">
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => {
-                              // Navigate to activities tab and filter to this activity
-                              const tabsList = document.querySelector('[role="tablist"]');
-                              const activitiesTab = tabsList?.querySelector('[value="activities"]') as HTMLElement;
-                              activitiesTab?.click();
-                              // Auto-scroll to activity after short delay
-                              setTimeout(() => {
-                                const activityCard = document.querySelector(`[data-activity-id="${highlight.id}"]`);
-                                activityCard?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                              }, 100);
-                            }}
-                          >
-                            <Edit className="h-4 w-4 mr-2" />
-                            Bewerken
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => {
-                              setSelectedHighlight(highlight);
-                              setShowViewHighlight(true);
-                            }}
-                          >
-                            <Eye className="h-4 w-4 mr-2" />
-                            Bekijken
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-              
-              {(!highlightsQuery.data || highlightsQuery.data.length === 0) && (
-                <div className="text-center py-12">
-                  <div className="text-gray-400 mb-4">
-                    <div className="w-20 h-20 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                      ✨
-                    </div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Geen featured activiteiten</h3>
-                    <p className="text-sm">Ga naar "Activiteiten" tab en zet enkele activiteiten op "Featured" om ze hier te zien.</p>
-                  </div>
-                  <Button onClick={() => {
-                    const tabsList = document.querySelector('[role="tablist"]');
-                    const activitiesTab = tabsList?.querySelector('[value="activities"]') as HTMLElement;
-                    activitiesTab?.click();
-                  }} className="mt-4">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Naar Activiteiten
-                  </Button>
-                </div>
-              )}
-            </TabsContent>
-          )}
 
           {/* Activiteiten Tab */}
           <TabsContent value="activities" className="space-y-6">
@@ -2856,7 +2746,7 @@ export default function Admin() {
               {/* Activities Grid */}
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {getFilteredActivities().map((activity: any) => (
-                  <Card key={activity.id} data-activity-id={activity.id} className="hover:shadow-lg transition-shadow">
+                  <Card key={activity.id} className="hover:shadow-lg transition-shadow">
                     <div className="relative">
                       {activity.image && (
                         <div className="h-32 w-full overflow-hidden rounded-t-lg">
@@ -2914,7 +2804,6 @@ export default function Admin() {
                                     description: `Activiteit ${!activity.featured ? 'toegevoegd aan' : 'verwijderd van'} featured` 
                                   });
                                   queryClient.invalidateQueries({ queryKey: ['/api/admin/activities'] });
-                                  queryClient.invalidateQueries({ queryKey: ['/api/highlights'] });
                                 } else {
                                   toast({ 
                                     title: "Fout", 
@@ -2955,7 +2844,6 @@ export default function Admin() {
                                     description: `Activiteit ${!activity.published ? 'gepubliceerd' : 'als concept ingesteld'}` 
                                   });
                                   queryClient.invalidateQueries({ queryKey: ['/api/admin/activities'] });
-                                  queryClient.invalidateQueries({ queryKey: ['/api/highlights'] });
                                 } else {
                                   toast({ 
                                     title: "Fout", 
