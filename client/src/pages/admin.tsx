@@ -3304,57 +3304,32 @@ export default function Admin() {
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label>Afbeelding</Label>
-                      {motivationData.image && (
-                        <div className="mb-4">
-                          <img 
-                            src={motivationData.image} 
-                            alt="Motivatie afbeelding"
-                            className="w-full max-w-md h-32 object-cover rounded-md border"
-                          />
-                        </div>
-                      )}
-                      <div className="flex gap-2">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={async (e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              try {
-                                console.log('Uploading motivation image:', file.name);
-                                const imagePath = await uploadImageToFolder(file, 'motivatie', '', '');
-                                console.log('Upload success, image path:', imagePath);
-                                setMotivationData({ ...motivationData, image: imagePath });
-                                toast({ 
-                                  title: "Succes", 
-                                  description: "Afbeelding succesvol geüpload!" 
-                                });
-                              } catch (error) {
-                                console.error('Upload error:', error);
-                                const errorMessage = error instanceof Error ? error.message : "Kon afbeelding niet uploaden";
-                                toast({ 
-                                  title: "Upload fout", 
-                                  description: errorMessage, 
-                                  variant: "destructive" 
-                                });
-                              }
-                            }
-                          }}
-                          className="hidden"
-                          id="motivationImageUpload"
-                        />
-                        <Button 
-                          type="button" 
-                          variant="outline" 
-                          onClick={() => document.getElementById('motivationImageUpload')?.click()}
-                        >
-                          <Upload className="h-4 w-4 mr-2" />
-                          Upload Afbeelding
-                        </Button>
-                      </div>
-                    </div>
+                    <MotivationImageSelector
+                      currentImage={motivationData.image}
+                      onImageSelect={(imagePath) => setMotivationData({ ...motivationData, image: imagePath })}
+                      onImageUpload={async (file) => {
+                        try {
+                          console.log('Uploading motivation image:', file.name);
+                          const imagePath = await uploadImageToFolder(file, 'motivatie', '', '');
+                          console.log('Upload success, image path:', imagePath);
+                          setMotivationData({ ...motivationData, image: imagePath });
+                          toast({ 
+                            title: "Succes", 
+                            description: "Afbeelding succesvol geüpload!" 
+                          });
+                          return imagePath;
+                        } catch (error) {
+                          console.error('Upload error:', error);
+                          const errorMessage = error instanceof Error ? error.message : "Kon afbeelding niet uploaden";
+                          toast({ 
+                            title: "Upload fout", 
+                            description: errorMessage, 
+                            variant: "destructive" 
+                          });
+                          throw error;
+                        }
+                      }}
+                    />
 
                     <div className="flex items-center space-x-2">
                       <Switch
@@ -7667,4 +7642,213 @@ async function handleDeleteActivity(activityId: number, activityName: string, ac
       variant: "destructive" 
     });
   }
+}
+
+// Motivation Image Selector Component
+function MotivationImageSelector({ 
+  currentImage, 
+  onImageSelect, 
+  onImageUpload 
+}: { 
+  currentImage: string | null, 
+  onImageSelect: (imagePath: string) => void,
+  onImageUpload: (file: File) => Promise<string>
+}) {
+  const [availableImages, setAvailableImages] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  // Load available motivation images
+  useEffect(() => {
+    loadAvailableImages();
+  }, []);
+
+  const loadAvailableImages = async () => {
+    try {
+      // Get all files in motivatie folder
+      const response = await fetch('/api/admin/images/motivatie', {
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        const images = await response.json();
+        setAvailableImages(images.map((img: any) => img.path));
+      }
+    } catch (error) {
+      console.error('Error loading motivation images:', error);
+    }
+  };
+
+  const handleUpload = async (file: File) => {
+    setIsLoading(true);
+    try {
+      await onImageUpload(file);
+      await loadAvailableImages(); // Refresh the list
+    } catch (error) {
+      // Error handling is done in parent
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async (imagePath: string) => {
+    if (!confirm('Weet je zeker dat je deze afbeelding wilt verwijderen?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/admin/images/delete', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ imagePath })
+      });
+
+      if (response.ok) {
+        toast({ 
+          title: "Succes", 
+          description: "Afbeelding verwijderd" 
+        });
+        
+        // If deleted image was selected, clear selection
+        if (currentImage === imagePath) {
+          onImageSelect('');
+        }
+        
+        await loadAvailableImages(); // Refresh the list
+      } else {
+        throw new Error('Kon afbeelding niet verwijderen');
+      }
+    } catch (error) {
+      toast({ 
+        title: "Fout", 
+        description: "Kon afbeelding niet verwijderen", 
+        variant: "destructive" 
+      });
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <Label>Motivatie Afbeeldingen</Label>
+        <div className="flex gap-2">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                handleUpload(file);
+              }
+            }}
+            className="hidden"
+            id="motivationImageUpload"
+          />
+          <Button 
+            type="button" 
+            variant="outline" 
+            size="sm"
+            onClick={() => document.getElementById('motivationImageUpload')?.click()}
+            disabled={isLoading}
+          >
+            <Upload className="h-4 w-4 mr-2" />
+            {isLoading ? 'Uploading...' : 'Upload Nieuwe'}
+          </Button>
+        </div>
+      </div>
+
+      {/* Current Selection */}
+      {currentImage && (
+        <div className="space-y-2">
+          <Label className="text-sm text-gray-600">Huidige selectie:</Label>
+          <div className="relative">
+            <img 
+              src={currentImage} 
+              alt="Huidige motivatie afbeelding"
+              className="w-full max-w-md h-32 object-cover rounded-md border"
+              onError={(e) => {
+                e.currentTarget.src = "/images/motivatie/tatra-valley.jpg";
+              }}
+            />
+            <div className="absolute top-2 right-2">
+              <Badge variant="secondary" className="text-xs">Actief</Badge>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Available Images Gallery */}
+      <div className="space-y-2">
+        <Label className="text-sm text-gray-600">Beschikbare afbeeldingen ({availableImages.length}):</Label>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {availableImages.map((imagePath, index) => (
+            <div 
+              key={index} 
+              className={`relative group cursor-pointer border rounded-md overflow-hidden transition-all ${
+                currentImage === imagePath ? 'ring-2 ring-blue-500' : 'hover:ring-2 hover:ring-gray-300'
+              }`}
+              onClick={() => onImageSelect(imagePath)}
+            >
+              <img 
+                src={imagePath} 
+                alt={`Motivatie afbeelding ${index + 1}`}
+                className="w-full h-24 object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = "/images/motivatie/tatra-valley.jpg";
+                }}
+              />
+              
+              {/* Overlay with actions */}
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all flex items-center justify-center">
+                <div className="hidden group-hover:flex gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onImageSelect(imagePath);
+                    }}
+                  >
+                    <Check className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="destructive"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(imagePath);
+                    }}
+                  >
+                    <Trash className="h-3 w-3" />
+                  </Button>
+                </div>
+              </div>
+              
+              {/* Selected indicator */}
+              {currentImage === imagePath && (
+                <div className="absolute top-1 right-1">
+                  <div className="bg-blue-500 text-white rounded-full p-1">
+                    <Check className="h-3 w-3" />
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {availableImages.length === 0 && (
+          <div className="text-center py-8 text-gray-500">
+            <ImageIcon className="mx-auto h-12 w-12 mb-2 opacity-50" />
+            <p>Geen afbeeldingen gevonden</p>
+            <p className="text-sm">Upload een afbeelding om te beginnen</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }

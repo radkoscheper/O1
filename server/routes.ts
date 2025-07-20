@@ -2427,6 +2427,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get motivation images
+  app.get("/api/admin/images/motivatie", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || !user.canCreateContent) {
+        return res.status(403).json({ message: "Geen toestemming om afbeeldingen te bekijken" });
+      }
+
+      const motivatiePath = path.join(process.cwd(), 'client', 'public', 'images', 'motivatie');
+      
+      if (!fs.existsSync(motivatiePath)) {
+        return res.json([]);
+      }
+
+      const files = fs.readdirSync(motivatiePath);
+      const imageFiles = files.filter(file => {
+        const ext = path.extname(file).toLowerCase();
+        return ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'].includes(ext);
+      });
+
+      const images = imageFiles.map(file => ({
+        name: file,
+        path: `/images/motivatie/${file}`,
+        fullPath: path.join(motivatiePath, file)
+      }));
+
+      res.json(images);
+    } catch (error) {
+      console.error("Error loading motivation images:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
