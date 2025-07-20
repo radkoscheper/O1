@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
-import { Plus, Edit, Eye, Save, LogIn, LogOut, Shield, Users, UserPlus, Trash2, Key, Upload, X, Image as ImageIcon, RotateCcw, Trash, Copy, Crop as CropIcon, Move, RotateCw, Check, RefreshCw, FolderOpen, ExternalLink, Edit2 } from "lucide-react";
+import { Plus, Edit, Eye, Save, LogIn, LogOut, Shield, Users, UserPlus, Trash2, Key, Upload, X, Image as ImageIcon, RotateCcw, Trash, Copy, Crop as CropIcon, Move, RotateCw, Check, RefreshCw, FolderOpen, ExternalLink, Edit2, Database, Activity, HardDrive, Clock, Server } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { uploadFile, uploadImageToFolder } from "@/lib/uploadUtils";
 import { useQuery } from "@tanstack/react-query";
@@ -71,6 +71,19 @@ export default function Admin() {
   const siteSettingsQuery = useQuery({
     queryKey: ['/api/site-settings'],
     enabled: isAuthenticated && currentUser?.role === 'admin',
+  });
+
+  // Database monitoring queries (admin only)
+  const databaseStatusQuery = useQuery({
+    queryKey: ['/api/admin/database/status'],
+    enabled: isAuthenticated && currentUser?.role === 'admin',
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
+  const tableStatsQuery = useQuery({
+    queryKey: ['/api/admin/database/tables'],
+    enabled: isAuthenticated && currentUser?.role === 'admin',
+    refetchInterval: 60000, // Refresh every minute
   });
 
   // Template queries (admin only)
@@ -1242,6 +1255,10 @@ export default function Admin() {
                 <TabsTrigger value="users" className="flex items-center gap-2">
                   <Users className="h-4 w-4" />
                   Gebruikers
+                </TabsTrigger>
+                <TabsTrigger value="database" className="flex items-center gap-2">
+                  <Database className="h-4 w-4" />
+                  Database Status
                 </TabsTrigger>
               </>
             )}
@@ -3032,6 +3049,188 @@ export default function Admin() {
                   </Card>
                 ))}
               </div>
+            </TabsContent>
+          )}
+
+          {/* Database Status Tab Content */}
+          {currentUser?.role === 'admin' && (
+            <TabsContent value="database" className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <div>
+                  <h2 className="text-2xl font-semibold flex items-center gap-2">
+                    <Database className="h-6 w-6" />
+                    Database Status & Monitoring
+                  </h2>
+                  <p className="text-gray-600">Overzicht van database status, connectiviteit en tabel statistieken</p>
+                </div>
+                <Button 
+                  onClick={() => {
+                    databaseStatusQuery.refetch();
+                    tableStatsQuery.refetch();
+                  }}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  Vernieuwen
+                </Button>
+              </div>
+
+              {/* Database Connection Status */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Server className="h-5 w-5" />
+                    Database Connectie
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {databaseStatusQuery.isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <RefreshCw className="h-4 w-4 animate-spin" />
+                      Laden...
+                    </div>
+                  ) : databaseStatusQuery.data ? (
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                      <div className="flex items-center gap-3">
+                        <div className={`h-3 w-3 rounded-full ${
+                          databaseStatusQuery.data.connectionStatus === 'connected' 
+                            ? 'bg-green-500' 
+                            : 'bg-red-500'
+                        }`} />
+                        <div>
+                          <p className="text-sm font-medium">Status</p>
+                          <p className="text-lg font-semibold">
+                            {databaseStatusQuery.data.connectionStatus === 'connected' ? 'Verbonden' : 'Niet verbonden'}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-3">
+                        <HardDrive className="h-5 w-5 text-blue-500" />
+                        <div>
+                          <p className="text-sm font-medium">Database</p>
+                          <p className="text-lg font-semibold">{databaseStatusQuery.data.databaseName}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-3">
+                        <Activity className="h-5 w-5 text-purple-500" />
+                        <div>
+                          <p className="text-sm font-medium">Totaal Records</p>
+                          <p className="text-lg font-semibold">{databaseStatusQuery.data.totalRecords.toLocaleString('nl-NL')}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-3">
+                        <Database className="h-5 w-5 text-orange-500" />
+                        <div>
+                          <p className="text-sm font-medium">Storage</p>
+                          <p className="text-lg font-semibold">{databaseStatusQuery.data.storageSize}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-red-600">Database status kon niet worden opgehaald</div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Database Info */}
+              {databaseStatusQuery.data && (
+                <div className="grid gap-4 md:grid-cols-3">
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2">
+                        <Database className="h-4 w-4 text-blue-500" />
+                        <span className="text-sm font-medium">Tabellen</span>
+                      </div>
+                      <p className="text-2xl font-bold mt-1">{databaseStatusQuery.data.totalTables}</p>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-green-500" />
+                        <span className="text-sm font-medium">Backup</span>
+                      </div>
+                      <p className="text-lg font-semibold mt-1">{databaseStatusQuery.data.lastBackup}</p>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2">
+                        <Server className="h-4 w-4 text-purple-500" />
+                        <span className="text-sm font-medium">Uptime</span>
+                      </div>
+                      <p className="text-lg font-semibold mt-1">{databaseStatusQuery.data.uptime}</p>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
+              {/* Table Statistics */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Activity className="h-5 w-5" />
+                    Tabel Statistieken
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {tableStatsQuery.isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <RefreshCw className="h-4 w-4 animate-spin" />
+                      Laden...
+                    </div>
+                  ) : tableStatsQuery.data ? (
+                    <div className="overflow-hidden">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b">
+                            <th className="text-left py-3 px-4 font-medium">Tabel</th>
+                            <th className="text-left py-3 px-4 font-medium">Records</th>
+                            <th className="text-left py-3 px-4 font-medium">Laatste Update</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {tableStatsQuery.data.map((table, index) => (
+                            <tr key={index} className="border-b hover:bg-gray-50">
+                              <td className="py-3 px-4 font-medium">{table.tableName}</td>
+                              <td className="py-3 px-4">
+                                <Badge variant="outline">
+                                  {table.recordCount.toLocaleString('nl-NL')}
+                                </Badge>
+                              </td>
+                              <td className="py-3 px-4 text-gray-600">{table.lastUpdated}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="text-red-600">Tabel statistieken konden niet worden opgehaald</div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Security Notice */}
+              <Card className="border-amber-200 bg-amber-50">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    <Shield className="h-5 w-5 text-amber-600 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium text-amber-800">Beveiligingsinfo</h4>
+                      <p className="text-sm text-amber-700 mt-1">
+                        Dit dashboard toont alleen readonly informatie. Database configuratie en credentials 
+                        worden veilig beheerd via environment variables en zijn niet zichtbaar in de interface.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
           )}
 

@@ -2764,6 +2764,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ========================================
+  // DATABASE MONITORING ENDPOINTS
+  // ========================================
+
+  // Get database status (admin only)
+  app.get("/api/admin/database/status", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Alleen beheerders kunnen database status bekijken" });
+      }
+
+      const status = await storage.getDatabaseStatus();
+      res.json(status);
+    } catch (error) {
+      console.error("Database status error:", error);
+      res.status(500).json({ message: "Fout bij ophalen database status" });
+    }
+  });
+
+  // Get table statistics (admin only)
+  app.get("/api/admin/database/tables", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Alleen beheerders kunnen tabel statistieken bekijken" });
+      }
+
+      const statistics = await storage.getTableStatistics();
+      res.json(statistics);
+    } catch (error) {
+      console.error("Table statistics error:", error);
+      res.status(500).json({ message: "Fout bij ophalen tabel statistieken" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
