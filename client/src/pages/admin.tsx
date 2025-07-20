@@ -3061,6 +3061,18 @@ export default function Admin() {
                             <Badge variant="default" className="text-xs">🏠 Homepage</Badge>
                           )}
                         </div>
+                        
+                        {/* Destination Image */}
+                        <div className="mt-3 rounded-lg overflow-hidden">
+                          <img
+                            src={destination.image}
+                            alt={destination.alt || destination.name}
+                            className="w-full h-32 object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = '/images/destinations/placeholder.svg';
+                            }}
+                          />
+                        </div>
                       </CardHeader>
                       <CardContent>
                         <p className="text-sm text-gray-600 mb-3">{destination.description}</p>
@@ -3110,6 +3122,18 @@ export default function Admin() {
                           <Badge variant="outline" className="text-xs">📍 {activity.location}</Badge>
                           <Badge variant="outline" className="text-xs">🏷️ {activity.category}</Badge>
                           <Badge variant="outline" className="text-xs">#{activity.ranking || 0}</Badge>
+                        </div>
+                        
+                        {/* Activity Image */}
+                        <div className="mt-3 rounded-lg overflow-hidden">
+                          <img
+                            src={activity.image || '/images/activities/placeholder.svg'}
+                            alt={activity.alt || activity.name}
+                            className="w-full h-32 object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = '/images/activities/placeholder.svg';
+                            }}
+                          />
                         </div>
                       </CardHeader>
                       <CardContent>
