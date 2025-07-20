@@ -96,6 +96,15 @@ export default function Home() {
   // Fetch motivation image location name
   const { data: motivationImageLocation } = useQuery({
     queryKey: ["/api/motivation/image-location", motivationData?.image],
+    queryFn: async () => {
+      if (!motivationData?.image) return null;
+      console.log('Fetching location for image:', motivationData.image);
+      const response = await fetch(`/api/motivation/image-location?imagePath=${encodeURIComponent(motivationData.image)}`);
+      if (!response.ok) throw new Error('Failed to fetch location');
+      const result = await response.json();
+      console.log('Location result:', result);
+      return result;
+    },
     enabled: !!motivationData?.image,
   });
 
@@ -493,10 +502,15 @@ export default function Home() {
                   e.currentTarget.src = "/images/motivatie/tatra-valley.jpg";
                 }}
               />
-              {/* Location name overlay */}
-              {motivationImageLocation?.locationName && (
-                <div className="absolute bottom-4 right-4 bg-black bg-opacity-60 text-white px-3 py-2 rounded-lg text-sm font-medium">
-                  📍 {motivationImageLocation.locationName}
+              {/* Location name overlay - always show something for testing */}
+              <div className="absolute bottom-4 right-4 bg-black bg-opacity-80 text-white px-3 py-2 rounded-lg text-sm font-medium shadow-lg z-10">
+                📍 {motivationImageLocation?.locationName || 'Tatra Mountains'}
+              </div>
+              
+              {/* Debug info - remove after testing */}
+              {process.env.NODE_ENV === 'development' && (
+                <div className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded z-20">
+                  Location: {motivationImageLocation?.locationName || 'Not loaded'}
                 </div>
               )}
             </div>
