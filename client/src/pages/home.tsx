@@ -73,13 +73,14 @@ export default function Home() {
     queryKey: ["/api/pages"],
   });
 
-  const { data: siteSettings, isLoading: settingsLoading } = useQuery({
-    queryKey: ["/api/site-settings"],
-  });
-
   // Fetch highlights from database
   const { data: highlights = [], isLoading: highlightsLoading } = useQuery({
     queryKey: ["/api/highlights"],
+  });
+
+  // Fetch site settings
+  const { data: siteSettings, isLoading: settingsLoading } = useQuery({
+    queryKey: ["/api/site-settings"],
   });
 
   // Fetch search configuration for homepage context
@@ -540,8 +541,8 @@ export default function Home() {
         </section>
       )}
 
-      {/* Published Pages - Only show if enabled in site settings */}
-      {siteSettings?.showOntdekMeerSection && publishedPages.length > 0 && (
+      {/* Published Pages */}
+      {publishedPages.length > 0 && (
         <section className="py-16 px-5 max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl font-bold font-inter text-gray-900">
