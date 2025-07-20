@@ -12,7 +12,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
 import { Plus, Edit, Eye, Save, LogIn, LogOut, Shield, Users, UserPlus, Trash2, Key, Upload, X, Image as ImageIcon, RotateCcw, Trash, Copy, Crop as CropIcon, Move, RotateCw, Check, RefreshCw, FolderOpen, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { uploadFile } from "@/lib/uploadUtils";
+import { uploadFile, uploadImageToFolder } from "@/lib/uploadUtils";
 import { useQuery } from "@tanstack/react-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -3323,12 +3323,20 @@ export default function Admin() {
                             const file = e.target.files?.[0];
                             if (file) {
                               try {
+                                console.log('Uploading motivation image:', file.name);
                                 const imagePath = await uploadImageToFolder(file, 'motivatie', '', '');
+                                console.log('Upload success, image path:', imagePath);
                                 setMotivationData({ ...motivationData, image: imagePath });
-                              } catch (error) {
                                 toast({ 
-                                  title: "Fout", 
-                                  description: "Kon afbeelding niet uploaden", 
+                                  title: "Succes", 
+                                  description: "Afbeelding succesvol geüpload!" 
+                                });
+                              } catch (error) {
+                                console.error('Upload error:', error);
+                                const errorMessage = error instanceof Error ? error.message : "Kon afbeelding niet uploaden";
+                                toast({ 
+                                  title: "Upload fout", 
+                                  description: errorMessage, 
                                   variant: "destructive" 
                                 });
                               }
