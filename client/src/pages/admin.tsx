@@ -1266,9 +1266,6 @@ export default function Admin() {
                 <TabsTrigger value="activities" className="flex items-center gap-2 ml-2">
                   🎯 Activiteiten
                 </TabsTrigger>
-                <TabsTrigger value="highlights" className="flex items-center gap-2 ml-2">
-                  ✨ Hoogtepunten
-                </TabsTrigger>
                 <TabsTrigger value="guides" className="flex items-center gap-2 ml-2">
                   📖 Reisgidsen
                 </TabsTrigger>
@@ -2685,113 +2682,7 @@ export default function Admin() {
             </TabsContent>
           )}
 
-          {/* Highlights Tab Content */}
-          {currentUser?.canCreateContent && (
-            <TabsContent value="highlights" className="space-y-6">
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-                <div>
-                  <h2 className="text-2xl font-semibold">Highlights ({highlightsQuery.data?.length || 0})</h2>
-                  <p className="text-gray-600">Beheer de highlights die op de homepage worden getoond</p>
-                </div>
-                <Button onClick={() => setShowCreateHighlight(true)} className="bg-blue-600 hover:bg-blue-700">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nieuwe Highlight
-                </Button>
-              </div>
-              
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {(highlightsQuery.data || []).map((highlight: any) => (
-                  <Card key={highlight.id} className="hover:shadow-lg transition-shadow">
-                    <CardHeader className="pb-3">
-                      <div className="flex flex-col gap-3">
-                        <div className="flex justify-between items-start">
-                          <CardTitle className="text-lg leading-tight">{highlight.name}</CardTitle>
-                          <Badge variant="outline" className="text-xs">#{highlight.ranking || 0}</Badge>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          <Badge variant={highlight.active ? "default" : "outline"} className="text-xs">
-                            {highlight.active ? "✅ Actief" : "❌ Inactief"}
-                          </Badge>
-                          <Badge variant={highlight.showOnHomepage ? "default" : "outline"} className="text-xs">
-                            {highlight.showOnHomepage ? "🏠 Homepage" : "🚫 Niet homepage"}
-                          </Badge>
-                          {highlight.category !== 'general' && (
-                            <Badge variant="secondary" className="text-xs capitalize">
-                              {highlight.category}
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center justify-center p-4 bg-gray-50 rounded-lg">
-                          <img
-                            src={highlight.iconPath}
-                            alt={highlight.name}
-                            className="w-12 h-12"
-                            onError={(e) => {
-                              e.currentTarget.src = '/images/highlights/placeholder.svg';
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                      <div className="flex flex-col gap-3">
-                        {/* Quick Homepage Toggle */}
-                        <Button 
-                          size="sm" 
-                          variant={highlight.showOnHomepage ? "default" : "outline"}
-                          onClick={() => handleToggleHighlightHomepage(highlight.id, !highlight.showOnHomepage)}
-                          className="w-full"
-                        >
-                          {highlight.showOnHomepage ? "🏠 Op Homepage" : "➕ Naar Homepage"}
-                        </Button>
-                        
-                        <div className="flex flex-wrap gap-2">
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => {
-                              setSelectedHighlight(highlight);
-                              setEditHighlightData({
-                                name: highlight.name,
-                                iconPath: highlight.iconPath,
-                                category: highlight.category || 'general',
-                                ranking: highlight.ranking || 0,
-                                active: highlight.active,
-                                showOnHomepage: highlight.showOnHomepage
-                              });
-                              setShowEditHighlight(true);
-                            }}
-                          >
-                            <Edit className="h-4 w-4 mr-2" />
-                            Bewerken
-                          </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => {
-                            setSelectedHighlight(highlight);
-                            setShowViewHighlight(true);
-                          }}
-                        >
-                          <Eye className="h-4 w-4 mr-2" />
-                          Bekijken
-                        </Button>
-                          <Button 
-                            size="sm" 
-                            variant="destructive"
-                            onClick={() => handleDeleteHighlight(highlight.id)}
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Verwijderen
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
-          )}
+
 
           {/* Activiteiten Tab */}
           <TabsContent value="activities" className="space-y-6">
