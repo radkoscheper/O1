@@ -49,7 +49,8 @@ export const uploadFile = async (options: UploadOptions): Promise<UploadResult> 
       }
     } else {
       formData.append('image', file);
-      if (fileName && fileName.trim()) {
+      // For motivatie uploads with locationName, don't send fileName
+      if (fileName && fileName.trim() && !(destination === 'motivatie' && locationName)) {
         formData.append('fileName', fileName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-'));
       }
       if (destination) {
@@ -126,8 +127,8 @@ export const uploadImageToFolder = async (
   locationName?: string
 ): Promise<string> => {
   try {
-    // For motivatie images with locationName, don't use fileName
-    const finalFileName = (destination === 'motivatie' && locationName) ? '' : (fileName || file.name);
+    // For motivatie images with locationName, don't use fileName to allow server to generate from locationName
+    const finalFileName = (destination === 'motivatie' && locationName) ? '' : (fileName || '');
     
     const result = await uploadFile({
       file,
