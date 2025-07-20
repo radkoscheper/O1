@@ -248,14 +248,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (!fs.existsSync(finalDirectory)) {
           fs.mkdirSync(finalDirectory, { recursive: true });
         }
-      } else if (req.body?.destination && ['background', 'logo', 'social', 'destinations', 'guides'].includes(req.body.destination)) {
+      } else if (req.body?.destination && ['background', 'logo', 'social', 'destinations', 'guides', 'motivatie'].includes(req.body.destination)) {
         // Map imageType to actual folder names (handle plural forms)
         const folderMap = {
           background: 'backgrounds',
           logo: 'logo', 
           social: 'social',
           destinations: 'destinations',
-          guides: 'guides'
+          guides: 'guides',
+          motivatie: 'motivatie'
         };
         const actualFolder = folderMap[req.body.destination as keyof typeof folderMap];
         finalDirectory = path.join(process.cwd(), 'client', 'public', 'images', actualFolder);
@@ -342,14 +343,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (relativePath) {
         // Use the relative path calculated earlier for activities/destinations with entity folders
         imagePath = `${relativePath}/${finalFileName}`;
-      } else if (req.body?.destination && ['background', 'logo', 'social', 'destinations', 'guides'].includes(req.body.destination)) {
+      } else if (req.body?.destination && ['background', 'logo', 'social', 'destinations', 'guides', 'motivatie'].includes(req.body.destination)) {
         // Map imageType to actual folder names (handle plural forms)
         const folderMap = {
           background: 'backgrounds',
           logo: 'logo', 
           social: 'social',
           destinations: 'destinations',
-          guides: 'guides'
+          guides: 'guides',
+          motivatie: 'motivatie'
         };
         const actualFolder = folderMap[req.body.destination as keyof typeof folderMap];
         imagePath = `/images/${actualFolder}/${finalFileName}`;
