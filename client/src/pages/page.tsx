@@ -190,6 +190,26 @@ export default function Page() {
     queryKey: ["/api/search-config/destination"],
   });
 
+  // Fetch location-specific featured activities
+  const { data: locationFeaturedActivities = [] } = useQuery({
+    queryKey: ["/api/admin/activities", page?.title],
+    queryFn: async () => {
+      if (!page?.title) return [];
+      const response = await fetch('/api/admin/activities');
+      if (!response.ok) {
+        throw new Error('Failed to fetch activities');
+      }
+      const activities = await response.json();
+      // Filter for featured, published activities that match the location
+      return activities.filter((activity: any) => 
+        activity.featured === true && 
+        activity.published === true && 
+        activity.location === page.title
+      );
+    },
+    enabled: !!page?.title,
+  });
+
   // Fetch selected activity details if activity ID is present
   const { data: selectedActivity } = useQuery({
     queryKey: ['/api/activities', selectedActivityId],
@@ -660,34 +680,72 @@ export default function Page() {
         </Card>
       </section>
 
-      {/* Highlight Section - same style as homepage destination grid */}
-      {page.highlightSections && (
+      {/* Location-specific Featured Activities Section */}
+      {locationFeaturedActivities.length > 0 && (
         <section className="py-16 px-5 max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
             Hoogtepunten van {page.title}
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {JSON.parse(page.highlightSections).map((highlight: any, index: number) => (
-              <div key={index} className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer">
-                <img
-                  src={highlight.image}
-                  alt={highlight.alt}
-                  className="w-full h-40 object-cover"
-                  onError={(e) => {
-                    // Fallback to a default image if the specific image doesn't exist
-                    e.currentTarget.src = '/images/placeholder.jpg';
-                  }}
-                />
-                <div className="p-4">
-                  <h3 className="font-bold font-inter text-gray-900 mb-2">
-                    {highlight.title}
-                  </h3>
-                  <p className="text-sm text-gray-600 font-inter">
-                    {highlight.description}
-                  </p>
-                </div>
-              </div>
-            ))}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {locationFeaturedActivities
+              .sort((a: any, b: any) => (a.ranking || 0) - (b.ranking || 0))
+              .map((activity: any) => {
+                const CardContent = (
+                  <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer text-center">
+                    <img
+                      src={activity.image || '/images/activities/placeholder.svg'}
+                      alt={activity.alt || activity.name}
+                      className="w-16 h-16 mx-auto mb-3 object-cover rounded-lg"
+                      onError={(e) => {
+                        e.currentTarget.src = '/images/activities/placeholder.svg';
+                      }}
+                    />
+                    <h3 className="font-bold font-inter text-gray-900 text-sm">
+                      {activity.name}
+                    </h3>
+                    <p className="text-xs text-gray-500 mt-1">
+                      📍 {activity.location}
+                    </p>
+                    {activity.category && (
+                      <p className="text-xs text-blue-600 mt-1 capitalize">
+                        {activity.category}
+                      </p>
+                    )}
+                  </div>
+                );
+
+                // Handle external links
+                if (activity.link && activity.link.startsWith('http')) {
+                  return (
+                    <a
+                      key={activity.id}
+                      href={activity.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {CardContent}
+                    </a>
+                  );
+                }
+
+                // Internal activity click handler
+                return (
+                  <div 
+                    key={activity.id}
+                    onClick={() => {
+                      setSelectedActivityId(activity.id.toString());
+                      const newUrl = `${window.location.pathname}?activity=${activity.id}`;
+                      window.history.pushState({}, '', newUrl);
+                      const contentSection = document.getElementById('content-section');
+                      if (contentSection) {
+                        contentSection.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }}
+                  >
+                    {CardContent}
+                  </div>
+                );
+              })}
           </div>
         </section>
       )}
