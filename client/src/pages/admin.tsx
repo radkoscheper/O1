@@ -1049,6 +1049,9 @@ export default function Admin() {
       if (response) {
         toast({ title: "Succes", description: "Motivatie sectie bijgewerkt" });
         motivationQuery.refetch();
+        // Invalidate homepage motivation cache
+        queryClient.invalidateQueries({ queryKey: ["/api/motivation"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/motivation/image-location"] });
       }
     } catch (error) {
       toast({ title: "Fout", description: "Kon motivatie sectie niet bijwerken", variant: "destructive" });
@@ -3306,13 +3309,21 @@ export default function Admin() {
 
                     <MotivationImageSelector
                       currentImage={motivationData.image}
-                      onImageSelect={(imagePath) => setMotivationData({ ...motivationData, image: imagePath })}
+                      onImageSelect={(imagePath) => {
+                        setMotivationData({ ...motivationData, image: imagePath });
+                        // Invalidate homepage motivation cache when image is selected
+                        queryClient.invalidateQueries({ queryKey: ["/api/motivation"] });
+                        queryClient.invalidateQueries({ queryKey: ["/api/motivation/image-location"] });
+                      }}
                       onImageUpload={async (file, locationName) => {
                         try {
                           console.log('Uploading motivation image:', file.name, 'with location:', locationName);
                           const imagePath = await uploadImageToFolder(file, 'motivatie', '', '', locationName);
                           console.log('Upload success, image path:', imagePath);
                           setMotivationData({ ...motivationData, image: imagePath });
+                          // Invalidate homepage motivation cache
+                          queryClient.invalidateQueries({ queryKey: ["/api/motivation"] });
+                          queryClient.invalidateQueries({ queryKey: ["/api/motivation/image-location"] });
                           toast({ 
                             title: "Succes", 
                             description: `Afbeelding succesvol geüpload${locationName ? ` met locatie: ${locationName}` : ''}!` 
@@ -7712,6 +7723,10 @@ function MotivationImageSelector({
               : img
           )
         );
+        
+        // Invalidate homepage motivation cache to reflect location changes
+        queryClient.invalidateQueries({ queryKey: ["/api/motivation"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/motivation/image-location"] });
         
         setEditingLocation(null);
         setEditLocationName('');
