@@ -1,0 +1,238 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 480">
+  <defs>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#87CEEB;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F0F8FF;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="castleGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#CD853F;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8B4513;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Sky background -->
+  <rect width="1200" height="480" fill="url(#skyGrad)"/>
+  
+  <!-- Nogat River -->
+  <path d="M0 350 Q300 340 600 345 Q900 350 1200 355 L1200 480 L0 480 Z" fill="#4682B4" opacity="0.7"/>
+  
+  <!-- Castle complex base -->
+  <rect x="200" y="300" width="800" height="180" fill="#8FBC8F"/>
+  
+  <!-- Outer walls -->
+  <rect x="150" y="280" width="900" height="25" fill="url(#castleGrad)"/>
+  <rect x="150" y="270" width="25" height="35" fill="#8B4513"/>
+  <rect x="200" y="265" width="25" height="40" fill="#8B4513"/>
+  <rect x="300" y="270" width="25" height="35" fill="#8B4513"/>
+  <rect x="400" y="265" width="25" height="40" fill="#8B4513"/>
+  <rect x="500" y="270" width="25" height="35" fill="#8B4513"/>
+  <rect x="600" y="265" width="25" height="40" fill="#8B4513"/>
+  <rect x="700" y="270" width="25" height="35" fill="#8B4513"/>
+  <rect x="800" y="265" width="25" height="40" fill="#8B4513"/>
+  <rect x="900" y="270" width="25" height="35" fill="#8B4513"/>
+  <rect x="1000" y="265" width="25" height="40" fill="#8B4513"/>
+  <rect x="1025" y="270" width="25" height="35" fill="#8B4513"/>
+  
+  <!-- High Castle (largest brick castle in the world) -->
+  <rect x="400" y="120" width="400" height="180" fill="url(#castleGrad)"/>
+  
+  <!-- Main keep -->
+  <rect x="550" y="80" width="100" height="220" fill="#8B4513"/>
+  <polygon points="550,80 600,50 650,80" fill="#654321"/>
+  
+  <!-- Corner towers -->
+  <rect x="380" y="100" width="50" height="200" fill="#A0522D"/>
+  <polygon points="380,100 405,70 430,100" fill="#8B4513"/>
+  
+  <rect x="770" y="100" width="50" height="200" fill="#A0522D"/>
+  <polygon points="770,100 795,70 820,100" fill="#8B4513"/>
+  
+  <rect x="380" y="220" width="50" height="80" fill="#A0522D"/>
+  <polygon points="380,220 405,200 430,220" fill="#8B4513"/>
+  
+  <rect x="770" y="220" width="50" height="80" fill="#A0522D"/>
+  <polygon points="770,220 795,200 820,220" fill="#8B4513"/>
+  
+  <!-- Gothic windows -->
+  <rect x="420" y="140" width="20" height="40" fill="#4A4A4A"/>
+  <polygon points="420,140 430,125 440,140" fill="#4A4A4A"/>
+  
+  <rect x="480" y="140" width="20" height="40" fill="#4A4A4A"/>
+  <polygon points="480,140 490,125 500,140" fill="#4A4A4A"/>
+  
+  <rect x="700" y="140" width="20" height="40" fill="#4A4A4A"/>
+  <polygon points="700,140 710,125 720,140" fill="#4A4A4A"/>
+  
+  <rect x="740" y="140" width="20" height="40" fill="#4A4A4A"/>
+  <polygon points="740,140 750,125 760,140" fill="#4A4A4A"/>
+  
+  <!-- Grand Master's Palace -->
+  <rect x="500" y="200" width="200" height="100" fill="#DEB887"/>
+  
+  <!-- Palace windows -->
+  <rect x="520" y="220" width="15" height="25" fill="#4A4A4A"/>
+  <rect x="545" y="220" width="15" height="25" fill="#4A4A4A"/>
+  <rect x="570" y="220" width="15" height="25" fill="#4A4A4A"/>
+  <rect x="595" y="220" width="15" height="25" fill="#4A4A4A"/>
+  <rect x="620" y="220" width="15" height="25" fill="#4A4A4A"/>
+  <rect x="645" y="220" width="15" height="25" fill="#4A4A4A"/>
+  <rect x="670" y="220" width="15" height="25" fill="#4A4A4A"/>
+  
+  <rect x="520" y="250" width="15" height="25" fill="#4A4A4A"/>
+  <rect x="545" y="250" width="15" height="25" fill="#4A4A4A"/>
+  <rect x="570" y="250" width="15" height="25" fill="#4A4A4A"/>
+  <rect x="595" y="250" width="15" height="25" fill="#4A4A4A"/>
+  <rect x="620" y="250" width="15" height="25" fill="#4A4A4A"/>
+  <rect x="645" y="250" width="15" height="25" fill="#4A4A4A"/>
+  <rect x="670" y="250" width="15" height="25" fill="#4A4A4A"/>
+  
+  <!-- Palace entrance -->
+  <rect x="585" y="275" width="30" height="25" fill="#654321"/>
+  <polygon points="585,275 600,265 615,275" fill="#8B4513"/>
+  
+  <!-- Middle Castle -->
+  <rect x="250" y="180" width="300" height="120" fill="#CD853F"/>
+  
+  <!-- Middle Castle tower -->
+  <rect x="300" y="140" width="60" height="160" fill="#A0522D"/>
+  <polygon points="300,140 330,110 360,140" fill="#8B4513"/>
+  
+  <!-- Teutonic Knights' dining hall -->
+  <rect x="270" y="200" width="200" height="60" fill="#DEB887"/>
+  <rect x="285" y="220" width="12" height="20" fill="#4A4A4A"/>
+  <rect x="305" y="220" width="12" height="20" fill="#4A4A4A"/>
+  <rect x="325" y="220" width="12" height="20" fill="#4A4A4A"/>
+  <rect x="345" y="220" width="12" height="20" fill="#4A4A4A"/>
+  <rect x="365" y="220" width="12" height="20" fill="#4A4A4A"/>
+  <rect x="385" y="220" width="12" height="20" fill="#4A4A4A"/>
+  <rect x="405" y="220" width="12" height="20" fill="#4A4A4A"/>
+  <rect x="425" y="220" width="12" height="20" fill="#4A4A4A"/>
+  <rect x="445" y="220" width="12" height="20" fill="#4A4A4A"/>
+  
+  <!-- Lower Castle -->
+  <rect x="850" y="200" width="200" height="100" fill="#DEB887"/>
+  
+  <!-- Lower Castle gatehouse -->
+  <rect x="900" y="160" width="80" height="140" fill="#A0522D"/>
+  <polygon points="900,160 940,130 980,160" fill="#8B4513"/>
+  
+  <!-- Gate arch -->
+  <path d="M 920 260 Q 940 250 960 260 L 960 300 L 920 300 Z" fill="#4A4A4A"/>
+  
+  <!-- Fortification details -->
+  <rect x="920" y="180" width="12" height="20" fill="#4A4A4A"/>
+  <rect x="948" y="180" width="12" height="20" fill="#4A4A4A"/>
+  
+  <!-- Museum banner -->
+  <rect x="520" y="120" width="60" height="20" fill="#DC143C"/>
+  <text x="550" y="133" text-anchor="middle" font-family="serif" font-size="8" fill="#FFFFFF">MUSEUM</text>
+  
+  <!-- Teutonic Cross symbols -->
+  <g id="teutonic1" transform="translate(600,90)">
+    <rect x="-2" y="-8" width="4" height="16" fill="#000000"/>
+    <rect x="-8" y="-2" width="16" height="4" fill="#000000"/>
+    <rect x="-6" y="-6" width="12" height="12" fill="none" stroke="#000000" stroke-width="1"/>
+  </g>
+  
+  <g id="teutonic2" transform="translate(330,120)">
+    <rect x="-2" y="-6" width="4" height="12" fill="#000000"/>
+    <rect x="-6" y="-2" width="12" height="4" fill="#000000"/>
+    <rect x="-5" y="-5" width="10" height="10" fill="none" stroke="#000000" stroke-width="1"/>
+  </g>
+  
+  <!-- Brick pattern details -->
+  <rect x="420" y="160" width="60" height="3" fill="#654321"/>
+  <rect x="420" y="170" width="60" height="3" fill="#654321"/>
+  <rect x="420" y="180" width="60" height="3" fill="#654321"/>
+  
+  <rect x="700" y="160" width="60" height="3" fill="#654321"/>
+  <rect x="700" y="170" width="60" height="3" fill="#654321"/>
+  <rect x="700" y="180" width="60" height="3" fill="#654321"/>
+  
+  <!-- Chapel -->
+  <rect x="600" y="180" width="80" height="60" fill="#F5F5DC"/>
+  <polygon points="600,180 640,160 680,180" fill="#8B4513"/>
+  
+  <!-- Chapel cross -->
+  <line x1="640" y1="170" x2="640" y2="185" stroke="#8B4513" stroke-width="3"/>
+  <line x1="635" y1="175" x2="645" y2="175" stroke="#8B4513" stroke-width="3"/>
+  
+  <!-- Chapel windows -->
+  <rect x="615" y="200" width="10" height="15" fill="#4169E1"/>
+  <rect x="655" y="200" width="10" height="15" fill="#4169E1"/>
+  <path d="M 620 200 Q 620 195 620 200" fill="#DC143C"/>
+  <path d="M 660 200 Q 660 195 660 200" fill="#DC143C"/>
+  
+  <!-- Amber artifacts (Malbork houses amber collection) -->
+  <circle cx="320" cy="380" r="4" fill="#FFB347"/>
+  <circle cx="350" cy="385" r="3" fill="#FF8C00"/>
+  <circle cx="380" cy="390" r="5" fill="#FFA500"/>
+  <circle cx="720" cy="375" r="4" fill="#FFB347"/>
+  <circle cx="750" cy="380" r="3" fill="#FF8C00"/>
+  
+  <!-- Medieval siege weapons display -->
+  <g id="trebuchet" transform="translate(150,320)">
+    <rect x="0" y="0" width="40" height="8" fill="#8B4513"/>
+    <rect x="35" y="-20" width="8" height="28" fill="#8B4513"/>
+    <line x1="39" y1="-20" x2="45" y2="-15" stroke="#654321" stroke-width="2"/>
+    <circle cx="42" cy="-18" r="2" fill="#696969"/>
+  </g>
+  
+  <!-- Knights in armor -->
+  <g id="knight1" transform="translate(450,350)">
+    <circle cx="0" cy="0" r="5" fill="#C0C0C0"/>
+    <rect x="-5" y="5" width="10" height="15" fill="#2F4F4F"/>
+    <rect x="-3" y="20" width="6" height="12" fill="#696969"/>
+    <!-- Shield -->
+    <ellipse cx="-8" cy="12" rx="3" ry="6" fill="#DC143C"/>
+    <rect x="-9" y="10" width="2" height="4" fill="#FFFFFF"/>
+    <rect x="-7" y="8" width="2" height="8" fill="#FFFFFF"/>
+    <!-- Sword -->
+    <line x1="8" y1="8" x2="8" y2="20" stroke="#C0C0C0" stroke-width="2"/>
+    <rect x="6" y="6" width="4" height="3" fill="#8B4513"/>
+  </g>
+  
+  <g id="knight2" transform="translate(750,360)">
+    <circle cx="0" cy="0" r="5" fill="#C0C0C0"/>
+    <rect x="-5" y="5" width="10" height="15" fill="#2F4F4F"/>
+    <rect x="-3" y="20" width="6" height="12" fill="#696969"/>
+    <ellipse cx="8" cy="12" rx="3" ry="6" fill="#4169E1"/>
+    <rect x="7" y="10" width="2" height="4" fill="#FFFFFF"/>
+    <rect x="9" y="8" width="2" height="8" fill="#FFFFFF"/>
+    <line x1="-8" y1="8" x2="-8" y2="20" stroke="#C0C0C0" stroke-width="2"/>
+    <rect x="-10" y="6" width="4" height="3" fill="#8B4513"/>
+  </g>
+  
+  <!-- Tourists visiting -->
+  <circle cx="550" cy="360" r="3" fill="#FFE4C4"/>
+  <rect x="547" y="363" width="6" height="10" fill="#4169E1"/>
+  <rect x="549" y="373" width="2" height="6" fill="#8B4513"/>
+  
+  <circle cx="650" cy="365" r="3" fill="#FFE4C4"/>
+  <rect x="647" y="368" width="6" height="10" fill="#DC143C"/>
+  <rect x="649" y="378" width="2" height="6" fill="#8B4513"/>
+  
+  <!-- UNESCO World Heritage plaque -->
+  <rect x="480" y="310" width="80" height="15" fill="#DAA520"/>
+  <text x="520" y="320" text-anchor="middle" font-family="serif" font-size="8" fill="#8B4513">UNESCO 1997</text>
+  
+  <!-- Polish flags on towers -->
+  <rect x="598" y="60" width="2" height="15" fill="#8B4513"/>
+  <rect x="600" y="60" width="12" height="6" fill="#FFFFFF"/>
+  <rect x="600" y="66" width="12" height="6" fill="#DC143C"/>
+  
+  <rect x="328" y="120" width="2" height="15" fill="#8B4513"/>
+  <rect x="330" y="120" width="12" height="6" fill="#FFFFFF"/>
+  <rect x="330" y="126" width="12" height="6" fill="#DC143C"/>
+  
+  <!-- Trees surrounding castle -->
+  <ellipse cx="50" cy="310" rx="25" ry="30" fill="#228B22"/>
+  <rect x="48" y="325" width="4" height="25" fill="#8B4513"/>
+  
+  <ellipse cx="1150" cy="320" rx="30" ry="35" fill="#228B22"/>
+  <rect x="1148" y="340" width="4" height="30" fill="#8B4513"/>
+  
+  <!-- Title -->
+  <text x="600" y="40" text-anchor="middle" font-family="serif" font-size="36" font-weight="bold" fill="#8B4513">MALBORK</text>
+  <text x="600" y="70" text-anchor="middle" font-family="serif" font-size="18" fill="#A0522D">Grootste Bakstenen Kasteel</text>
+</svg>
