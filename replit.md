@@ -224,6 +224,24 @@ This is a full-stack web application for discovering beautiful places in Poland.
 - Elke bestemming heeft bijpassende authentieke activiteiten
 - Database klaar voor verdere uitbreiding en content management
 
+**Stadium 20 Progress (2025-01-20)**: ✅ AUTOMATISCH BESTANDSHERNOEM SYSTEEM VOLTOOID
+✅ **COMPLETE FILE MANAGEMENT IMPLEMENTATIE**:
+- Server-side hulpfuncties: locationNameToFilename(), getUniqueFilename()
+- Upload route aangepast voor automatische naamgeving op basis van locatie naam
+- Locatie naam update route hernoemt bestanden automatisch met database sync
+- Frontend uitgebreid met locatie naam input veld in MotivationImageSelector
+- Cache invalidatie toegevoegd aan alle motivation update operaties
+- Database consistency gewaarborgd: motivation tabel sync met bestandswijzigingen
+- Proper error handling bij bestandshernoem en fallback mechanismen
+- UI feedback voor gebruiker over bestandshernoem status
+
+**Stadium 20 Status**: ✅ COMPLEET EN STABIEL
+- JPG bestanden krijgen automatisch locatie-gebaseerde namen
+- Duplicaten worden genummerd (bijv. krakow.jpg, krakow-2.jpg)  
+- Homepage toont direct nieuwe afbeelding na wijzigingen
+- Database consistency tussen motivation tabel en bestanden gegarandeerd
+- Volledige cache invalidatie zorgt voor real-time updates
+
 **Stadium 18 Progress (2025-01-19)**: ✅ ACTIVITEIT DETAIL VIEWS EN SECTIE HERORGANISATIE VOLTOOID
 ✅ **ACTIVITEIT DETAIL VIEWS GEÏMPLEMENTEERD**:
 - Prototype activiteit detail view in content sectie via URL parameters (?activity=ID)
