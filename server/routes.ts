@@ -276,9 +276,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let customName = '';
       let newFileName = '';
       
-      if (req.body?.destination === 'motivatie' && req.body?.locationName && req.body.locationName.trim()) {
-        // For motivatie images with locationName, use original filename extension but location-based name
-        customName = locationNameToFilename(req.body.locationName.trim());
+      if (req.body?.destination === 'motivatie') {
+        if (req.body?.locationName && req.body.locationName.trim()) {
+          // For motivatie images with locationName, use location-based name
+          customName = locationNameToFilename(req.body.locationName.trim());
+        } else {
+          // For motivatie images without locationName, use cleaned original filename
+          const originalName = path.parse(req.file!.originalname).name;
+          customName = originalName
+            .toLowerCase()
+            .replace(/[^a-z0-9\s]/g, '') // Remove special characters but keep spaces
+            .replace(/\s+/g, '-') // Replace spaces with dashes
+            .replace(/-+/g, '-') // Replace multiple dashes with single
+            .replace(/^-|-$/g, ''); // Remove leading/trailing dashes
+        }
         const originalExtension = path.extname(req.file!.originalname);
         newFileName = getUniqueFilename(finalDirectory, customName, originalExtension || '.jpg');
       } else if (req.body.fileName && req.body.fileName.trim()) {
