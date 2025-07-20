@@ -16,10 +16,11 @@ export interface UploadOptions {
   type?: 'image' | 'favicon';
   entityId?: string | number;
   entityName?: string;
+  locationName?: string;
 }
 
 export const uploadFile = async (options: UploadOptions): Promise<UploadResult> => {
-  const { file, fileName, destination, type = 'image', entityId, entityName } = options;
+  const { file, fileName, destination, type = 'image', entityId, entityName, locationName } = options;
   
   try {
     // Validate file based on type
@@ -59,6 +60,9 @@ export const uploadFile = async (options: UploadOptions): Promise<UploadResult> 
       }
       if (entityName) {
         formData.append('entityName', entityName);
+      }
+      if (locationName) {
+        formData.append('locationName', locationName);
       }
     }
 
@@ -118,7 +122,8 @@ export const uploadImageToFolder = async (
   file: File, 
   destination: string, 
   fileName: string = '', 
-  entityName: string = ''
+  entityName: string = '',
+  locationName?: string
 ): Promise<string> => {
   try {
     const result = await uploadFile({
@@ -126,7 +131,8 @@ export const uploadImageToFolder = async (
       fileName: fileName || file.name,
       destination,
       type: 'image',
-      entityName
+      entityName,
+      locationName
     });
 
     if (result.success && result.imagePath) {

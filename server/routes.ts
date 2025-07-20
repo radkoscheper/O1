@@ -272,11 +272,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
-      // Check if custom filename was provided and rename file
+      // Handle automatic filename generation for motivatie images based on location
+      let customName = '';
+      let newFileName = '';
+      
       if (req.body.fileName && req.body.fileName.trim()) {
-        const customName = req.body.fileName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+        customName = req.body.fileName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
         // Voor gecroppte afbeeldingen, altijd .jpg gebruiken
-        const newFileName = customName + '.jpg';
+        newFileName = customName + '.jpg';
+      } else if (req.body?.destination === 'motivatie' && req.body?.locationName) {
+        // Automatically name motivatie images based on location name
+        customName = locationNameToFilename(req.body.locationName);
+        newFileName = getUniqueFilename(finalDirectory, customName, '.jpg');
+      }
+
+      // Check if custom filename was provided and rename file
+      if (newFileName) {
         
         const oldPath = req.file.path;
         const newPath = path.join(finalDirectory, newFileName);
@@ -357,6 +368,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
         imagePath = `/images/${actualFolder}/${finalFileName}`;
       } else if (req.body?.destination) {
         imagePath = `/images/headers/${req.body.destination}/${finalFileName}`;
+      }
+      
+      // For motivatie images with locationName, save location info to database
+      if (req.body?.destination === 'motivatie' && req.body?.locationName && req.body.locationName.trim()) {
+        try {
+          // Insert or update location name in database
+          const existingResult = await db.execute(sql`
+            SELECT id FROM motivation_image_locations 
+            WHERE image_path = ${imagePath}
+          `);
+
+          if (existingResult.rows.length > 0) {
+            // Update existing
+            await db.execute(sql`
+              UPDATE motivation_image_locations 
+              SET location_name = ${req.body.locationName.trim()}, updated_at = NOW()
+              WHERE image_path = ${imagePath}
+            `);
+          } else {
+            // Insert new
+            await db.execute(sql`
+              INSERT INTO motivation_image_locations (image_path, location_name)
+              VALUES (${imagePath}, ${req.body.locationName.trim()})
+            `);
+          }
+          console.log(`Location saved for ${imagePath}: ${req.body.locationName.trim()}`);
+        } catch (dbError) {
+          console.error("Error saving location to database:", dbError);
+          // Continue with upload success even if DB insert fails
+        }
       }
       
       res.json({
@@ -2492,7 +2533,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     ).join(' ') || 'Onbekende Locatie';
   }
 
-  // Update motivation image location name
+  // Helper function to convert location name to filename
+  function locationNameToFilename(locationName: string): string {
+    return locationName
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '') // Remove special characters
+      .replace(/\s+/g, '-') // Replace spaces with dashes
+      .replace(/-+/g, '-') // Replace multiple dashes with single
+      .replace(/^-|-$/g, ''); // Remove leading/trailing dashes
+  }
+
+  // Helper function to get unique filename with numbering
+  function getUniqueFilename(basePath: string, desiredName: string, extension: string): string {
+    const fullPath = path.join(basePath, `${desiredName}${extension}`);
+    
+    if (!fs.existsSync(fullPath)) {
+      return `${desiredName}${extension}`;
+    }
+    
+    // File exists, find unique number
+    let counter = 2;
+    while (true) {
+      const numberedName = `${desiredName}-${counter}`;
+      const numberedPath = path.join(basePath, `${numberedName}${extension}`);
+      
+      if (!fs.existsSync(numberedPath)) {
+        return `${numberedName}${extension}`;
+      }
+      counter++;
+    }
+  }
+
+  // Update motivation image location name with file renaming
   app.put("/api/admin/images/motivatie/location", requireAuth, async (req, res) => {
     try {
       const user = await storage.getUser(req.session.userId!);
@@ -2506,6 +2578,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Image path en locatie naam zijn verplicht" });
       }
 
+      // Get current file info
+      const currentFilename = imagePath.split('/').pop() || '';
+      const extension = path.extname(currentFilename);
+      const motivatiePath = path.join(process.cwd(), 'client', 'public', 'images', 'motivatie');
+      const currentFilePath = path.join(motivatiePath, currentFilename);
+
+      // Generate new filename based on location name
+      const baseNewName = locationNameToFilename(locationName);
+      const newFilename = getUniqueFilename(motivatiePath, baseNewName, extension);
+      const newFilePath = path.join(motivatiePath, newFilename);
+      const newImagePath = `/images/motivatie/${newFilename}`;
+
+      // Only rename if the file actually needs renaming and exists
+      let finalImagePath = imagePath;
+      if (fs.existsSync(currentFilePath) && currentFilename !== newFilename) {
+        try {
+          fs.renameSync(currentFilePath, newFilePath);
+          finalImagePath = newImagePath;
+          console.log(`File renamed: ${currentFilename} -> ${newFilename}`);
+        } catch (renameError) {
+          console.error("Error renaming file:", renameError);
+          // Continue without renaming - just update location name
+        }
+      }
+
       // Check if record exists, update or insert
       const existingResult = await db.execute(sql`
         SELECT id FROM motivation_image_locations 
@@ -2513,21 +2610,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       `);
 
       if (existingResult.rows.length > 0) {
-        // Update existing
+        // Update existing record with new path and location name
         await db.execute(sql`
           UPDATE motivation_image_locations 
-          SET location_name = ${locationName}, updated_at = NOW()
+          SET image_path = ${finalImagePath}, location_name = ${locationName}, updated_at = NOW()
           WHERE image_path = ${imagePath}
         `);
       } else {
-        // Insert new
+        // Insert new record
         await db.execute(sql`
           INSERT INTO motivation_image_locations (image_path, location_name)
-          VALUES (${imagePath}, ${locationName})
+          VALUES (${finalImagePath}, ${locationName})
         `);
       }
 
-      res.json({ success: true, message: "Locatie naam succesvol bijgewerkt" });
+      // If we renamed the file, we need to also update the motivation table if this is the active image
+      if (finalImagePath !== imagePath) {
+        await db.execute(sql`
+          UPDATE motivation 
+          SET image = ${finalImagePath}, updated_at = NOW()
+          WHERE image = ${imagePath}
+        `);
+      }
+
+      res.json({ 
+        success: true, 
+        message: "Locatie naam en bestand succesvol bijgewerkt",
+        newImagePath: finalImagePath,
+        renamed: finalImagePath !== imagePath
+      });
     } catch (error) {
       console.error("Error updating motivation image location:", error);
       res.status(500).json({ message: "Server error" });
