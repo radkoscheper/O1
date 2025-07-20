@@ -2079,6 +2079,14 @@ export default function Admin() {
                 <div>
                   <h2 className="text-2xl font-semibold">Bestemmingen ({getFilteredDestinations().length} van {destinationsQuery.data?.length || 0})</h2>
                   <p className="text-gray-600">Beheer al je Polish reisbestemmingen</p>
+                  <div className="mt-2 flex items-center gap-2">
+                    <Badge variant="secondary" className="text-sm bg-amber-100 text-amber-800 border-amber-200">
+                      ⭐ Featured: {destinationsQuery.data?.filter((d: any) => d.featured).length || 0} van {destinationsQuery.data?.length || 0}
+                    </Badge>
+                    <Badge variant="outline" className="text-sm bg-green-50 text-green-700 border-green-200">
+                      ✅ Gepubliceerd: {destinationsQuery.data?.filter((d: any) => d.published).length || 0} van {destinationsQuery.data?.length || 0}
+                    </Badge>
+                  </div>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2">
                   <Select value={locationFilter} onValueChange={setLocationFilter}>
@@ -2231,6 +2239,14 @@ export default function Admin() {
                 <div>
                   <h2 className="text-2xl font-semibold">Reizen ({getFilteredGuides().length} van {guidesQuery.data?.length || 0})</h2>
                   <p className="text-gray-600">Beheer al je Polish reizen en tips</p>
+                  <div className="mt-2 flex items-center gap-2">
+                    <Badge variant="secondary" className="text-sm bg-amber-100 text-amber-800 border-amber-200">
+                      ⭐ Featured: {guidesQuery.data?.filter((g: any) => g.featured).length || 0} van {guidesQuery.data?.length || 0}
+                    </Badge>
+                    <Badge variant="outline" className="text-sm bg-green-50 text-green-700 border-green-200">
+                      ✅ Gepubliceerd: {guidesQuery.data?.filter((g: any) => g.published).length || 0} van {guidesQuery.data?.length || 0}
+                    </Badge>
+                  </div>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2">
                   <Select value={guideFilter} onValueChange={setGuideFilter}>
