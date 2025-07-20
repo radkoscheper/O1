@@ -6,7 +6,7 @@ Een Nederlandse reiswebsite voor het ontdekken van mooie plekken in Polen. Gebou
 
 - 🏛️ Historische steden zoals Krakow en Gdansk
 - 🏔️ Natuurlijke bestemmingen zoals Tatra Mountains en Bialowieza
-- 📚 Reisgidsen en tips
+- 📚 Reizen en tips
 - 🔍 Zoekfunctionaliteit voor bestemmingen
 - 📱 Responsive design voor alle apparaten
 

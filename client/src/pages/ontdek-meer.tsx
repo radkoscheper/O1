@@ -303,14 +303,14 @@ export default function OntdekMeer() {
             </h2>
             <p className="text-lg mb-6 font-inter text-gray-700">
               Bezoek historische steden, ontdek natuurparken en verborgen parels. 
-              Onze reisgidsen helpen je op weg!
+              Onze reizen helpen je op weg!
             </p>
             <Button
               onClick={handleReadGuides}
               className="py-3 px-6 text-base font-inter hover:opacity-90 transition-all duration-200"
               style={{ backgroundColor: "#2f3e46" }}
             >
-              Lees onze gidsen
+              Lees onze reizen
             </Button>
           </div>
           <div className="flex-1 min-w-80">
@@ -376,7 +376,7 @@ export default function OntdekMeer() {
       {/* Travel Guides - EXACT SAME AS HOMEPAGE */}
       <section className="py-16 px-5 max-w-6xl mx-auto">
         <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
-          Reisgidsen en Tips
+          Reizen en Tips
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {publishedGuides.map((guide) => {

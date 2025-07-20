@@ -50,7 +50,7 @@ export default function Home() {
       case 'highlight':
         return '✨ Hoogtepunten';
       case 'guide':
-        return '📖 Reisgidsen';
+        return '📖 Reizen';
       case 'page':
         return '📄 Pagina';
       case 'template':
@@ -495,7 +495,7 @@ export default function Home() {
                 className="py-3 px-6 text-base font-inter hover:opacity-90 transition-all duration-200"
                 style={{ backgroundColor: "#2f3e46" }}
               >
-                {motivationData.button_text || "Lees onze gidsen"}
+                {motivationData.button_text || "Lees onze reizen"}
               </Button>
             </div>
             <div className="flex-1 min-w-80 relative">
@@ -627,7 +627,7 @@ export default function Home() {
       {siteSettings?.showGuides && (
         <section className="py-16 px-5 max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
-          Reisgidsen en Tips
+          Reizen en Tips
         </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {publishedGuides.map((guide) => {
