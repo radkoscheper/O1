@@ -399,6 +399,8 @@ export default function Admin() {
     customCSS: '',
     customJS: '',
     googleAnalyticsId: '',
+    showMotivationOnHomepage: true,
+    showOntdekMeerOnHomepage: true,
   });
 
   // Check authentication status on component mount
@@ -432,6 +434,8 @@ export default function Admin() {
         customCSS: siteSettingsQuery.data.customCSS || '',
         customJS: siteSettingsQuery.data.customJS || '',
         googleAnalyticsId: siteSettingsQuery.data.googleAnalyticsId || '',
+        showMotivationOnHomepage: siteSettingsQuery.data.showMotivationOnHomepage ?? true,
+        showOntdekMeerOnHomepage: siteSettingsQuery.data.showOntdekMeerOnHomepage ?? true,
       };
       console.log('Setting new site settings state:', newSettings);
       setSiteSettings(newSettings);
@@ -3893,12 +3897,61 @@ export default function Admin() {
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* Homepage Sectie Zichtbaarheid */}
+                <Card className="lg:col-span-2">
+                  <CardHeader>
+                    <CardTitle>Homepage Sectie Zichtbaarheid</CardTitle>
+                    <CardDescription>Beheer welke secties zichtbaar zijn op de homepage</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="space-y-0.5">
+                          <Label htmlFor="showMotivationOnHomepage" className="font-medium">Motivatie Sectie</Label>
+                          <p className="text-sm text-gray-600">
+                            Toon de motivatie sectie met afbeelding en call-to-action op de homepage
+                          </p>
+                        </div>
+                        <Switch
+                          id="showMotivationOnHomepage"
+                          checked={siteSettings.showMotivationOnHomepage}
+                          onCheckedChange={(checked) => setSiteSettings({...siteSettings, showMotivationOnHomepage: checked})}
+                        />
+                      </div>
+                      
+                      <div className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="space-y-0.5">
+                          <Label htmlFor="showOntdekMeerOnHomepage" className="font-medium">Ontdek Meer Sectie</Label>
+                          <p className="text-sm text-gray-600">
+                            Toon de "Ontdek Meer" sectie met featured pagina's op de homepage
+                          </p>
+                        </div>
+                        <Switch
+                          id="showOntdekMeerOnHomepage"
+                          checked={siteSettings.showOntdekMeerOnHomepage}
+                          onCheckedChange={(checked) => setSiteSettings({...siteSettings, showOntdekMeerOnHomepage: checked})}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      <p className="text-sm text-blue-800 font-medium mb-2">📝 Sectie Beheer Info</p>
+                      <div className="grid gap-2 text-sm text-blue-700">
+                        <p>• <strong>Motivatie Sectie:</strong> Beheer content via "Ontdek Meer" tab</p>
+                        <p>• <strong>Ontdek Meer Sectie:</strong> Beheer content via "Pagina's" tab (featured pagina's)</p>
+                        <p>• Wijzigingen worden direct doorgevoerd na het opslaan van de site instellingen</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
               
               <div className="text-sm text-gray-600 pt-4 border-t">
                 <p>💡 Tip: Gebruik de achtergrond afbeelding voor een mooie header op je website</p>
                 <p>🎨 Custom CSS en JavaScript worden automatisch geladen op alle pagina's</p>
                 <p>📊 Google Analytics tracking wordt actief zodra je een geldig tracking ID invult</p>
+                <p>🏠 Homepage secties kunnen individueel in- of uitgeschakeld worden</p>
               </div>
             </TabsContent>
           )}
