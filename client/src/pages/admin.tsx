@@ -7710,23 +7710,34 @@ function MotivationImageSelector({
       });
 
       if (response.ok) {
+        const result = await response.json();
+        
         toast({ 
           title: "Succes", 
-          description: "Locatie naam bijgewerkt" 
+          description: result.renamed ? "Locatie naam en bestand bijgewerkt" : "Locatie naam bijgewerkt"
         });
         
-        // Update local state
+        // Update local state with new image path if file was renamed
+        const finalImagePath = result.newImagePath || imagePath;
         setAvailableImages(images => 
           images.map(img => 
             img.path === imagePath 
-              ? { ...img, locationName: newLocationName }
+              ? { ...img, path: finalImagePath, locationName: newLocationName }
               : img
           )
         );
         
+        // If file was renamed and this is the current selected image, update parent
+        if (result.renamed && currentImage === imagePath) {
+          onImageSelect(finalImagePath);
+        }
+        
         // Invalidate homepage motivation cache to reflect location changes
         queryClient.invalidateQueries({ queryKey: ["/api/motivation"] });
         queryClient.invalidateQueries({ queryKey: ["/api/motivation/image-location"] });
+        
+        // Refresh the image list to show updated filenames
+        await loadAvailableImages();
         
         setEditingLocation(null);
         setEditLocationName('');
