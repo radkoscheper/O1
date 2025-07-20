@@ -1915,10 +1915,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all highlights
   app.get("/api/highlights", async (req, res) => {
     try {
-      const highlights = await storage.getHomepageHighlights();
+      // Get featured activities instead of highlights
+      const featuredActivities = await storage.getFeaturedActivities();
+      
+      // Transform activities to match highlights interface
+      const highlights = featuredActivities.map(activity => ({
+        id: activity.id,
+        name: activity.name,
+        description: activity.description,
+        iconPath: activity.image, // Use activity image as icon
+        content: activity.content || '',
+        ranking: activity.ranking || 0
+      }));
+      
       res.json(highlights);
     } catch (error) {
-      console.error("Error fetching highlights:", error);
+      console.error("Error fetching highlights (featured activities):", error);
       res.status(500).json({ message: "Server error" });
     }
   });

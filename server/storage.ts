@@ -95,6 +95,7 @@ export interface IStorage {
   getAllActivities(): Promise<Activity[]>;
   getActiveActivities(): Promise<Activity[]>;
   getPublishedActivities(): Promise<Activity[]>;
+  getFeaturedActivities(): Promise<Activity[]>;
   getHomepageActivities(): Promise<Activity[]>;
   getActivitiesByLocation(location: string): Promise<Activity[]>;
   getActivitiesByCategory(category: string): Promise<Activity[]>;
@@ -704,6 +705,16 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(activities).where(
       and(eq(activities.is_deleted, false), eq(activities.published, true))
     );
+  }
+
+  async getFeaturedActivities(): Promise<Activity[]> {
+    return await db.select().from(activities).where(
+      and(
+        eq(activities.is_deleted, false),
+        eq(activities.published, true),
+        eq(activities.featured, true)
+      )
+    ).orderBy(activities.ranking, activities.name);
   }
 
   async getHomepageActivities(): Promise<Activity[]> {
