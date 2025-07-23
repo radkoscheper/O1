@@ -5,15 +5,14 @@ import { z } from "zod";
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
-  password: text("password").notNull(),
+  password: text("password_hash").notNull(),
   role: text("role").notNull().default("user"), // "admin" or "user"
   canCreateContent: boolean("can_create_content").default(true),
   canEditContent: boolean("can_edit_content").default(true),
   canDeleteContent: boolean("can_delete_content").default(false),
   canManageUsers: boolean("can_manage_users").default(false),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-  createdBy: integer("created_by").references((): any => users.id),
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
@@ -24,7 +23,6 @@ export const insertUserSchema = createInsertSchema(users).pick({
   canEditContent: true,
   canDeleteContent: true,
   canManageUsers: true,
-  createdBy: true,
 });
 
 export const updateUserSchema = createInsertSchema(users).pick({
@@ -70,14 +68,12 @@ export const destinations = pgTable("destinations", {
   image: text("image").notNull(),
   alt: text("alt").notNull(),
   content: text("content").notNull(),
-  link: text("link"), // Optional link URL for the destination
-  featured: boolean("featured").default(false),
-  published: boolean("published").default(true),
-  showOnHomepage: boolean("show_on_homepage").default(true).notNull(), // Controls if shown on homepage
   ranking: integer("ranking").default(0),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-  createdBy: integer("created_by").references(() => users.id),
+  is_published: boolean("is_published").default(true),
+  is_featured: boolean("is_featured").default(false),
+  show_on_homepage: boolean("show_on_homepage").default(true).notNull(), // Controls if shown on homepage
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
   is_deleted: boolean("is_deleted").default(false),
   deleted_at: timestamp("deleted_at"),
 });
@@ -90,12 +86,10 @@ export const insertDestinationSchema = createInsertSchema(destinations).pick({
   image: true,
   alt: true,
   content: true,
-  link: true,
-  featured: true,
-  published: true,
-  showOnHomepage: true,
   ranking: true,
-  createdBy: true,
+  is_published: true,
+  is_featured: true,
+  show_on_homepage: true,
 });
 
 export const updateDestinationSchema = insertDestinationSchema.partial();
@@ -113,14 +107,12 @@ export const guides = pgTable("guides", {
   image: text("image").notNull(),
   alt: text("alt").notNull(),
   content: text("content").notNull(),
-  link: text("link"), // Optional link URL for the guide
-  featured: boolean("featured").default(false),
-  published: boolean("published").default(true),
-  showOnHomepage: boolean("show_on_homepage").default(true).notNull(), // Controls if shown on homepage
   ranking: integer("ranking").default(0),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-  createdBy: integer("created_by").references(() => users.id),
+  is_published: boolean("is_published").default(true),
+  is_featured: boolean("is_featured").default(false),
+  show_on_homepage: boolean("show_on_homepage").default(true).notNull(), // Controls if shown on homepage
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
   is_deleted: boolean("is_deleted").default(false),
   deleted_at: timestamp("deleted_at"),
 });
@@ -132,12 +124,10 @@ export const insertGuideSchema = createInsertSchema(guides).pick({
   image: true,
   alt: true,
   content: true,
-  link: true,
-  featured: true,
-  published: true,
-  showOnHomepage: true,
   ranking: true,
-  createdBy: true,
+  is_published: true,
+  is_featured: true,
+  show_on_homepage: true,
 });
 
 export const updateGuideSchema = insertGuideSchema.partial();
@@ -149,54 +139,33 @@ export type Guide = typeof guides.$inferSelect;
 // Site settings table for managing global site configuration
 export const siteSettings = pgTable("site_settings", {
   id: serial("id").primaryKey(),
-  siteName: varchar("site_name", { length: 255 }).notNull().default("Ontdek Polen"),
-  siteDescription: text("site_description").notNull().default("Ontdek de mooiste plekken van Polen"),
-  metaKeywords: text("meta_keywords").default("Polen, reizen, vakantie, bestemmingen"),
+  site_name: varchar("site_name", { length: 255 }).notNull().default("Ontdek Polen"),
+  site_description: text("site_description").notNull().default("Ontdek de mooiste plekken van Polen"),
+  meta_keywords: text("meta_keywords").default("Polen, reizen, vakantie, bestemmingen"),
+  background_image: varchar("background_image", { length: 255 }),
+  header_background_image: varchar("header_background_image", { length: 255 }),
+  logo: varchar("logo", { length: 255 }),
   favicon: varchar("favicon", { length: 255 }).default("/favicon.ico"),
-  faviconEnabled: boolean("favicon_enabled").default(true),
-  backgroundImage: varchar("background_image", { length: 255 }),
-  backgroundImageAlt: varchar("background_image_alt", { length: 255 }),
-  logoImage: varchar("logo_image", { length: 255 }),
-  logoImageAlt: varchar("logo_image_alt", { length: 255 }),
-  socialMediaImage: varchar("social_media_image", { length: 255 }),
-  headerOverlayEnabled: boolean("header_overlay_enabled").default(false),
-  headerOverlayOpacity: integer("header_overlay_opacity").default(30),
-  customCSS: text("custom_css"),
-  customJS: text("custom_js"),
-  googleAnalyticsId: varchar("google_analytics_id", { length: 50 }),
-  // Homepage Section Visibility Controls
-  showDestinations: boolean("show_destinations").default(true).notNull(),
-  showMotivation: boolean("show_motivation").default(true).notNull(),
-  showHighlights: boolean("show_highlights").default(true).notNull(),
-  showOntdekMeer: boolean("show_ontdek_meer").default(true).notNull(),
-  showGuides: boolean("show_guides").default(true).notNull(),
-  isActive: boolean("is_active").notNull().default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  favicon_enabled: boolean("favicon_enabled").default(true),
+  google_analytics: varchar("google_analytics", { length: 255 }),
+  custom_css: text("custom_css"),
+  custom_js: text("custom_js"),
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
 });
 
 export const insertSiteSettingsSchema = createInsertSchema(siteSettings).pick({
-  siteName: true,
-  siteDescription: true,
-  metaKeywords: true,
+  site_name: true,
+  site_description: true,
+  meta_keywords: true,
+  background_image: true,
+  header_background_image: true,
+  logo: true,
   favicon: true,
-  faviconEnabled: true,
-  backgroundImage: true,
-  backgroundImageAlt: true,
-  logoImage: true,
-  logoImageAlt: true,
-  socialMediaImage: true,
-  headerOverlayEnabled: true,
-  headerOverlayOpacity: true,
-  customCSS: true,
-  customJS: true,
-  googleAnalyticsId: true,
-  showDestinations: true,
-  showMotivation: true,
-  showHighlights: true,
-  showOntdekMeer: true,
-  showGuides: true,
-  isActive: true,
+  favicon_enabled: true,
+  google_analytics: true,
+  custom_css: true,
+  custom_js: true,
 });
 
 export const updateSiteSettingsSchema = insertSiteSettingsSchema.partial();
@@ -285,24 +254,29 @@ export type Template = typeof templates.$inferSelect;
 // Highlights table
 export const highlights = pgTable("highlights", {
   id: serial("id").primaryKey(),
-  name: varchar("name", { length: 100 }).notNull(),
-  iconPath: varchar("icon_path", { length: 500 }).notNull(),
-  category: varchar("category", { length: 50 }).default("general"),
+  title: varchar("title", { length: 100 }).notNull(),
+  icon: varchar("icon", { length: 500 }),
+  description: text("description"),
+  location: varchar("location", { length: 100 }),
   ranking: integer("ranking").default(0),
-  active: boolean("active").default(true),
-  showOnHomepage: boolean("show_on_homepage").default(true).notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-  createdBy: integer("created_by").references(() => users.id),
+  is_published: boolean("is_published").default(true),
+  is_featured: boolean("is_featured").default(false),
+  show_on_homepage: boolean("show_on_homepage").default(true).notNull(),
+  is_deleted: boolean("is_deleted").default(false),
+  deleted_at: timestamp("deleted_at"),
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
 });
 
 export const insertHighlightSchema = createInsertSchema(highlights).pick({
-  name: true,
-  iconPath: true,
-  category: true,
+  title: true,
+  icon: true,
+  description: true,
+  location: true,
   ranking: true,
-  active: true,
-  showOnHomepage: true,
+  is_published: true,
+  is_featured: true,
+  show_on_homepage: true,
 });
 
 export const updateHighlightSchema = insertHighlightSchema.partial();
@@ -317,17 +291,18 @@ export const activities = pgTable("activities", {
   name: varchar("name", { length: 255 }).notNull(),
   location: varchar("location", { length: 255 }), // City/region where activity is located
   category: varchar("category", { length: 100 }), // museum, gebergte, plein, kerk, horeca, hotel, camping, etc.
-  activityType: varchar("activitytype", { length: 100 }), // More specific type within category
+  type: varchar("type", { length: 100 }), // More specific type within category
+  website: text("website"), // Website URL
   description: text("description"),
   image: text("image"),
   alt: text("alt"),
   content: text("content"),
-  link: text("link"), // Optional link URL for the activity
-  featured: boolean("featured").default(false),
-  published: boolean("published").default(true),
   ranking: integer("ranking").default(0),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  is_published: boolean("is_published").default(true),
+  is_featured: boolean("is_featured").default(false),
+  show_on_homepage: boolean("show_on_homepage").default(true),
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
   is_deleted: boolean("is_deleted").default(false),
   deleted_at: timestamp("deleted_at"),
 });
@@ -336,15 +311,16 @@ export const insertActivitySchema = createInsertSchema(activities).pick({
   name: true,
   location: true,
   category: true,
-  activityType: true,
+  type: true,
   description: true,
   image: true,
   alt: true,
   content: true,
-  link: true,
-  featured: true,
-  published: true,
+  website: true,
   ranking: true,
+  is_published: true,
+  is_featured: true,
+  show_on_homepage: true,
 });
 
 export const updateActivitySchema = insertActivitySchema.partial();
@@ -357,31 +333,18 @@ export type Activity = typeof activities.$inferSelect;
 export const searchConfigs = pgTable("search_configs", {
   id: serial("id").primaryKey(),
   context: text("context").notNull(), // "homepage", "destination_page", "guide_page", etc.
-  placeholderText: text("placeholder_text").notNull(),
-  searchScope: text("search_scope").notNull(), // "destinations", "activities", "guides", "all"
-  enableLocationFilter: boolean("enable_location_filter").default(false),
-  enableCategoryFilter: boolean("enable_category_filter").default(false),
-  enableHighlights: boolean("enable_highlights").default(false), // ✨ Hoogtepunten
-  enableGuides: boolean("enable_guides").default(false), // 📖 Reisgidsen
-  customInstructions: text("custom_instructions"), // Additional search instructions or context
-  redirectPattern: text("redirect_pattern"), // Pattern for redirects like "/{{slug}}" or "/bestemming/{{slug}}"
-  isActive: boolean("is_active").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-  createdBy: integer("created_by").references(() => users.id),
+  placeholder_text: text("placeholder_text").notNull(),
+  search_scope: text("search_scope").notNull(), // "destinations", "activities", "guides", "all"
+  enabled: boolean("enabled").default(true),
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
 });
 
 export const insertSearchConfigSchema = createInsertSchema(searchConfigs).pick({
   context: true,
-  placeholderText: true,
-  searchScope: true,
-  enableLocationFilter: true,
-  enableCategoryFilter: true,
-  enableHighlights: true,
-  enableGuides: true,
-  customInstructions: true,
-  redirectPattern: true,
-  isActive: true,
+  placeholder_text: true,
+  search_scope: true,
+  enabled: true,
 });
 
 export const updateSearchConfigSchema = insertSearchConfigSchema.partial();
@@ -394,19 +357,21 @@ export type SearchConfig = typeof searchConfigs.$inferSelect;
 export const motivation = pgTable("motivation", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
+  subtitle: text("subtitle"),
   description: text("description").notNull(),
-  buttonText: text("button_text").notNull(),
-  buttonAction: text("button_action"),
+  button_text: text("button_text").notNull(),
+  button_link: text("button_link"),
   image: text("image"),
-  isPublished: boolean("is_published").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  ranking: integer("ranking").default(0),
+  is_published: boolean("is_published").default(true),
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
 });
 
 export const insertMotivationSchema = createInsertSchema(motivation).omit({
   id: true,
-  createdAt: true,
-  updatedAt: true,
+  created_at: true,
+  updated_at: true,
 });
 
 export const updateMotivationSchema = insertMotivationSchema.partial();
