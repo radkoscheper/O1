@@ -130,6 +130,30 @@ export default function Admin() {
       toast({ title: "Fout", description: "Kon zoekconfiguratties niet laden", variant: "destructive" });
     }
   });
+
+  // Multi-platform deployment queries (admin only)
+  const platformInfoQuery = useQuery({
+    queryKey: ['/api/admin/platform/info'],
+    enabled: isAuthenticated && currentUser?.role === 'admin',
+    refetchInterval: 60000, // Refresh every minute
+  });
+
+  const systemHealthQuery = useQuery({
+    queryKey: ['/api/admin/system/health'],
+    enabled: isAuthenticated && currentUser?.role === 'admin',
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
+  const connectionTestQuery = useQuery({
+    queryKey: ['/api/admin/database/connection-test'],
+    enabled: false, // Only run on manual trigger
+  });
+
+  const environmentValidationQuery = useQuery({
+    queryKey: ['/api/admin/environment/validate'],
+    enabled: isAuthenticated && currentUser?.role === 'admin',
+    refetchInterval: 300000, // Refresh every 5 minutes
+  });
   const [showCreateUser, setShowCreateUser] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showEditUser, setShowEditUser] = useState(false);
@@ -266,6 +290,19 @@ export default function Admin() {
     redirectPattern: '',
     isActive: true
   });
+
+  // Multi-platform deployment management state
+  const [selectedPlatform, setSelectedPlatform] = useState<string>('vercel');
+  const [generatedConfig, setGeneratedConfig] = useState<{
+    platform: string;
+    fileName: string;
+    content: string;
+    instructions: string;
+  } | null>(null);
+  const [showConfigModal, setShowConfigModal] = useState(false);
+  const [isTestingConnection, setIsTestingConnection] = useState(false);
+  const [isClearingCache, setIsClearingCache] = useState(false);
+  const [showSystemHealth, setShowSystemHealth] = useState(false);
 
   const { toast } = useToast();
 
@@ -1259,6 +1296,10 @@ export default function Admin() {
                 <TabsTrigger value="database" className="flex items-center gap-2">
                   <Database className="h-4 w-4" />
                   Database Status
+                </TabsTrigger>
+                <TabsTrigger value="deployment" className="flex items-center gap-2">
+                  <Server className="h-4 w-4" />
+                  Deployment & Platform
                 </TabsTrigger>
               </>
             )}
@@ -3248,6 +3289,486 @@ export default function Admin() {
                 </CardContent>
               </Card>
             </TabsContent>
+          )}
+
+          {/* Deployment & Platform Tab Content */}
+          {currentUser?.role === 'admin' && (
+            <TabsContent value="deployment" className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <div>
+                  <h2 className="text-2xl font-semibold flex items-center gap-2">
+                    <Server className="h-6 w-6" />
+                    Deployment & Platform Management
+                  </h2>
+                  <p className="text-gray-600">Multi-platform deployment monitoring en management tools</p>
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={() => {
+                      platformInfoQuery.refetch();
+                      systemHealthQuery.refetch();
+                      environmentValidationQuery.refetch();
+                    }}
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                    Vernieuwen
+                  </Button>
+                  <Button 
+                    onClick={() => setShowSystemHealth(!showSystemHealth)}
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <Activity className="h-4 w-4" />
+                    System Health
+                  </Button>
+                </div>
+              </div>
+
+              {/* Platform Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Server className="h-5 w-5" />
+                    Platform Detectie
+                  </CardTitle>
+                  <CardDescription>
+                    Huidige hosting platform en omgeving informatie
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {platformInfoQuery.isLoading ? (
+                    <div className="flex items-center gap-2 text-gray-500">
+                      <RefreshCw className="h-4 w-4 animate-spin" />
+                      Platform informatie laden...
+                    </div>
+                  ) : platformInfoQuery.data ? (
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
+                          <Server className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">Platform</p>
+                          <p className="text-lg font-semibold capitalize">
+                            {platformInfoQuery.data.platform || 'Unknown'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100">
+                          <Activity className="h-5 w-5 text-green-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">Omgeving</p>
+                          <p className="text-lg font-semibold">
+                            {platformInfoQuery.data.environment || 'Development'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
+                          <HardDrive className="h-5 w-5 text-purple-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">Node Version</p>
+                          <p className="text-lg font-semibold">
+                            {platformInfoQuery.data.nodeVersion || 'Unknown'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-100">
+                          <Clock className="h-5 w-5 text-orange-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">Uptime</p>
+                          <p className="text-lg font-semibold">
+                            {platformInfoQuery.data.uptime ? 
+                              `${Math.floor(platformInfoQuery.data.uptime / 3600)}h ${Math.floor((platformInfoQuery.data.uptime % 3600) / 60)}m` : 
+                              'Unknown'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-red-600">Platform informatie kon niet worden opgehaald</div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* System Health Monitoring */}
+              {showSystemHealth && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Activity className="h-5 w-5" />
+                      System Health Monitoring
+                    </CardTitle>
+                    <CardDescription>
+                      Real-time systeem status en performance metrics
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {systemHealthQuery.isLoading ? (
+                      <div className="flex items-center gap-2 text-gray-500">
+                        <RefreshCw className="h-4 w-4 animate-spin" />
+                        System health laden...
+                      </div>
+                    ) : systemHealthQuery.data ? (
+                      <div className="grid gap-4 md:grid-cols-3">
+                        <div className="rounded-lg border p-4">
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm text-gray-600">Database Status</p>
+                            <div className={`h-2 w-2 rounded-full ${
+                              systemHealthQuery.data.database?.connected ? 'bg-green-500' : 'bg-red-500'
+                            }`} />
+                          </div>
+                          <p className="text-2xl font-semibold mt-2">
+                            {systemHealthQuery.data.database?.connected ? 'Online' : 'Offline'}
+                          </p>
+                          {systemHealthQuery.data.database?.responseTime && (
+                            <p className="text-sm text-gray-500">
+                              Response: {systemHealthQuery.data.database.responseTime}ms
+                            </p>
+                          )}
+                        </div>
+                        <div className="rounded-lg border p-4">
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm text-gray-600">Memory Usage</p>
+                            <HardDrive className="h-4 w-4 text-gray-400" />
+                          </div>
+                          <p className="text-2xl font-semibold mt-2">
+                            {systemHealthQuery.data.memory?.used ? 
+                              `${Math.round(systemHealthQuery.data.memory.used / 1024 / 1024)}MB` : 
+                              'Unknown'}
+                          </p>
+                          {systemHealthQuery.data.memory?.total && (
+                            <p className="text-sm text-gray-500">
+                              of {Math.round(systemHealthQuery.data.memory.total / 1024 / 1024)}MB
+                            </p>
+                          )}
+                        </div>
+                        <div className="rounded-lg border p-4">
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm text-gray-600">CPU Load</p>
+                            <Activity className="h-4 w-4 text-gray-400" />
+                          </div>
+                          <p className="text-2xl font-semibold mt-2">
+                            {systemHealthQuery.data.cpu?.usage ? 
+                              `${systemHealthQuery.data.cpu.usage}%` : 
+                              'Unknown'}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            Cores: {systemHealthQuery.data.cpu?.cores || 'Unknown'}
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-red-600">System health kon niet worden opgehaald</div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Database Connection Testing */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Database className="h-5 w-5" />
+                    Database Connection Management
+                  </CardTitle>
+                  <CardDescription>
+                    Test en valideer database connectiviteit voor multi-platform deployment
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex gap-4">
+                    <Button 
+                      onClick={async () => {
+                        setIsTestingConnection(true);
+                        try {
+                          await connectionTestQuery.refetch();
+                          toast({ 
+                            title: "Database Test", 
+                            description: "Connection test uitgevoerd - bekijk resultaten hierboven" 
+                          });
+                        } finally {
+                          setIsTestingConnection(false);
+                        }
+                      }}
+                      disabled={isTestingConnection}
+                      className="flex items-center gap-2"
+                    >
+                      {isTestingConnection ? (
+                        <RefreshCw className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Database className="h-4 w-4" />
+                      )}
+                      {isTestingConnection ? 'Testing...' : 'Test Database Connection'}
+                    </Button>
+                    <Button 
+                      onClick={async () => {
+                        setIsClearingCache(true);
+                        try {
+                          await apiRequest('/api/admin/cache/clear', { method: 'POST' });
+                          queryClient.clear();
+                          toast({ 
+                            title: "Cache Cleared", 
+                            description: "Alle query cache is gewist" 
+                          });
+                        } catch (error) {
+                          toast({ 
+                            title: "Fout", 
+                            description: "Cache kon niet worden gewist", 
+                            variant: "destructive" 
+                          });
+                        } finally {
+                          setIsClearingCache(false);
+                        }
+                      }}
+                      disabled={isClearingCache}
+                      variant="outline"
+                      className="flex items-center gap-2"
+                    >
+                      {isClearingCache ? (
+                        <RefreshCw className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                      Clear Cache
+                    </Button>
+                  </div>
+                  {connectionTestQuery.data && (
+                    <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                      <h4 className="font-medium mb-2">Test Results:</h4>
+                      <pre className="text-sm text-gray-700 whitespace-pre-wrap">
+                        {JSON.stringify(connectionTestQuery.data, null, 2)}
+                      </pre>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Multi-Platform Configuration Generator */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FolderOpen className="h-5 w-5" />
+                    Multi-Platform Configuration Generator
+                  </CardTitle>
+                  <CardDescription>
+                    Genereer deployment configuraties voor verschillende hosting platforms
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-4">
+                      <Label htmlFor="platform-select">Selecteer Platform:</Label>
+                      <Select value={selectedPlatform} onValueChange={setSelectedPlatform}>
+                        <SelectTrigger className="w-48">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="vercel">Vercel</SelectItem>
+                          <SelectItem value="railway">Railway</SelectItem>
+                          <SelectItem value="render">Render</SelectItem>
+                          <SelectItem value="netlify">Netlify</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button 
+                        onClick={async () => {
+                          try {
+                            const response = await apiRequest(`/api/admin/deployment/config/${selectedPlatform}`, {
+                              method: 'GET'
+                            });
+                            const data = await response.json();
+                            setGeneratedConfig(data);
+                            setShowConfigModal(true);
+                          } catch (error) {
+                            toast({ 
+                              title: "Fout", 
+                              description: "Configuratie kon niet worden gegenereerd", 
+                              variant: "destructive" 
+                            });
+                          }
+                        }}
+                        className="flex items-center gap-2"
+                      >
+                        <FolderOpen className="h-4 w-4" />
+                        Genereer Config
+                      </Button>
+                    </div>
+                    
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                      <Card className="p-4 border-2 border-dashed">
+                        <div className="text-center">
+                          <Server className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                          <h4 className="font-medium">Vercel</h4>
+                          <p className="text-sm text-gray-500">Serverless deployment</p>
+                        </div>
+                      </Card>
+                      <Card className="p-4 border-2 border-dashed">
+                        <div className="text-center">
+                          <Server className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                          <h4 className="font-medium">Railway</h4>
+                          <p className="text-sm text-gray-500">Container deployment</p>
+                        </div>
+                      </Card>
+                      <Card className="p-4 border-2 border-dashed">
+                        <div className="text-center">
+                          <Server className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                          <h4 className="font-medium">Render</h4>
+                          <p className="text-sm text-gray-500">Web service deployment</p>
+                        </div>
+                      </Card>
+                      <Card className="p-4 border-2 border-dashed">
+                        <div className="text-center">
+                          <Server className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                          <h4 className="font-medium">Netlify</h4>
+                          <p className="text-sm text-gray-500">JAMstack deployment</p>
+                        </div>
+                      </Card>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Environment Validation */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="h-5 w-5" />
+                    Environment Validation
+                  </CardTitle>
+                  <CardDescription>
+                    Valideer environment variables en deployment readiness
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {environmentValidationQuery.isLoading ? (
+                    <div className="flex items-center gap-2 text-gray-500">
+                      <RefreshCw className="h-4 w-4 animate-spin" />
+                      Environment valideren...
+                    </div>
+                  ) : environmentValidationQuery.data ? (
+                    <div className="space-y-4">
+                      {environmentValidationQuery.data.checks?.map((check: any, index: number) => (
+                        <div key={index} className="flex items-center justify-between p-3 rounded-lg border">
+                          <div className="flex items-center gap-3">
+                            <div className={`h-2 w-2 rounded-full ${
+                              check.status === 'pass' ? 'bg-green-500' : 
+                              check.status === 'warning' ? 'bg-yellow-500' : 'bg-red-500'
+                            }`} />
+                            <span className="font-medium">{check.name}</span>
+                          </div>
+                          <span className={`text-sm ${
+                            check.status === 'pass' ? 'text-green-600' : 
+                            check.status === 'warning' ? 'text-yellow-600' : 'text-red-600'
+                          }`}>
+                            {check.message}
+                          </span>
+                        </div>
+                      ))}
+                      <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                        <h4 className="font-medium text-blue-800 mb-2">Deployment Readiness</h4>
+                        <p className="text-sm text-blue-700">
+                          {environmentValidationQuery.data.ready ? 
+                            '✅ Systeem is klaar voor multi-platform deployment' : 
+                            '⚠️ Er zijn issues die aandacht vereisen voordat deployment mogelijk is'}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-red-600">Environment validatie kon niet worden uitgevoerd</div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
+
+          {/* Configuration Generator Modal */}
+          {showConfigModal && generatedConfig && (
+            <Dialog open={showConfigModal} onOpenChange={setShowConfigModal}>
+              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <FolderOpen className="h-5 w-5" />
+                    {generatedConfig.platform} Configuration
+                  </DialogTitle>
+                  <DialogDescription>
+                    Gegenereerde deployment configuratie voor {generatedConfig.platform}
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-sm font-medium">Bestandsnaam:</Label>
+                    <div className="flex items-center gap-2 mt-1">
+                      <code className="bg-gray-100 px-2 py-1 rounded text-sm">
+                        {generatedConfig.fileName}
+                      </code>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          navigator.clipboard.writeText(generatedConfig.fileName);
+                          toast({ title: "Gekopieerd", description: "Bestandsnaam gekopieerd naar clipboard" });
+                        }}
+                      >
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium">Configuratie Inhoud:</Label>
+                    <div className="relative mt-1">
+                      <pre className="bg-gray-50 p-4 rounded-lg text-sm overflow-x-auto font-mono max-h-96">
+                        {generatedConfig.content}
+                      </pre>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="absolute top-2 right-2"
+                        onClick={() => {
+                          navigator.clipboard.writeText(generatedConfig.content);
+                          toast({ title: "Gekopieerd", description: "Configuratie gekopieerd naar clipboard" });
+                        }}
+                      >
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  {generatedConfig.instructions && (
+                    <div>
+                      <Label className="text-sm font-medium">Deployment Instructies:</Label>
+                      <div className="bg-blue-50 p-4 rounded-lg mt-1">
+                        <div className="whitespace-pre-wrap text-sm text-blue-800">
+                          {generatedConfig.instructions}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <DialogFooter>
+                  <Button
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        `Bestand: ${generatedConfig.fileName}\n\n${generatedConfig.content}\n\nInstructies:\n${generatedConfig.instructions || 'Geen aanvullende instructies'}`
+                      );
+                      toast({ title: "Gekopieerd", description: "Volledige configuratie gekopieerd naar clipboard" });
+                    }}
+                    className="mr-2"
+                  >
+                    <Copy className="h-4 w-4 mr-2" />
+                    Kopieer Alles
+                  </Button>
+                  <Button variant="outline" onClick={() => setShowConfigModal(false)}>
+                    Sluiten
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           )}
 
           {/* Featured Tab Content */}
