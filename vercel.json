@@ -4,6 +4,11 @@
   "outputDirectory": "dist/public",
   "installCommand": "npm install",
   "framework": null,
+  "functions": {
+    "dist/index.js": {
+      "runtime": "nodejs20.x"
+    }
+  },
   "routes": [
     {
       "src": "/api/(.*)",
@@ -27,6 +32,12 @@
     {
       "src": "/(.*)",
       "dest": "/index.html"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/dist/index.js"
     }
   ]
 }

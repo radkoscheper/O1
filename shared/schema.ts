@@ -214,31 +214,19 @@ export const pages = pgTable("pages", {
   metaTitle: varchar("meta_title", { length: 255 }),
   metaDescription: varchar("meta_description", { length: 500 }),
   metaKeywords: varchar("meta_keywords", { length: 500 }),
-  templateId: integer("template_id").references(() => templates.id),
-  isPublished: boolean("is_published").default(false),
-  isFeatured: boolean("is_featured").default(false),
-  ranking: integer("ranking").default(0),
-  showOnHomepage: boolean("show_on_homepage").default(false).notNull(),
-  is_deleted: boolean("is_deleted").default(false),
+  template: varchar("template", { length: 100 }).default("default").notNull(),
+  headerImage: varchar("header_image", { length: 255 }), // Header image for the page
+  headerImageAlt: varchar("header_image_alt", { length: 255 }), // Alt text for header image
+  // Location-specific highlight sections (JSON array)
+  highlightSections: text("highlight_sections"), // JSON string of highlight objects
+  published: boolean("published").default(false).notNull(),
+  featured: boolean("featured").default(false).notNull(),
+  ranking: integer("ranking").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdBy: integer("created_by").references(() => users.id),
+  is_deleted: boolean("is_deleted").default(false).notNull(),
   deleted_at: timestamp("deleted_at"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-  createdBy: integer("created_by").references(() => users.id),
-});
-
-export const templates = pgTable("templates", {
-  id: serial("id").primaryKey(),
-  name: varchar("name", { length: 255 }).notNull().unique(),
-  description: text("description"),
-  content: text("content").notNull(),
-  defaultMetaTitle: varchar("default_meta_title", { length: 255 }),
-  defaultMetaDescription: varchar("default_meta_description", { length: 500 }),
-  defaultMetaKeywords: varchar("default_meta_keywords", { length: 500 }),
-  variables: text("variables"), // JSON string of available variables
-  isActive: boolean("is_active").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-  createdBy: integer("created_by").references(() => users.id),
 });
 
 export const insertPageSchema = createInsertSchema(pages).pick({
@@ -248,15 +236,35 @@ export const insertPageSchema = createInsertSchema(pages).pick({
   metaTitle: true,
   metaDescription: true,
   metaKeywords: true,
-  templateId: true,
-  isPublished: true,
-  isFeatured: true,
+  template: true,
+  headerImage: true,
+  headerImageAlt: true,
+  highlightSections: true,
+  published: true,
+  featured: true,
   ranking: true,
-  showOnHomepage: true,
-  createdBy: true,
 });
 
 export const updatePageSchema = insertPageSchema.partial();
+
+export type InsertPage = z.infer<typeof insertPageSchema>;
+export type UpdatePage = z.infer<typeof updatePageSchema>;
+export type Page = typeof pages.$inferSelect;
+
+// Templates table for reusable page templates
+export const templates = pgTable("templates", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull().unique(),
+  description: varchar("description", { length: 500 }),
+  content: text("content").notNull(),
+  defaultMetaTitle: varchar("default_meta_title", { length: 255 }),
+  defaultMetaDescription: varchar("default_meta_description", { length: 500 }),
+  defaultMetaKeywords: varchar("default_meta_keywords", { length: 500 }),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdBy: integer("created_by").references(() => users.id),
+});
 
 export const insertTemplateSchema = createInsertSchema(templates).pick({
   name: true,
@@ -265,16 +273,10 @@ export const insertTemplateSchema = createInsertSchema(templates).pick({
   defaultMetaTitle: true,
   defaultMetaDescription: true,
   defaultMetaKeywords: true,
-  variables: true,
   isActive: true,
-  createdBy: true,
 });
 
 export const updateTemplateSchema = insertTemplateSchema.partial();
-
-export type InsertPage = z.infer<typeof insertPageSchema>;
-export type UpdatePage = z.infer<typeof updatePageSchema>;
-export type Page = typeof pages.$inferSelect;
 
 export type InsertTemplate = z.infer<typeof insertTemplateSchema>;
 export type UpdateTemplate = z.infer<typeof updateTemplateSchema>;
@@ -283,15 +285,12 @@ export type Template = typeof templates.$inferSelect;
 // Highlights table
 export const highlights = pgTable("highlights", {
   id: serial("id").primaryKey(),
-  name: text("title").notNull(),
-  description: text("description").notNull(),
-  iconPath: text("icon").notNull(),
-  location: text("location"), // Optional location filter
+  name: varchar("name", { length: 100 }).notNull(),
+  iconPath: varchar("icon_path", { length: 500 }).notNull(),
+  category: varchar("category", { length: 50 }).default("general"),
   ranking: integer("ranking").default(0),
-  active: boolean("is_published").default(true),
+  active: boolean("active").default(true),
   showOnHomepage: boolean("show_on_homepage").default(true).notNull(),
-  is_deleted: boolean("is_deleted").default(false),
-  deleted_at: timestamp("deleted_at"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
   createdBy: integer("created_by").references(() => users.id),
@@ -299,13 +298,11 @@ export const highlights = pgTable("highlights", {
 
 export const insertHighlightSchema = createInsertSchema(highlights).pick({
   name: true,
-  description: true,
   iconPath: true,
-  location: true,
+  category: true,
   ranking: true,
   active: true,
   showOnHomepage: true,
-  createdBy: true,
 });
 
 export const updateHighlightSchema = insertHighlightSchema.partial();
@@ -317,41 +314,37 @@ export type Highlight = typeof highlights.$inferSelect;
 // Activities table
 export const activities = pgTable("activities", {
   id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  location: text("location").notNull(), // Filter by location for destination pages
-  category: text("category").notNull(), // Category for filtering
-  type: text("type").notNull(), // Specific type within category
-  description: text("description").notNull(),
-  image: text("image").notNull(),
-  alt: text("alt").notNull(),
-  content: text("content").notNull(),
-  website: text("website"), // External website URL
+  name: varchar("name", { length: 255 }).notNull(),
+  location: varchar("location", { length: 255 }), // City/region where activity is located
+  category: varchar("category", { length: 100 }), // museum, gebergte, plein, kerk, horeca, hotel, camping, etc.
+  activityType: varchar("activitytype", { length: 100 }), // More specific type within category
+  description: text("description"),
+  image: text("image"),
+  alt: text("alt"),
+  content: text("content"),
+  link: text("link"), // Optional link URL for the activity
+  featured: boolean("featured").default(false),
+  published: boolean("published").default(true),
   ranking: integer("ranking").default(0),
-  published: boolean("is_published").default(true),
-  featured: boolean("is_featured").default(false),
-  showOnHomepage: boolean("show_on_homepage").default(true).notNull(),
-  is_deleted: boolean("is_deleted").default(false),
-  deleted_at: timestamp("deleted_at"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-  createdBy: integer("created_by").references(() => users.id),
+  is_deleted: boolean("is_deleted").default(false),
+  deleted_at: timestamp("deleted_at"),
 });
 
 export const insertActivitySchema = createInsertSchema(activities).pick({
   name: true,
   location: true,
   category: true,
-  type: true,
+  activityType: true,
   description: true,
   image: true,
   alt: true,
   content: true,
-  website: true,
-  ranking: true,
-  published: true,
+  link: true,
   featured: true,
-  showOnHomepage: true,
-  createdBy: true,
+  published: true,
+  ranking: true,
 });
 
 export const updateActivitySchema = insertActivitySchema.partial();
@@ -421,3 +414,24 @@ export const updateMotivationSchema = insertMotivationSchema.partial();
 export type InsertMotivation = z.infer<typeof insertMotivationSchema>;
 export type UpdateMotivation = z.infer<typeof updateMotivationSchema>;
 export type SelectMotivation = typeof motivation.$inferSelect;
+
+// Motivation Image Locations table
+export const motivationImageLocations = pgTable("motivation_image_locations", {
+  id: serial("id").primaryKey(),
+  imagePath: text("image_path").notNull().unique(), // Full path to the image
+  locationName: text("location_name").notNull(), // User-defined location name
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertMotivationImageLocationSchema = createInsertSchema(motivationImageLocations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const updateMotivationImageLocationSchema = insertMotivationImageLocationSchema.partial();
+
+export type InsertMotivationImageLocation = z.infer<typeof insertMotivationImageLocationSchema>;
+export type UpdateMotivationImageLocation = z.infer<typeof updateMotivationImageLocationSchema>;
+export type SelectMotivationImageLocation = typeof motivationImageLocations.$inferSelect;
