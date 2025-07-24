@@ -306,6 +306,12 @@ export default function Admin() {
 
   const { toast } = useToast();
 
+  // Database settings query - placed with other queries
+  const databaseSettingsQuery = useQuery({
+    queryKey: ['/api/admin/database/settings'],
+    refetchInterval: 60000,
+  });
+
   // Image upload helpers
   const handleImageUpload = async (file: File): Promise<string> => {
     try {
@@ -3546,6 +3552,181 @@ export default function Admin() {
                       <pre className="text-sm text-gray-700 whitespace-pre-wrap">
                         {JSON.stringify(connectionTestQuery.data, null, 2)}
                       </pre>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Current Database Settings */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Database className="h-5 w-5" />
+                    Huidige Neon Database Configuratie
+                  </CardTitle>
+                  <CardDescription>
+                    Overzicht van de huidige database instellingen zoals ze nu met de site werken
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {databaseSettingsQuery.isLoading ? (
+                    <div className="flex items-center gap-2 text-gray-500">
+                      <RefreshCw className="h-4 w-4 animate-spin" />
+                      Database configuratie laden...
+                    </div>
+                  ) : databaseSettingsQuery.error ? (
+                    <div className="text-red-600 p-4 bg-red-50 rounded-lg">
+                      Fout bij laden database configuratie: {String(databaseSettingsQuery.error)}
+                    </div>
+                  ) : !databaseSettingsQuery.data?.[0] ? (
+                    <div className="text-center py-4 text-gray-500">
+                      Geen database configuratie gevonden
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      {/* Header met basis info */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="rounded-lg border p-4 bg-blue-50">
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="text-sm font-medium text-blue-700">Provider</p>
+                            <Database className="h-4 w-4 text-blue-600" />
+                          </div>
+                          <p className="text-xl font-bold text-blue-900 capitalize">{databaseSettingsQuery.data[0].provider}</p>
+                          <p className="text-sm text-blue-600">{databaseSettingsQuery.data[0].description}</p>
+                        </div>
+
+                        <div className="rounded-lg border p-4 bg-green-50">
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="text-sm font-medium text-green-700">Status</p>
+                            <div className={`h-3 w-3 rounded-full ${databaseSettingsQuery.data[0].status === 'connected' ? 'bg-green-500' : 'bg-red-500'}`} />
+                          </div>
+                          <p className="text-xl font-bold text-green-900 capitalize">{databaseSettingsQuery.data[0].status}</p>
+                          <p className="text-sm text-green-600">Database: {databaseSettingsQuery.data[0].databaseName}</p>
+                        </div>
+
+                        <div className="rounded-lg border p-4 bg-purple-50">
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="text-sm font-medium text-purple-700">Regio</p>
+                            <Server className="h-4 w-4 text-purple-600" />
+                          </div>
+                          <p className="text-xl font-bold text-purple-900">{databaseSettingsQuery.data[0].region}</p>
+                          <p className="text-sm text-purple-600">Project: {databaseSettingsQuery.data[0].projectId}</p>
+                        </div>
+                      </div>
+
+                      {/* Gedetailleerde configuratie */}
+                      <div className="rounded-lg border p-4">
+                        <div className="flex items-center justify-between mb-4">
+                          <h4 className="font-semibold text-gray-900">Verbindingsinstellingen</h4>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const settings = databaseSettingsQuery.data[0];
+                              const configText = `Neon Database Configuratie:
+Provider: ${settings.provider}
+Database: ${settings.databaseName}
+Host: ${settings.host}
+Port: ${settings.port}
+SSL: ${settings.ssl ? 'Ingeschakeld' : 'Uitgeschakeld'}
+Connection Pooling: ${settings.poolingEnabled ? 'Ingeschakeld' : 'Uitgeschakeld'}
+Max Connections: ${settings.maxConnections}
+Connection Timeout: ${settings.connectionTimeout}ms
+Idle Timeout: ${settings.idleTimeout}ms
+Regio: ${settings.region}
+Project ID: ${settings.projectId}
+Status: ${settings.status}`;
+                              
+                              navigator.clipboard.writeText(configText).then(() => {
+                                toast({ 
+                                  title: "Gekopieerd",
+                                  description: "Database configuratie is naar het klembord gekopieerd" 
+                                });
+                              }).catch(() => {
+                                toast({ 
+                                  title: "Fout",
+                                  description: "Kon configuratie niet kopiëren naar klembord",
+                                  variant: "destructive"
+                                });
+                              });
+                            }}
+                          >
+                            <Copy className="h-4 w-4 mr-2" />
+                            Kopieer Configuratie
+                          </Button>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                          <div>
+                            <p className="font-medium text-gray-700 mb-1">Host</p>
+                            <p className="font-mono bg-gray-100 p-2 rounded text-xs break-all">{databaseSettingsQuery.data[0].host}</p>
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-700 mb-1">Port</p>
+                            <p className="font-mono bg-gray-100 p-2 rounded text-xs">{databaseSettingsQuery.data[0].port}</p>
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-700 mb-1">SSL Verbinding</p>
+                            <p className={`font-medium ${databaseSettingsQuery.data[0].ssl ? 'text-green-600' : 'text-red-600'}`}>
+                              {databaseSettingsQuery.data[0].ssl ? '✅ Ingeschakeld' : '❌ Uitgeschakeld'}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-700 mb-1">Connection Pooling</p>
+                            <p className={`font-medium ${databaseSettingsQuery.data[0].poolingEnabled ? 'text-green-600' : 'text-red-600'}`}>
+                              {databaseSettingsQuery.data[0].poolingEnabled ? '✅ Ingeschakeld' : '❌ Uitgeschakeld'}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-700 mb-1">Max Verbindingen</p>
+                            <p className="font-mono bg-gray-100 p-2 rounded text-xs">{databaseSettingsQuery.data[0].maxConnections}</p>
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-700 mb-1">Timeouts</p>
+                            <p className="text-xs">
+                              Verbinding: {databaseSettingsQuery.data[0].connectionTimeout}ms<br/>
+                              Idle: {databaseSettingsQuery.data[0].idleTimeout}ms
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Security notice */}
+                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                        <div className="flex items-start gap-3">
+                          <Shield className="h-5 w-5 text-amber-600 mt-0.5" />
+                          <div>
+                            <h4 className="font-medium text-amber-800 mb-1">Beveiligingsopmerking</h4>
+                            <p className="text-sm text-amber-700">
+                              De volledige connection string en wachtwoorden worden niet weergegeven om beveiligingsredenen. 
+                              Deze worden veilig opgeslagen als environment variables.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-center pt-4">
+                        <div className="text-center">
+                          <p className="text-sm font-medium text-gray-700 mb-2">
+                            Configuratie Management
+                          </p>
+                          <p className="text-xs text-gray-500 mb-4">
+                            Dit zijn de huidige Neon database instellingen zoals ze nu werken met de site
+                          </p>
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              toast({ 
+                                title: "Configuratie Weergegeven",
+                                description: "De huidige Neon database instellingen zijn hierboven getoond. Je kunt nu beslissen of je wijzigingen wilt doorvoeren."
+                              });
+                            }}
+                          >
+                            <Database className="h-4 w-4 mr-2" />
+                            Configuratie Bekeken
+                          </Button>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </CardContent>
