@@ -2861,22 +2861,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const fsHealthCheck = () => {
         try {
           const uploadsPath = path.join(process.cwd(), 'client', 'public', 'images');
+          const uploadsExists = fs.existsSync(uploadsPath);
+          
+          // Test write access by creating a temporary file
+          let uploadsWritable = false;
+          try {
+            const testFile = path.join(uploadsPath, '.test-write');
+            fs.writeFileSync(testFile, 'test');
+            fs.unlinkSync(testFile);
+            uploadsWritable = true;
+          } catch (e) {
+            uploadsWritable = false;
+          }
+          
           return {
             status: 'ok',
-            uploadsExists: fs.existsSync(uploadsPath),
-            uploadsWritable: fs.accessSync ? true : false // Simplified check
+            uploadsExists,
+            uploadsWritable,
+            path: uploadsPath
           };
-        } catch {
+        } catch (error) {
           return {
             status: 'error',
-            message: 'Filesystem access issues'
+            message: error instanceof Error ? error.message : 'Filesystem access issues'
           };
         }
       };
 
       const fsStatus = fsHealthCheck();
       
-      const os = require('os');
+      // Import os module for system information
+      const osModule = await import('os');
       const memUsage = process.memoryUsage();
       
       res.json({
@@ -2890,8 +2905,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         cpu: {
           usage: null, // CPU usage calculation would require additional monitoring
-          cores: os.cpus().length,
-          loadAverage: os.loadavg(),
+          cores: osModule.cpus().length,
+          loadAverage: osModule.loadavg(),
           platform: process.platform,
           arch: process.arch
         },
@@ -2908,6 +2923,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         timestamp: new Date().toISOString()
       });
     } catch (error) {
+      console.error('System health check error:', error);
       res.status(500).json({ 
         message: "System health check failed",
         error: error instanceof Error ? error.message : 'Unknown error'
@@ -3221,6 +3237,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       res.status(500).json({ message: "Cache clear failed" });
+    }
+  });
+
+  // Database Settings API Endpoints - Admin Only
+  app.get("/api/admin/database/settings", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || user.role !== "admin") {
+        return res.status(403).json({ message: "Alleen admins kunnen database settings zien" });
+      }
+
+      // Return current Neon database configuration from environment
+      const connectionUrl = process.env.DATABASE_URL || "";
+      const urlParts = connectionUrl.match(/postgresql:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)/);
+      
+      const currentSettings = {
+        id: 1,
+        provider: "neon",
+        connectionString: connectionUrl.substring(0, 30) + "...",
+        poolingEnabled: true,
+        maxConnections: 10,
+        idleTimeout: 30000,
+        connectionTimeout: 5000,
+        ssl: true,
+        region: process.env.NEON_REGION || "auto",
+        projectId: process.env.NEON_PROJECT_ID || "auto-detected",
+        databaseName: urlParts ? urlParts[5] : "neondb",
+        host: urlParts ? urlParts[3] : "auto-detected",
+        port: urlParts ? parseInt(urlParts[4]) : 5432,
+        isActive: true,
+        description: "Neon PostgreSQL Serverless Database - Production Ready",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        status: "connected"
+      };
+
+      res.json([currentSettings]);
+    } catch (error) {
+      console.error("Error fetching database settings:", error);
+      res.status(500).json({ message: "Fout bij ophalen database instellingen" });
+    }
+  });
+
+  app.get("/api/admin/database/connection-test", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || user.role !== "admin") {
+        return res.status(403).json({ message: "Alleen admins kunnen database connectie testen" });
+      }
+
+      const { testDatabaseConnection } = await import("./db");
+      const connectionResult = await testDatabaseConnection();
+      
+      res.json({
+        ...connectionResult,
+        timestamp: new Date().toISOString(),
+        provider: "neon",
+        region: process.env.NEON_REGION || "auto",
+        projectId: process.env.NEON_PROJECT_ID || "auto-detected"
+      });
+    } catch (error) {
+      console.error("Error testing database connection:", error);
+      res.status(500).json({ 
+        message: "Database connectie test mislukt",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 

@@ -326,6 +326,7 @@ export const activities = pgTable("activities", {
   link: text("link"), // Optional link URL for the activity
   featured: boolean("featured").default(false),
   published: boolean("published").default(true),
+  showOnHomepage: boolean("show_on_homepage").default(true).notNull(),
   ranking: integer("ranking").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -345,46 +346,11 @@ export const insertActivitySchema = createInsertSchema(activities).pick({
   link: true,
   featured: true,
   published: true,
-  ranking: true,
-});
-
-// Add showOnHomepage field to activities schema
-export const activities_with_homepage = pgTable("activities", {
-  id: serial("id").primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  location: varchar("location", { length: 255 }),
-  category: varchar("category", { length: 100 }),
-  activityType: varchar("activitytype", { length: 100 }),
-  description: text("description"),
-  image: text("image"),
-  alt: text("alt"),
-  content: text("content"),
-  link: text("link"),
-  featured: boolean("featured").default(false),
-  published: boolean("published").default(true),
-  showOnHomepage: boolean("show_on_homepage").default(true).notNull(),
-  ranking: integer("ranking").default(0),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-  is_deleted: boolean("is_deleted").default(false),
-  deleted_at: timestamp("deleted_at"),
-});
-
-export const updateActivityWithHomepageSchema = createInsertSchema(activities_with_homepage).pick({
-  name: true,
-  location: true,
-  category: true,
-  activityType: true,
-  description: true,
-  image: true,
-  alt: true,
-  content: true,
-  link: true,
-  featured: true,
-  published: true,
   showOnHomepage: true,
   ranking: true,
-}).partial();
+});
+
+
 
 export const updateActivitySchema = insertActivitySchema.partial();
 
@@ -428,6 +394,51 @@ export const updateSearchConfigSchema = insertSearchConfigSchema.partial();
 export type InsertSearchConfig = z.infer<typeof insertSearchConfigSchema>;
 export type UpdateSearchConfig = z.infer<typeof updateSearchConfigSchema>;
 export type SearchConfig = typeof searchConfigs.$inferSelect;
+
+// Database Settings table for storing connection configurations
+export const databaseSettings = pgTable("database_settings", {
+  id: serial("id").primaryKey(),
+  provider: varchar("provider", { length: 50 }).notNull().default("neon"), // neon, supabase, planetscale, etc.
+  connectionString: text("connection_string").notNull(),
+  poolingEnabled: boolean("pooling_enabled").default(true).notNull(),
+  maxConnections: integer("max_connections").default(10).notNull(),
+  idleTimeout: integer("idle_timeout").default(30000).notNull(), // milliseconds
+  connectionTimeout: integer("connection_timeout").default(5000).notNull(), // milliseconds
+  ssl: boolean("ssl").default(true).notNull(),
+  region: varchar("region", { length: 100 }),
+  projectId: varchar("project_id", { length: 255 }),
+  databaseName: varchar("database_name", { length: 100 }),
+  host: varchar("host", { length: 255 }),
+  port: integer("port").default(5432),
+  isActive: boolean("is_active").default(true).notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdBy: integer("created_by").references(() => users.id),
+});
+
+export const insertDatabaseSettingsSchema = createInsertSchema(databaseSettings).pick({
+  provider: true,
+  connectionString: true,
+  poolingEnabled: true,
+  maxConnections: true,
+  idleTimeout: true,
+  connectionTimeout: true,
+  ssl: true,
+  region: true,
+  projectId: true,
+  databaseName: true,
+  host: true,
+  port: true,
+  isActive: true,
+  description: true,
+});
+
+export const updateDatabaseSettingsSchema = insertDatabaseSettingsSchema.partial();
+
+export type InsertDatabaseSettings = z.infer<typeof insertDatabaseSettingsSchema>;
+export type UpdateDatabaseSettings = z.infer<typeof updateDatabaseSettingsSchema>;
+export type DatabaseSettings = typeof databaseSettings.$inferSelect;
 
 // Motivation section table
 export const motivation = pgTable("motivation", {
