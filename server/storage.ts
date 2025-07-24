@@ -1,5 +1,5 @@
 import { 
-  users, destinations, guides, siteSettings, pages, templates, highlights, activities, searchConfigs,
+  users, destinations, guides, siteSettings, pages, templates, highlights, activities, searchConfigs, databaseSettings,
   type User, type InsertUser, type UpdateUser,
   type Destination, type InsertDestination, type UpdateDestination,
   type Guide, type InsertGuide, type UpdateGuide,
@@ -8,7 +8,8 @@ import {
   type Template, type InsertTemplate, type UpdateTemplate,
   type Highlight, type InsertHighlight, type UpdateHighlight,
   type Activity, type InsertActivity, type UpdateActivity,
-  type SearchConfig, type InsertSearchConfig, type UpdateSearchConfig
+  type SearchConfig, type InsertSearchConfig, type UpdateSearchConfig,
+  type DatabaseSettings, type InsertDatabaseSettings, type UpdateDatabaseSettings
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, ne, and, gte, lt, gt, lte, sql } from "drizzle-orm";
@@ -130,7 +131,7 @@ export interface IStorage {
     totalTables: number;
     totalRecords: number;
     lastBackup?: string;
-    storageSize?: string;
+    storageSize?: string;  
     uptime?: string;
   }>;
   getTableStatistics(): Promise<{
@@ -138,6 +139,11 @@ export interface IStorage {
     recordCount: number;
     lastUpdated?: string;
   }[]>;
+
+  // Database settings operations
+  getDatabaseSettings(id: number): Promise<DatabaseSettings | undefined>;
+  getAllDatabaseSettings(): Promise<DatabaseSettings[]>;
+  updateDatabaseSettings(id: number, updates: UpdateDatabaseSettings): Promise<DatabaseSettings>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1081,6 +1087,25 @@ export class DatabaseStorage implements IStorage {
       console.error('Table statistics failed:', error);
       return [];
     }
+  }
+
+  // Database Settings Operations
+  async getDatabaseSettings(id: number): Promise<DatabaseSettings | undefined> {
+    const [settings] = await db.select().from(databaseSettings).where(eq(databaseSettings.id, id));
+    return settings || undefined;
+  }
+
+  async getAllDatabaseSettings(): Promise<DatabaseSettings[]> {
+    return await db.select().from(databaseSettings);
+  }
+
+  async updateDatabaseSettings(id: number, updates: UpdateDatabaseSettings): Promise<DatabaseSettings> {
+    const [updated] = await db
+      .update(databaseSettings)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(databaseSettings.id, id))
+      .returning();
+    return updated;
   }
 }
 

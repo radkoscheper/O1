@@ -303,6 +303,7 @@ export default function Admin() {
   const [isTestingConnection, setIsTestingConnection] = useState(false);
   const [isClearingCache, setIsClearingCache] = useState(false);
   const [showSystemHealth, setShowSystemHealth] = useState(false);
+  const [showDatabaseEditor, setShowDatabaseEditor] = useState(false);
 
   const { toast } = useToast();
 
@@ -3711,26 +3712,280 @@ Status: ${settings.status}`;
                             Configuratie Management
                           </p>
                           <p className="text-xs text-gray-500 mb-4">
-                            Dit zijn de huidige Neon database instellingen zoals ze nu werken met de site
+                            Je kunt deze database instellingen nu aanpassen via de CMS interface
                           </p>
-                          <Button
-                            variant="outline"
-                            onClick={() => {
-                              toast({ 
-                                title: "Configuratie Weergegeven",
-                                description: "De huidige Neon database instellingen zijn hierboven getoond. Je kunt nu beslissen of je wijzigingen wilt doorvoeren."
-                              });
-                            }}
-                          >
-                            <Database className="h-4 w-4 mr-2" />
-                            Configuratie Bekeken
-                          </Button>
+                          <div className="flex gap-3 justify-center">
+                            <Button
+                              variant="outline"
+                              onClick={() => {
+                                toast({ 
+                                  title: "Configuratie Weergegeven",
+                                  description: "De huidige Neon database instellingen zijn hierboven getoond."
+                                });
+                              }}
+                            >
+                              <Database className="h-4 w-4 mr-2" />
+                              Configuratie Bekeken
+                            </Button>
+                            <Button
+                              onClick={() => setShowDatabaseEditor(true)}
+                            >
+                              <Edit className="h-4 w-4 mr-2" />
+                              Instellingen Bewerken
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
                   )}
                 </CardContent>
               </Card>
+
+              {/* Database Configuration Editor */}
+              {showDatabaseEditor && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Edit className="h-5 w-5" />
+                      Database Configuratie Editor
+                    </CardTitle>
+                    <CardDescription>
+                      Bewerk de Neon database instellingen via de CMS interface
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-6">
+                      {databaseSettingsQuery.data?.[0] && (
+                        <form onSubmit={async (e) => {
+                          e.preventDefault();
+                          const formData = new FormData(e.target as HTMLFormElement);
+                          const newSettings = {
+                            id: databaseSettingsQuery.data[0].id,
+                            provider: formData.get('provider') as string,
+                            description: formData.get('description') as string,
+                            host: formData.get('host') as string,
+                            port: parseInt(formData.get('port') as string),
+                            databaseName: formData.get('databaseName') as string,
+                            ssl: formData.get('ssl') === 'true',
+                            poolingEnabled: formData.get('poolingEnabled') === 'true',
+                            maxConnections: parseInt(formData.get('maxConnections') as string),
+                            connectionTimeout: parseInt(formData.get('connectionTimeout') as string),
+                            idleTimeout: parseInt(formData.get('idleTimeout') as string),
+                            region: formData.get('region') as string,
+                            projectId: formData.get('projectId') as string,
+                            status: formData.get('status') as string
+                          };
+
+                          try {
+                            const response = await fetch('/api/admin/database/settings', {
+                              method: 'PUT',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify(newSettings)
+                            });
+                            
+                            if (!response.ok) {
+                              throw new Error('Failed to update database settings');
+                            }
+                            
+                            await databaseSettingsQuery.refetch();
+                            setShowDatabaseEditor(false);
+                            
+                            toast({
+                              title: "Database Configuratie Bijgewerkt",
+                              description: "De database instellingen zijn succesvol opgeslagen."
+                            });
+                          } catch (error) {
+                            toast({
+                              title: "Fout",
+                              description: "Kon database configuratie niet opslaan: " + String(error),
+                              variant: "destructive"
+                            });
+                          }
+                        }}>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Basic Configuration */}
+                            <div className="space-y-4">
+                              <h3 className="text-lg font-semibold">Basis Configuratie</h3>
+                              
+                              <div>
+                                <Label htmlFor="provider">Provider</Label>
+                                <Select name="provider" defaultValue={databaseSettingsQuery.data[0].provider}>
+                                  <SelectTrigger>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="neon">Neon</SelectItem>
+                                    <SelectItem value="postgres">PostgreSQL</SelectItem>
+                                    <SelectItem value="supabase">Supabase</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+
+                              <div>
+                                <Label htmlFor="description">Beschrijving</Label>
+                                <Input
+                                  name="description"
+                                  defaultValue={databaseSettingsQuery.data[0].description}
+                                  placeholder="Database beschrijving"
+                                />
+                              </div>
+
+                              <div>
+                                <Label htmlFor="host">Host</Label>
+                                <Input
+                                  name="host"
+                                  defaultValue={databaseSettingsQuery.data[0].host}
+                                  placeholder="Database host"
+                                />
+                              </div>
+
+                              <div>
+                                <Label htmlFor="port">Port</Label>
+                                <Input
+                                  name="port"
+                                  type="number"
+                                  defaultValue={databaseSettingsQuery.data[0].port}
+                                  placeholder="5432"
+                                />
+                              </div>
+
+                              <div>
+                                <Label htmlFor="databaseName">Database Naam</Label>
+                                <Input
+                                  name="databaseName"
+                                  defaultValue={databaseSettingsQuery.data[0].databaseName}
+                                  placeholder="Database naam"
+                                />
+                              </div>
+                            </div>
+
+                            {/* Advanced Configuration */}
+                            <div className="space-y-4">
+                              <h3 className="text-lg font-semibold">Geavanceerde Instellingen</h3>
+                              
+                              <div className="flex items-center space-x-2">
+                                <input
+                                  type="checkbox"
+                                  name="ssl"
+                                  id="ssl"
+                                  defaultChecked={databaseSettingsQuery.data[0].ssl}
+                                  value="true"
+                                  className="rounded"
+                                />
+                                <Label htmlFor="ssl">SSL Verbinding</Label>
+                              </div>
+
+                              <div className="flex items-center space-x-2">
+                                <input
+                                  type="checkbox"
+                                  name="poolingEnabled"
+                                  id="poolingEnabled"
+                                  defaultChecked={databaseSettingsQuery.data[0].poolingEnabled}
+                                  value="true"
+                                  className="rounded"
+                                />
+                                <Label htmlFor="poolingEnabled">Connection Pooling</Label>
+                              </div>
+
+                              <div>
+                                <Label htmlFor="maxConnections">Max Verbindingen</Label>
+                                <Input
+                                  name="maxConnections"
+                                  type="number"
+                                  defaultValue={databaseSettingsQuery.data[0].maxConnections}
+                                  placeholder="10"
+                                />
+                              </div>
+
+                              <div>
+                                <Label htmlFor="connectionTimeout">Connection Timeout (ms)</Label>
+                                <Input
+                                  name="connectionTimeout"
+                                  type="number"
+                                  defaultValue={databaseSettingsQuery.data[0].connectionTimeout}
+                                  placeholder="30000"
+                                />
+                              </div>
+
+                              <div>
+                                <Label htmlFor="idleTimeout">Idle Timeout (ms)</Label>
+                                <Input
+                                  name="idleTimeout"
+                                  type="number"
+                                  defaultValue={databaseSettingsQuery.data[0].idleTimeout}
+                                  placeholder="10000"
+                                />
+                              </div>
+
+                              <div>
+                                <Label htmlFor="region">Regio</Label>
+                                <Input
+                                  name="region"
+                                  defaultValue={databaseSettingsQuery.data[0].region}
+                                  placeholder="eu-central-1"
+                                />
+                              </div>
+
+                              <div>
+                                <Label htmlFor="projectId">Project ID</Label>
+                                <Input
+                                  name="projectId"
+                                  defaultValue={databaseSettingsQuery.data[0].projectId}
+                                  placeholder="Project ID"
+                                />
+                              </div>
+
+                              <div>
+                                <Label htmlFor="status">Status</Label>
+                                <Select name="status" defaultValue={databaseSettingsQuery.data[0].status}>
+                                  <SelectTrigger>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="connected">Connected</SelectItem>
+                                    <SelectItem value="disconnected">Disconnected</SelectItem>
+                                    <SelectItem value="maintenance">Maintenance</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Warning Message */}
+                          <div className="mt-6 bg-red-50 border border-red-200 rounded-lg p-4">
+                            <div className="flex items-start gap-3">
+                              <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5" />
+                              <div>
+                                <h4 className="font-medium text-red-800 mb-1">Waarschuwing</h4>
+                                <p className="text-sm text-red-700">
+                                  Het wijzigen van database instellingen kan de verbinding met de database verbreken. 
+                                  Zorg ervoor dat je een backup hebt voordat je wijzigingen doorvoert.
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="flex justify-end gap-3 mt-6">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => setShowDatabaseEditor(false)}
+                            >
+                              <XCircle className="h-4 w-4 mr-2" />
+                              Annuleren
+                            </Button>
+                            <Button type="submit">
+                              <Save className="h-4 w-4 mr-2" />
+                              Opslaan
+                            </Button>
+                          </div>
+                        </form>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Multi-Platform Configuration Generator */}
               <Card>
