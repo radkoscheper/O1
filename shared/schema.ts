@@ -303,6 +303,7 @@ export const insertHighlightSchema = createInsertSchema(highlights).pick({
   ranking: true,
   active: true,
   showOnHomepage: true,
+  createdBy: true,
 });
 
 export const updateHighlightSchema = insertHighlightSchema.partial();
@@ -346,6 +347,44 @@ export const insertActivitySchema = createInsertSchema(activities).pick({
   published: true,
   ranking: true,
 });
+
+// Add showOnHomepage field to activities schema
+export const activities_with_homepage = pgTable("activities", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  location: varchar("location", { length: 255 }),
+  category: varchar("category", { length: 100 }),
+  activityType: varchar("activitytype", { length: 100 }),
+  description: text("description"),
+  image: text("image"),
+  alt: text("alt"),
+  content: text("content"),
+  link: text("link"),
+  featured: boolean("featured").default(false),
+  published: boolean("published").default(true),
+  showOnHomepage: boolean("show_on_homepage").default(true).notNull(),
+  ranking: integer("ranking").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  is_deleted: boolean("is_deleted").default(false),
+  deleted_at: timestamp("deleted_at"),
+});
+
+export const updateActivityWithHomepageSchema = createInsertSchema(activities_with_homepage).pick({
+  name: true,
+  location: true,
+  category: true,
+  activityType: true,
+  description: true,
+  image: true,
+  alt: true,
+  content: true,
+  link: true,
+  featured: true,
+  published: true,
+  showOnHomepage: true,
+  ranking: true,
+}).partial();
 
 export const updateActivitySchema = insertActivitySchema.partial();
 

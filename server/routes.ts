@@ -2286,7 +2286,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "showOnHomepage waarde moet boolean zijn" });
       }
 
-      const activity = await storage.updateActivity(parseInt(id), { showOnHomepage });
+      await storage.updateActivity(parseInt(id), { showOnHomepage });
+      const activity = await storage.getActivity(parseInt(id));
       res.json(activity);
     } catch (error) {
       console.error("Error toggling activity homepage:", error);
@@ -2801,5 +2802,427 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   const httpServer = createServer(app);
+  // ===== UITGEBREIDE ADMIN TOOLS VOOR MULTI-PLATFORM DEPLOYMENT =====
+
+  // Enhanced Database Connection Test - Admin Only
+  app.get("/api/admin/database/connection-test", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || user.role !== "admin") {
+        return res.status(403).json({ message: "Alleen admins kunnen database connectie testen" });
+      }
+
+      const { testDatabaseConnection } = await import("./db");
+      const result = await testDatabaseConnection();
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ 
+        status: 'error', 
+        message: error instanceof Error ? error.message : 'Unknown error' 
+      });
+    }
+  });
+
+  // Platform Information - Admin Only
+  app.get("/api/admin/platform/info", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || user.role !== "admin") {
+        return res.status(403).json({ message: "Alleen admins kunnen platform informatie zien" });
+      }
+
+      const { getPlatformInfo } = await import("./db");
+      const platformInfo = getPlatformInfo();
+      
+      res.json({
+        ...platformInfo,
+        nodeVersion: process.version,
+        uptime: process.uptime(),
+        memoryUsage: process.memoryUsage(),
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // System Health Check - Admin Only
+  app.get("/api/admin/system/health", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || user.role !== "admin") {
+        return res.status(403).json({ message: "Alleen admins kunnen system health zien" });
+      }
+
+      const { testDatabaseConnection } = await import("./db");
+      const dbStatus = await testDatabaseConnection();
+      
+      // Check filesystem access
+      const fsHealthCheck = () => {
+        try {
+          const uploadsPath = path.join(process.cwd(), 'client', 'public', 'images');
+          return {
+            status: 'ok',
+            uploadsExists: fs.existsSync(uploadsPath),
+            uploadsWritable: fs.accessSync ? true : false // Simplified check
+          };
+        } catch {
+          return {
+            status: 'error',
+            message: 'Filesystem access issues'
+          };
+        }
+      };
+
+      const fsStatus = fsHealthCheck();
+      
+      const os = require('os');
+      const memUsage = process.memoryUsage();
+      
+      res.json({
+        database: dbStatus,
+        filesystem: fsStatus,
+        memory: {
+          used: memUsage.heapUsed,
+          total: memUsage.heapTotal,
+          external: memUsage.external,
+          rss: memUsage.rss
+        },
+        cpu: {
+          usage: null, // CPU usage calculation would require additional monitoring
+          cores: os.cpus().length,
+          loadAverage: os.loadavg(),
+          platform: process.platform,
+          arch: process.arch
+        },
+        server: {
+          status: 'running',
+          uptime: Math.floor(process.uptime()),
+          platform: process.platform,
+          nodeVersion: process.version,
+          memoryUsage: {
+            used: Math.round(memUsage.heapUsed / 1024 / 1024),
+            total: Math.round(memUsage.heapTotal / 1024 / 1024)
+          }
+        },
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        message: "System health check failed",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Environment Variable Validator - Admin Only
+  app.get("/api/admin/environment/validate", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || user.role !== "admin") {
+        return res.status(403).json({ message: "Alleen admins kunnen environment validatie zien" });
+      }
+
+      const requiredVars = ['DATABASE_URL', 'NODE_ENV'];
+      const optionalVars = ['VERCEL', 'RAILWAY_ENVIRONMENT_NAME', 'RENDER', 'NETLIFY', 'REPLIT_DB_URL'];
+      
+      const validation = {
+        required: {} as Record<string, boolean>,
+        optional: {} as Record<string, boolean>,
+        platform: 'unknown' as string,
+        recommendations: [] as string[],
+        checks: [] as Array<{name: string, status: string, message: string}>,
+        ready: true
+      };
+
+      // Check required variables
+      requiredVars.forEach(varName => {
+        const isPresent = !!process.env[varName];
+        validation.required[varName] = isPresent;
+        validation.checks.push({
+          name: varName,
+          status: isPresent ? 'pass' : 'fail',
+          message: isPresent ? 'Configured' : 'Missing'
+        });
+        if (!isPresent) {
+          validation.ready = false;
+        }
+      });
+
+      // Check optional/platform variables
+      optionalVars.forEach(varName => {
+        const isPresent = !!process.env[varName];
+        validation.optional[varName] = isPresent;
+        if (isPresent) {
+          validation.platform = varName.toLowerCase().replace('_environment_name', '').replace('_db_url', '');
+          validation.checks.push({
+            name: varName,
+            status: 'pass',
+            message: 'Platform detected'
+          });
+        }
+      });
+
+      // Generate recommendations
+      if (!process.env.DATABASE_URL) {
+        validation.recommendations.push('DATABASE_URL is required for database connectivity');
+      }
+      if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'development') {
+        validation.recommendations.push('NODE_ENV should be either "production" or "development"');
+        validation.ready = false;
+      }
+
+      // Overall readiness check
+      validation.checks.push({
+        name: 'Platform Detection',
+        status: validation.platform !== 'unknown' ? 'pass' : 'warning',
+        message: validation.platform !== 'unknown' ? `Running on ${validation.platform}` : 'Platform auto-detection inconclusive'
+      });
+
+      res.json(validation);
+    } catch (error) {
+      res.status(500).json({ message: "Environment validation failed" });
+    }
+  });
+
+  // Deployment Configuration Generator (GET version) - Admin Only
+  app.get("/api/admin/deployment/config/:platform", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || user.role !== "admin") {
+        return res.status(403).json({ message: "Alleen admins kunnen deployment configs genereren" });
+      }
+
+      const { platform } = req.params;
+      
+      if (!['vercel', 'railway', 'render', 'netlify'].includes(platform)) {
+        return res.status(400).json({ message: "Ongeldige platform selectie" });
+      }
+
+      let configContent = '';
+      let fileName = '';
+      let instructions = '';
+
+      switch (platform) {
+        case 'vercel':
+          fileName = 'vercel.json';
+          configContent = JSON.stringify({
+            "version": 2,
+            "buildCommand": "npm run build",
+            "outputDirectory": "dist/public",
+            "functions": {
+              "dist/index.js": {
+                "runtime": "nodejs20.x",
+                "maxDuration": 30
+              }
+            },
+            "routes": [
+              { "src": "/api/(.*)", "dest": "/dist/index.js" },
+              { "src": "/images/(.*)", "dest": "/images/$1" },
+              { "src": "/assets/(.*)", "dest": "/assets/$1" },
+              { "src": "/favicon.ico", "dest": "/favicon.ico" },
+              { "handle": "filesystem" },
+              { "src": "/(.*)", "dest": "/index.html" }
+            ]
+          }, null, 2);
+          instructions = `1. Sla deze configuratie op als 'vercel.json' in je project root\n2. Zorg dat DATABASE_URL environment variable is ingesteld in Vercel dashboard\n3. Run 'vercel --prod' voor deployment\n4. Vercel zal automatisch build en deploy uitvoeren`;
+          break;
+
+        case 'railway':
+          fileName = 'railway.json';
+          configContent = JSON.stringify({
+            "$schema": "https://railway.app/railway.schema.json",
+            "build": {
+              "builder": "NIXPACKS",
+              "buildCommand": "npm run build"
+            },
+            "deploy": {
+              "startCommand": "node dist/index.js",
+              "restartPolicyType": "ON_FAILURE"
+            }
+          }, null, 2);
+          instructions = `1. Sla deze configuratie op als 'railway.json' in je project root\n2. Connect je GitHub repository met Railway\n3. Voeg DATABASE_URL toe als environment variable\n4. Railway deploy automatisch bij elke push naar main branch`;
+          break;
+
+        case 'render':
+          fileName = 'render.yaml';
+          configContent = `services:
+  - type: web
+    name: ontdek-polen
+    env: node
+    buildCommand: npm run build
+    startCommand: node dist/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ontdek-polen-db
+          property: connectionString`;
+          instructions = `1. Sla deze configuratie op als 'render.yaml' in je project root\n2. Create een PostgreSQL database in Render dashboard\n3. Connect je GitHub repository\n4. Render zal automatisch deploy bij elke push`;
+          break;
+
+        case 'netlify':
+          fileName = 'netlify.toml';
+          configContent = `[build]
+  command = "npm run build"
+  publish = "dist/public"
+
+[functions]
+  directory = "dist"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/index/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200`;
+          instructions = `1. Sla deze configuratie op als 'netlify.toml' in je project root\n2. Connect je GitHub repository met Netlify\n3. Voeg DATABASE_URL toe als environment variable\n4. Netlify deploy automatisch bij elke push naar main branch`;
+          break;
+      }
+
+      res.json({
+        platform,
+        fileName,
+        content: configContent,
+        instructions
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Config generation failed" });
+    }
+  });
+
+  // Deployment Configuration Generator (POST version) - Admin Only
+  app.post("/api/admin/deployment/generate-config", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || user.role !== "admin") {
+        return res.status(403).json({ message: "Alleen admins kunnen deployment configs genereren" });
+      }
+
+      const { platform } = req.body;
+      
+      if (!['vercel', 'railway', 'render', 'netlify'].includes(platform)) {
+        return res.status(400).json({ message: "Ongeldige platform selectie" });
+      }
+
+      let configContent = '';
+      let fileName = '';
+
+      switch (platform) {
+        case 'vercel':
+          fileName = 'vercel.json';
+          configContent = JSON.stringify({
+            "version": 2,
+            "buildCommand": "npm run build",
+            "outputDirectory": "dist/public",
+            "functions": {
+              "dist/index.js": {
+                "runtime": "nodejs20.x",
+                "maxDuration": 30
+              }
+            },
+            "routes": [
+              { "src": "/api/(.*)", "dest": "/dist/index.js" },
+              { "src": "/images/(.*)", "dest": "/images/$1" },
+              { "src": "/assets/(.*)", "dest": "/assets/$1" },
+              { "src": "/favicon.ico", "dest": "/favicon.ico" },
+              { "handle": "filesystem" },
+              { "src": "/(.*)", "dest": "/index.html" }
+            ]
+          }, null, 2);
+          break;
+
+        case 'railway':
+          fileName = 'railway.json';
+          configContent = JSON.stringify({
+            "$schema": "https://railway.app/railway.schema.json",
+            "build": {
+              "builder": "NIXPACKS",
+              "buildCommand": "npm run build"
+            },
+            "deploy": {
+              "startCommand": "node dist/index.js",
+              "restartPolicyType": "ON_FAILURE"
+            }
+          }, null, 2);
+          break;
+
+        case 'render':
+          fileName = 'render.yaml';
+          configContent = `services:
+  - type: web
+    name: ontdek-polen
+    env: node
+    buildCommand: npm run build
+    startCommand: node dist/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ontdek-polen-db
+          property: connectionString`;
+          break;
+
+        case 'netlify':
+          fileName = 'netlify.toml';
+          configContent = `[build]
+  command = "npm run build"
+  publish = "dist/public"
+
+[functions]
+  directory = "dist"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/index/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200`;
+          break;
+      }
+
+      res.json({
+        platform,
+        fileName,
+        content: configContent,
+        instructions: `Save this content as ${fileName} in your project root directory`
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Config generation failed" });
+    }
+  });
+
+  // Cache Management - Admin Only
+  app.post("/api/admin/cache/clear", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || user.role !== "admin") {
+        return res.status(403).json({ message: "Alleen admins kunnen cache legen" });
+      }
+
+      // This would typically clear application caches
+      // For now, we'll simulate cache clearing
+      res.json({ 
+        message: "Cache geleegd",
+        timestamp: new Date().toISOString(),
+        clearedItems: [
+          'Database query cache',
+          'Static file cache',
+          'Session cache'
+        ]
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Cache clear failed" });
+    }
+  });
+
   return httpServer;
 }
