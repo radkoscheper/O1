@@ -3280,6 +3280,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update Database Settings - Admin Only
+  app.put("/api/admin/database/settings", requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || user.role !== "admin") {
+        return res.status(403).json({ message: "Alleen admins kunnen database settings wijzigen" });
+      }
+
+      const { 
+        provider, 
+        description, 
+        host, 
+        port, 
+        databaseName, 
+        ssl, 
+        poolingEnabled, 
+        maxConnections, 
+        connectionTimeout, 
+        idleTimeout, 
+        region, 
+        projectId, 
+        status 
+      } = req.body;
+
+      // Validate required fields
+      if (!provider || !host || !port || !databaseName) {
+        return res.status(400).json({ message: "Verplichte velden ontbreken" });
+      }
+
+      // Update database settings in the database_settings table
+      const updatedSettings = await storage.updateDatabaseSettings(1, {
+        provider,
+        description,
+        host,
+        port: parseInt(port),
+        databaseName,
+        ssl: Boolean(ssl),
+        poolingEnabled: Boolean(poolingEnabled),
+        maxConnections: parseInt(maxConnections),
+        connectionTimeout: parseInt(connectionTimeout),
+        idleTimeout: parseInt(idleTimeout),
+        region,
+        projectId,
+        status,
+        updatedAt: new Date()
+      });
+
+      res.json({
+        message: "Database instellingen bijgewerkt",
+        settings: updatedSettings
+      });
+    } catch (error) {
+      console.error("Error updating database settings:", error);
+      res.status(500).json({ message: "Fout bij bijwerken database instellingen" });
+    }
+  });
+
   app.get("/api/admin/database/connection-test", requireAuth, async (req, res) => {
     try {
       const user = await storage.getUser(req.session.userId!);
