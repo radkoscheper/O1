@@ -8,9 +8,13 @@ import path from 'path';
 console.log('🏗️  Starting production build...');
 
 try {
-  // Build de client en server
-  console.log('📦 Building client and server...');
-  execSync('npm run build', { stdio: 'inherit' });
+  // Build de client met npx vite
+  console.log('📦 Building client with Vite...');
+  execSync('npx vite build', { stdio: 'inherit' });
+  
+  // Build de server met npx esbuild
+  console.log('📦 Building server with esbuild...');
+  execSync('npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist', { stdio: 'inherit' });
   
   // Check of alle bestanden zijn aangemaakt
   const distExists = fs.existsSync('dist');
