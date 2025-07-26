@@ -364,6 +364,27 @@ This is a full-stack web application for discovering beautiful places in Poland.
 - Website ready voor professionele hosting met volledige database controle
 - Gebruikersvriendelijke handleiding voor hosting migratie beschikbaar
 
+**Stadium 27 Progress (2025-01-26)**: 🚧 VERCEL DEPLOYMENT TROUBLESHOOTING IN PROGRESS
+✅ **VERCEL CONFIGURATIE AANPASSINGEN VOLTOOID**:
+- Vercel.json configuratie volledig aangepast voor serverless functions
+- Productie-specifieke vite.config.production.ts aangemaakt zonder Replit dependencies
+- Build command geoptimaliseerd: npm install --include=dev + npx vite build + npx esbuild
+- API directory structuur aangepast voor Vercel serverless functions (/api/index.js)
+- Server exports aangepast voor Vercel compatibility (ES modules)
+- Environment-specific initialization toegevoegd (development vs production)
+
+🎯 **VERCEL DEPLOYMENT STATUS**:
+- Website online: https://ontdekpolen-2.vercel.app/
+- Frontend gedeployed en werkend (React app loads)
+- API endpoints crashen met FUNCTION_INVOCATION_FAILED errors
+- Database connectie niet werkend (geen content wordt geladen)
+
+⚠️ **HUIDIGE ISSUES**:
+- Serverless functions crashen bij API calls
+- Database content wordt niet getoond op homepage
+- Environment variables mogelijk niet correct doorgegeven
+- ES modules vs CommonJS compatibility problemen opgelost
+
 **Stadium 18 Progress (2025-01-19)**: ✅ ACTIVITEIT DETAIL VIEWS EN SECTIE HERORGANISATIE VOLTOOID
 ✅ **ACTIVITEIT DETAIL VIEWS GEÏMPLEMENTEERD**:
 - Prototype activiteit detail view in content sectie via URL parameters (?activity=ID)
