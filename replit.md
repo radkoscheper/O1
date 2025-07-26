@@ -380,10 +380,17 @@ This is a full-stack web application for discovering beautiful places in Poland.
 - Database connectie niet werkend (geen content wordt geladen)
 
 ⚠️ **HUIDIGE ISSUES**:
-- Serverless functions crashen bij API calls
+- Serverless functions crashen bij API calls - FUNCTION_INVOCATION_FAILED errors
 - Database content wordt niet getoond op homepage
 - Environment variables mogelijk niet correct doorgegeven
 - ES modules vs CommonJS compatibility problemen opgelost
+
+🔧 **TROUBLESHOOTING STAPPEN UITGEVOERD**:
+- API health check endpoint toegevoegd (/api/health.js) voor basis diagnostiek
+- Serverless function handler vereenvoudigd met lazy initialization
+- Build process uitgebreid: routes.js apart gebundeld voor Vercel compatibility
+- Error handling verbeterd met gedetailleerde error messages en stack traces
+- Top-level await issues opgelost door on-demand route initialization
 
 **Stadium 18 Progress (2025-01-19)**: ✅ ACTIVITEIT DETAIL VIEWS EN SECTIE HERORGANISATIE VOLTOOID
 ✅ **ACTIVITEIT DETAIL VIEWS GEÏMPLEMENTEERD**:
