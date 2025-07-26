@@ -1,62 +1,122 @@
-# Deployment Guide - Ontdek Polen
+# Netlify Deployment Guide - Ontdek Polen
+*Frontend-only Static Hosting (Beperkte Functionaliteit)*
 
-## GitHub Setup
+## ⚠️ Belangrijke Beperking
+**Netlify ondersteunt GEEN volledige backend functionaliteit.** Je krijgt alleen de frontend zonder:
+- Admin panel / CMS functionaliteit
+- Database connectie
+- User authentication
+- File uploads
+- Dynamic content management
 
-1. **Repository maken**
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
-   git remote add origin https://github.com/jouw-username/ontdek-polen.git
-   git push -u origin main
-   ```
+Voor volledige functionaliteit gebruik **Vercel**, **Railway**, **Render**, of **VPS hosting**.
 
-2. **GitHub secrets configureren** (voor automatische Netlify deployment)
-   - Ga naar Settings → Secrets and variables → Actions
-   - Voeg toe:
-     - `NETLIFY_AUTH_TOKEN`: Haal op van Netlify → User settings → Personal access tokens
-     - `NETLIFY_SITE_ID`: Te vinden in Netlify site settings → Site information
+## Wanneer Netlify Gebruiken
+- Demo/preview versie
+- Statische content showcase
+- Frontend development testen
+- Basis website zonder admin functies
 
-## Netlify Setup
+## Deployment Stappen
 
-### Optie 1: Automatisch via GitHub
-1. Ga naar [Netlify](https://netlify.com) 
-2. Klik "New site from Git"
-3. Verbind met GitHub repository
-4. Build settings:
-   - Build command: `vite build`
-   - Publish directory: `dist/public`
-   - Node version: `20`
+### 1. Code Voorbereiden
+```bash
+# Alleen frontend build (geen server)
+npm run build:frontend
+# Of handmatig:
+cd client && npm run build
+```
 
-### Optie 2: Handmatig uploaden
-1. Lokaal builden:
-   ```bash
-   npm run build
-   ```
-2. Upload de `dist/public` folder naar Netlify
+### 2. GitHub Setup
+```bash
+git init
+git add .
+git commit -m "Frontend deploy"
+git remote add origin https://github.com/username/ontdek-polen.git
+git push -u origin main
+```
 
-## Environment Variables
+### 3. Netlify Deployment
 
-Voor production op Netlify:
-- `NODE_ENV=production`
-- `DATABASE_URL=your_postgresql_url` (optioneel)
-- `SESSION_SECRET=your_secret_key` (optioneel)
+**Optie A: Automatisch via GitHub**
+1. Ga naar [netlify.com](https://netlify.com)
+2. "New site from Git" → selecteer repository
+3. Build settings:
+   - **Build command:** `cd client && npm run build`
+   - **Publish directory:** `client/dist`
+   - **Node version:** `20`
 
-## Build Commando's
+**Optie B: Drag & Drop**
+1. Lokaal: `cd client && npm run build`
+2. Upload `client/dist` folder naar Netlify
 
-- `npm run build` - Volledige build (client + server)
-- `vite build` - Alleen client build (voor statische hosting)
-- `npm run dev` - Development server
+### 4. Configuratie
+Environment variables (beperkt):
+```
+NODE_ENV=production
+VITE_API_URL=https://jouw-backend.vercel.app
+```
 
-## Tips
+### 5. Custom Domain (Optioneel)
+1. Settings → Domain management
+2. Voeg custom domain toe
+3. Configureer DNS bij domain provider
 
-1. **Afbeeldingen**: Zorg dat je echte afbeeldingen in `client/public/images/` plaatst
-2. **Domeinnaam**: Configureer een custom domain in Netlify settings
-3. **HTTPS**: Netlify geeft automatisch SSL certificaten
-4. **Redirects**: Worden automatisch geconfigureerd via `netlify.toml`
+## Beperkingen op Netlify
+
+### Wat WERKT:
+✅ Homepage met statische content  
+✅ Bestemmingen overzicht (hardcoded)  
+✅ Basis navigatie  
+✅ Responsive design  
+✅ Afbeeldingen en styling  
+
+### Wat NIET WERKT:
+❌ Admin panel toegang  
+❌ Content bewerken via CMS  
+❌ Database-driven content  
+❌ User login/registratie  
+❌ Dynamic pagina's  
+❌ Search functionaliteit  
+❌ File uploads  
+
+## Alternatieve Oplossing
+Voor volledige functionaliteit kombineer:
+- **Frontend:** Netlify (gratis static hosting)
+- **Backend:** Vercel/Railway (API endpoints)
+- **Database:** Neon PostgreSQL (gratis tier)
+
+## Build Commands
+
+```bash
+# Frontend-only build
+npm run build:client
+
+# Full build (voor andere platforms)
+npm run build
+
+# Development
+npm run dev
+```
 
 ## Troubleshooting
 
-- **Build errors**: Check Node.js version (gebruik 20)
-- **Images niet zichtbaar**: Controleer paths in `client/public/images/`
-- **404 errors**: Redirects zijn geconfigureerd in `netlify.toml`
+**Build Errors:**
+- Controleer Node.js versie (20+)
+- Verify frontend dependencies
+- Check build path: `client/dist`
+
+**Routing Issues:**
+- Netlify redirects via `_redirects` file
+- SPA routing via `netlify.toml`
+
+**Images Missing:**
+- Upload afbeeldingen naar `client/public/images/`
+- Check image paths in code
+
+## Kosten
+- **Gratis tier:** 100GB bandwidth, 300 build minuten
+- **Pro ($19/maand):** Meer bandwidth, custom domains
+
+## Conclusie
+Netlify is geschikt voor basis frontend hosting, maar voor je volledige Polish Travel Platform CMS gebruik **Vercel** (aanbevolen) of andere fullstack hosting providers.
