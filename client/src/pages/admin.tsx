@@ -969,7 +969,8 @@ export default function Admin() {
       });
 
       if (response.ok) {
-        setIsAuthenticated(true);
+        // After successful login, check auth status to get user data
+        await checkAuthStatus();
         setShowLogin(false);
         toast({
           title: "Ingelogd",
