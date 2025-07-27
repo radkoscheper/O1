@@ -391,6 +391,8 @@ This is a full-stack web application for discovering beautiful places in Poland.
 - Build process uitgebreid: routes.js apart gebundeld voor Vercel compatibility
 - Error handling verbeterd met gedetailleerde error messages en stack traces
 - Top-level await issues opgelost door on-demand route initialization
+- Build command length issue opgelost: vercel.json verkort naar "node build-vercel.js"
+- Separate build-vercel.js script aangemaakt voor complexe build stappen
 
 **Stadium 18 Progress (2025-01-19)**: ✅ ACTIVITEIT DETAIL VIEWS EN SECTIE HERORGANISATIE VOLTOOID
 ✅ **ACTIVITEIT DETAIL VIEWS GEÏMPLEMENTEERD**:
