@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Search, Settings } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
+import TravelSlider from "@/components/ui/travel-slider";
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -208,13 +209,13 @@ export default function Home() {
   }, [siteSettings]);
 
   // Filter only published destinations
-  const publishedDestinations = destinations.filter((destination: any) => destination.published);
+  const publishedDestinations = (destinations as any[]).filter((destination: any) => destination.published);
   
   // Filter only published guides
-  const publishedGuides = guides.filter((guide: any) => guide.published);
+  const publishedGuides = (guides as any[]).filter((guide: any) => guide.published);
   
   // Filter only published pages
-  const publishedPages = pages.filter((page: any) => page.published);
+  const publishedPages = (pages as any[]).filter((page: any) => page.published);
   
   // Show loading state
   if (destinationsLoading || guidesLoading || pagesLoading || featuredLoading || settingsLoading) {
@@ -426,54 +427,58 @@ export default function Home() {
         </div>
       )}
 
-      {/* Destinations Section */}
+      {/* Destinations Section - Travel Slider Implementation */}
       {siteSettings?.showDestinations && (
         <section className="py-16 px-5 max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
-          Bestemmingen
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {publishedDestinations.map((destination) => {
-            const CardContent = (
-              <Card 
-                className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer"
-              >
-                <img
-                  src={destination.image}
-                  alt={destination.alt}
-                  className="w-full h-40 object-cover"
-                />
-                <div className="p-4 font-bold font-inter text-gray-900">
-                  {destination.name}
-                </div>
-              </Card>
-            );
-
-            // OPTIMIZED: Auto-link all destinations to their optimized routes
-            // External links take precedence, then auto-generated destination links
-            if (destination.link && destination.link.startsWith('http')) {
-              // External link - open in new tab
-              return (
-                <a
-                  key={destination.id}
-                  href={destination.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
+          <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
+            Bestemmingen
+          </h2>
+          <TravelSlider
+            visibleItems={{ mobile: 1, tablet: 2, desktop: 4 }}
+            showNavigation={true}
+            className="mx-auto"
+          >
+            {publishedDestinations.map((destination: any) => {
+              const CardContent = (
+                <Card 
+                  className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer"
                 >
-                  {CardContent}
-                </a>
+                  <img
+                    src={destination.image}
+                    alt={destination.alt}
+                    className="w-full h-40 object-cover"
+                  />
+                  <div className="p-4 font-bold font-inter text-gray-900">
+                    {destination.name}
+                  </div>
+                </Card>
               );
-            } else {
-              // Auto-link to destination slug (optimized route)
-              // This uses the new destination-first API that tries destinations before pages
-              return (
-                <Link key={destination.id} href={`/${destination.slug}`}>
-                  {CardContent}
-                </Link>
-              );
-            }
-          })}
-        </div>
+
+              // OPTIMIZED: Auto-link all destinations to their optimized routes
+              // External links take precedence, then auto-generated destination links
+              if (destination.link && destination.link.startsWith('http')) {
+                // External link - open in new tab
+                return (
+                  <a
+                    key={destination.id}
+                    href={destination.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {CardContent}
+                  </a>
+                );
+              } else {
+                // Auto-link to destination slug (optimized route)
+                // This uses the new destination-first API that tries destinations before pages
+                return (
+                  <Link key={destination.id} href={`/${destination.slug}`}>
+                    {CardContent}
+                  </Link>
+                );
+              }
+            })}
+          </TravelSlider>
         </section>
       )}
 
@@ -623,57 +628,66 @@ export default function Home() {
         </section>
       )}
 
-      {/* Travel Guides */}
+      {/* Travel Guides - Travel Slider Implementation */}
       {siteSettings?.showGuides && (
         <section className="py-16 px-5 max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
-          Reizen en Tips
-        </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {publishedGuides.map((guide) => {
-            const CardContent = (
-              <Card 
-                className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer"
-              >
-                <img
-                  src={guide.image}
-                  alt={guide.alt}
-                  className="w-full h-40 object-cover"
-                />
-                <div className="p-4 font-bold font-inter text-gray-900">
-                  {guide.title}
-                </div>
-              </Card>
-            );
+            Reizen en Tips
+          </h2>
+          <TravelSlider
+            visibleItems={{ mobile: 1, tablet: 2, desktop: 4 }}
+            showNavigation={true}
+            className="mx-auto"
+          >
+            {publishedGuides.map((guide: any) => {
+              const CardContent = (
+                <Card 
+                  className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer"
+                >
+                  <img
+                    src={guide.image}
+                    alt={guide.alt}
+                    className="w-full h-40 object-cover"
+                  />
+                  <div className="p-4">
+                    <h3 className="font-bold font-inter text-gray-900 mb-2">
+                      {guide.title}
+                    </h3>
+                    <p className="text-sm text-gray-600 font-inter">
+                      {guide.description}
+                    </p>
+                  </div>
+                </Card>
+              );
 
-            // If guide has a link, wrap in Link component or external link
-            if (guide.link) {
-              // Check if it's an external link (starts with http)
-              if (guide.link.startsWith('http')) {
-                return (
-                  <a
-                    key={guide.id}
-                    href={guide.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {CardContent}
-                  </a>
-                );
-              } else {
-                // Internal link
-                return (
-                  <Link key={guide.id} href={guide.link}>
-                    {CardContent}
-                  </Link>
-                );
+              // If guide has a link, wrap in Link component or external link
+              if (guide.link) {
+                // Check if it's an external link (starts with http)
+                if (guide.link.startsWith('http')) {
+                  return (
+                    <a
+                      key={guide.id}
+                      href={guide.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {CardContent}
+                    </a>
+                  );
+                } else {
+                  // Internal link
+                  return (
+                    <Link key={guide.id} href={guide.link}>
+                      {CardContent}
+                    </Link>
+                  );
+                }
               }
-            }
 
-            // No link, just return the card
-            return <div key={guide.id}>{CardContent}</div>;
+              // No link, just return the card
+              return <div key={guide.id}>{CardContent}</div>;
             })}
-          </div>
+          </TravelSlider>
         </section>
       )}
 
