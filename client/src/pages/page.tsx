@@ -118,23 +118,6 @@ export default function Page() {
     }
   }, [slug]);
 
-  // Separate effect to handle scrolling when selectedActivity data is loaded
-  useEffect(() => {
-    if (selectedActivity && selectedActivityId) {
-      // Wait for content to render completely then scroll
-      setTimeout(() => {
-        const contentSection = document.getElementById('content-section');
-        if (contentSection) {
-          console.log('Scrolling to content section for activity:', selectedActivity.name);
-          contentSection.scrollIntoView({ 
-            behavior: 'smooth',
-            block: 'start'
-          });
-        }
-      }, 300);
-    }
-  }, [selectedActivity, selectedActivityId]);
-
   // Helper function to get type-specific styling for search results
   const getTypeStyles = (type: string) => {
     switch (type) {
@@ -245,6 +228,23 @@ export default function Page() {
     },
     enabled: !!selectedActivityId && !!page?.title,
   });
+
+  // Separate effect to handle scrolling when selectedActivity data is loaded
+  useEffect(() => {
+    if (selectedActivity && selectedActivityId) {
+      // Wait for content to render completely then scroll
+      setTimeout(() => {
+        const contentSection = document.getElementById('content-section');
+        if (contentSection) {
+          console.log('Scrolling to content section for activity:', selectedActivity.name);
+          contentSection.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      }, 300);
+    }
+  }, [selectedActivity, selectedActivityId]);
 
   // Update document title and meta tags
   useEffect(() => {

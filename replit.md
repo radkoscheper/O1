@@ -413,7 +413,7 @@ This is a full-stack web application for discovering beautiful places in Poland.
 - Perfect backward compatibility: werkt met bestaande content en styling
 - Scalable solution: automatisch aanpassen aan content hoeveelheid
 
-**Stadium 30 Progress (2025-01-27)**: ✅ HOMEPAGE HIGHLIGHTS CLICK FUNCTIONALITEIT GEÏMPLEMENTEERD
+**Stadium 30 Progress (2025-01-27)**: ✅ HOMEPAGE HIGHLIGHTS CLICK FUNCTIONALITEIT GEÏMPLEMENTEERD EN JAVASCRIPT ERROR OPGELOST
 ✅ **HOMEPAGE HOOGTEPUNTEN CLICK-THROUGH FUNCTIONALITEIT VOLTOOID**:
 - Homepage "Hoogtepunten van Polen" sectie nu volledig klikbaar
 - Activity cards navigeren automatisch naar juiste destination pagina
@@ -424,7 +424,9 @@ This is a full-stack web application for discovering beautiful places in Poland.
 - Perfecte integratie met bestaande destination page activity sectie
 - **AUTOMATISCHE SCROLL TOEGEVOEGD**: Pagina scrollt nu automatisch naar content sectie
 - Smooth scroll naar activity details voor directe content viewing
-- 100ms delay zorgt voor proper content rendering voor scroll
+- JavaScript initialisatie error opgelost door juiste useEffect volgorde
+- selectedActivity query nu met publieke API voor authenticatie-vrije werking
+- Console logging toegevoegd voor debugging van scroll functionaliteit
 - Gebruikers zien nu meteen de activity details na click vanaf homepage
 
 **Stadium 28 Progress (2025-01-27)**: ✅ CUSTOM DOMAIN CONFIGURATIE VOLTOOID
