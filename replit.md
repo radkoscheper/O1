@@ -390,6 +390,16 @@ This is a full-stack web application for discovering beautiful places in Poland.
 - Vercel deployment volledig functioneel met alle content en CMS functies
 - Admin authenticatie werkend: login direct toegankelijk via Radko/radko123
 - Database connectie stabiel: alle 40 bestemmingen, 93 activiteiten, templates, en pagina's geladen
+
+**Stadium 28 Progress (2025-01-27)**: ✅ CUSTOM DOMAIN CONFIGURATIE VOLTOOID
+✅ **ONTDEKPOLEN.NL DOMAIN SETUP GEÏMPLEMENTEERD**:
+- Custom domain ontdekpolen.nl toegevoegd aan Vercel project
+- DNS configuratie bijgewerkt met nieuwe Vercel IP ranges (2025 update)
+- A record @ punt naar 216.198.79.1 (nieuwe Vercel IP voor optimale routing)
+- CNAME record www punt naar cname.vercel-dns.com
+- www.ontdekpolen.nl volledig werkend met Valid Configuration status
+- SSL certificaat automatisch gegenereerd voor beide domains
+- DNS propagatie proces actief voor hoofddomein verificatie
 - **UITGEBREIDE LIVE TESTS UITGEVOERD**:
   - Content creation: nieuwe bestemmingen en activiteiten succesvol aangemaakt op live site
   - Dynamic routing: nieuwe pagina's direct beschikbaar (bijv. /test-stad met gekoppelde activiteiten)
