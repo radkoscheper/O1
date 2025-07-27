@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Search, Settings, ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
+import TravelSlider from "@/components/ui/travel-slider";
 
 // Activities section component
 function ActivitiesSection({ pageTitle, setSelectedActivityId }: { pageTitle?: string, setSelectedActivityId: (id: string | null) => void }) {
@@ -31,7 +32,11 @@ function ActivitiesSection({ pageTitle, setSelectedActivityId }: { pageTitle?: s
       <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
         Activiteiten in {pageTitle}
       </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <TravelSlider
+        visibleItems={{ mobile: 1, tablet: 2, desktop: 4 }}
+        showNavigation={true}
+        className="mx-auto"
+      >
         {locationActivities.map((activity: any) => {
           // Handler for activity click to show details in content section
           const handleActivityClick = (e: React.MouseEvent) => {
@@ -83,7 +88,7 @@ function ActivitiesSection({ pageTitle, setSelectedActivityId }: { pageTitle?: s
             </Card>
           );
         })}
-      </div>
+      </TravelSlider>
     </section>
   );
 }

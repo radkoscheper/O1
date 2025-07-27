@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Search, Settings } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
+import TravelSlider from "@/components/ui/travel-slider";
 
 export default function OntdekMeer() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -214,10 +215,17 @@ export default function OntdekMeer() {
         </div>
       </header>
 
-      {/* Destination Grid - EXACT SAME AS HOMEPAGE */}
+      {/* Destination Grid - Travel Slider Implementation */}
       <section className="py-16 px-5 max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-8">
-          {publishedDestinations.map((destination) => {
+        <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
+          Alle Bestemmingen
+        </h2>
+        <TravelSlider
+          visibleItems={{ mobile: 1, tablet: 2, desktop: 4 }}
+          showNavigation={true}
+          className="mx-auto"
+        >
+          {publishedDestinations.map((destination: any) => {
             const CardContent = (
               <Card 
                 className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer"
@@ -260,7 +268,7 @@ export default function OntdekMeer() {
             // No link, just return the card
             return <div key={destination.id}>{CardContent}</div>;
           })}
-        </div>
+        </TravelSlider>
       </section>
 
       {/* Highlights Section - From Database - EXACT SAME AS HOMEPAGE */}
