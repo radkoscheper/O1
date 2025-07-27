@@ -109,25 +109,31 @@ export default function Page() {
     // Keep searchQuery and searchResults so user can re-open same search
   };
 
-  // Check for activity parameter on page load and scroll to content
+  // Check for activity parameter on page load
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const activityParam = urlParams.get('activity');
     if (activityParam) {
       setSelectedActivityId(activityParam);
-      
-      // Scroll to content section after a small delay to ensure content is rendered
+    }
+  }, [slug]);
+
+  // Separate effect to handle scrolling when selectedActivity data is loaded
+  useEffect(() => {
+    if (selectedActivity && selectedActivityId) {
+      // Wait for content to render completely then scroll
       setTimeout(() => {
         const contentSection = document.getElementById('content-section');
         if (contentSection) {
+          console.log('Scrolling to content section for activity:', selectedActivity.name);
           contentSection.scrollIntoView({ 
             behavior: 'smooth',
             block: 'start'
           });
         }
-      }, 100);
+      }, 300);
     }
-  }, [slug]);
+  }, [selectedActivity, selectedActivityId]);
 
   // Helper function to get type-specific styling for search results
   const getTypeStyles = (type: string) => {
@@ -230,13 +236,14 @@ export default function Page() {
   const { data: selectedActivity } = useQuery({
     queryKey: ['/api/activities', selectedActivityId],
     queryFn: async () => {
-      if (!selectedActivityId) return null;
-      const response = await fetch(`/api/admin/activities`);
+      if (!selectedActivityId || !page?.title) return null;
+      // Use the public location-specific API instead of admin API
+      const response = await fetch(`/api/activities/location/${encodeURIComponent(page.title)}`);
       if (!response.ok) throw new Error('Failed to fetch activities');
       const activities = await response.json();
       return activities.find((a: any) => a.id === parseInt(selectedActivityId));
     },
-    enabled: !!selectedActivityId,
+    enabled: !!selectedActivityId && !!page?.title,
   });
 
   // Update document title and meta tags
