@@ -559,16 +559,38 @@ export default function Home() {
 
                 // Handle activity click - navigate to destination page with activity parameter
                 const handleActivityClick = () => {
-                  // Create slug mapping for major destinations
+                  // Create slug mapping for all supported destinations
                   const locationToSlug: { [key: string]: string } = {
                     'Krakow': 'krakow',
-                    'Tatra': 'tatra',
+                    'Tatra': 'tatra', 
                     'Gdansk': 'gdansk',
                     'Warschau': 'warschau',
                     'Wroclaw': 'wroclaw',
                     'Zakopane': 'zakopane',
                     'Poznan': 'poznan',
-                    'Bialowieza': 'bialowieza'
+                    'Bialowieza': 'bialowieza',
+                    'Wrocław': 'wroclaw', // Alternative spelling
+                    'Poznań': 'poznan', // Alternative spelling  
+                    'Białowieża': 'bialowieza', // Alternative spelling
+                    'Łódź': 'lodz',
+                    'Lublin': 'lublin',
+                    'Rzeszow': 'rzeszow',
+                    'Katowice': 'katowice',
+                    'Bialystok': 'bialystok',
+                    'Jelenia Gora': 'jelenia-gora',
+                    'Karpacz': 'karpacz',
+                    'Szklarska Poreba': 'szklarska-poreba',
+                    'Malbork': 'malbork',
+                    'Torun': 'torun',
+                    'Wieliczka': 'wieliczka',
+                    'Zamosc': 'zamosc',
+                    'Sopot': 'sopot',
+                    'Ustka': 'ustka',
+                    'Swinoujscie': 'swinoujscie',
+                    'Hel': 'hel',
+                    'Zalipie': 'zalipie',
+                    'Kazimierz Dolny': 'kazimierz-dolny',
+                    'Sandomierz': 'sandomierz'
                   };
                   
                   // Navigate to destination page with activity parameter
