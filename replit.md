@@ -422,7 +422,10 @@ This is a full-stack web application for discovering beautiful places in Poland.
 - Ondersteunt alle major bestemmingen: Krakow, Tatra, Gdansk, Warschau, etc.
 - Externe links blijven werken zoals voorheen in nieuwe tab
 - Perfecte integratie met bestaande destination page activity sectie
-- Gebruikers kunnen nu vanaf homepage direct naar activity details navigeren
+- **AUTOMATISCHE SCROLL TOEGEVOEGD**: Pagina scrollt nu automatisch naar content sectie
+- Smooth scroll naar activity details voor directe content viewing
+- 100ms delay zorgt voor proper content rendering voor scroll
+- Gebruikers zien nu meteen de activity details na click vanaf homepage
 
 **Stadium 28 Progress (2025-01-27)**: ✅ CUSTOM DOMAIN CONFIGURATIE VOLTOOID
 ✅ **ONTDEKPOLEN.NL DOMAIN SETUP GEÏMPLEMENTEERD**:

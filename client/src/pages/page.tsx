@@ -109,12 +109,23 @@ export default function Page() {
     // Keep searchQuery and searchResults so user can re-open same search
   };
 
-  // Check for activity parameter on page load
+  // Check for activity parameter on page load and scroll to content
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const activityParam = urlParams.get('activity');
     if (activityParam) {
       setSelectedActivityId(activityParam);
+      
+      // Scroll to content section after a small delay to ensure content is rendered
+      setTimeout(() => {
+        const contentSection = document.getElementById('content-section');
+        if (contentSection) {
+          contentSection.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      }, 100);
     }
   }, [slug]);
 
