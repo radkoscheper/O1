@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Search, Settings } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import TravelSlider from "@/components/ui/travel-slider";
 
 export default function Home() {
@@ -557,6 +557,28 @@ export default function Home() {
                   </div>
                 );
 
+                // Handle activity click - navigate to destination page with activity parameter
+                const handleActivityClick = () => {
+                  // Create slug mapping for major destinations
+                  const locationToSlug: { [key: string]: string } = {
+                    'Krakow': 'krakow',
+                    'Tatra': 'tatra',
+                    'Gdansk': 'gdansk',
+                    'Warschau': 'warschau',
+                    'Wroclaw': 'wroclaw',
+                    'Zakopane': 'zakopane',
+                    'Poznan': 'poznan',
+                    'Bialowieza': 'bialowieza'
+                  };
+                  
+                  // Navigate to destination page with activity parameter
+                  const destinationSlug = locationToSlug[activity.location] || activity.location.toLowerCase();
+                  const activityUrl = `/${destinationSlug}?activity=${activity.id}`;
+                  
+                  // Use wouter navigation
+                  window.location.href = activityUrl;
+                };
+
                 // Handle external links
                 if (activity.link && activity.link.startsWith('http')) {
                   return (
@@ -571,8 +593,16 @@ export default function Home() {
                   );
                 }
 
-                // Internal link or no link
-                return <div key={activity.id}>{CardContent}</div>;
+                // Make activity clickable - navigate to destination page
+                return (
+                  <div 
+                    key={activity.id} 
+                    onClick={handleActivityClick}
+                    className="cursor-pointer"
+                  >
+                    {CardContent}
+                  </div>
+                );
               })}
           </div>
         </section>
