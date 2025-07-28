@@ -460,6 +460,16 @@ This is a full-stack web application for discovering beautiful places in Poland.
 - Production-ready build succesvol getest (645KB JS bundle, 96KB CSS)
 - **DEPLOYMENT READY**: Alle wijzigingen klaar voor Vercel deployment via GitHub push
 
+**Stadium 32 Progress (2025-01-28)**: ✅ VERCEL UPLOAD BEPERKING OPGELOST
+✅ **SERVERLESS UPLOAD BEPERKING GEDOCUMENTEERD EN OPGELOST**:
+- Vercel upload issue geïdentificeerd: read-only bestandssysteem in serverless functions
+- Upload endpoints aangepast met duidelijke error messages voor productie
+- VERCEL_UPLOAD_ISSUE.md documentatie aangemaakt met oplossingsstrategieën
+- Serverless environment detectie toegevoegd (VERCEL, AWS_LAMBDA_FUNCTION_NAME)
+- Upload functionaliteit blijft werkend in development, duidelijke foutmeldingen in productie
+- Documentatie van oplossingen: Cloudinary, AWS S3, Vercel Blob Storage opties
+- Bestaande afbeeldingen (66 SVG's) blijven volledig werkend
+
 **HERBRUIKBARE TEMPLATE BASIS**: ✅ "FULL-STACK TRAVEL CMS TEMPLATE" GEDOCUMENTEERD
 - Complete hergebruik strategie uitgewerkt (TEMPLATE_BASIS_HERGEBRUIK.md)
 - Template kan worden gebruikt voor elke travel/content website

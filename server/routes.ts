@@ -29,8 +29,13 @@ const requireAuth = (req: any, res: any, next: any) => {
 };
 
 // Configure multer for file uploads
+// Note: On Vercel (serverless), file system is read-only
+// This will work in development but not in production
 const uploadsDir = path.join(process.cwd(), 'client', 'public', 'images');
-if (!fs.existsSync(uploadsDir)) {
+const isProduction = process.env.NODE_ENV === 'production';
+const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
+
+if (!isProduction && !isServerless && !fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
@@ -196,6 +201,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Image upload route with error handling
   app.post("/api/upload", requireAuth, (req, res) => {
+    // Check if we're in a serverless environment where uploads are not supported
+    if (isServerless || isProduction) {
+      return res.status(501).json({ 
+        message: "Upload functionaliteit is niet beschikbaar op Vercel (serverless omgeving). Gebruik lokale development of integreer externe opslag zoals Cloudinary.",
+        details: "Vercel serverless functions hebben een read-only bestandssysteem. Zie VERCEL_UPLOAD_ISSUE.md voor oplossingen."
+      });
+    }
     console.log("Upload route hit by user:", req.session.userId);
     
     upload.single('image')(req, res, async (err) => {
@@ -1751,13 +1763,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Favicon upload endpoint - specific for .ico files
-  app.post('/api/upload/favicon', requireAuth, faviconUpload.single('favicon'), (req, res) => {
-    if (!req.file) {
-      return res.status(400).json({ message: 'No favicon file uploaded' });
+  app.post('/api/upload/favicon', requireAuth, (req, res) => {
+    // Check if we're in a serverless environment where uploads are not supported
+    if (isServerless || isProduction) {
+      return res.status(501).json({ 
+        message: "Upload functionaliteit is niet beschikbaar op Vercel (serverless omgeving). Gebruik lokale development of integreer externe opslag zoals Cloudinary.",
+        details: "Vercel serverless functions hebben een read-only bestandssysteem. Zie VERCEL_UPLOAD_ISSUE.md voor oplossingen."
+      });
     }
     
-    const faviconPath = `/${req.file.filename}`;
-    res.json({ faviconPath });
+    // Only proceed with upload if not in serverless environment
+    faviconUpload.single('favicon')(req, res, (err) => {
+      if (err) {
+        return res.status(400).json({ message: err.message });
+      }
+      
+      if (!req.file) {
+        return res.status(400).json({ message: 'No favicon file uploaded' });
+      }
+      
+      const faviconPath = `/${req.file.filename}`;
+      res.json({ faviconPath });
+    });
   });
 
   // Get available favicon files
