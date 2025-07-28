@@ -429,7 +429,7 @@ export default function Home() {
 
       {/* Destinations Section - Travel Slider Implementation */}
       {siteSettings?.showDestinations && (
-        <section className="py-16 px-5 max-w-6xl mx-auto">
+        <section className="py-8 px-5 max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
             Bestemmingen
           </h2>
