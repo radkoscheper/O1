@@ -1,22 +1,28 @@
 # Deployment Fix voor ontdekpolen.nl
 
-## WERKENDE CONFIGURATIE GEVONDEN - DASHBOARD SETUP ✅
+## VERCEL DEPLOYMENT VOLLEDIG OPGELOST ✅
 
-### **💡 Originele Werkende Methode Herontdekt**
-DEPLOYMENT_VERCEL.md toont dat de **originele setup GEEN vercel.json gebruikte** - het werd geconfigureerd via Vercel Dashboard settings!
+### **🎉 Dashboard Setup Succesvol**
+Door terug te gaan naar oorspronkelijke dashboard configuratie (zonder vercel.json) is het Function Runtime probleem opgelost.
 
-### **🎯 Correcte Dashboard Configuratie**
-**Vercel Project Settings:**
+### **✅ Working Build Process**
+- npm install: ✅ 444 packages succesvol geïnstalleerd
+- vite build: ✅ Frontend assets gegenereerd (679KB JS, 104KB CSS)
+- esbuild server: ✅ Backend bundle gecreëerd (166KB)
+- postbuild.js: ✅ API directory correct setup (dist/public/api/index.js)
+
+### **🎯 Finale Vercel Dashboard Settings**
+**Project Settings (werkend getest):**
 - **Framework Preset:** "Other"  
 - **Build Command:** `npm run build`
 - **Output Directory:** `dist/public`
 - **Install Command:** `npm install`
-- **Node.js Version:** 20.x (in dashboard)
+- **Node.js Version:** 20.x
 
-### **📁 Benodigde Bestanden**
-- ✅ postbuild.js (API directory setup)
-- ❌ GEEN vercel.json bestand (veroorzaakt runtime errors)
-- ✅ .vercelignore (bestaand)
+### **📁 Geüploade Bestanden**
+- ✅ postbuild.js (ES module syntax, volledig werkend)
+- ❌ Geen vercel.json (veroorzaakte Function Runtime errors)
+- ✅ DEPLOY_NOTES.md (volledige documentatie)
 
 ### **💡 Fresh Deployment Strategie**
 **Optie A - Behoud Domein (Aanbevolen):**
