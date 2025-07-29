@@ -19,6 +19,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import ReactCrop, { Crop, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import { CreateHighlightDialog, EditHighlightDialog, ViewHighlightDialog, CreateDestinationDialog, CreateGuideDialog, CreateActivityDialog, EditActivityDialog, ViewActivityDialog } from '@/components/highlights-dialogs';
+import { DestinationImageManager } from '@/components/ui/cloudinary-destination-upload';
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -7181,7 +7182,7 @@ function ResetPasswordDialog({ open, onOpenChange, user, onPasswordReset }: {
   );
 }
 
-// Component voor bestemming bewerken
+// Component voor bestemming bewerken met Cloudinary integratie
 function EditDestinationDialog({ open, onOpenChange, destination, editData, setEditData, onSave }: { 
   open: boolean; 
   onOpenChange: (open: boolean) => void;
@@ -7215,123 +7216,148 @@ function EditDestinationDialog({ open, onOpenChange, destination, editData, setE
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Bestemming Bewerken</DialogTitle>
+          <DialogTitle>🏔️ {destination?.name} Bewerken</DialogTitle>
           <DialogDescription>
-            Bewerk de gegevens van {destination?.name}
+            Bewerk details en upload afbeeldingen via Cloudinary
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Naam</Label>
-            <Input
-              id="name"
-              value={editData.name}
-              onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-              required
+        
+        <Tabs defaultValue="details" className="w-full">
+          <TabsList className="grid grid-cols-2 w-full">
+            <TabsTrigger value="details">📝 Details</TabsTrigger>
+            <TabsTrigger value="images">🖼️ Cloudinary Afbeeldingen</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="details" className="mt-6">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Naam *</Label>
+                  <Input
+                    id="name"
+                    value={editData.name}
+                    onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="location">Plaats/Locatie</Label>
+                  <Input
+                    id="location"
+                    value={editData.location || ''}
+                    onChange={(e) => setEditData({ ...editData, location: e.target.value })}
+                    placeholder="Bijv. Krakow, Warschau"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">Beschrijving *</Label>
+                <Textarea
+                  id="description"
+                  value={editData.description}
+                  onChange={(e) => setEditData({ ...editData, description: e.target.value })}
+                  required
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="content">Uitgebreide Beschrijving (Markdown)</Label>
+                <Textarea
+                  id="content"
+                  className="min-h-32"
+                  value={editData.content}
+                  onChange={(e) => setEditData({ ...editData, content: e.target.value })}
+                  placeholder="Gebruik Markdown voor opmaak..."
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="link">Link naar pagina</Label>
+                  <Input
+                    id="link"
+                    value={editData.link || ''}
+                    onChange={(e) => setEditData({ ...editData, link: e.target.value })}
+                    placeholder="/krakow-ontdekken"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="ranking">Ranking</Label>
+                  <Input
+                    id="ranking"
+                    type="number"
+                    value={editData.ranking || 0}
+                    onChange={(e) => setEditData({ ...editData, ranking: parseInt(e.target.value) || 0 })}
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="alt">Alt-tekst</Label>
+                <Input
+                  id="alt"
+                  value={editData.alt}
+                  onChange={(e) => setEditData({ ...editData, alt: e.target.value })}
+                  placeholder="Beschrijving van de afbeelding"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-4 p-4 border rounded-lg bg-gray-50">
+                <div className="flex items-center space-x-2">
+                  <Switch 
+                    id="featured"
+                    checked={editData.featured}
+                    onCheckedChange={(checked) => setEditData({ ...editData, featured: checked })}
+                  />
+                  <Label htmlFor="featured">⭐ Featured</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch 
+                    id="published"
+                    checked={editData.published}
+                    onCheckedChange={(checked) => setEditData({ ...editData, published: checked })}
+                  />
+                  <Label htmlFor="published">✅ Gepubliceerd</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch 
+                    id="showOnHomepage"
+                    checked={editData.showOnHomepage !== false}
+                    onCheckedChange={(checked) => setEditData({ ...editData, showOnHomepage: checked })}
+                  />
+                  <Label htmlFor="showOnHomepage">🏠 Homepage</Label>
+                </div>
+              </div>
+
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                  Annuleren
+                </Button>
+                <Button type="submit">💾 Opslaan</Button>
+              </DialogFooter>
+            </form>
+          </TabsContent>
+
+          <TabsContent value="images" className="mt-6">
+            <DestinationImageManager
+              destinationName={destination?.name || ''}
+              currentHeaderImage={editData.image}
+              onHeaderImageUpdate={(imageUrl, publicId) => {
+                setEditData({ ...editData, image: imageUrl });
+                toast({
+                  title: 'Header afbeelding bijgewerkt',
+                  description: `Cloudinary afbeelding voor ${destination?.name} geselecteerd`,
+                });
+              }}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="location">Plaats/Locatie</Label>
-            <Input
-              id="location"
-              value={editData.location || ''}
-              onChange={(e) => setEditData({ ...editData, location: e.target.value })}
-              placeholder="Bijv. Krakow, Warschau"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="ranking">Ranking (volgorde - lagere nummers eerst)</Label>
-            <Input
-              id="ranking"
-              type="number"
-              value={editData.ranking || 0}
-              onChange={(e) => setEditData({ ...editData, ranking: parseInt(e.target.value) || 0 })}
-              placeholder="0"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="description">Beschrijving</Label>
-            <Textarea
-              id="description"
-              value={editData.description}
-              onChange={(e) => setEditData({ ...editData, description: e.target.value })}
-              required
-            />
-          </div>
-          <ImageUploadField
-            label="Afbeelding"
-            value={editData.image}
-            onChange={(value) => setEditData({ ...editData, image: value })}
-            placeholder="/images/destinations/bestemming.jpg"
-            fileName={editData.name}
-            destination="destinations"
-          />
-          <div className="space-y-2">
-            <Label htmlFor="alt">Alt-tekst</Label>
-            <Input
-              id="alt"
-              value={editData.alt}
-              onChange={(e) => setEditData({ ...editData, alt: e.target.value })}
-              placeholder="Beschrijving van de afbeelding"
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="content">Content (Markdown)</Label>
-            <Textarea
-              id="content"
-              className="min-h-32"
-              value={editData.content}
-              onChange={(e) => setEditData({ ...editData, content: e.target.value })}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="link">Link (optioneel)</Label>
-            <Input
-              id="link"
-              value={editData.link || ''}
-              onChange={(e) => setEditData({ ...editData, link: e.target.value })}
-              placeholder="Bijv. /krakow-bezoeken of https://example.com"
-            />
-            <p className="text-sm text-gray-500">
-              Link waar de afbeelding naartoe moet leiden. Gebruik interne links (bijv. /pagina) of externe links (bijv. https://website.com)
-            </p>
-          </div>
-          <div className="flex gap-4">
-            <div className="flex items-center space-x-2">
-              <Switch 
-                id="featured"
-                checked={editData.featured}
-                onCheckedChange={(checked) => setEditData({ ...editData, featured: checked })}
-              />
-              <Label htmlFor="featured">Featured</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Switch 
-                id="published"
-                checked={editData.published}
-                onCheckedChange={(checked) => setEditData({ ...editData, published: checked })}
-              />
-              <Label htmlFor="published">Gepubliceerd</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Switch 
-                id="showOnHomepage"
-                checked={editData.showOnHomepage !== false}
-                onCheckedChange={(checked) => setEditData({ ...editData, showOnHomepage: checked })}
-              />
-              <Label htmlFor="showOnHomepage">Toon op Homepage</Label>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Annuleren
-            </Button>
-            <Button type="submit">Opslaan</Button>
-          </DialogFooter>
-        </form>
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );
