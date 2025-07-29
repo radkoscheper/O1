@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
 import TravelSlider from "@/components/ui/travel-slider";
 import { LoadingScreen, useLoadingContent } from "@/components/ui/loading-screen";
+import { generateCloudinaryUrl, getSmartTransform } from "@/lib/cloudinaryUtils";
 
 export default function Home() {
   const [location] = useLocation();
@@ -466,14 +467,22 @@ export default function Home() {
             className="mx-auto"
           >
             {publishedDestinations.map((destination: any) => {
+              // Apply AI-smart transformations to destination images
+              const optimizedImageUrl = destination.image && destination.image.includes('res.cloudinary.com') 
+                ? generateCloudinaryUrl(destination.image, getSmartTransform(destination.name, 'card'))
+                : destination.image;
+
               const CardContent = (
                 <Card 
                   className="bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-700 border border-gray-100 cursor-pointer group"
                 >
                   <img
-                    src={destination.image}
+                    src={optimizedImageUrl || '/images/destinations/placeholder.svg'}
                     alt={destination.alt}
                     className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                    onError={(e) => {
+                      e.currentTarget.src = '/images/destinations/placeholder.svg';
+                    }}
                   />
                   <div className="p-8">
                     <h3 className="font-luxury-serif font-bold text-navy-dark text-xl mb-2">
@@ -535,7 +544,10 @@ export default function Home() {
               </div>
               <div className="flex-1 min-w-80 relative">
                 <img
-                  src={motivationData.image || "/images/motivatie/tatra-valley.jpg"}
+                  src={motivationData.image && motivationData.image.includes('res.cloudinary.com') 
+                    ? generateCloudinaryUrl(motivationData.image, getSmartTransform('tatra-valley', 'hero'))
+                    : motivationData.image || "/images/motivatie/tatra-valley.jpg"
+                  }
                   alt="Motivatie afbeelding"
                   className="w-full rounded-3xl shadow-2xl"
                   onError={(e) => {
@@ -572,7 +584,10 @@ export default function Home() {
                 const CardContent = (
                   <div className="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-700 border border-gray-100 cursor-pointer text-center group">
                     <img
-                      src={activity.image || '/images/activities/placeholder.svg'}
+                      src={activity.image && activity.image.includes('res.cloudinary.com') 
+                        ? generateCloudinaryUrl(activity.image, getSmartTransform(activity.name, 'thumbnail'))
+                        : activity.image || '/images/activities/placeholder.svg'
+                      }
                       alt={activity.alt || activity.name}
                       className="w-24 h-24 mx-auto mb-6 object-cover rounded-full shadow-lg group-hover:scale-110 transition-transform duration-500"
                       onError={(e) => {
