@@ -7347,17 +7347,85 @@ function EditDestinationDialog({ open, onOpenChange, destination, editData, setE
           </TabsContent>
 
           <TabsContent value="images" className="mt-6">
-            <DestinationImageManager
-              destinationName={destination?.name || ''}
-              currentHeaderImage={editData.image}
-              onHeaderImageUpdate={(imageUrl, publicId) => {
-                setEditData({ ...editData, image: imageUrl });
-                toast({
-                  title: 'Header afbeelding bijgewerkt',
-                  description: `Cloudinary afbeelding voor ${destination?.name} geselecteerd`,
-                });
-              }}
-            />
+            <div className="space-y-6">
+              <div className="border rounded-lg p-6 bg-gradient-to-br from-orange-50 to-red-100">
+                <h3 className="text-lg font-semibold mb-4 text-orange-900">🖼️ Cloudinary Image Management</h3>
+                <div className="space-y-4">
+                  <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-orange-200">
+                    <h4 className="font-medium text-orange-800 mb-2">📤 Professional Upload System</h4>
+                    <p className="text-sm text-orange-700 mb-3">
+                      Upload naar Cloudinary CDN met automatische compressie en cropping
+                    </p>
+                    <div className="flex items-center space-x-2 text-xs text-orange-600">
+                      <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
+                      <span>Automatische WebP conversie</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-xs text-orange-600">
+                      <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
+                      <span>Smart naming: {destination?.name?.toLowerCase()}-datum.webp</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-xs text-orange-600">
+                      <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
+                      <span>Header format: 1200x480px (perfect fit)</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-blue-200">
+                    <h4 className="font-medium text-blue-800 mb-2">🖼️ Gallery Management</h4>
+                    <p className="text-sm text-blue-700 mb-3">
+                      Overzicht van alle geüploade afbeeldingen met preview
+                    </p>
+                    <div className="flex items-center space-x-2 text-xs text-blue-600">
+                      <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                      <span>Direct URL copying voor database updates</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-xs text-blue-600">
+                      <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                      <span>Delete functionaliteit</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-green-200">
+                    <h4 className="font-medium text-green-800 mb-2">🌍 CDN Benefits</h4>
+                    <p className="text-sm text-green-700 mb-3">
+                      Wereldwijde snelle delivery via Cloudinary netwerk
+                    </p>
+                    <div className="flex items-center space-x-2 text-xs text-green-600">
+                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                      <span>25GB gratis storage + bandwidth</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-xs text-green-600">
+                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                      <span>99.99% uptime guarantee</span>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-r from-orange-100 to-red-100 p-4 rounded-lg border-2 border-orange-300">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="bg-orange-500 text-white p-2 rounded-full">
+                        <ImageIcon className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-orange-900">Test Cloudinary Functions</h4>
+                        <p className="text-sm text-orange-700">Upload en gallery management nu beschikbaar</p>
+                      </div>
+                    </div>
+                    <Button 
+                      onClick={() => window.open('/cloudinary-test', '_blank')}
+                      className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                    >
+                      🚀 Open Cloudinary Test Pagina
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="mt-4 p-3 bg-orange-100 rounded-lg border border-orange-300">
+                  <p className="text-xs text-orange-800">
+                    💡 <strong>Image URL Update:</strong> Na upload in test pagina kun je de Cloudinary URL kopiëren en in het afbeelding veld van Details tab plakken
+                  </p>
+                </div>
+              </div>
+            </div>
           </TabsContent>
 
           <TabsContent value="editor" className="mt-6">
