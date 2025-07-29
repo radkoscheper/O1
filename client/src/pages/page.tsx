@@ -29,9 +29,9 @@ function ActivitiesSection({ pageTitle, setSelectedActivityId }: { pageTitle?: s
   }
 
   return (
-    <section className="py-24 px-5 max-w-7xl mx-auto">
-      <div className="text-center mb-16">
-        <h2 className="text-4xl md:text-6xl font-luxury-serif font-bold mb-6 text-navy-dark tracking-wide">
+    <section className="py-16 px-5 max-w-7xl mx-auto">
+      <div className="text-center mb-14">
+        <h2 className="text-4xl md:text-6xl font-luxury-serif font-bold mb-4 text-navy-dark tracking-wide">
           Activiteiten in {pageTitle}
         </h2>
         <p className="text-xl md:text-2xl text-navy-medium font-elegant-serif leading-relaxed">
