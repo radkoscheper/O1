@@ -1,15 +1,22 @@
 # Deployment Fix voor ontdekpolen.nl
 
-## VERCEL DEPLOYMENT SUCCESVOL OPGELOST ✅
+## WERKENDE CONFIGURATIE GEVONDEN - DASHBOARD SETUP ✅
 
-### **🎉 Fresh Deployment Strategie Gewerkt**
-Na hardnekkige Vercel configuration cache problemen is fresh deployment strategie succesvol uitgevoerd. Build proces nu volledig werkend zonder "Cannot find module" errors.
+### **💡 Originele Werkende Methode Herontdekt**
+DEPLOYMENT_VERCEL.md toont dat de **originele setup GEEN vercel.json gebruikte** - het werd geconfigureerd via Vercel Dashboard settings!
 
-### **✅ Huidige Status - Build Succesvol**
-- npm install: ✅ Succesvol (444 packages geïnstalleerd)
-- Build command: ✅ `npm run build && node postbuild.js` werkt
-- Node.js runtime: ✅ Geüpgraded naar nodejs22.x (deprecation warning opgelost)
-- API directory: ✅ Correct setup door postbuild.js
+### **🎯 Correcte Dashboard Configuratie**
+**Vercel Project Settings:**
+- **Framework Preset:** "Other"  
+- **Build Command:** `npm run build`
+- **Output Directory:** `dist/public`
+- **Install Command:** `npm install`
+- **Node.js Version:** 20.x (in dashboard)
+
+### **📁 Benodigde Bestanden**
+- ✅ postbuild.js (API directory setup)
+- ❌ GEEN vercel.json bestand (veroorzaakt runtime errors)
+- ✅ .vercelignore (bestaand)
 
 ### **💡 Fresh Deployment Strategie**
 **Optie A - Behoud Domein (Aanbevolen):**
