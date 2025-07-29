@@ -1,0 +1,33 @@
+{
+  "uploaded": [
+    {
+      "localPath": "client/public/images/destinations/krakow.jpg",
+      "cloudinaryUrl": "https://res.cloudinary.com/df3i1avwb/image/upload/v1753801848/ontdek-polen/destinations/krakow.jpg",
+      "publicId": "ontdek-polen/destinations/krakow"
+    },
+    {
+      "localPath": "client/public/images/destinations/tatra.jpg",
+      "cloudinaryUrl": "https://res.cloudinary.com/df3i1avwb/image/upload/v1753801849/ontdek-polen/destinations/tatra.jpg",
+      "publicId": "ontdek-polen/destinations/tatra"
+    },
+    {
+      "localPath": "client/public/images/activities/placeholder.svg",
+      "cloudinaryUrl": "https://res.cloudinary.com/df3i1avwb/image/upload/v1753801850/ontdek-polen/activities/placeholder.png",
+      "publicId": "ontdek-polen/activities/placeholder"
+    },
+    {
+      "localPath": "client/public/images/backgrounds/header.jpg",
+      "cloudinaryUrl": "https://res.cloudinary.com/df3i1avwb/image/upload/v1753801852/ontdek-polen/backgrounds/header.jpg",
+      "publicId": "ontdek-polen/backgrounds/header"
+    }
+  ],
+  "failed": [],
+  "databaseUpdates": [
+    {
+      "table": "destinations",
+      "id": 4,
+      "old": "/images/destinations/krakow.jpg",
+      "new": "https://res.cloudinary.com/df3i1avwb/image/upload/v1753801848/ontdek-polen/destinations/krakow.jpg"
+    }
+  ]
+}
