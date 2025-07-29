@@ -719,7 +719,7 @@ export default function Page() {
                       .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-navy-dark">$1</strong>')
                       .replace(/\*(.*?)\*/g, '<em class="italic text-navy-medium">$1</em>')
                       .replace(/- (.*)/g, '<li class="mb-3 text-navy-medium leading-relaxed">$1</li>')
-                      .replace(/(<li.*<\/li>)/gs, '<ul class="list-disc list-inside mb-8 space-y-3 ml-6">$1</ul>')
+                      .replace(/(<li.*<\/li>)/g, '<ul class="list-disc list-inside mb-8 space-y-3 ml-6">$1</ul>')
                       .replace(/---/g, '<hr class="my-12 border-gold/30">')
                   }}
                 />
