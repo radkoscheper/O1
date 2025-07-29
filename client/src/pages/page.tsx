@@ -692,32 +692,32 @@ export default function Page() {
           ) : (
             // Show original page content
             <div 
-              className="prose prose-lg max-w-none font-inter"
+              className="prose prose-xl max-w-none font-elegant-serif"
               dangerouslySetInnerHTML={{
                 __html: page.content
                   .replace(/\n/g, '<br>')
-                  .replace(/# (.*)/g, '<h1 class="text-3xl font-bold mb-6 text-gray-900 font-inter">$1</h1>')
-                  .replace(/## (.*)/g, '<h2 class="text-2xl font-semibold mb-4 text-gray-800 font-inter">$1</h2>')
-                  .replace(/### (.*)/g, '<h3 class="text-xl font-medium mb-3 text-gray-700 font-inter">$1</h3>')
-                  .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
-                  .replace(/\*(.*?)\*/g, '<em class="italic text-gray-700">$1</em>')
-                  .replace(/- (.*)/g, '<li class="mb-2 text-gray-700">$1</li>')
-                  .replace(/(<li.*<\/li>)/gs, '<ul class="list-disc list-inside mb-6 space-y-2 ml-4">$1</ul>')
-                  .replace(/---/g, '<hr class="my-8 border-gray-200">')
+                  .replace(/# (.*)/g, '<h1 class="text-4xl md:text-6xl font-luxury-serif font-bold mb-8 text-navy-dark tracking-wide">$1</h1>')
+                  .replace(/## (.*)/g, '<h2 class="text-3xl font-luxury-serif font-bold mb-6 text-navy-dark tracking-wide">$1</h2>')
+                  .replace(/### (.*)/g, '<h3 class="text-2xl font-luxury-serif font-medium mb-4 text-navy-medium">$1</h3>')
+                  .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-navy-dark">$1</strong>')
+                  .replace(/\*(.*?)\*/g, '<em class="italic text-navy-medium">$1</em>')
+                  .replace(/- (.*)/g, '<li class="mb-3 text-navy-medium leading-relaxed">$1</li>')
+                  .replace(/(<li.*<\/li>)/gs, '<ul class="list-disc list-inside mb-8 space-y-3 ml-6">$1</ul>')
+                  .replace(/---/g, '<hr class="my-12 border-gold/30">')
               }}
             />
           )}
         </Card>
       </section>
 
-      {/* Modern Location-specific Featured Activities Section */}
+      {/* Luxury Location-specific Featured Activities Section */}
       {locationFeaturedActivities.length > 0 && (
-        <section className="py-16 px-5 max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 font-inter text-gray-900">
+        <section className="py-24 px-5 max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-6xl font-luxury-serif font-bold mb-6 text-navy-dark tracking-wide">
               Hoogtepunten van {page.title}
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl md:text-2xl text-navy-medium font-elegant-serif leading-relaxed">
               De beste bezienswaardigheden en ervaringen
             </p>
           </div>
@@ -726,23 +726,23 @@ export default function Page() {
               .sort((a: any, b: any) => (a.ranking || 0) - (b.ranking || 0))
               .map((activity: any) => {
                 const CardContent = (
-                  <div className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-500 border-none cursor-pointer text-center group">
+                  <div className="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-700 border border-gray-100 cursor-pointer text-center group">
                     <img
                       src={activity.image || '/images/activities/placeholder.svg'}
                       alt={activity.alt || activity.name}
-                      className="w-20 h-20 mx-auto mb-4 object-cover rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300"
+                      className="w-24 h-24 mx-auto mb-6 object-cover rounded-full shadow-lg group-hover:scale-110 transition-transform duration-500"
                       onError={(e) => {
                         e.currentTarget.src = '/images/activities/placeholder.svg';
                       }}
                     />
-                    <h3 className="font-bold font-inter text-gray-900 text-base mb-2">
+                    <h3 className="font-luxury-serif font-bold text-navy-dark text-lg mb-3">
                       {activity.name}
                     </h3>
-                    <p className="text-sm text-gray-500 mb-1">
+                    <p className="text-sm text-navy-medium mb-2 font-elegant-serif">
                       📍 {activity.location}
                     </p>
                     {activity.category && (
-                      <p className="text-sm text-blue-600 font-medium capitalize">
+                      <p className="text-sm text-gold font-medium capitalize font-elegant-serif">
                         {activity.category}
                       </p>
                     )}
