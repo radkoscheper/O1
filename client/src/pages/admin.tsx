@@ -7194,6 +7194,7 @@ function EditDestinationDialog({ open, onOpenChange, destination, editData, setE
   setEditData: (data: any) => void;
   onSave: () => void;
 }) {
+  const [galleryKey, setGalleryKey] = useState(0);
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
