@@ -28,12 +28,12 @@ function ActivitiesSection({ pageTitle, setSelectedActivityId }: { pageTitle?: s
   }
 
   return (
-    <section className="py-16 px-5 max-w-7xl mx-auto">
-      <div className="text-center mb-12">
-        <h2 className="text-4xl md:text-5xl font-bold mb-4 font-inter text-gray-900">
+    <section className="py-24 px-5 max-w-7xl mx-auto">
+      <div className="text-center mb-16">
+        <h2 className="text-4xl md:text-6xl font-luxury-serif font-bold mb-6 text-navy-dark tracking-wide">
           Activiteiten in {pageTitle}
         </h2>
-        <p className="text-xl text-gray-600">
+        <p className="text-xl md:text-2xl text-navy-medium font-elegant-serif leading-relaxed">
           Ontdek de beste ervaringen en bezienswaardigheden
         </p>
       </div>
@@ -62,7 +62,7 @@ function ActivitiesSection({ pageTitle, setSelectedActivityId }: { pageTitle?: s
           return (
             <Card 
               key={activity.id}
-              className="bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-500 border-none cursor-pointer group"
+              className="bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-700 border border-gray-100 cursor-pointer group"
               onClick={handleActivityClick}
             >
               {activity.image && (
@@ -75,17 +75,18 @@ function ActivitiesSection({ pageTitle, setSelectedActivityId }: { pageTitle?: s
                   }}
                 />
               )}
-              <div className="p-4">
-                <h3 className="font-bold font-inter text-gray-900 mb-2">
+              <div className="p-8">
+                <h3 className="font-luxury-serif font-bold text-navy-dark mb-3 text-xl">
                   {activity.name}
                 </h3>
                 {activity.description && (
-                  <p className="text-sm text-gray-600 font-inter line-clamp-2">
+                  <p className="text-sm text-navy-medium font-inter leading-relaxed line-clamp-2">
                     {activity.description}
                   </p>
                 )}
+                <div className="w-12 h-0.5 bg-gold mt-4"></div>
                 {activity.category && (
-                  <p className="text-xs text-gray-500 mt-2 capitalize">
+                  <p className="text-xs text-navy-medium/70 mt-3 capitalize font-inter">
                     {activity.category}
                   </p>
                 )}

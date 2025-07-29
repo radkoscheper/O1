@@ -165,7 +165,7 @@ export default function OntdekMeer() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+    <div className="min-h-screen bg-luxury-gradient">
       {/* Modern Hero Section */}
       <header 
         className="relative bg-cover bg-center text-white py-32 px-5 text-center min-h-[80vh] flex items-center justify-center"
@@ -184,11 +184,11 @@ export default function OntdekMeer() {
             style={{ opacity: (siteSettings?.headerOverlayOpacity || 30) / 100 }}
           ></div>
         )}
-        <div className="relative z-10 max-w-5xl mx-auto">
-          <h1 className="text-6xl md:text-7xl font-bold mb-6 font-inter tracking-tight leading-tight">
+        <div className="relative z-10 max-w-6xl mx-auto">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-luxury-serif font-bold mb-8 text-white tracking-wide leading-tight">
             Ontdek Meer
           </h1>
-          <p className="text-xl md:text-2xl mb-12 font-inter font-light leading-relaxed max-w-3xl mx-auto">
+          <p className="text-xl md:text-2xl lg:text-3xl mb-16 font-elegant-serif font-light leading-relaxed max-w-4xl mx-auto text-white/90">
             Alle bestemmingen, reisgidsen en tips voor je reis naar Polen
           </p>
           
@@ -199,7 +199,7 @@ export default function OntdekMeer() {
                 placeholder="Zoek bestemming"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="py-4 px-6 w-96 max-w-full border-none rounded-2xl text-lg text-gray-900 font-inter shadow-xl backdrop-blur-sm bg-white/90 hover:bg-white transition-all duration-300"
+                className="py-5 px-8 w-[28rem] max-w-full border-2 border-white/30 rounded-full text-lg text-navy-dark font-inter shadow-2xl backdrop-blur-md bg-white/95 hover:bg-white hover:border-gold transition-all duration-500 focus:border-gold focus:ring-2 focus:ring-gold/50"
               />
               <Search className="absolute right-5 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5" />
             </div>
@@ -207,8 +207,7 @@ export default function OntdekMeer() {
           
           <Link href="/">
             <Button
-              className="mt-8 py-4 px-8 text-lg font-inter transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105 rounded-2xl"
-              style={{ backgroundColor: "#2f3e46" }}
+              className="mt-8 py-5 px-10 text-lg font-luxury-serif font-medium bg-navy-dark hover:bg-navy-dark/90 text-white transition-all duration-500 shadow-2xl hover:shadow-navy-dark/25 hover:scale-105 rounded-full border-2 border-navy-dark"
             >
               🏠 Terug naar Home
             </Button>
@@ -216,13 +215,13 @@ export default function OntdekMeer() {
         </div>
       </header>
 
-      {/* Modern Destination Grid */}
-      <section className="py-16 px-5 max-w-7xl mx-auto">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 font-inter text-gray-900">
+      {/* Luxury Destination Grid */}
+      <section className="py-24 px-5 max-w-7xl mx-auto">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-6xl font-luxury-serif font-bold mb-6 text-navy-dark tracking-wide">
             Alle Bestemmingen
           </h2>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl md:text-2xl text-navy-medium font-elegant-serif leading-relaxed">
             Ontdek alle prachtige plekken die Polen te bieden heeft
           </p>
         </div>
@@ -234,15 +233,18 @@ export default function OntdekMeer() {
           {publishedDestinations.map((destination: any) => {
             const CardContent = (
               <Card 
-                className="bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-500 border-none cursor-pointer group"
+                className="bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-700 border border-gray-100 cursor-pointer group"
               >
                 <img
                   src={destination.image}
                   alt={destination.alt}
-                  className="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-300"
+                  className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                 />
-                <div className="p-6 font-bold font-inter text-gray-900 text-lg">
-                  {destination.name}
+                <div className="p-8">
+                  <h3 className="font-luxury-serif font-bold text-navy-dark text-xl mb-3">
+                    {destination.name}
+                  </h3>
+                  <div className="w-12 h-0.5 bg-gold"></div>
                 </div>
               </Card>
             );
