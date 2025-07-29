@@ -290,7 +290,7 @@ export default function Home() {
     <div className="min-h-screen bg-luxury-gradient">
       {/* Modern Hero Section */}
       <header 
-        className="relative bg-cover bg-center text-white py-16 px-5 text-center min-h-[60vh] flex items-center justify-center"
+        className="relative bg-cover bg-center text-white py-32 px-5 text-center min-h-[80vh] flex items-center justify-center"
         style={{
           backgroundImage: siteSettings?.backgroundImage 
             ? `url('${siteSettings.backgroundImage}')` 
@@ -307,11 +307,11 @@ export default function Home() {
           ></div>
         )}
         
-        <div className="relative z-10 max-w-4xl mx-auto">
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-luxury-serif font-bold mb-4 text-white tracking-wide leading-tight">
+        <div className="relative z-10 max-w-6xl mx-auto">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-luxury-serif font-bold mb-8 text-white tracking-wide leading-tight">
             {siteSettings?.siteName || "Ontdek Polen"}
           </h1>
-          <p className="text-base md:text-lg lg:text-xl mb-8 font-elegant-serif font-light leading-relaxed max-w-2xl mx-auto text-white/90">
+          <p className="text-xl md:text-2xl lg:text-3xl mb-16 font-elegant-serif font-light leading-relaxed max-w-4xl mx-auto text-white/90">
             {siteSettings?.siteDescription || "Mooie plekken in Polen ontdekken"}
           </p>
           
@@ -337,7 +337,7 @@ export default function Home() {
                     console.log('Enter key detected, form should submit');
                   }
                 }}
-                className="py-3 px-6 w-80 max-w-full border border-white/30 rounded-lg text-base text-navy-dark font-inter shadow-lg backdrop-blur-md bg-white/95 hover:bg-white hover:border-gold transition-all duration-300 focus:border-gold focus:ring-2 focus:ring-gold/50"
+                className="py-5 px-8 w-[28rem] max-w-full border-2 border-white/30 rounded-full text-lg text-navy-dark font-inter shadow-2xl backdrop-blur-md bg-white/95 hover:bg-white hover:border-gold transition-all duration-500 focus:border-gold focus:ring-2 focus:ring-gold/50"
               />
               <Search 
                 className="absolute right-5 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5 cursor-pointer" 
@@ -362,21 +362,21 @@ export default function Home() {
           
 
           
-          {/* Compact CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
+          {/* Luxury CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-6 justify-center mt-12">
             <Button
               onClick={handlePlanTrip}
-              className="py-3 px-6 text-base font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg hover:shadow-blue-500/25 transition-all duration-300"
+              className="py-5 px-10 text-lg font-luxury-serif font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-2xl hover:shadow-blue-500/25 transition-all duration-500 border-2 border-blue-600 hover:border-blue-700 hover:scale-105"
             >
-              <MapPin className="w-4 h-4 mr-2" />
+              <MapPin className="w-5 h-5 mr-3" />
               Plan je reis
             </Button>
             <Button
               onClick={handleReadGuides}
-              className="py-3 px-6 text-base font-medium bg-white/10 backdrop-blur-md hover:bg-white/20 border border-white/40 text-white rounded-lg shadow-lg hover:shadow-white/25 transition-all duration-300"
+              className="py-5 px-10 text-lg font-luxury-serif font-medium bg-white/10 backdrop-blur-md hover:bg-white/20 border-2 border-white/40 text-white rounded-full shadow-2xl hover:shadow-white/25 transition-all duration-500 hover:scale-105"
               variant="outline"
             >
-              <Calendar className="w-4 h-4 mr-2" />
+              <Calendar className="w-5 h-5 mr-3" />
               Lees onze gidsen
             </Button>
           </div>
@@ -451,12 +451,12 @@ export default function Home() {
 
       {/* Destinations Section - Luxury Layout */}
       {siteSettings?.showDestinations && (
-        <section className="py-12 px-5 max-w-6xl mx-auto">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-luxury-serif font-bold mb-3 text-navy-dark">
+        <section className="py-24 px-5 max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-6xl font-luxury-serif font-bold mb-6 text-navy-dark tracking-wide">
               Ontdek Polen
             </h2>
-            <p className="text-base md:text-lg text-navy-medium font-elegant-serif max-w-2xl mx-auto">
+            <p className="text-xl md:text-2xl text-navy-medium font-elegant-serif max-w-3xl mx-auto leading-relaxed">
               Van historische steden tot adembenemende natuurparken
             </p>
           </div>
@@ -468,18 +468,18 @@ export default function Home() {
             {publishedDestinations.map((destination: any) => {
               const CardContent = (
                 <Card 
-                  className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 border border-gray-100 cursor-pointer group"
+                  className="bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-700 border border-gray-100 cursor-pointer group"
                 >
                   <img
                     src={destination.image}
                     alt={destination.alt}
-                    className="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-300"
+                    className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                   />
-                  <div className="p-4">
-                    <h3 className="font-luxury-serif font-bold text-navy-dark text-lg mb-2">
+                  <div className="p-8">
+                    <h3 className="font-luxury-serif font-bold text-navy-dark text-xl mb-2">
                       {destination.name}
                     </h3>
-                    <div className="w-8 h-0.5 bg-gold"></div>
+                    <div className="w-12 h-0.5 bg-gold"></div>
                   </div>
                 </Card>
               );
@@ -516,11 +516,11 @@ export default function Home() {
 
       {/* CTA Section - Luxury Design */}
       {siteSettings?.showMotivation && motivationData && motivationData.is_published && (
-        <section className="py-12 px-5 max-w-6xl mx-auto">
-          <div className="bg-cream rounded-2xl p-8 lg:p-10 shadow-lg border border-gold/20">
-            <div className="flex flex-wrap gap-8 items-center justify-between">
+        <section className="py-24 px-5 max-w-7xl mx-auto">
+          <div className="bg-cream rounded-3xl p-12 lg:p-16 shadow-2xl border border-gold/20">
+            <div className="flex flex-wrap gap-12 items-center justify-between">
               <div className="flex-1 min-w-80">
-                <h2 className="text-2xl md:text-3xl lg:text-4xl font-luxury-serif font-bold mb-4 text-navy-dark tracking-wide">
+                <h2 className="text-4xl md:text-5xl lg:text-6xl font-luxury-serif font-bold mb-6 text-navy-dark tracking-wide leading-tight">
                   {motivationData.title || "Laat je verrassen door het onbekende Polen"}
                 </h2>
                 <p className="text-xl md:text-2xl mb-8 font-elegant-serif text-navy-medium leading-relaxed">
