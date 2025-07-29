@@ -5,27 +5,40 @@ interface LoadingScreenProps {
   title: string;
   subtitle: string;
   onComplete?: () => void;
+  minDuration?: number; // Minimum time to show loading screen in ms
 }
 
-export function LoadingScreen({ isLoading, title, subtitle, onComplete }: LoadingScreenProps) {
+export function LoadingScreen({ isLoading, title, subtitle, onComplete, minDuration = 1200 }: LoadingScreenProps) {
   const [show, setShow] = useState(isLoading);
   const [fadeOut, setFadeOut] = useState(false);
+  const [startTime, setStartTime] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!isLoading && show) {
-      // Start fade out animation
-      setFadeOut(true);
-      const timer = setTimeout(() => {
-        setShow(false);
-        onComplete?.();
-      }, 600); // Match the transition duration
-      
-      return () => clearTimeout(timer);
-    } else if (isLoading) {
+    if (isLoading && !startTime) {
+      setStartTime(Date.now());
       setShow(true);
       setFadeOut(false);
     }
-  }, [isLoading, show, onComplete]);
+  }, [isLoading, startTime]);
+
+  useEffect(() => {
+    if (!isLoading && show && startTime) {
+      const elapsed = Date.now() - startTime;
+      const remainingTime = Math.max(0, minDuration - elapsed);
+      
+      // Wait for minimum duration before starting fade out
+      setTimeout(() => {
+        setFadeOut(true);
+        const fadeTimer = setTimeout(() => {
+          setShow(false);
+          setStartTime(null);
+          onComplete?.();
+        }, 600); // Match the transition duration
+        
+        return () => clearTimeout(fadeTimer);
+      }, remainingTime);
+    }
+  }, [isLoading, show, startTime, minDuration, onComplete]);
 
   if (!show) return null;
 
