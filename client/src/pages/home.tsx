@@ -653,26 +653,31 @@ export default function Home() {
         </section>
       )}
 
-      {/* Published Pages */}
+      {/* Modern Published Pages Section */}
       {siteSettings?.showOntdekMeer && publishedPages.length > 0 && (
-        <section className="py-16 px-5 max-w-6xl mx-auto">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-bold font-inter text-gray-900">
-              Ontdek Meer
-            </h2>
+        <section className="py-16 px-5 max-w-7xl mx-auto">
+          <div className="flex justify-between items-center mb-12">
+            <div>
+              <h2 className="text-4xl md:text-5xl font-bold mb-4 font-inter text-gray-900">
+                Ontdek Meer
+              </h2>
+              <p className="text-xl text-gray-600">
+                Verdiep je in onze complete collectie reisgidsen
+              </p>
+            </div>
             <Link href="/ontdek-meer">
               <Button
                 variant="outline"
-                className="text-gray-900 border-gray-300 hover:bg-gray-100"
+                className="text-gray-900 border-gray-300 hover:bg-gray-100 rounded-2xl px-6 py-3 shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 Bekijk Alles
               </Button>
             </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {publishedPages.map((page) => (
               <Link href={`/${page.slug}`} key={page.id}>
-                <Card className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer">
+                <Card className="bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-500 border-none cursor-pointer group">
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-3">
                       <h3 className="text-xl font-bold font-inter text-gray-900">
@@ -703,12 +708,17 @@ export default function Home() {
         </section>
       )}
 
-      {/* Travel Guides - Travel Slider Implementation */}
+      {/* Modern Travel Guides Section */}
       {siteSettings?.showGuides && (
-        <section className="py-16 px-5 max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
-            Reizen en Tips
-          </h2>
+        <section className="py-16 px-5 max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 font-inter text-gray-900">
+              Reizen en Tips
+            </h2>
+            <p className="text-xl text-gray-600">
+              Ontdek onze expertgidsen voor de perfecte reis
+            </p>
+          </div>
           <TravelSlider
             visibleItems={{ mobile: 1, tablet: 2, desktop: 4 }}
             showNavigation={true}
@@ -717,15 +727,15 @@ export default function Home() {
             {publishedGuides.map((guide: any) => {
               const CardContent = (
                 <Card 
-                  className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer"
+                  className="bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-500 border-none cursor-pointer group"
                 >
                   <img
                     src={guide.image}
                     alt={guide.alt}
-                    className="w-full h-40 object-cover"
+                    className="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-300"
                   />
-                  <div className="p-4">
-                    <h3 className="font-bold font-inter text-gray-900 mb-2">
+                  <div className="p-6">
+                    <h3 className="font-bold font-inter text-gray-900 mb-2 text-lg">
                       {guide.title}
                     </h3>
                     <p className="text-sm text-gray-600 font-inter">
