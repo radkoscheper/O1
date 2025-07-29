@@ -160,6 +160,7 @@ export default function Admin() {
   const [showResetPassword, setShowResetPassword] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [users, setUsers] = useState<any[]>([]);
+  const [galleryKey, setGalleryKey] = useState(0);
 
 
   
@@ -7368,7 +7369,8 @@ function EditDestinationDialog({ open, onOpenChange, destination, editData, setE
                       });
                       // Update the edit form with new image URL
                       setEditData({ ...editData, image: result.data.secure_url });
-                      // No page reload - stay in the dialog
+                      // Force gallery refresh by triggering a re-render with key prop change
+                      setGalleryKey(Date.now());
                     }}
                   />
                 </div>
@@ -7386,6 +7388,7 @@ function EditDestinationDialog({ open, onOpenChange, destination, editData, setE
                 <h3 className="text-lg font-semibold text-gray-900">🖼️ Afbeelding Gallery</h3>
                 <div className="border rounded-lg p-4 bg-gray-50 max-h-96 overflow-y-auto">
                   <CloudinaryGallery
+                    key={galleryKey}
                     folder="ontdek-polen"
                     onImageSelect={(image: any) => {
                       setEditData({ ...editData, image: image.secure_url });
