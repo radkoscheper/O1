@@ -25,28 +25,10 @@ function Router() {
 }
 
 function App() {
-  const [isInitialLoading, setIsInitialLoading] = useState(true);
-
-  // Handle initial page load and browser refresh
   useEffect(() => {
-    // Show loading screen during initial app bootstrap and page refresh
-    const timer = setTimeout(() => {
-      setIsInitialLoading(false);
-    }, 400); // Slightly longer to ensure it's visible during refresh
-
-    return () => clearTimeout(timer);
+    // Signal that React app is mounted, hide HTML loader
+    document.body.classList.add('react-loaded');
   }, []);
-
-  // Show our custom loading screen during initial page load/refresh
-  if (isInitialLoading) {
-    return (
-      <LoadingScreen 
-        isLoading={true}
-        title="Ontdek Polen"
-        subtitle="Jouw Poolse avontuur begint hier"
-      />
-    );
-  }
 
   return (
     <QueryClientProvider client={queryClient}>
