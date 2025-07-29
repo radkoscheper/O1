@@ -820,7 +820,7 @@ export default function Home() {
         isLoading={isPageLoading}
         title={loadingContent.title}
         subtitle={loadingContent.subtitle}
-        minDuration={1500}
+        minDuration={4000}
       />
     </div>
   );
