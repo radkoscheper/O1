@@ -1,9 +1,14 @@
 {
   "version": 2,
-  "buildCommand": "node build-vercel.js",
+  "buildCommand": "node build.js",
   "outputDirectory": "dist/public",
   "installCommand": "npm install",
   "framework": null,
+  "functions": {
+    "dist/public/api/index.js": {
+      "runtime": "nodejs20.x"
+    }
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",

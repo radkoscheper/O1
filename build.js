@@ -2,7 +2,7 @@ import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 
-console.log('🚀 Starting Vercel build process...');
+console.log('🚀 Starting production build...');
 
 try {
   // Step 1: Build the client (React app)
@@ -34,16 +34,19 @@ try {
     'dist/public/api/index.js'
   ];
 
+  let totalSize = 0;
   buildFiles.forEach(file => {
     if (fs.existsSync(file)) {
       const stats = fs.statSync(file);
-      console.log(`✅ ${file} (${Math.round(stats.size / 1024)}KB)`);
+      const sizeKB = Math.round(stats.size / 1024);
+      console.log(`✅ ${file} (${sizeKB}KB)`);
+      totalSize += sizeKB;
     } else {
       console.warn(`⚠️ Missing: ${file}`);
     }
   });
 
-  console.log('🎉 Vercel build completed successfully!');
+  console.log(`🎉 Build completed successfully! Total: ${totalSize}KB`);
   
 } catch (error) {
   console.error('❌ Build failed:', error.message);
