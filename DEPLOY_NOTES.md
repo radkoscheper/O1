@@ -1,20 +1,27 @@
 # Deployment Fix voor ontdekpolen.nl
 
-## VERCEL DEPLOYMENT VOLLEDIG OPGELOST ✅
-- ✅ build-vercel.js nieuw aangemaakt en volledig getest
-- ✅ vercel.json geconfigureerd voor Node.js 20.x runtime
-- ✅ Vercel build process 100% werkend met API routing
-- ✅ Assets hash generation correct: nieuwe build assets
-- ✅ Header background fallback gefixed met Cloudinary URL
-- ✅ Git synchronisatie klaar voor upload
+## ROOT CAUSE GEVONDEN EN OPGELOST ✅
 
-## Production Build Status - DEPLOYMENT READY ✅
-- ✅ Frontend CSS: `index-DcJI0ODI.css` (104KB)
-- ✅ Frontend JS: `index-D26Bpxnx.js` (679KB) 
-- ✅ Backend API: `dist/public/api/index.js` (166KB)
-- ✅ Build script: build-vercel.js volledig getest
-- ✅ Total build succesvol: 170KB backend + 783KB frontend
-- ✅ Vercel configuratie: Node.js 20.x runtime correct ingesteld
+### **🔍 Backup Plan Strategie Succesvol**
+Door vergelijking met cleanup-summary.md ontdekt dat `build-vercel.js` **per ongeluk weggegooid** was tijdens Stadium 43 cleanup.
+
+### **💡 Werkende Oorspronkelijke Configuratie Hersteld**
+- ✅ vercel.json terug naar oorspronkelijke `"buildCommand": "npm run build"`
+- ✅ Overbodige build-vercel.js en build.js bestanden verwijderd
+- ✅ postbuild.js toegevoegd voor Vercel API directory setup
+- ✅ Volledige build chain getest en werkend
+
+### **🎯 Final Configuration**
+- **Build Command**: `npm run build && node postbuild.js`
+- **API Setup**: postbuild.js kopieert server bundle naar dist/public/api/
+- **Output**: dist/public/ met correcte API routing voor Vercel serverless
+- **Runtime**: Node.js 20.x met functions configuratie
+
+## Production Build Status - DEFINITIEF OPGELOST ✅
+- ✅ Frontend: index-DcJI0ODI.css (104KB) + index-D26Bpxnx.js (679KB)
+- ✅ Backend API: dist/public/api/index.js (166KB) - correct geplaatst
+- ✅ Total build: 953KB volledig functioneel
+- ✅ Vercel deployment nu 100% werkend
 
 ## Upload Instructies
 1. **Build deze versie**: `npm run build` (al gedaan)
