@@ -556,8 +556,8 @@ export default function Home() {
 
       {/* Luxury Featured Activities Section */}
       {siteSettings?.showHighlights && featuredActivities.length > 0 && (
-        <section className="py-24 px-5 max-w-7xl mx-auto">
-          <div className="text-center mb-16">
+        <section className="py-6 px-5 max-w-7xl mx-auto">
+          <div className="text-center mb-6">
             <h2 className="text-4xl md:text-6xl font-luxury-serif font-bold mb-6 text-navy-dark tracking-wide">
               Hoogtepunten van Polen
             </h2>
@@ -668,8 +668,8 @@ export default function Home() {
 
       {/* Modern Published Pages Section */}
       {siteSettings?.showOntdekMeer && publishedPages.length > 0 && (
-        <section className="py-16 px-5 max-w-7xl mx-auto">
-          <div className="flex justify-between items-center mb-12">
+        <section className="py-6 px-5 max-w-7xl mx-auto">
+          <div className="flex justify-between items-center mb-6">
             <div>
               <h2 className="text-4xl md:text-5xl font-bold mb-4 font-inter text-gray-900">
                 Ontdek Meer
@@ -723,8 +723,8 @@ export default function Home() {
 
       {/* Luxury Travel Guides Section */}
       {siteSettings?.showGuides && (
-        <section className="py-24 px-5 max-w-7xl mx-auto">
-          <div className="text-center mb-16">
+        <section className="py-6 px-5 max-w-7xl mx-auto">
+          <div className="text-center mb-6">
             <h2 className="text-4xl md:text-6xl font-luxury-serif font-bold mb-6 text-navy-dark tracking-wide">
               Reizen en Tips
             </h2>
@@ -791,7 +791,7 @@ export default function Home() {
       )}
 
       {/* Luxury Footer */}
-      <footer className="bg-navy-dark text-center py-16 px-5 text-white relative">
+      <footer className="bg-navy-dark text-center py-6 px-5 text-white relative">
         {/* Admin Link */}
         <Link href="/admin">
           <Button 
