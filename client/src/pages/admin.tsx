@@ -7351,7 +7351,7 @@ function EditDestinationDialog({ open, onOpenChange, destination, editData, setE
           </TabsContent>
 
           <TabsContent value="images" className="mt-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="space-y-6">
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900">📤 Upload Nieuwe Afbeelding</h3>
                 <div className="border rounded-lg p-4 bg-gray-50">
@@ -7376,7 +7376,7 @@ function EditDestinationDialog({ open, onOpenChange, destination, editData, setE
                   />
                 </div>
                 
-                <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
                   <h4 className="font-medium text-blue-800 mb-2">🔄 Automatische Updates</h4>
                   <p className="text-xs text-blue-700">
                     Na upload wordt de afbeelding automatisch ingesteld als header afbeelding. 
@@ -7387,7 +7387,7 @@ function EditDestinationDialog({ open, onOpenChange, destination, editData, setE
 
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900">🖼️ Afbeelding Gallery</h3>
-                <div className="border rounded-lg p-6 bg-gray-50 max-h-[600px] overflow-y-auto">
+                <div className="border rounded-lg p-6 bg-gray-50 max-h-[700px] overflow-y-auto">
                   <CloudinaryGallery
                     key={galleryKey}
                     folder="ontdek-polen"
@@ -7402,7 +7402,7 @@ function EditDestinationDialog({ open, onOpenChange, destination, editData, setE
                   />
                 </div>
                 
-                <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
+                <div className="p-3 bg-green-50 rounded-lg border border-green-200">
                   <h4 className="font-medium text-green-800 mb-2">💡 Gallery Tips</h4>
                   <p className="text-xs text-green-700">
                     Klik op een afbeelding om deze als header in te stellen. 

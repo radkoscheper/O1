@@ -176,10 +176,10 @@ export function CloudinaryGallery({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6">
           {images.map((image) => (
             <div key={image.public_id} className="border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-              <div className="aspect-video bg-gray-100 relative">
+              <div className="aspect-[5/2] bg-gray-100 relative">
                 <img
                   src={image.secure_url}
                   alt={image.public_id}
