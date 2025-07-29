@@ -452,7 +452,7 @@ export default function Home() {
       {/* Destinations Section - Luxury Layout */}
       {siteSettings?.showDestinations && (
         <section className="py-4 px-5 max-w-7xl mx-auto">
-          <div className="text-center mb-14">
+          <div className="text-center mb-6">
             <h2 className="text-4xl md:text-6xl font-luxury-serif font-bold mb-4 text-navy-dark tracking-wide">
               Ontdek Polen
             </h2>
