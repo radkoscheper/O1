@@ -237,7 +237,7 @@ export default function Page() {
   });
 
   // Loading content for this page
-  const loadingContent = useLoadingContent(`/${slug}`);
+  const loadingContent = useLoadingContent(`/${slug}`, siteSettings, page);
   
   // Force initial loading state for demo
   const [forceLoading, setForceLoading] = useState(true);

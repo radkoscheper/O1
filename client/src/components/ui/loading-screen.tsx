@@ -84,73 +84,45 @@ export function LoadingScreen({ isLoading, title, subtitle, onComplete, minDurat
 }
 
 // Hook to get contextual loading content based on current page
-export function useLoadingContent(location: string) {
+export function useLoadingContent(location: string, siteSettings?: any, destinationData?: any) {
   const getLoadingContent = (path: string) => {
-    // Homepage
+    // Homepage - use site settings from CMS
     if (path === '/' || path === '') {
       return {
-        title: "Ontdek Polen",
-        subtitle: "Verborgen parels wachten op je ontdekking"
+        title: siteSettings?.siteName || "Ontdek Polen",
+        subtitle: siteSettings?.siteDescription || "Van historische steden tot adembenemende natuurparken"
       };
     }
 
-    // Destination pages
-    if (path.includes('/krakow')) {
-      return {
-        title: "Krakow",
-        subtitle: "Koninklijke geschiedenis ontmoeten"
-      };
-    }
-
-    if (path.includes('/tatra')) {
-      return {
-        title: "Tatra Mountains",
-        subtitle: "Bergtoppen en kristalheldere meren"
-      };
-    }
-
-    if (path.includes('/gdansk')) {
-      return {
-        title: "Gdansk",
-        subtitle: "Maritieme geschiedenis aan de Oostzee"
-      };
-    }
-
-    if (path.includes('/bialowieza')) {
-      return {
-        title: "Białowieża",
-        subtitle: "Het laatste oerbos van Europa"
-      };
-    }
-
-    if (path.includes('/wroclaw') || path.includes('/wroc-aw')) {
-      return {
-        title: "Wrocław",
-        subtitle: "Stad van bruggen en duizend dwergen"
-      };
-    }
-
-    // Ontdek Meer page
+    // Ontdek Meer page - use site settings
     if (path.includes('/ontdek-meer')) {
       return {
         title: "Ontdek Meer",
-        subtitle: "Alle schatten van Polen op één plek"
+        subtitle: siteSettings?.siteDescription || "Alle bestemmingen en reisgidsen op één plek"
       };
     }
 
-    // Generic destination pages
+    // Destination pages - use destination data from CMS
+    if (destinationData) {
+      return {
+        title: destinationData.name || destinationData.title,
+        subtitle: destinationData.description || destinationData.subtitle || "Ontdek de schatten van Polen"
+      };
+    }
+
+    // Generic fallback for unknown pages
     if (path.startsWith('/') && path.length > 1) {
       const destination = path.substring(1).replace('-', ' ');
       return {
         title: destination.charAt(0).toUpperCase() + destination.slice(1),
-        subtitle: "Mooie plekken wachten op je"
+        subtitle: "Ontdek de schatten van Polen"
       };
     }
 
     // Default fallback
     return {
-      title: "Ontdek Polen",
-      subtitle: "Jouw Poolse avontuur begint hier"
+      title: siteSettings?.siteName || "Ontdek Polen",
+      subtitle: siteSettings?.siteDescription || "Jouw reis naar Polen begint hier"
     };
   };
 

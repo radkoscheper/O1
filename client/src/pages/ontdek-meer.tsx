@@ -36,7 +36,7 @@ export default function OntdekMeer() {
   });
 
   // Loading content for this page
-  const loadingContent = useLoadingContent(location);
+  const loadingContent = useLoadingContent(location, siteSettings);
   const isPageLoading = destinationsLoading || guidesLoading || pagesLoading || highlightsLoading || settingsLoading;
 
   // Update document title and meta tags when site settings change - CHANGED FOR ONTDEK MEER

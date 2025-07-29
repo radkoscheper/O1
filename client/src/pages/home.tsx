@@ -76,19 +76,6 @@ export default function Home() {
     queryKey: ["/api/pages"],
   });
 
-  // Loading content for this page
-  const loadingContent = useLoadingContent(location);
-  const isPageLoading = destinationsLoading || guidesLoading || pagesLoading;
-  
-  // Force initial loading state for demo
-  const [forceLoading, setForceLoading] = useState(true);
-  useEffect(() => {
-    const timer = setTimeout(() => setForceLoading(false), 500);
-    return () => clearTimeout(timer);
-  }, [location]);
-  
-  const showLoading = isPageLoading || forceLoading;
-
   // Fetch featured activities from database (replaces old highlights)
   const { data: featuredActivities = [], isLoading: featuredLoading } = useQuery({
     queryKey: ["/api/admin/activities"],
@@ -107,6 +94,20 @@ export default function Home() {
   const { data: siteSettings, isLoading: settingsLoading } = useQuery({
     queryKey: ["/api/site-settings"],
   });
+
+  const isPageLoading = destinationsLoading || guidesLoading || pagesLoading;
+  
+  // Loading content for this page
+  const loadingContent = useLoadingContent(location, siteSettings);
+  
+  // Force initial loading state for demo
+  const [forceLoading, setForceLoading] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => setForceLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, [location]);
+  
+  const showLoading = isPageLoading || forceLoading;
 
   // Fetch search configuration for homepage context
   const { data: searchConfig } = useQuery({
