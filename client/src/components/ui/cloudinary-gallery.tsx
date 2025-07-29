@@ -58,44 +58,19 @@ export function CloudinaryGallery({
     try {
       setLoading(true);
       
-      // FIXED: Fallback search strategy to handle both old and new folder structures
-      let searchFolder = folder;
-      let images = [];
+      // NEW: Clean hierarchical folder structure
+      const searchFolder = destinationName 
+        ? `${folder}/destinations/${destinationName.toLowerCase()}/${selectedCategory}`
+        : folder;
       
-      if (destinationName) {
-        // Try new organized structure first: ontdek-polen/destinations/tatra/headers
-        const organizedFolder = `${folder}/destinations/${destinationName.toLowerCase()}/${selectedCategory}`;
-        let response = await fetch(`/api/upload/cloudinary/list/${encodeURIComponent(organizedFolder)}`);
-        
-        if (response.ok) {
-          const result = await response.json();
-          images = result.data || [];
-        }
-        
-        // If no images found, fallback to flat structure: ontdek-polen/destinations
-        if (images.length === 0) {
-          const flatFolder = `${folder}/destinations`;
-          response = await fetch(`/api/upload/cloudinary/list/${encodeURIComponent(flatFolder)}`);
-          
-          if (response.ok) {
-            const result = await response.json();
-            // Filter images that contain destination name in filename
-            const allImages = result.data || [];
-            images = allImages.filter((img: CloudinaryImage) => 
-              img.public_id.toLowerCase().includes(destinationName.toLowerCase())
-            );
-          }
-        }
-      } else {
-        // No destination specified, search entire folder
-        const response = await fetch(`/api/upload/cloudinary/list/${encodeURIComponent(searchFolder)}`);
-        if (response.ok) {
-          const result = await response.json();
-          images = result.data || [];
-        }
+      const response = await fetch(`/api/upload/cloudinary/list/${encodeURIComponent(searchFolder)}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to load images');
       }
-      
-      setImages(images.slice(0, maxItems));
+
+      const result = await response.json();
+      setImages(result.data?.slice(0, maxItems) || []);
       setError(null);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load images';

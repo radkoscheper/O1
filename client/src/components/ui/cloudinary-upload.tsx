@@ -39,6 +39,7 @@ export function CloudinaryUpload({
   const [preview, setPreview] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('headers');
+  const [customFileName, setCustomFileName] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -100,8 +101,13 @@ export function CloudinaryUpload({
         ? `${folder}/destinations/${destinationName.toLowerCase()}/${selectedCategory}`
         : folder;
       
+      // Use custom filename if provided, otherwise generate clean timestamp-based name
+      const cleanCustomName = customFileName.trim().replace(/[^a-z0-9-]/gi, '').toLowerCase();
+      const finalFileName = cleanCustomName || 
+        `${destinationName?.toLowerCase() || 'image'}-header-${Date.now()}`;
+      
       formData.append('folder', finalFolder);
-      formData.append('public_id', fileName);
+      formData.append('public_id', finalFileName);
       
       if (transformations) {
         formData.append('transformations', JSON.stringify(transformations));
@@ -128,6 +134,7 @@ export function CloudinaryUpload({
       // Reset form
       setPreview(null);
       setFileName('');
+      setCustomFileName('');
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -173,7 +180,7 @@ export function CloudinaryUpload({
                 </SelectContent>
               </Select>
               <p className="text-xs text-gray-500 mt-1">
-                Upload naar: {destinationName.toLowerCase()}/{selectedCategory}/
+                📁 Upload naar: ontdek-polen/destinations/{destinationName.toLowerCase()}/{selectedCategory}/
               </p>
             </div>
           )}
@@ -193,14 +200,34 @@ export function CloudinaryUpload({
             </p>
           </div>
 
+          {/* Custom Filename Input */}
+          <div className="space-y-2">
+            <Label htmlFor="customFileName">
+              Vriendelijke bestandsnaam (optioneel)
+            </Label>
+            <Input
+              id="customFileName"
+              type="text"
+              placeholder="bijv: main-header, mountain-view, winter-landscape"
+              value={customFileName}
+              onChange={(e) => setCustomFileName(e.target.value.replace(/[^a-z0-9-]/gi, '').toLowerCase())}
+              className="text-sm"
+            />
+            <p className="text-xs text-gray-500">
+              Laat leeg voor automatische naamgeving. Alleen letters, cijfers en koppeltekens toegestaan.
+            </p>
+          </div>
+
           {fileName && (
             <div>
-              <Label htmlFor="filename">Bestandsnaam (automatisch gegenereerd)</Label>
+              <Label htmlFor="filename">Gegenereerde bestandsnaam</Label>
               <Input
                 id="filename"
                 value={fileName}
                 onChange={(e) => setFileName(e.target.value)}
                 placeholder="bestandsnaam-datum"
+                disabled
+                className="bg-gray-50"
               />
             </div>
           )}
