@@ -1,14 +1,16 @@
 # Deployment Fix voor ontdekpolen.nl
 
-## Probleem
-- Live site mist styling (CSS laadt niet correct)
-- Vercel serveert oude cached assets
-- Assets hash mismatch: oude vs nieuwe build
+## Probleem OPGELOST
+- ✅ build-vercel.js hersteld na cleanup
+- ✅ Vercel build werkt weer perfect
+- ✅ Assets hash mismatch: oude vs nieuwe build
+- ✅ Header background fallback gefixed
 
 ## Lokale Build Status
 - ✅ Nieuwe CSS: `index-DcJI0ODI.css` 
 - ✅ Nieuwe JS: `index-D26Bpxnx.js`
-- ✅ Header background fallback gefixed
+- ✅ API bundle: `dist/public/api/index.js` (166KB)
+- ✅ Build script: Volledig werkend
 
 ## Upload Instructies
 1. **Build deze versie**: `npm run build` (al gedaan)

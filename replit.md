@@ -638,6 +638,7 @@ This is a full-stack web application for discovering beautiful places in Poland.
 - Storage optimization: project size gereduceerd voor snellere GitHub clone/deployment
 - Import errors fixed: server/routes.ts cloudinary import gerepareerd
 - LSP diagnostics resolved: alle TypeScript errors opgelost
+- **DEPLOYMENT FIX**: build-vercel.js hersteld na cleanup voor Vercel compatibility
 
 ✅ **PROFESSIONAL PROJECT STRUCTURE ACHIEVED**:
 - Clean root directory: alleen package.json, configs, en README.md
