@@ -11,13 +11,20 @@ Door terug te gaan naar oorspronkelijke dashboard configuratie (zonder vercel.js
 - esbuild server: ✅ Backend bundle gecreëerd (166KB)
 - postbuild.js: ✅ API directory correct setup (dist/public/api/index.js)
 
-### **🎯 Finale Vercel Dashboard Settings**
-**Project Settings (werkend getest):**
+### **🎯 ORIGINELE WERKENDE CONFIGURATIE HERSTELD**
+**Root Cause Gevonden:** build-vercel.js was weggegooid in Stadium 43 cleanup, maar dit was de oplossing voor vite dependency!
+
+**Werkende Vercel Dashboard Settings:**
 - **Framework Preset:** "Other"  
-- **Build Command:** `npm run build`
+- **Build Command:** `node build-vercel.js`
 - **Output Directory:** `dist/public`
 - **Install Command:** `npm install`
 - **Node.js Version:** 20.x
+
+**Waarom dit werkt:**
+- build-vercel.js gebruikt `npx vite build` ipv directe `vite` command
+- npx zorgt ervoor dat vite beschikbaar is, ook als het in devDependencies staat
+- Identieke methode als originele werkende deployment op https://ontdekpolen-2.vercel.app/
 
 ### **📁 Geüploade Bestanden**
 - ✅ postbuild.js (ES module syntax, volledig werkend)
