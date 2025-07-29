@@ -239,14 +239,7 @@ export default function Page() {
   // Loading content for this page
   const loadingContent = useLoadingContent(`/${slug}`, siteSettings, page);
   
-  // Force initial loading state for demo
-  const [forceLoading, setForceLoading] = useState(true);
-  useEffect(() => {
-    const timer = setTimeout(() => setForceLoading(false), 500);
-    return () => clearTimeout(timer);
-  }, [slug]);
-  
-  const showLoading = isLoading || forceLoading;
+  const showLoading = isLoading;
 
   // Separate effect to handle scrolling when selectedActivity data is loaded
   useEffect(() => {
@@ -868,7 +861,7 @@ export default function Page() {
         isLoading={showLoading}
         title={loadingContent.title}
         subtitle={loadingContent.subtitle}
-        minDuration={4000}
+
       />
     </div>
   );

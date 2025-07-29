@@ -142,14 +142,7 @@ export default function OntdekMeer() {
   // Filter only published pages
   const publishedPages = pages.filter((page: any) => page.published);
   
-  // Force initial loading state for demo
-  const [forceLoading, setForceLoading] = useState(true);
-  useEffect(() => {
-    const timer = setTimeout(() => setForceLoading(false), 500);
-    return () => clearTimeout(timer);
-  }, [location]);
-  
-  const showLoading = isPageLoading || forceLoading;
+  const showLoading = isPageLoading;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -503,7 +496,7 @@ export default function OntdekMeer() {
         isLoading={showLoading}
         title={loadingContent.title}
         subtitle={loadingContent.subtitle}
-        minDuration={4000}
+
       />
     </div>
   );

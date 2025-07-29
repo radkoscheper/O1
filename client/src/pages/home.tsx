@@ -100,14 +100,7 @@ export default function Home() {
   // Loading content for this page
   const loadingContent = useLoadingContent(location, siteSettings);
   
-  // Force initial loading state for demo
-  const [forceLoading, setForceLoading] = useState(true);
-  useEffect(() => {
-    const timer = setTimeout(() => setForceLoading(false), 500);
-    return () => clearTimeout(timer);
-  }, [location]);
-  
-  const showLoading = isPageLoading || forceLoading;
+  const showLoading = isPageLoading;
 
   // Fetch search configuration for homepage context
   const { data: searchConfig } = useQuery({
@@ -830,7 +823,7 @@ export default function Home() {
         isLoading={showLoading}
         title={loadingContent.title}
         subtitle={loadingContent.subtitle}
-        minDuration={4000}
+
       />
     </div>
   );
