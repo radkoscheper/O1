@@ -1,5 +1,22 @@
 # Deployment Fix voor ontdekpolen.nl
 
+## VERCEL CACHE PROBLEEM - LAATSTE RESORT OPLOSSING ⚠️
+
+### **🚨 Hardnekkige Vercel Configuration Cache**
+Ondanks alle pogingen (CDN purge, Data Cache purge, config wijzigingen, runtime updates) blijft Vercel de oude `"node build-vercel.js"` configuratie gebruiken. Dit is een bekend Vercel probleem waarbij deployment configuratie vastlopen in cache.
+
+### **💡 Fresh Deployment Strategie**
+**Optie A - Behoud Domein (Aanbevolen):**
+1. Nieuwe Vercel project: `ontdek-polen-fresh`
+2. Deploy met `vercel-fresh.json` (hernoemd naar vercel.json)
+3. Test op tijdelijke URL
+4. Domein overzetten van oude naar nieuwe project
+5. Oude project verwijderen
+
+**Optie B - Tijdelijk Nieuw Domein:**
+1. Fresh deployment op nieuwe URL
+2. Domein later overzetten als alles werkt
+
 ## ROOT CAUSE GEVONDEN EN OPGELOST ✅
 
 ### **🔍 Backup Plan Strategie Succesvol**

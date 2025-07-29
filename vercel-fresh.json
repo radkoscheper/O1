@@ -1,0 +1,23 @@
+{
+  "version": 2,
+  "name": "ontdek-polen-fresh",
+  "buildCommand": "npm run build && node postbuild.js",
+  "outputDirectory": "dist/public",
+  "installCommand": "npm install",
+  "framework": null,
+  "functions": {
+    "dist/public/api/index.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/index"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
