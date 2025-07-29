@@ -3351,7 +3351,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         idleTimeout: parseInt(idleTimeout),
         region,
         projectId,
-        status,
         updatedAt: new Date()
       });
 

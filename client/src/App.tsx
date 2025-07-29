@@ -10,6 +10,7 @@ import Admin from "@/pages/admin";
 import OntdekMeer from "@/pages/ontdek-meer";
 import Page from "@/pages/page";
 import NotFound from "@/pages/not-found";
+import CloudinaryTest from "@/pages/cloudinary-test";
 
 function Router() {
   return (
@@ -17,6 +18,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/admin" component={Admin} />
       <Route path="/ontdek-meer" component={OntdekMeer} />
+      <Route path="/cloudinary-test" component={CloudinaryTest} />
       <Route path="/:slug" component={Page} />
       <Route path="/destination/:slug" component={Page} />
       <Route component={NotFound} />
