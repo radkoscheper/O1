@@ -127,9 +127,6 @@ export default function Admin() {
     enabled: isAuthenticated && currentUser?.canEditContent,
     retry: 1,
     staleTime: 0,
-    onError: (error) => {
-      toast({ title: "Fout", description: "Kon zoekconfiguratties niet laden", variant: "destructive" });
-    }
   });
 
   // Multi-platform deployment queries (admin only)
@@ -160,6 +157,7 @@ export default function Admin() {
   const [showEditUser, setShowEditUser] = useState(false);
   const [showResetPassword, setShowResetPassword] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [users, setUsers] = useState<any[]>([]);
 
 
   
@@ -361,8 +359,8 @@ export default function Admin() {
 
   // Get unique locations from destinations for filter
   const getUniqueLocations = () => {
-    if (!destinationsQuery.data) return [];
-    const locations = destinationsQuery.data
+    if (!destinationsQuery.data || !Array.isArray(destinationsQuery.data)) return [];
+    const locations = (destinationsQuery.data as any[])
       .map((dest: any) => dest.location)
       .filter((location: string) => location && location.trim() !== '')
       .filter((location: string, index: number, arr: string[]) => arr.indexOf(location) === index)
@@ -372,8 +370,8 @@ export default function Admin() {
 
   // Get unique titles from guides for filter (first word)
   const getUniqueGuideCategories = () => {
-    if (!guidesQuery.data) return [];
-    const categories = guidesQuery.data
+    if (!guidesQuery.data || !Array.isArray(guidesQuery.data)) return [];
+    const categories = (guidesQuery.data as any[])
       .map((guide: any) => {
         const firstWord = guide.title.split(' ')[0];
         return firstWord || 'Overig';
@@ -385,16 +383,16 @@ export default function Admin() {
 
   // Filter destinations by location
   const getFilteredDestinations = () => {
-    if (!destinationsQuery.data) return [];
+    if (!destinationsQuery.data || !Array.isArray(destinationsQuery.data)) return [];
     if (locationFilter === 'all') return destinationsQuery.data;
-    return destinationsQuery.data.filter((dest: any) => dest.location === locationFilter);
+    return (destinationsQuery.data as any[]).filter((dest: any) => dest.location === locationFilter);
   };
 
   // Filter guides by category
   const getFilteredGuides = () => {
-    if (!guidesQuery.data) return [];
+    if (!guidesQuery.data || !Array.isArray(guidesQuery.data)) return [];
     if (guideFilter === 'all') return guidesQuery.data;
-    return guidesQuery.data.filter((guide: any) => {
+    return (guidesQuery.data as any[]).filter((guide: any) => {
       const firstWord = guide.title.split(' ')[0] || 'Overig';
       return firstWord === guideFilter;
     });
@@ -402,8 +400,8 @@ export default function Admin() {
 
   // Get unique locations from activities for filter
   const getUniqueActivityLocations = () => {
-    if (!activitiesQuery.data) return [];
-    const locations = activitiesQuery.data
+    if (!activitiesQuery.data || !Array.isArray(activitiesQuery.data)) return [];
+    const locations = (activitiesQuery.data as any[])
       .map((activity: any) => activity.location)
       .filter((location: string) => location && location.trim() !== '')
       .filter((location: string, index: number, arr: string[]) => arr.indexOf(location) === index)
@@ -471,7 +469,7 @@ export default function Admin() {
 
   useEffect(() => {
     if (isAuthenticated && currentUser?.canManageUsers) {
-      loadUsers();
+      // User management queries handled by React Query
     }
   }, [isAuthenticated, currentUser]);
 
@@ -479,27 +477,28 @@ export default function Admin() {
   useEffect(() => {
     if (siteSettingsQuery.data) {
       console.log('Loading site settings from query:', siteSettingsQuery.data);
+      const data = siteSettingsQuery.data as any;
       const newSettings = {
-        siteName: siteSettingsQuery.data.siteName || '',
-        siteDescription: siteSettingsQuery.data.siteDescription || '',
-        metaKeywords: siteSettingsQuery.data.metaKeywords || '',
-        favicon: siteSettingsQuery.data.favicon || '',
-        faviconEnabled: siteSettingsQuery.data.faviconEnabled ?? true,
-        backgroundImage: siteSettingsQuery.data.backgroundImage || '',
-        backgroundImageAlt: siteSettingsQuery.data.backgroundImageAlt || '',
-        logoImage: siteSettingsQuery.data.logoImage || '',
-        logoImageAlt: siteSettingsQuery.data.logoImageAlt || '',
-        socialMediaImage: siteSettingsQuery.data.socialMediaImage || '',
-        headerOverlayEnabled: siteSettingsQuery.data.headerOverlayEnabled || false,
-        headerOverlayOpacity: siteSettingsQuery.data.headerOverlayOpacity || 30,
-        customCSS: siteSettingsQuery.data.customCSS || '',
-        customJS: siteSettingsQuery.data.customJS || '',
-        googleAnalyticsId: siteSettingsQuery.data.googleAnalyticsId || '',
-        showDestinations: siteSettingsQuery.data.showDestinations ?? true,
-        showMotivation: siteSettingsQuery.data.showMotivation ?? true,
-        showHighlights: siteSettingsQuery.data.showHighlights ?? true,
-        showOntdekMeer: siteSettingsQuery.data.showOntdekMeer ?? true,
-        showGuides: siteSettingsQuery.data.showGuides ?? true,
+        siteName: data.siteName || '',
+        siteDescription: data.siteDescription || '',
+        metaKeywords: data.metaKeywords || '',
+        favicon: data.favicon || '',
+        faviconEnabled: data.faviconEnabled ?? true,
+        backgroundImage: data.backgroundImage || '',
+        backgroundImageAlt: data.backgroundImageAlt || '',
+        logoImage: data.logoImage || '',
+        logoImageAlt: data.logoImageAlt || '',
+        socialMediaImage: data.socialMediaImage || '',
+        headerOverlayEnabled: data.headerOverlayEnabled || false,
+        headerOverlayOpacity: data.headerOverlayOpacity || 30,
+        customCSS: data.customCSS || '',
+        customJS: data.customJS || '',
+        googleAnalyticsId: data.googleAnalyticsId || '',
+        showDestinations: data.showDestinations ?? true,
+        showMotivation: data.showMotivation ?? true,
+        showHighlights: data.showHighlights ?? true,
+        showOntdekMeer: data.showOntdekMeer ?? true,
+        showGuides: data.showGuides ?? true,
       };
       console.log('Setting new site settings state:', newSettings);
       setSiteSettings(newSettings);
@@ -509,13 +508,14 @@ export default function Admin() {
   // Load motivation data when query updates
   useEffect(() => {
     if (motivationQuery.data) {
+      const data = motivationQuery.data as any;
       setMotivationData({
-        title: motivationQuery.data.title || '',
-        description: motivationQuery.data.description || '',
-        buttonText: motivationQuery.data.button_text || '',
-        buttonAction: motivationQuery.data.button_action || '',
-        image: motivationQuery.data.image || '',
-        isPublished: motivationQuery.data.is_published ?? true
+        title: data.title || '',
+        description: data.description || '',
+        buttonText: data.button_text || '',
+        buttonAction: data.button_action || '',
+        image: data.image || '',
+        isPublished: data.is_published ?? true
       });
     }
   }, [motivationQuery.data]);
@@ -713,13 +713,13 @@ export default function Admin() {
   };
 
   const handleEmptyImageTrash = async () => {
-    if (!trashedImagesQuery.data || trashedImagesQuery.data.length === 0) return;
+    if (!trashedImagesQuery.data || !Array.isArray(trashedImagesQuery.data) || (trashedImagesQuery.data as any[]).length === 0) return;
     
-    const confirmDelete = confirm(`Weet je zeker dat je alle ${trashedImagesQuery.data.length} afbeeldingen permanent wilt verwijderen? Dit kan niet ongedaan worden gemaakt.`);
+    const confirmDelete = confirm(`Weet je zeker dat je alle ${(trashedImagesQuery.data as any[]).length} afbeeldingen permanent wilt verwijderen? Dit kan niet ongedaan worden gemaakt.`);
     if (!confirmDelete) return;
     
     try {
-      for (const image of trashedImagesQuery.data) {
+      for (const image of (trashedImagesQuery.data as any[])) {
         await fetch(`/api/admin/images/trash/${image.trashName}`, {
           method: 'DELETE',
           credentials: 'include',
