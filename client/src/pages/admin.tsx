@@ -7387,7 +7387,7 @@ function EditDestinationDialog({ open, onOpenChange, destination, editData, setE
 
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900">🖼️ Afbeelding Gallery</h3>
-                <div className="border rounded-lg p-4 bg-gray-50 max-h-96 overflow-y-auto">
+                <div className="border rounded-lg p-6 bg-gray-50 max-h-[600px] overflow-y-auto">
                   <CloudinaryGallery
                     key={galleryKey}
                     folder="ontdek-polen"

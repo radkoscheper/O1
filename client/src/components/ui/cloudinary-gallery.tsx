@@ -176,37 +176,37 @@ export function CloudinaryGallery({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {images.map((image) => (
-            <div key={image.public_id} className="border rounded-lg overflow-hidden">
+            <div key={image.public_id} className="border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
               <div className="aspect-video bg-gray-100 relative">
                 <img
                   src={image.secure_url}
                   alt={image.public_id}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                   loading="lazy"
                 />
               </div>
               
-              <div className="p-3 space-y-2">
+              <div className="p-4 space-y-3">
                 <div className="text-sm">
-                  <p className="font-medium truncate" title={image.public_id}>
+                  <p className="font-semibold text-gray-800 truncate" title={image.public_id}>
                     {image.public_id.split('/').pop()}
                   </p>
-                  <p className="text-gray-500">
+                  <p className="text-gray-600 text-base">
                     {image.width}×{image.height} • {formatFileSize(image.bytes)}
                   </p>
-                  <p className="text-gray-400 text-xs">
+                  <p className="text-gray-500 text-sm">
                     {formatDate(image.created_at)}
                   </p>
                 </div>
 
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-2">
                   {showSelectButton && onImageSelect && (
                     <Button
                       size="sm"
                       onClick={() => onImageSelect(image)}
-                      className="flex-1"
+                      className="flex-1 text-sm"
                     >
                       Selecteren
                     </Button>
@@ -218,7 +218,7 @@ export function CloudinaryGallery({
                     onClick={() => copyUrl(image.secure_url)}
                     title="URL kopiëren"
                   >
-                    <Copy className="w-3 h-3" />
+                    <Copy className="w-4 h-4" />
                   </Button>
                   
                   <Button
@@ -227,7 +227,7 @@ export function CloudinaryGallery({
                     onClick={() => window.open(image.secure_url, '_blank')}
                     title="Openen in nieuwe tab"
                   >
-                    <ExternalLink className="w-3 h-3" />
+                    <ExternalLink className="w-4 h-4" />
                   </Button>
                   
                   {showDeleteButton && (
@@ -237,7 +237,7 @@ export function CloudinaryGallery({
                       onClick={() => handleDelete(image.public_id)}
                       title="Verwijderen"
                     >
-                      <Trash2 className="w-3 h-3" />
+                      <Trash2 className="w-4 h-4" />
                     </Button>
                   )}
                 </div>
