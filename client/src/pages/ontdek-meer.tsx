@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
 import TravelSlider from "@/components/ui/travel-slider";
 import { LoadingScreen, useLoadingContent } from "@/components/ui/loading-screen";
+import { generateCloudinaryUrl, getSmartTransform } from "@/lib/cloudinaryUtils";
 
 export default function OntdekMeer() {
   const [location] = useLocation();
@@ -167,7 +168,9 @@ export default function OntdekMeer() {
         className="relative bg-cover bg-center text-white py-32 px-5 text-center min-h-[80vh] flex items-center justify-center"
         style={{
           backgroundImage: siteSettings?.backgroundImage 
-            ? `url('${siteSettings.backgroundImage}')` 
+            ? (siteSettings.backgroundImage.includes('res.cloudinary.com') 
+                ? `url('${generateCloudinaryUrl(siteSettings.backgroundImage, getSmartTransform("ontdek-meer-header", "hero"))}')`
+                : `url('${siteSettings.backgroundImage}')`)
             : "url('/images/backgrounds/header.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center"

@@ -294,7 +294,9 @@ export default function Home() {
         className="relative bg-cover bg-center text-white py-32 px-5 text-center min-h-[80vh] flex items-center justify-center"
         style={{
           backgroundImage: siteSettings?.backgroundImage 
-            ? `url('${siteSettings.backgroundImage}')` 
+            ? (siteSettings.backgroundImage.includes('res.cloudinary.com') 
+                ? `url('${generateCloudinaryUrl(siteSettings.backgroundImage, getSmartTransform("homepage-header", "hero"))}')`
+                : `url('${siteSettings.backgroundImage}')`)
             : "url('/images/backgrounds/header.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center"
