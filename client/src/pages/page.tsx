@@ -410,7 +410,7 @@ export default function Page() {
     <div className="min-h-screen bg-luxury-gradient">
       {/* Luxury Hero Section - with dynamic header image */}
       <header 
-        className="relative bg-cover bg-center text-white py-32 px-5 text-center min-h-[80vh] flex items-center justify-center"
+        className="relative bg-cover bg-center text-white py-16 px-5 text-center min-h-[60vh] flex items-center justify-center"
         style={{
           backgroundImage: `url('${getBackgroundImage()}')`,
           backgroundSize: "cover",
@@ -427,11 +427,11 @@ export default function Page() {
           ></div>
         )}
         
-        <div className="relative z-10 max-w-6xl mx-auto">
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-luxury-serif font-bold mb-8 text-white tracking-wide leading-tight">
+        <div className="relative z-10 max-w-4xl mx-auto">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-luxury-serif font-bold mb-4 text-white tracking-wide">
             Ontdek Polen
           </h1>
-          <p className="text-xl md:text-2xl lg:text-3xl mb-16 font-elegant-serif font-light leading-relaxed max-w-4xl mx-auto text-white/90">
+          <p className="text-base md:text-lg lg:text-xl mb-8 font-elegant-serif font-light max-w-2xl mx-auto text-white/90">
             Mooie plekken in {page.title} ontdekken
           </p>
           
@@ -457,7 +457,7 @@ export default function Page() {
                     console.log('Enter key detected, form should submit');
                   }
                 }}
-                className="py-5 px-8 w-[28rem] max-w-full border-2 border-white/30 rounded-full text-lg text-navy-dark font-inter shadow-2xl backdrop-blur-md bg-white/95 hover:bg-white hover:border-gold transition-all duration-500 focus:border-gold focus:ring-2 focus:ring-gold/50"
+                className="py-3 px-6 w-80 max-w-full border border-white/30 rounded-lg text-base text-navy-dark font-inter shadow-lg backdrop-blur-md bg-white/95 hover:bg-white hover:border-gold transition-all duration-300 focus:border-gold focus:ring-2 focus:ring-gold/50"
               />
               <Search 
                 className="absolute right-5 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5 cursor-pointer" 

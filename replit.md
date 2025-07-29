@@ -743,6 +743,8 @@ Preferred communication style: Simple, everyday language.
 Language: Dutch (Nederlands) - User prefers communication in Dutch.
 Development approach: Milestone-based development with backup points (Stadium 1, Stadium 2, etc.)
 Backup strategy: Create stable checkpoints before major changes for easy rollback capability.
+Design preference: Compact, modern web layout with reduced whitespace - user finds current luxury design too spacious
+Layout preference: More commonly used web practices instead of luxury/premium spacing
 
 ## System Architecture
 
