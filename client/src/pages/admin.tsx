@@ -7368,10 +7368,7 @@ function EditDestinationDialog({ open, onOpenChange, destination, editData, setE
                       });
                       // Update the edit form with new image URL
                       setEditData({ ...editData, image: result.data.secure_url });
-                      // Refetch gallery to show new image
-                      setTimeout(() => {
-                        window.location.reload();
-                      }, 1000);
+                      // No page reload - stay in the dialog
                     }}
                   />
                 </div>
