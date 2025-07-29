@@ -278,7 +278,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+    <div className="min-h-screen bg-luxury-gradient">
       {/* Modern Hero Section */}
       <header 
         className="relative bg-cover bg-center text-white py-32 px-5 text-center min-h-[80vh] flex items-center justify-center"
@@ -298,11 +298,11 @@ export default function Home() {
           ></div>
         )}
         
-        <div className="relative z-10 max-w-5xl mx-auto">
-          <h1 className="text-6xl md:text-7xl font-bold mb-6 font-inter tracking-tight leading-tight">
+        <div className="relative z-10 max-w-6xl mx-auto">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-luxury-serif font-bold mb-8 text-white tracking-wide leading-tight">
             {siteSettings?.siteName || "Ontdek Polen"}
           </h1>
-          <p className="text-xl md:text-2xl mb-12 font-inter font-light leading-relaxed max-w-3xl mx-auto">
+          <p className="text-xl md:text-2xl lg:text-3xl mb-16 font-elegant-serif font-light leading-relaxed max-w-4xl mx-auto text-white/90">
             {siteSettings?.siteDescription || "Mooie plekken in Polen ontdekken"}
           </p>
           
@@ -328,7 +328,7 @@ export default function Home() {
                     console.log('Enter key detected, form should submit');
                   }
                 }}
-                className="py-4 px-6 w-96 max-w-full border-none rounded-2xl text-lg text-gray-900 font-inter shadow-xl backdrop-blur-sm bg-white/90 hover:bg-white transition-all duration-300"
+                className="py-5 px-8 w-[28rem] max-w-full border-2 border-white/30 rounded-full text-lg text-navy-dark font-inter shadow-2xl backdrop-blur-md bg-white/95 hover:bg-white hover:border-gold transition-all duration-500 focus:border-gold focus:ring-2 focus:ring-gold/50"
               />
               <Search 
                 className="absolute right-5 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5 cursor-pointer" 
@@ -353,21 +353,21 @@ export default function Home() {
           
 
           
-          {/* Modern CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+          {/* Luxury CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-6 justify-center mt-12">
             <Button
               onClick={handlePlanTrip}
-              className="py-4 px-8 text-lg font-inter hover:scale-105 transition-all duration-300 bg-blue-600 hover:bg-blue-700 rounded-2xl shadow-2xl"
+              className="py-5 px-10 text-lg font-luxury-serif font-medium bg-gold hover:bg-gold/90 text-navy-dark rounded-full shadow-2xl hover:shadow-gold/25 transition-all duration-500 border-2 border-gold hover:scale-105"
             >
-              <MapPin className="w-5 h-5 mr-2" />
+              <MapPin className="w-5 h-5 mr-3" />
               Plan je reis
             </Button>
             <Button
               onClick={handleReadGuides}
-              className="py-4 px-8 text-lg font-inter hover:scale-105 transition-all duration-300 bg-white/20 backdrop-blur-md hover:bg-white/30 border border-white/30 rounded-2xl shadow-2xl"
+              className="py-5 px-10 text-lg font-luxury-serif font-medium bg-white/10 backdrop-blur-md hover:bg-white/20 border-2 border-white/40 text-white rounded-full shadow-2xl hover:shadow-white/25 transition-all duration-500 hover:scale-105"
               variant="outline"
             >
-              <Calendar className="w-5 h-5 mr-2" />
+              <Calendar className="w-5 h-5 mr-3" />
               Lees onze gidsen
             </Button>
           </div>
@@ -440,14 +440,14 @@ export default function Home() {
         </div>
       )}
 
-      {/* Destinations Section - Modern Layout */}
+      {/* Destinations Section - Luxury Layout */}
       {siteSettings?.showDestinations && (
-        <section className="py-16 px-5 max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 font-inter text-gray-900">
+        <section className="py-24 px-5 max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-6xl font-luxury-serif font-bold mb-6 text-navy-dark tracking-wide">
               Ontdek Polen
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl md:text-2xl text-navy-medium font-elegant-serif max-w-3xl mx-auto leading-relaxed">
               Van historische steden tot adembenemende natuurparken
             </p>
           </div>
@@ -459,15 +459,18 @@ export default function Home() {
             {publishedDestinations.map((destination: any) => {
               const CardContent = (
                 <Card 
-                  className="bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-500 border-none cursor-pointer group"
+                  className="bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-700 border border-gray-100 cursor-pointer group"
                 >
                   <img
                     src={destination.image}
                     alt={destination.alt}
-                    className="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-300"
+                    className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                   />
-                  <div className="p-6 font-bold font-inter text-gray-900 text-lg">
-                    {destination.name}
+                  <div className="p-8">
+                    <h3 className="font-luxury-serif font-bold text-navy-dark text-xl mb-2">
+                      {destination.name}
+                    </h3>
+                    <div className="w-12 h-0.5 bg-gold"></div>
                   </div>
                 </Card>
               );
@@ -502,53 +505,54 @@ export default function Home() {
 
 
 
-      {/* CTA Section - Dynamic from Database */}
+      {/* CTA Section - Luxury Design */}
       {siteSettings?.showMotivation && motivationData && motivationData.is_published && (
-        <section className="py-16 px-5 max-w-6xl mx-auto">
-          <div className="flex flex-wrap gap-8 items-center justify-between">
-            <div className="flex-1 min-w-80">
-              <h2 className="text-3xl font-bold mb-4 font-inter text-gray-900">
-                {motivationData.title || "Laat je verrassen door het onbekende Polen"}
-              </h2>
-              <p className="text-lg mb-6 font-inter text-gray-700">
-                {motivationData.description || "Bezoek historische steden, ontdek natuurparken en verborgen parels. Onze reisgidsen helpen je op weg!"}
-              </p>
-              <Button
-                onClick={handleReadGuides}
-                className="py-3 px-6 text-base font-inter hover:opacity-90 transition-all duration-200"
-                style={{ backgroundColor: "#2f3e46" }}
-              >
-                {motivationData.button_text || "Lees onze reizen"}
-              </Button>
-            </div>
-            <div className="flex-1 min-w-80 relative">
-              <img
-                src={motivationData.image || "/images/motivatie/tatra-valley.jpg"}
-                alt="Motivatie afbeelding"
-                className="w-full rounded-xl shadow-lg"
-                onError={(e) => {
-                  e.currentTarget.src = "/images/motivatie/tatra-valley.jpg";
-                }}
-              />
-              {/* Location name overlay */}
-              {motivationImageLocation?.locationName && (
-                <div className="absolute bottom-2 right-2 bg-black bg-opacity-80 text-white px-2 py-1 rounded text-sm font-medium shadow-lg z-10">
-                  📍 {motivationImageLocation.locationName}
-                </div>
-              )}
+        <section className="py-24 px-5 max-w-7xl mx-auto">
+          <div className="bg-cream rounded-3xl p-12 lg:p-16 shadow-2xl border border-gold/20">
+            <div className="flex flex-wrap gap-12 items-center justify-between">
+              <div className="flex-1 min-w-80">
+                <h2 className="text-4xl md:text-5xl lg:text-6xl font-luxury-serif font-bold mb-6 text-navy-dark tracking-wide leading-tight">
+                  {motivationData.title || "Laat je verrassen door het onbekende Polen"}
+                </h2>
+                <p className="text-xl md:text-2xl mb-8 font-elegant-serif text-navy-medium leading-relaxed">
+                  {motivationData.description || "Bezoek historische steden, ontdek natuurparken en verborgen parels. Onze reisgidsen helpen je op weg!"}
+                </p>
+                <Button
+                  onClick={handleReadGuides}
+                  className="py-5 px-10 text-lg font-luxury-serif font-medium bg-navy-dark hover:bg-navy-medium text-white hover:scale-105 transition-all duration-500 rounded-full shadow-2xl"
+                >
+                  {motivationData.button_text || "Lees onze reizen"}
+                </Button>
+              </div>
+              <div className="flex-1 min-w-80 relative">
+                <img
+                  src={motivationData.image || "/images/motivatie/tatra-valley.jpg"}
+                  alt="Motivatie afbeelding"
+                  className="w-full rounded-3xl shadow-2xl"
+                  onError={(e) => {
+                    e.currentTarget.src = "/images/motivatie/tatra-valley.jpg";
+                  }}
+                />
+                {/* Location name overlay */}
+                {motivationImageLocation?.locationName && (
+                  <div className="absolute bottom-4 right-4 bg-navy-dark/90 text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg z-10 backdrop-blur-sm">
+                    📍 {motivationImageLocation.locationName}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </section>
       )}
 
-      {/* Modern Featured Activities Section */}
+      {/* Luxury Featured Activities Section */}
       {siteSettings?.showHighlights && featuredActivities.length > 0 && (
-        <section className="py-16 px-5 max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 font-inter text-gray-900">
+        <section className="py-24 px-5 max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-6xl font-luxury-serif font-bold mb-6 text-navy-dark tracking-wide">
               Hoogtepunten van Polen
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl md:text-2xl text-navy-medium font-elegant-serif leading-relaxed">
               De beste bezienswaardigheden en ervaringen
             </p>
           </div>
@@ -557,23 +561,23 @@ export default function Home() {
               .sort((a, b) => (a.ranking || 0) - (b.ranking || 0)) // Sort by ranking
               .map((activity) => {
                 const CardContent = (
-                  <div className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-500 border-none cursor-pointer text-center group">
+                  <div className="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-700 border border-gray-100 cursor-pointer text-center group">
                     <img
                       src={activity.image || '/images/activities/placeholder.svg'}
                       alt={activity.alt || activity.name}
-                      className="w-20 h-20 mx-auto mb-4 object-cover rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300"
+                      className="w-24 h-24 mx-auto mb-6 object-cover rounded-full shadow-lg group-hover:scale-110 transition-transform duration-500"
                       onError={(e) => {
                         e.currentTarget.src = '/images/activities/placeholder.svg';
                       }}
                     />
-                    <h3 className="font-bold font-inter text-gray-900 text-base mb-2">
+                    <h3 className="font-luxury-serif font-bold text-navy-dark text-lg mb-3">
                       {activity.name}
                     </h3>
-                    <p className="text-sm text-gray-500 mb-1">
+                    <p className="text-sm text-navy-medium mb-2 font-inter">
                       📍 {activity.location}
                     </p>
                     {activity.category && (
-                      <p className="text-sm text-blue-600 font-medium capitalize">
+                      <p className="text-sm text-gold font-medium capitalize font-inter">
                         {activity.category}
                       </p>
                     )}
@@ -708,14 +712,14 @@ export default function Home() {
         </section>
       )}
 
-      {/* Modern Travel Guides Section */}
+      {/* Luxury Travel Guides Section */}
       {siteSettings?.showGuides && (
-        <section className="py-16 px-5 max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 font-inter text-gray-900">
+        <section className="py-24 px-5 max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-6xl font-luxury-serif font-bold mb-6 text-navy-dark tracking-wide">
               Reizen en Tips
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl md:text-2xl text-navy-medium font-elegant-serif leading-relaxed">
               Ontdek onze expertgidsen voor de perfecte reis
             </p>
           </div>
@@ -727,20 +731,21 @@ export default function Home() {
             {publishedGuides.map((guide: any) => {
               const CardContent = (
                 <Card 
-                  className="bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-500 border-none cursor-pointer group"
+                  className="bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-700 border border-gray-100 cursor-pointer group"
                 >
                   <img
                     src={guide.image}
                     alt={guide.alt}
-                    className="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-300"
+                    className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                   />
-                  <div className="p-6">
-                    <h3 className="font-bold font-inter text-gray-900 mb-2 text-lg">
+                  <div className="p-8">
+                    <h3 className="font-luxury-serif font-bold text-navy-dark mb-3 text-xl">
                       {guide.title}
                     </h3>
-                    <p className="text-sm text-gray-600 font-inter">
+                    <p className="text-sm text-navy-medium font-inter leading-relaxed">
                       {guide.description}
                     </p>
+                    <div className="w-12 h-0.5 bg-gold mt-4"></div>
                   </div>
                 </Card>
               );
@@ -776,26 +781,32 @@ export default function Home() {
         </section>
       )}
 
-      {/* Footer */}
-      <footer 
-        className="text-center py-10 px-5 text-white relative"
-        style={{ backgroundColor: "#2f3e46" }}
-      >
+      {/* Luxury Footer */}
+      <footer className="bg-navy-dark text-center py-16 px-5 text-white relative">
         {/* Admin Link */}
         <Link href="/admin">
           <Button 
             variant="outline" 
             size="sm"
-            className="absolute top-4 right-4 text-white border-white hover:bg-white hover:text-gray-900"
+            className="absolute top-6 right-6 text-white border-white/50 hover:bg-white hover:text-navy-dark font-luxury-serif"
           >
             <Settings className="h-4 w-4 mr-2" />
             Admin
           </Button>
         </Link>
         
-        <p className="font-inter text-lg">
-          &copy; 2025 {siteSettings?.siteName || "Ontdek Polen"}. Alle rechten voorbehouden.
-        </p>
+        <div className="max-w-7xl mx-auto">
+          <h3 className="text-3xl md:text-4xl font-luxury-serif font-bold mb-6 tracking-wide">
+            {siteSettings?.siteName || "Ontdek Polen"}
+          </h3>
+          <p className="text-xl md:text-2xl text-white/80 font-elegant-serif leading-relaxed mb-8">
+            De mooiste plekken in Polen ontdekken begint hier
+          </p>
+          <div className="w-24 h-0.5 bg-gold mx-auto mb-8"></div>
+          <p className="font-inter text-lg text-white/60">
+            &copy; 2025 {siteSettings?.siteName || "Ontdek Polen"}. Alle rechten voorbehouden.
+          </p>
+        </div>
       </footer>
     </div>
   );
