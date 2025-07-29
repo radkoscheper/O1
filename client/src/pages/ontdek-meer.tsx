@@ -171,7 +171,7 @@ export default function OntdekMeer() {
             ? (siteSettings.backgroundImage.includes('res.cloudinary.com') 
                 ? `url('${generateCloudinaryUrl(siteSettings.backgroundImage, getSmartTransform("ontdek-meer-header", "hero"))}')`
                 : `url('${siteSettings.backgroundImage}')`)
-            : "url('/images/backgrounds/header.jpg')",
+            : "url('https://res.cloudinary.com/df3i1avwb/image/upload/v1753803193/ontdek-polen/backgrounds/background-1753803193193.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center"
         }}
