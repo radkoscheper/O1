@@ -638,22 +638,22 @@ export default function Page() {
                 />
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
                 <div>
-                  <h3 className="font-semibold text-gray-800 mb-2">Locatie</h3>
-                  <p className="text-gray-600">{selectedActivity.location}</p>
+                  <h3 className="font-luxury-serif font-bold text-navy-dark mb-3 text-lg">Locatie</h3>
+                  <p className="text-navy-medium font-elegant-serif text-base">{selectedActivity.location}</p>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-800 mb-2">Categorie</h3>
-                  <p className="text-gray-600">{selectedActivity.category}</p>
+                  <h3 className="font-luxury-serif font-bold text-navy-dark mb-3 text-lg">Categorie</h3>
+                  <p className="text-navy-medium font-elegant-serif text-base">{selectedActivity.category}</p>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-800 mb-2">Type</h3>
-                  <p className="text-gray-600">{selectedActivity.activityType}</p>
+                  <h3 className="font-luxury-serif font-bold text-navy-dark mb-3 text-lg">Type</h3>
+                  <p className="text-navy-medium font-elegant-serif text-base">{selectedActivity.activityType}</p>
                 </div>
               </div>
 
-              <div className="mb-6">
+              <div className="mb-8">
                 <h2 className="text-3xl font-luxury-serif font-bold text-navy-dark mb-6 tracking-wide">Beschrijving</h2>
                 <p className="text-navy-medium text-xl leading-relaxed font-elegant-serif">{selectedActivity.description}</p>
               </div>
@@ -662,19 +662,19 @@ export default function Page() {
                 <div>
                   <h2 className="text-3xl font-luxury-serif font-bold text-navy-dark mb-6 tracking-wide">Meer informatie</h2>
                   <div 
-                    className="prose prose-lg max-w-none font-inter"
+                    className="prose prose-xl max-w-none font-elegant-serif"
                     dangerouslySetInnerHTML={{
                       __html: selectedActivity.content
                         .replace(/\n/g, '<br>')
-                        .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
-                        .replace(/\*(.*?)\*/g, '<em class="italic text-gray-700">$1</em>')
+                        .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-navy-dark">$1</strong>')
+                        .replace(/\*(.*?)\*/g, '<em class="italic text-navy-medium">$1</em>')
                     }}
                   />
                 </div>
               )}
 
               {selectedActivity.link && (
-                <div className="mt-6">
+                <div className="mt-8">
                   <a
                     href={selectedActivity.link}
                     target="_blank"
@@ -690,22 +690,41 @@ export default function Page() {
               )}
             </div>
           ) : (
-            // Show original page content
-            <div 
-              className="prose prose-xl max-w-none font-elegant-serif"
-              dangerouslySetInnerHTML={{
-                __html: page.content
-                  .replace(/\n/g, '<br>')
-                  .replace(/# (.*)/g, '<h1 class="text-4xl md:text-6xl font-luxury-serif font-bold mb-8 text-navy-dark tracking-wide">$1</h1>')
-                  .replace(/## (.*)/g, '<h2 class="text-3xl font-luxury-serif font-bold mb-6 text-navy-dark tracking-wide">$1</h2>')
-                  .replace(/### (.*)/g, '<h3 class="text-2xl font-luxury-serif font-medium mb-4 text-navy-medium">$1</h3>')
-                  .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-navy-dark">$1</strong>')
-                  .replace(/\*(.*?)\*/g, '<em class="italic text-navy-medium">$1</em>')
-                  .replace(/- (.*)/g, '<li class="mb-3 text-navy-medium leading-relaxed">$1</li>')
-                  .replace(/(<li.*<\/li>)/gs, '<ul class="list-disc list-inside mb-8 space-y-3 ml-6">$1</ul>')
-                  .replace(/---/g, '<hr class="my-12 border-gold/30">')
-              }}
-            />
+            // Show original page content with same structure as activity detail view
+            <div>
+              <div className="mb-8">
+                <h1 className="text-4xl md:text-6xl font-luxury-serif font-bold text-navy-dark tracking-wide mb-6">{page.title}</h1>
+                {page.headerImagePath && (
+                  <img
+                    src={page.headerImagePath}
+                    alt={page.headerImageAlt || page.title}
+                    className="w-full h-80 object-cover rounded-2xl mb-8 shadow-xl"
+                    onError={(e) => {
+                      e.currentTarget.src = '/images/destinations/placeholder.svg';
+                    }}
+                  />
+                )}
+              </div>
+
+              <div className="mb-8">
+                <h2 className="text-3xl font-luxury-serif font-bold text-navy-dark mb-6 tracking-wide">Beschrijving</h2>
+                <div 
+                  className="prose prose-xl max-w-none font-elegant-serif"
+                  dangerouslySetInnerHTML={{
+                    __html: page.content
+                      .replace(/\n/g, '<br>')
+                      .replace(/# (.*)/g, '<h3 class="text-2xl font-luxury-serif font-bold mb-4 text-navy-dark tracking-wide">$1</h3>')
+                      .replace(/## (.*)/g, '<h4 class="text-xl font-luxury-serif font-medium mb-3 text-navy-medium">$1</h4>')
+                      .replace(/### (.*)/g, '<h5 class="text-lg font-luxury-serif font-medium mb-2 text-navy-medium">$1</h5>')
+                      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-navy-dark">$1</strong>')
+                      .replace(/\*(.*?)\*/g, '<em class="italic text-navy-medium">$1</em>')
+                      .replace(/- (.*)/g, '<li class="mb-3 text-navy-medium leading-relaxed">$1</li>')
+                      .replace(/(<li.*<\/li>)/gs, '<ul class="list-disc list-inside mb-8 space-y-3 ml-6">$1</ul>')
+                      .replace(/---/g, '<hr class="my-12 border-gold/30">')
+                  }}
+                />
+              </div>
+            </div>
           )}
         </Card>
       </section>
