@@ -11,7 +11,7 @@ import { insertUserSchema, updateUserSchema, changePasswordSchema, resetPassword
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-import cloudinaryRoutes from "./upload-cloudinary.js";
+// Cloudinary routes imported dynamically below
 
 declare module "express-session" {
   interface SessionData {
@@ -3297,7 +3297,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         isActive: true,
         description: "Neon PostgreSQL Serverless Database - Production Ready",
         createdAt: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         status: "connected"
       };
 
@@ -3390,35 +3390,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Batch rename Cloudinary images (admin only)
-  app.post('/api/admin/cloudinary/batch-rename', requireAuth, async (req, res) => {
-    try {
-      const user = await storage.getUser(req.session.userId!);
-      if (!user || user.role !== "admin") {
-        return res.status(403).json({ message: "Alleen admins kunnen batch rename uitvoeren" });
-      }
-
-      const { batchRenameImages } = await import('./batch-rename');
-      const results = await batchRenameImages();
-      
-      res.json({
-        success: true,
-        renamed: results.renamed.length,
-        failed: results.failed.length,
-        dbUpdates: results.dbUpdates,
-        details: results
-      });
-    } catch (error: any) {
-      console.error('Batch rename error:', error.message);
-      res.status(500).json({ 
-        success: false, 
-        error: error.message 
-      });
-    }
-  });
 
   // Add Cloudinary upload routes
-  app.use("/api/upload", cloudinaryRoutes);
+  const cloudinaryModule = await import('./cloudinary.js');
+  app.use("/api/upload", cloudinaryModule.default);
 
   return httpServer;
 }
