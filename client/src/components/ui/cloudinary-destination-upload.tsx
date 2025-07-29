@@ -62,6 +62,8 @@ export function DestinationImageManager({
                       description: `Automatisch gecropd naar 1200x480px voor ${destinationName}`,
                     });
                     onHeaderImageUpdate?.(result.data.secure_url, result.data.public_id);
+                    // Force gallery refresh to show new image
+                    window.dispatchEvent(new CustomEvent('cloudinary-gallery-refresh'));
                   }}
                 />
                 <div>

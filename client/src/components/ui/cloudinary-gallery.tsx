@@ -58,19 +58,44 @@ export function CloudinaryGallery({
     try {
       setLoading(true);
       
-      // Build dynamic folder path: ontdek-polen/destinations/wroclaw/headers
-      const searchFolder = destinationName 
-        ? `${folder}/destinations/${destinationName.toLowerCase()}/${selectedCategory}`
-        : folder;
+      // FIXED: Fallback search strategy to handle both old and new folder structures
+      let searchFolder = folder;
+      let images = [];
       
-      const response = await fetch(`/api/upload/cloudinary/list/${encodeURIComponent(searchFolder)}`);
-      
-      if (!response.ok) {
-        throw new Error('Failed to load images');
+      if (destinationName) {
+        // Try new organized structure first: ontdek-polen/destinations/tatra/headers
+        const organizedFolder = `${folder}/destinations/${destinationName.toLowerCase()}/${selectedCategory}`;
+        let response = await fetch(`/api/upload/cloudinary/list/${encodeURIComponent(organizedFolder)}`);
+        
+        if (response.ok) {
+          const result = await response.json();
+          images = result.data || [];
+        }
+        
+        // If no images found, fallback to flat structure: ontdek-polen/destinations
+        if (images.length === 0) {
+          const flatFolder = `${folder}/destinations`;
+          response = await fetch(`/api/upload/cloudinary/list/${encodeURIComponent(flatFolder)}`);
+          
+          if (response.ok) {
+            const result = await response.json();
+            // Filter images that contain destination name in filename
+            const allImages = result.data || [];
+            images = allImages.filter((img: CloudinaryImage) => 
+              img.public_id.toLowerCase().includes(destinationName.toLowerCase())
+            );
+          }
+        }
+      } else {
+        // No destination specified, search entire folder
+        const response = await fetch(`/api/upload/cloudinary/list/${encodeURIComponent(searchFolder)}`);
+        if (response.ok) {
+          const result = await response.json();
+          images = result.data || [];
+        }
       }
-
-      const result = await response.json();
-      setImages(result.data?.slice(0, maxItems) || []);
+      
+      setImages(images.slice(0, maxItems));
       setError(null);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load images';
@@ -88,6 +113,16 @@ export function CloudinaryGallery({
   useEffect(() => {
     loadImages();
   }, [folder, destinationName, selectedCategory, maxItems]);
+
+  // Listen for refresh events from upload components
+  useEffect(() => {
+    const handleRefresh = () => {
+      loadImages();
+    };
+    
+    window.addEventListener('cloudinary-gallery-refresh', handleRefresh);
+    return () => window.removeEventListener('cloudinary-gallery-refresh', handleRefresh);
+  }, []);
 
   const handleDelete = async (publicId: string) => {
     if (!confirm('Weet je zeker dat je deze afbeelding wilt verwijderen?')) {
