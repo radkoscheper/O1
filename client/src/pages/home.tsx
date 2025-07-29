@@ -357,7 +357,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-6 justify-center mt-12">
             <Button
               onClick={handlePlanTrip}
-              className="py-5 px-10 text-lg font-luxury-serif font-medium bg-gold hover:bg-gold/90 text-navy-dark rounded-full shadow-2xl hover:shadow-gold/25 transition-all duration-500 border-2 border-gold hover:scale-105"
+              className="py-5 px-10 text-lg font-luxury-serif font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-2xl hover:shadow-blue-500/25 transition-all duration-500 border-2 border-blue-600 hover:border-blue-700 hover:scale-105"
             >
               <MapPin className="w-5 h-5 mr-3" />
               Plan je reis
