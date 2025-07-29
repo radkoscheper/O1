@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "node build.js",
+  "buildCommand": "node build-vercel.js",
   "outputDirectory": "dist/public",
   "installCommand": "npm install",
   "framework": null,
