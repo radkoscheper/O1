@@ -290,9 +290,7 @@ export default function Home() {
           backgroundPosition: "center"
         }}
       >
-        {/* Enhanced overlay with gradients */}
-        <div className="absolute inset-0 bg-black/40"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+        {/* CMS Controlled Overlay System */}
         {siteSettings?.headerOverlayEnabled && (
           <div 
             className="absolute inset-0 bg-black" 
