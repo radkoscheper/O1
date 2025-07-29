@@ -3,16 +3,19 @@ import { Button } from './button';
 import { Input } from './input';
 import { Label } from './label';
 import { Card, CardContent } from './card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select';
 import { Upload, X, Crop, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface CloudinaryUploadProps {
   folder?: string;
+  destinationName?: string;
   onUploadSuccess?: (result: any) => void;
   onUploadError?: (error: string) => void;
   acceptedTypes?: string;
   maxSizeMB?: number;
   showPreview?: boolean;
+  showCategorySelector?: boolean;
   transformations?: {
     width?: number;
     height?: number;
@@ -23,18 +26,32 @@ interface CloudinaryUploadProps {
 
 export function CloudinaryUpload({
   folder = 'ontdek-polen',
+  destinationName,
   onUploadSuccess,
   onUploadError,
   acceptedTypes = 'image/*',
   maxSizeMB = 10,
   showPreview = true,
+  showCategorySelector = true,
   transformations,
 }: CloudinaryUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('headers');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  const categories = [
+    { value: 'headers', label: '🖼️ Headers' },
+    { value: 'bb', label: '🏠 B&B / Accommodatie' },
+    { value: 'activities', label: '🎯 Activiteiten' },
+    { value: 'restaurants', label: '🍽️ Restaurants' },
+    { value: 'attractions', label: '🏛️ Attracties' },
+    { value: 'nature', label: '🌲 Natuur' },
+    { value: 'culture', label: '🎭 Cultuur' },
+    { value: 'nightlife', label: '🌙 Nachtleven' },
+  ];
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -77,7 +94,13 @@ export function CloudinaryUpload({
     try {
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('folder', folder);
+      
+      // Build dynamic folder path: ontdek-polen/destinations/wroclaw/headers
+      const finalFolder = destinationName 
+        ? `${folder}/destinations/${destinationName.toLowerCase()}/${selectedCategory}`
+        : folder;
+      
+      formData.append('folder', finalFolder);
       formData.append('public_id', fileName);
       
       if (transformations) {
@@ -134,6 +157,27 @@ export function CloudinaryUpload({
     <Card>
       <CardContent className="p-6">
         <div className="space-y-4">
+          {showCategorySelector && destinationName && (
+            <div>
+              <Label htmlFor="category-select">Categorie</Label>
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecteer categorie" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category.value} value={category.value}>
+                      {category.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-gray-500 mt-1">
+                Upload naar: {destinationName.toLowerCase()}/{selectedCategory}/
+              </p>
+            </div>
+          )}
+          
           <div>
             <Label htmlFor="file-upload">Selecteer bestand</Label>
             <Input

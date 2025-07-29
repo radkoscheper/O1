@@ -7356,7 +7356,8 @@ function EditDestinationDialog({ open, onOpenChange, destination, editData, setE
                 <h3 className="text-lg font-semibold text-gray-900">📤 Upload Nieuwe Afbeelding</h3>
                 <div className="border rounded-lg p-4 bg-gray-50">
                   <CloudinaryUpload
-                    folder={`ontdek-polen/destinations/${destination?.name?.toLowerCase() || 'default'}/headers`}
+                    folder="ontdek-polen"
+                    destinationName={destination?.name}
                     transformations={{
                       width: 1200,
                       height: 480,
@@ -7419,6 +7420,8 @@ function EditDestinationDialog({ open, onOpenChange, destination, editData, setE
                   <CloudinaryGallery
                     key={galleryKey}
                     folder="ontdek-polen"
+                    destinationName={destination?.name}
+                    showCategoryFilter={true}
                     onImageSelect={async (image: any) => {
                       const newImageUrl = image.secure_url;
                       setEditData({ ...editData, image: newImageUrl });

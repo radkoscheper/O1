@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from './button';
 import { Card, CardContent, CardHeader, CardTitle } from './card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select';
+import { Label } from './label';
 import { Trash2, ExternalLink, Download, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -16,28 +18,52 @@ interface CloudinaryImage {
 
 interface CloudinaryGalleryProps {
   folder?: string;
+  destinationName?: string;
+  category?: string;
   onImageSelect?: (image: CloudinaryImage) => void;
   showSelectButton?: boolean;
   showDeleteButton?: boolean;
+  showCategoryFilter?: boolean;
   maxItems?: number;
 }
 
 export function CloudinaryGallery({
   folder = 'ontdek-polen',
+  destinationName,
+  category = 'headers',
   onImageSelect,
   showSelectButton = true,
   showDeleteButton = true,
+  showCategoryFilter = false,
   maxItems = 20,
 }: CloudinaryGalleryProps) {
   const [images, setImages] = useState<CloudinaryImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>(category);
   const { toast } = useToast();
+
+  const categories = [
+    { value: 'headers', label: '🖼️ Headers' },
+    { value: 'bb', label: '🏠 B&B / Accommodatie' },
+    { value: 'activities', label: '🎯 Activiteiten' },
+    { value: 'restaurants', label: '🍽️ Restaurants' },
+    { value: 'attractions', label: '🏛️ Attracties' },
+    { value: 'nature', label: '🌲 Natuur' },
+    { value: 'culture', label: '🎭 Cultuur' },
+    { value: 'nightlife', label: '🌙 Nachtleven' },
+  ];
 
   const loadImages = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/upload/cloudinary/list/${folder}`);
+      
+      // Build dynamic folder path: ontdek-polen/destinations/wroclaw/headers
+      const searchFolder = destinationName 
+        ? `${folder}/destinations/${destinationName.toLowerCase()}/${selectedCategory}`
+        : folder;
+      
+      const response = await fetch(`/api/upload/cloudinary/list/${encodeURIComponent(searchFolder)}`);
       
       if (!response.ok) {
         throw new Error('Failed to load images');
@@ -61,7 +87,7 @@ export function CloudinaryGallery({
 
   useEffect(() => {
     loadImages();
-  }, [folder]);
+  }, [folder, destinationName, selectedCategory, maxItems]);
 
   const handleDelete = async (publicId: string) => {
     if (!confirm('Weet je zeker dat je deze afbeelding wilt verwijderen?')) {
@@ -174,6 +200,26 @@ export function CloudinaryGallery({
             Vernieuwen
           </Button>
         </CardTitle>
+        {showCategoryFilter && destinationName && (
+          <div className="mt-4">
+            <Label htmlFor="gallery-category">Filter op Categorie</Label>
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecteer categorie" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((cat) => (
+                  <SelectItem key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-gray-500 mt-1">
+              Bekijk afbeeldingen uit: {destinationName.toLowerCase()}/{selectedCategory}/
+            </p>
+          </div>
+        )}
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 gap-6">
