@@ -516,7 +516,7 @@ export default function Home() {
 
       {/* CTA Section - Luxury Design */}
       {siteSettings?.showMotivation && motivationData && motivationData.is_published && (
-        <section className="py-24 px-5 max-w-7xl mx-auto">
+        <section className="py-6 px-5 max-w-7xl mx-auto">
           <div className="bg-cream rounded-3xl p-12 lg:p-16 shadow-2xl border border-gold/20">
             <div className="flex flex-wrap gap-12 items-center justify-between">
               <div className="flex-1 min-w-80">
