@@ -79,6 +79,15 @@ export default function Home() {
   // Loading content for this page
   const loadingContent = useLoadingContent(location);
   const isPageLoading = destinationsLoading || guidesLoading || pagesLoading;
+  
+  // Force initial loading state for demo
+  const [forceLoading, setForceLoading] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => setForceLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, [location]);
+  
+  const showLoading = isPageLoading || forceLoading;
 
   // Fetch featured activities from database (replaces old highlights)
   const { data: featuredActivities = [], isLoading: featuredLoading } = useQuery({
@@ -817,7 +826,7 @@ export default function Home() {
 
       {/* Loading Screen */}
       <LoadingScreen 
-        isLoading={isPageLoading}
+        isLoading={showLoading}
         title={loadingContent.title}
         subtitle={loadingContent.subtitle}
         minDuration={4000}

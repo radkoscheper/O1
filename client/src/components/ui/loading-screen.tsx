@@ -9,34 +9,36 @@ interface LoadingScreenProps {
 }
 
 export function LoadingScreen({ isLoading, title, subtitle, onComplete, minDuration = 1200 }: LoadingScreenProps) {
-  const [show, setShow] = useState(isLoading);
+  const [show, setShow] = useState(true); // Always start showing
   const [fadeOut, setFadeOut] = useState(false);
-  const [startTime, setStartTime] = useState<number | null>(null);
+  const [startTime, setStartTime] = useState<number>(Date.now()); // Always start timing
 
+  // Force show loading screen on navigation
   useEffect(() => {
-    if (isLoading && !startTime) {
-      setStartTime(Date.now());
+    if (isLoading) {
       setShow(true);
       setFadeOut(false);
+      setStartTime(Date.now());
     }
-  }, [isLoading, startTime]);
+  }, [isLoading]);
 
   useEffect(() => {
-    if (!isLoading && show && startTime) {
+    if (!isLoading && show) {
       const elapsed = Date.now() - startTime;
       const remainingTime = Math.max(0, minDuration - elapsed);
       
       // Wait for minimum duration before starting fade out
-      setTimeout(() => {
+      const hideTimer = setTimeout(() => {
         setFadeOut(true);
         const fadeTimer = setTimeout(() => {
           setShow(false);
-          setStartTime(null);
           onComplete?.();
         }, 600); // Match the transition duration
         
         return () => clearTimeout(fadeTimer);
       }, remainingTime);
+      
+      return () => clearTimeout(hideTimer);
     }
   }, [isLoading, show, startTime, minDuration, onComplete]);
 

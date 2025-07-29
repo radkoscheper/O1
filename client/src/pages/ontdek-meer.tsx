@@ -142,17 +142,14 @@ export default function OntdekMeer() {
   // Filter only published pages
   const publishedPages = pages.filter((page: any) => page.published);
   
-  // Show loading state
-  if (destinationsLoading || guidesLoading || pagesLoading || highlightsLoading || settingsLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#f8f6f1" }}>
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-lg">Laden...</p>
-        </div>
-      </div>
-    );
-  }
+  // Force initial loading state for demo
+  const [forceLoading, setForceLoading] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => setForceLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, [location]);
+  
+  const showLoading = isPageLoading || forceLoading;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -503,7 +500,7 @@ export default function OntdekMeer() {
 
       {/* Loading Screen */}
       <LoadingScreen 
-        isLoading={isPageLoading}
+        isLoading={showLoading}
         title={loadingContent.title}
         subtitle={loadingContent.subtitle}
         minDuration={4000}
