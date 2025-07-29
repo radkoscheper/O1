@@ -7363,13 +7363,41 @@ function EditDestinationDialog({ open, onOpenChange, destination, editData, setE
                       crop: 'fill',
                       quality: 'auto:good',
                     }}
-                    onUploadSuccess={(result: any) => {
+                    onUploadSuccess={async (result: any) => {
                       toast({
                         title: 'Upload succesvol',
                         description: `Header afbeelding geüpload voor ${destination?.name}`,
                       });
+                      
                       // Update the edit form with new image URL
-                      setEditData({ ...editData, image: result.data.secure_url });
+                      const newImageUrl = result.data.secure_url;
+                      setEditData({ ...editData, image: newImageUrl });
+                      
+                      // Immediately save to database
+                      try {
+                        await apiRequest(`/api/destinations/${destination.id}`, {
+                          method: 'PUT',
+                          body: JSON.stringify({ ...editData, image: newImageUrl })
+                        });
+                        
+                        // Invalidate cache to refresh data
+                        queryClient.invalidateQueries({ queryKey: ['/api/admin/destinations'] });
+                        queryClient.invalidateQueries({ queryKey: ['/api/destinations'] });
+                        queryClient.invalidateQueries({ queryKey: ['/api/destinations/homepage'] });
+                        
+                        toast({
+                          title: 'Database bijgewerkt',
+                          description: 'Afbeelding is opgeslagen in de database',
+                        });
+                      } catch (error) {
+                        console.error('Error updating database:', error);
+                        toast({
+                          title: 'Database fout',
+                          description: 'Afbeelding geüpload maar niet opgeslagen in database',
+                          variant: 'destructive'
+                        });
+                      }
+                      
                       // Force gallery refresh by triggering a re-render with key prop change
                       setGalleryKey(Date.now());
                     }}
@@ -7391,12 +7419,34 @@ function EditDestinationDialog({ open, onOpenChange, destination, editData, setE
                   <CloudinaryGallery
                     key={galleryKey}
                     folder="ontdek-polen"
-                    onImageSelect={(image: any) => {
-                      setEditData({ ...editData, image: image.secure_url });
-                      toast({
-                        title: 'Afbeelding geselecteerd',
-                        description: `${image.public_id} is ingesteld als header afbeelding`,
-                      });
+                    onImageSelect={async (image: any) => {
+                      const newImageUrl = image.secure_url;
+                      setEditData({ ...editData, image: newImageUrl });
+                      
+                      // Immediately save to database
+                      try {
+                        await apiRequest(`/api/destinations/${destination.id}`, {
+                          method: 'PUT',
+                          body: JSON.stringify({ ...editData, image: newImageUrl })
+                        });
+                        
+                        // Invalidate cache to refresh data
+                        queryClient.invalidateQueries({ queryKey: ['/api/admin/destinations'] });
+                        queryClient.invalidateQueries({ queryKey: ['/api/destinations'] });
+                        queryClient.invalidateQueries({ queryKey: ['/api/destinations/homepage'] });
+                        
+                        toast({
+                          title: 'Afbeelding geselecteerd',
+                          description: `${image.public_id} is nu de header afbeelding en opgeslagen`,
+                        });
+                      } catch (error) {
+                        console.error('Error updating database:', error);
+                        toast({
+                          title: 'Selectie fout',
+                          description: 'Afbeelding geselecteerd maar niet opgeslagen in database',
+                          variant: 'destructive'
+                        });
+                      }
                     }}
                     maxItems={20}
                   />
