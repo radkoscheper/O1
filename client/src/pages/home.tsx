@@ -6,8 +6,10 @@ import { Search, Settings, MapPin, Calendar } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
 import TravelSlider from "@/components/ui/travel-slider";
+import { LoadingScreen, useLoadingContent } from "@/components/ui/loading-screen";
 
 export default function Home() {
+  const [location] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
@@ -73,6 +75,10 @@ export default function Home() {
   const { data: pages = [], isLoading: pagesLoading } = useQuery({
     queryKey: ["/api/pages"],
   });
+
+  // Loading content for this page
+  const loadingContent = useLoadingContent(location);
+  const isPageLoading = destinationsLoading || guidesLoading || pagesLoading;
 
   // Fetch featured activities from database (replaces old highlights)
   const { data: featuredActivities = [], isLoading: featuredLoading } = useQuery({
@@ -808,6 +814,13 @@ export default function Home() {
           </p>
         </div>
       </footer>
+
+      {/* Loading Screen */}
+      <LoadingScreen 
+        isLoading={isPageLoading}
+        title={loadingContent.title}
+        subtitle={loadingContent.subtitle}
+      />
     </div>
   );
 }

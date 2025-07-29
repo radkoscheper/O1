@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Search, Settings, ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
 import TravelSlider from "@/components/ui/travel-slider";
+import { LoadingScreen, useLoadingContent } from "@/components/ui/loading-screen";
 
 // Activities section component
 function ActivitiesSection({ pageTitle, setSelectedActivityId }: { pageTitle?: string, setSelectedActivityId: (id: string | null) => void }) {
@@ -234,6 +235,10 @@ export default function Page() {
     },
     enabled: !!selectedActivityId && !!page?.title,
   });
+
+  // Loading content for this page
+  const loadingContent = useLoadingContent(`/${slug}`);
+  const isPageLoading = isLoading;
 
   // Separate effect to handle scrolling when selectedActivity data is loaded
   useEffect(() => {
@@ -849,6 +854,13 @@ export default function Page() {
           &copy; 2025 {siteSettings?.siteName || "Ontdek Polen"}. Alle rechten voorbehouden.
         </p>
       </footer>
+
+      {/* Loading Screen */}
+      <LoadingScreen 
+        isLoading={isPageLoading}
+        title={loadingContent.title}
+        subtitle={loadingContent.subtitle}
+      />
     </div>
   );
 }

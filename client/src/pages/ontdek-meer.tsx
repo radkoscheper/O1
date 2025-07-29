@@ -4,10 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Search, Settings } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import TravelSlider from "@/components/ui/travel-slider";
+import { LoadingScreen, useLoadingContent } from "@/components/ui/loading-screen";
 
 export default function OntdekMeer() {
+  const [location] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   
   // Fetch destinations and guides from API (homepage specific)
@@ -32,6 +34,10 @@ export default function OntdekMeer() {
   const { data: siteSettings, isLoading: settingsLoading } = useQuery({
     queryKey: ["/api/site-settings"],
   });
+
+  // Loading content for this page
+  const loadingContent = useLoadingContent(location);
+  const isPageLoading = destinationsLoading || guidesLoading || pagesLoading || highlightsLoading || settingsLoading;
 
   // Update document title and meta tags when site settings change - CHANGED FOR ONTDEK MEER
   useEffect(() => {
@@ -494,6 +500,13 @@ export default function OntdekMeer() {
           &copy; 2025 {siteSettings?.siteName || "Ontdek Polen"}. Alle rechten voorbehouden.
         </p>
       </footer>
+
+      {/* Loading Screen */}
+      <LoadingScreen 
+        isLoading={isPageLoading}
+        title={loadingContent.title}
+        subtitle={loadingContent.subtitle}
+      />
     </div>
   );
 }
