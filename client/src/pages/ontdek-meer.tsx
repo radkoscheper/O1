@@ -165,29 +165,30 @@ export default function OntdekMeer() {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#f8f6f1" }}>
-      {/* Hero Section - CHANGED TITLE AND BUTTON */}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+      {/* Modern Hero Section */}
       <header 
-        className="relative bg-cover bg-center text-white py-24 px-5 text-center"
+        className="relative bg-cover bg-center text-white py-32 px-5 text-center min-h-[80vh] flex items-center justify-center"
         style={{
           backgroundImage: siteSettings?.backgroundImage 
             ? `url('${siteSettings.backgroundImage}')` 
-            : "url('/images/header.jpg')",
+            : "url('/images/backgrounds/header.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center"
         }}
       >
+        {/* CMS Controlled Overlay System */}
         {siteSettings?.headerOverlayEnabled && (
           <div 
             className="absolute inset-0 bg-black" 
             style={{ opacity: (siteSettings?.headerOverlayOpacity || 30) / 100 }}
           ></div>
         )}
-        <div className="relative z-10 max-w-4xl mx-auto">
-          <h1 className="text-5xl font-bold mb-3 font-inter">
+        <div className="relative z-10 max-w-5xl mx-auto">
+          <h1 className="text-6xl md:text-7xl font-bold mb-6 font-inter tracking-tight leading-tight">
             Ontdek Meer
           </h1>
-          <p className="text-xl mb-8 font-inter">
+          <p className="text-xl md:text-2xl mb-12 font-inter font-light leading-relaxed max-w-3xl mx-auto">
             Alle bestemmingen, reisgidsen en tips voor je reis naar Polen
           </p>
           
@@ -198,28 +199,33 @@ export default function OntdekMeer() {
                 placeholder="Zoek bestemming"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="py-3 px-5 w-80 max-w-full border-none rounded-lg text-base text-gray-900 font-inter"
+                className="py-4 px-6 w-96 max-w-full border-none rounded-2xl text-lg text-gray-900 font-inter shadow-xl backdrop-blur-sm bg-white/90 hover:bg-white transition-all duration-300"
               />
-              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
+              <Search className="absolute right-5 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5" />
             </div>
           </form>
           
           <Link href="/">
             <Button
-              className="mt-2 py-3 px-6 text-base font-inter hover:opacity-90 transition-all duration-200"
+              className="mt-8 py-4 px-8 text-lg font-inter transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105 rounded-2xl"
               style={{ backgroundColor: "#2f3e46" }}
             >
-              Terug naar Home
+              🏠 Terug naar Home
             </Button>
           </Link>
         </div>
       </header>
 
-      {/* Destination Grid - Travel Slider Implementation */}
-      <section className="py-16 px-5 max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
-          Alle Bestemmingen
-        </h2>
+      {/* Modern Destination Grid */}
+      <section className="py-16 px-5 max-w-7xl mx-auto">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 font-inter text-gray-900">
+            Alle Bestemmingen
+          </h2>
+          <p className="text-xl text-gray-600">
+            Ontdek alle prachtige plekken die Polen te bieden heeft
+          </p>
+        </div>
         <TravelSlider
           visibleItems={{ mobile: 1, tablet: 2, desktop: 4 }}
           showNavigation={true}
@@ -228,14 +234,14 @@ export default function OntdekMeer() {
           {publishedDestinations.map((destination: any) => {
             const CardContent = (
               <Card 
-                className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer"
+                className="bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-500 border-none cursor-pointer group"
               >
                 <img
                   src={destination.image}
                   alt={destination.alt}
-                  className="w-full h-40 object-cover"
+                  className="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-300"
                 />
-                <div className="p-4 font-bold font-inter text-gray-900">
+                <div className="p-6 font-bold font-inter text-gray-900 text-lg">
                   {destination.name}
                 </div>
               </Card>
@@ -271,28 +277,33 @@ export default function OntdekMeer() {
         </TravelSlider>
       </section>
 
-      {/* Highlights Section - From Database - EXACT SAME AS HOMEPAGE */}
+      {/* Modern Highlights Section */}
       {highlights.length > 0 && (
-        <section className="py-16 px-5 max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
-            Hoogtepunten van Polen
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <section className="py-16 px-5 max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 font-inter text-gray-900">
+              Hoogtepunten van Polen
+            </h2>
+            <p className="text-xl text-gray-600">
+              De beste bezienswaardigheden en ervaringen
+            </p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {highlights.map((highlight) => (
-              <div key={highlight.id} className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer text-center">
+              <div key={highlight.id} className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-500 border-none cursor-pointer text-center group">
                 <img
                   src={highlight.iconPath}
                   alt={highlight.name}
-                  className="w-16 h-16 mx-auto mb-3"
+                  className="w-20 h-20 mx-auto mb-4 group-hover:scale-110 transition-transform duration-300"
                   onError={(e) => {
                     e.currentTarget.src = '/images/highlights/placeholder.svg';
                   }}
                 />
-                <h3 className="font-bold font-inter text-gray-900 text-sm">
+                <h3 className="font-bold font-inter text-gray-900 text-base mb-2">
                   {highlight.name}
                 </h3>
                 {highlight.category !== 'general' && (
-                  <p className="text-xs text-gray-500 mt-1 capitalize">
+                  <p className="text-sm text-gray-500 capitalize">
                     {highlight.category}
                   </p>
                 )}
@@ -433,9 +444,37 @@ export default function OntdekMeer() {
         </div>
       </section>
 
-      {/* Footer - EXACT SAME AS HOMEPAGE */}
+      {/* Enhanced Modern Call-to-Action */}
+      <section className="py-20 px-5 bg-gradient-to-br from-slate-100 via-white to-blue-100">
+        <div className="max-w-5xl mx-auto text-center">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 font-inter text-gray-900 tracking-tight">
+            Klaar voor je Polen avontuur?
+          </h2>
+          <p className="text-xl text-gray-600 mb-12 font-inter max-w-3xl mx-auto leading-relaxed">
+            Plan je perfecte reis met onze uitgebreide gidsen en tips voor alle bestemmingen in Polen
+          </p>
+          <div className="flex flex-col sm:flex-row gap-6 justify-center">
+            <Button
+              asChild
+              className="py-4 px-8 text-lg font-inter transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105 rounded-2xl"
+              style={{ backgroundColor: "#2f3e46" }}
+            >
+              <Link href="/">🗺️ Plan je reis</Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="py-4 px-8 text-lg font-inter transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105 rounded-2xl border-2 border-gray-300 hover:bg-white"
+            >
+              <Link href="/">✨ Bekijk hoogtepunten</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Modern Footer */}
       <footer 
-        className="text-center py-10 px-5 text-white relative"
+        className="text-center py-12 px-5 text-white relative"
         style={{ backgroundColor: "#2f3e46" }}
       >
         {/* Admin Link */}
@@ -450,7 +489,7 @@ export default function OntdekMeer() {
           </Button>
         </Link>
         
-        <p className="font-inter">
+        <p className="font-inter text-lg">
           &copy; 2025 {siteSettings?.siteName || "Ontdek Polen"}. Alle rechten voorbehouden.
         </p>
       </footer>

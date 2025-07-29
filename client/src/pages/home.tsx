@@ -328,10 +328,10 @@ export default function Home() {
                     console.log('Enter key detected, form should submit');
                   }
                 }}
-                className="py-3 px-5 w-80 max-w-full border-none rounded-lg text-base text-gray-900 font-inter"
+                className="py-4 px-6 w-96 max-w-full border-none rounded-2xl text-lg text-gray-900 font-inter shadow-xl backdrop-blur-sm bg-white/90 hover:bg-white transition-all duration-300"
               />
               <Search 
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4 cursor-pointer" 
+                className="absolute right-5 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5 cursor-pointer" 
                 onClick={() => {
                   console.log('Search icon clicked');
                   if (searchQuery.trim()) {
@@ -459,14 +459,14 @@ export default function Home() {
             {publishedDestinations.map((destination: any) => {
               const CardContent = (
                 <Card 
-                  className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer"
+                  className="bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-500 border-none cursor-pointer group"
                 >
                   <img
                     src={destination.image}
                     alt={destination.alt}
-                    className="w-full h-40 object-cover"
+                    className="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-300"
                   />
-                  <div className="p-4 font-bold font-inter text-gray-900">
+                  <div className="p-6 font-bold font-inter text-gray-900 text-lg">
                     {destination.name}
                   </div>
                 </Card>
@@ -541,34 +541,39 @@ export default function Home() {
         </section>
       )}
 
-      {/* Featured Activities Section - From Database */}
+      {/* Modern Featured Activities Section */}
       {siteSettings?.showHighlights && featuredActivities.length > 0 && (
-        <section className="py-16 px-5 max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
-            Hoogtepunten van Polen
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <section className="py-16 px-5 max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 font-inter text-gray-900">
+              Hoogtepunten van Polen
+            </h2>
+            <p className="text-xl text-gray-600">
+              De beste bezienswaardigheden en ervaringen
+            </p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {featuredActivities
               .sort((a, b) => (a.ranking || 0) - (b.ranking || 0)) // Sort by ranking
               .map((activity) => {
                 const CardContent = (
-                  <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer text-center">
+                  <div className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-500 border-none cursor-pointer text-center group">
                     <img
                       src={activity.image || '/images/activities/placeholder.svg'}
                       alt={activity.alt || activity.name}
-                      className="w-16 h-16 mx-auto mb-3 object-cover rounded-lg"
+                      className="w-20 h-20 mx-auto mb-4 object-cover rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300"
                       onError={(e) => {
                         e.currentTarget.src = '/images/activities/placeholder.svg';
                       }}
                     />
-                    <h3 className="font-bold font-inter text-gray-900 text-sm">
+                    <h3 className="font-bold font-inter text-gray-900 text-base mb-2">
                       {activity.name}
                     </h3>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-sm text-gray-500 mb-1">
                       📍 {activity.location}
                     </p>
                     {activity.category && (
-                      <p className="text-xs text-blue-600 mt-1 capitalize">
+                      <p className="text-sm text-blue-600 font-medium capitalize">
                         {activity.category}
                       </p>
                     )}
@@ -778,7 +783,7 @@ export default function Home() {
           </Button>
         </Link>
         
-        <p className="font-inter">
+        <p className="font-inter text-lg">
           &copy; 2025 {siteSettings?.siteName || "Ontdek Polen"}. Alle rechten voorbehouden.
         </p>
       </footer>
