@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Search, Settings, MapPin, Calendar } from "lucide-react";
+import { Search, Settings } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
 import TravelSlider from "@/components/ui/travel-slider";
@@ -278,33 +278,29 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
-      {/* Modern Hero Section */}
+    <div className="min-h-screen" style={{ backgroundColor: "#f8f6f1" }}>
+      {/* Hero Section */}
       <header 
-        className="relative bg-cover bg-center text-white py-32 px-5 text-center min-h-[80vh] flex items-center justify-center"
+        className="relative bg-cover bg-center text-white py-24 px-5 text-center"
         style={{
           backgroundImage: siteSettings?.backgroundImage 
             ? `url('${siteSettings.backgroundImage}')` 
-            : "url('/images/backgrounds/header.jpg')",
+            : "url('/images/header.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center"
         }}
       >
-        {/* Enhanced overlay with gradients */}
-        <div className="absolute inset-0 bg-black/40"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
         {siteSettings?.headerOverlayEnabled && (
           <div 
             className="absolute inset-0 bg-black" 
             style={{ opacity: (siteSettings?.headerOverlayOpacity || 30) / 100 }}
           ></div>
         )}
-        
-        <div className="relative z-10 max-w-5xl mx-auto">
-          <h1 className="text-6xl md:text-7xl font-bold mb-6 font-inter tracking-tight leading-tight">
+        <div className="relative z-10 max-w-4xl mx-auto">
+          <h1 className="text-5xl font-bold mb-3 font-inter">
             {siteSettings?.siteName || "Ontdek Polen"}
           </h1>
-          <p className="text-xl md:text-2xl mb-12 font-inter font-light leading-relaxed max-w-3xl mx-auto">
+          <p className="text-xl mb-8 font-inter">
             {siteSettings?.siteDescription || "Mooie plekken in Polen ontdekken"}
           </p>
           
@@ -355,24 +351,13 @@ export default function Home() {
           
 
           
-          {/* Modern CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-            <Button
-              onClick={handlePlanTrip}
-              className="py-4 px-8 text-lg font-inter hover:scale-105 transition-all duration-300 bg-blue-600 hover:bg-blue-700 rounded-2xl shadow-2xl"
-            >
-              <MapPin className="w-5 h-5 mr-2" />
-              Plan je reis
-            </Button>
-            <Button
-              onClick={handleReadGuides}
-              className="py-4 px-8 text-lg font-inter hover:scale-105 transition-all duration-300 bg-white/20 backdrop-blur-md hover:bg-white/30 border border-white/30 rounded-2xl shadow-2xl"
-              variant="outline"
-            >
-              <Calendar className="w-5 h-5 mr-2" />
-              Lees onze gidsen
-            </Button>
-          </div>
+          <Button
+            onClick={handlePlanTrip}
+            className="mt-4 py-3 px-6 text-base font-inter hover:opacity-90 transition-all duration-200"
+            style={{ backgroundColor: "#2f3e46" }}
+          >
+            Plan je reis
+          </Button>
         </div>
       </header>
 
@@ -442,17 +427,12 @@ export default function Home() {
         </div>
       )}
 
-      {/* Destinations Section - Modern Layout */}
+      {/* Destinations Section - Travel Slider Implementation */}
       {siteSettings?.showDestinations && (
-        <section className="py-16 px-5 max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 font-inter text-gray-900">
-              Ontdek Polen
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Van historische steden tot adembenemende natuurparken
-            </p>
-          </div>
+        <section className="py-8 px-5 max-w-6xl mx-auto">
+          <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
+            Bestemmingen
+          </h2>
           <TravelSlider
             visibleItems={{ mobile: 1, tablet: 2, desktop: 4 }}
             showNavigation={true}
