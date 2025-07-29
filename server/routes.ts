@@ -11,6 +11,7 @@ import { insertUserSchema, updateUserSchema, changePasswordSchema, resetPassword
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import cloudinaryRoutes from "./upload-cloudinary.js";
 
 declare module "express-session" {
   interface SessionData {
@@ -3389,6 +3390,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+
+  // Add Cloudinary upload routes
+  app.use("/api/upload", cloudinaryRoutes);
 
   return httpServer;
 }
