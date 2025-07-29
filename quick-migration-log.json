@@ -1,33 +1,35 @@
 {
-  "uploaded": [
+  "timestamp": "2025-07-29T16:09:08.717Z",
+  "processed": [
     {
-      "localPath": "client/public/images/destinations/krakow.jpg",
-      "cloudinaryUrl": "https://res.cloudinary.com/df3i1avwb/image/upload/v1753801848/ontdek-polen/destinations/krakow.jpg",
-      "publicId": "ontdek-polen/destinations/krakow"
+      "old": "ontdek-polen/destinations/tatra-1753802000119",
+      "new": "ontdek-polen/destinations/tatra/headers/main-header",
+      "newUrl": "https://res.cloudinary.com/df3i1avwb/image/upload/v1753802000/ontdek-polen/destinations/tatra/headers/main-header.jpg",
+      "dbUpdates": 1
     },
     {
-      "localPath": "client/public/images/destinations/tatra.jpg",
-      "cloudinaryUrl": "https://res.cloudinary.com/df3i1avwb/image/upload/v1753801849/ontdek-polen/destinations/tatra.jpg",
-      "publicId": "ontdek-polen/destinations/tatra"
+      "old": "ontdek-polen/destinations/krakow-1753801956311",
+      "new": "ontdek-polen/destinations/krakow/headers/main-header",
+      "newUrl": "https://res.cloudinary.com/df3i1avwb/image/upload/v1753801956/ontdek-polen/destinations/krakow/headers/main-header.jpg",
+      "dbUpdates": 0
     },
     {
-      "localPath": "client/public/images/activities/placeholder.svg",
-      "cloudinaryUrl": "https://res.cloudinary.com/df3i1avwb/image/upload/v1753801850/ontdek-polen/activities/placeholder.png",
-      "publicId": "ontdek-polen/activities/placeholder"
+      "old": "ontdek-polen/destinations/gdansk-1753801929969",
+      "new": "ontdek-polen/destinations/gdansk/headers/main-header",
+      "newUrl": "https://res.cloudinary.com/df3i1avwb/image/upload/v1753801930/ontdek-polen/destinations/gdansk/headers/main-header.jpg",
+      "dbUpdates": 1
     },
     {
-      "localPath": "client/public/images/backgrounds/header.jpg",
-      "cloudinaryUrl": "https://res.cloudinary.com/df3i1avwb/image/upload/v1753801852/ontdek-polen/backgrounds/header.jpg",
-      "publicId": "ontdek-polen/backgrounds/header"
+      "old": "ontdek-polen/destinations/bialowieza-1753801924802",
+      "new": "ontdek-polen/destinations/bialowieza/headers/main-header",
+      "newUrl": "https://res.cloudinary.com/df3i1avwb/image/upload/v1753801925/ontdek-polen/destinations/bialowieza/headers/main-header.jpg",
+      "dbUpdates": 1
     }
   ],
-  "failed": [],
-  "databaseUpdates": [
+  "failed": [
     {
-      "table": "destinations",
-      "id": 4,
-      "old": "/images/destinations/krakow.jpg",
-      "new": "https://res.cloudinary.com/df3i1avwb/image/upload/v1753801848/ontdek-polen/destinations/krakow.jpg"
+      "id": "ontdek-polen/destinations/warschau-1753801922637",
+      "error": "Resource not found - ontdek-polen/destinations/warschau-1753801922637"
     }
   ]
 }

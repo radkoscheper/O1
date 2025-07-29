@@ -3297,7 +3297,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         isActive: true,
         description: "Neon PostgreSQL Serverless Database - Production Ready",
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
         status: "connected"
       };
 
@@ -3386,6 +3386,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         message: "Database connectie test mislukt",
         error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Batch rename Cloudinary images (admin only)
+  app.post('/api/admin/cloudinary/batch-rename', requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || user.role !== "admin") {
+        return res.status(403).json({ message: "Alleen admins kunnen batch rename uitvoeren" });
+      }
+
+      const { batchRenameImages } = await import('./batch-rename');
+      const results = await batchRenameImages();
+      
+      res.json({
+        success: true,
+        renamed: results.renamed.length,
+        failed: results.failed.length,
+        dbUpdates: results.dbUpdates,
+        details: results
+      });
+    } catch (error: any) {
+      console.error('Batch rename error:', error.message);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message 
       });
     }
   });

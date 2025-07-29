@@ -1,126 +1,108 @@
-/**
- * Quick Cloudinary Migration Script
- * Test migration for key images and database updates
- */
+#!/usr/bin/env tsx
 
-import fs from 'fs';
-import path from 'path';
 import { v2 as cloudinary } from 'cloudinary';
-import { db } from './server/db.js';
-import { destinations, activities, guides, motivation } from './shared/schema.js';
+import { drizzle } from 'drizzle-orm/neon-http';
+import { neon } from '@neondatabase/serverless';
 import { eq } from 'drizzle-orm';
+import * as schema from './shared/schema';
+import * as fs from 'fs';
 
-// Cloudinary configuration
+// Initialize database
+const sql = neon(process.env.DATABASE_URL!);
+const db = drizzle(sql, { schema });
+
+// Initialize Cloudinary with hardcoded values for testing
 cloudinary.config({
   cloud_name: 'df3i1avwb',
-  api_key: '676472295591778',
-  api_secret: 'FRXuPdduU8TR0Q7md8UWL9c0uUE',
-  secure: true
+  api_key: '676472295591778', 
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const migrationLog: any = { uploaded: [], failed: [], databaseUpdates: [] };
-
 async function quickMigrate() {
-  console.log('🚀 Starting Quick Migration Test...\n');
-  
-  // Test upload key images first
-  const testImages = [
-    'client/public/images/destinations/krakow.jpg',
-    'client/public/images/destinations/tatra.jpg', 
-    'client/public/images/activities/placeholder.svg',
-    'client/public/images/backgrounds/header.jpg'
-  ];
-  
-  console.log('=== UPLOADING TEST IMAGES ===');
-  for (const imagePath of testImages) {
-    if (fs.existsSync(imagePath)) {
-      try {
-        const fileName = path.basename(imagePath, path.extname(imagePath));
-        const folder = imagePath.includes('destinations') ? 'ontdek-polen/destinations' :
-                      imagePath.includes('activities') ? 'ontdek-polen/activities' :
-                      imagePath.includes('backgrounds') ? 'ontdek-polen/backgrounds' : 'ontdek-polen/misc';
-        
-        const result = await cloudinary.uploader.upload(imagePath, {
-          public_id: fileName,
-          folder: folder,
-          resource_type: 'auto',
-          transformation: [{ quality: 'auto:good' }, { fetch_format: 'auto' }]
-        });
-        
-        migrationLog.uploaded.push({
-          localPath: imagePath,
-          cloudinaryUrl: result.secure_url,
-          publicId: result.public_id
-        });
-        
-        console.log(`✅ ${path.basename(imagePath)} -> ${result.secure_url}`);
-      } catch (error: any) {
-        console.log(`❌ ${path.basename(imagePath)}: ${error.message}`);
-        migrationLog.failed.push({ localPath: imagePath, error: error.message });
-      }
-    }
-  }
-  
-  // Update a few database records as test
-  console.log('\n=== UPDATING DATABASE URLS ===');
-  
+  const log = {
+    timestamp: new Date().toISOString(),
+    processed: [] as any[],
+    failed: [] as any[]
+  };
+
   try {
-    // Find Krakow destination and update if has local image
-    const krakowDest = await db.select().from(destinations).where(eq(destinations.slug, 'krakow')).limit(1);
-    if (krakowDest[0] && krakowDest[0].image && krakowDest[0].image.startsWith('/images/')) {
-      const cloudinaryUrl = migrationLog.uploaded.find((item: any) => 
-        item.localPath.includes('krakow.jpg')
-      )?.cloudinaryUrl;
-      
-      if (cloudinaryUrl) {
-        await db.update(destinations)
-          .set({ image: cloudinaryUrl })
-          .where(eq(destinations.id, krakowDest[0].id));
+    console.log('🔍 Finding images with timestamp names...');
+    
+    // Get specific images with long timestamp names
+    const images = [
+      'ontdek-polen/destinations/tatra-1753802000119',
+      'ontdek-polen/destinations/krakow-1753801956311',
+      'ontdek-polen/destinations/gdansk-1753801929969',
+      'ontdek-polen/destinations/bialowieza-1753801924802',
+      'ontdek-polen/destinations/warschau-1753801922637'
+    ];
+    
+    console.log(`Processing ${images.length} key images...\n`);
+    
+    for (const oldId of images) {
+      try {
+        // Extract destination name
+        const destination = oldId.split('/')[2].split('-')[0];
+        const cleanName = `main-header`;
+        const newId = `ontdek-polen/destinations/${destination}/headers/${cleanName}`;
         
-        console.log(`✅ Updated Krakow destination: ${krakowDest[0].image} -> ${cloudinaryUrl}`);
-        migrationLog.databaseUpdates.push({
-          table: 'destinations',
-          id: krakowDest[0].id,
-          old: krakowDest[0].image,
-          new: cloudinaryUrl
+        console.log(`Renaming: ${oldId} → ${newId}`);
+        
+        // Rename in Cloudinary
+        const result = await cloudinary.uploader.rename(oldId, newId, {
+          resource_type: 'image',
+          invalidate: true
         });
+        
+        // Update database
+        const destinations = await db.select().from(schema.destinations);
+        let dbUpdates = 0;
+        
+        for (const dest of destinations) {
+          if (dest.image && dest.image.includes(oldId)) {
+            await db.update(schema.destinations)
+              .set({ image: result.secure_url })
+              .where(eq(schema.destinations.id, dest.id));
+            dbUpdates++;
+            console.log(`  ✅ Updated destination ${dest.name}`);
+          }
+        }
+        
+        log.processed.push({
+          old: oldId,
+          new: newId,
+          newUrl: result.secure_url,
+          dbUpdates
+        });
+        
+        console.log(`✅ Success: ${destination}/headers/${cleanName}\n`);
+        
+        // Rate limit
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+      } catch (error: any) {
+        console.log(`❌ Failed: ${oldId} - ${error.message}\n`);
+        log.failed.push({ id: oldId, error: error.message });
       }
     }
     
-    // Find activities with placeholder SVG
-    const activitiesWithPlaceholder = await db.select().from(activities).where(eq(activities.image, '/images/activities/placeholder.svg')).limit(3);
-    const placeholderUrl = migrationLog.uploaded.find((item: any) => 
-      item.localPath.includes('placeholder.svg')
-    )?.cloudinaryUrl;
+    // Save log
+    fs.writeFileSync('quick-migration-log.json', JSON.stringify(log, null, 2));
     
-    if (placeholderUrl && activitiesWithPlaceholder.length > 0) {
-      for (const activity of activitiesWithPlaceholder) {
-        await db.update(activities)
-          .set({ image: placeholderUrl })
-          .where(eq(activities.id, activity.id));
-        
-        console.log(`✅ Updated activity ${activity.name}: placeholder -> ${placeholderUrl}`);
-        migrationLog.databaseUpdates.push({
-          table: 'activities',
-          id: activity.id,
-          old: activity.image,
-          new: placeholderUrl
-        });
-      }
+    console.log('🎉 Quick Migration Complete!');
+    console.log(`✅ Processed: ${log.processed.length}`);
+    console.log(`❌ Failed: ${log.failed.length}`);
+    
+    if (log.processed.length > 0) {
+      console.log('\n📁 New Structure:');
+      log.processed.forEach(p => {
+        console.log(`├── ${p.new}`);
+      });
     }
     
-  } catch (error) {
-    console.error('Database update error:', error);
+  } catch (error: any) {
+    console.error('Migration error:', error.message);
   }
-  
-  // Save results
-  fs.writeFileSync('quick-migration-log.json', JSON.stringify(migrationLog, null, 2));
-  
-  console.log('\n=== QUICK MIGRATION COMPLETE ===');
-  console.log(`✅ Uploaded: ${migrationLog.uploaded.length}`);
-  console.log(`❌ Failed: ${migrationLog.failed.length}`);  
-  console.log(`📝 Database Updates: ${migrationLog.databaseUpdates.length}`);
-  console.log('\nLog saved to: quick-migration-log.json');
 }
 
 quickMigrate().catch(console.error);
