@@ -19,6 +19,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import ReactCrop, { Crop, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import { CreateHighlightDialog, EditHighlightDialog, ViewHighlightDialog, CreateDestinationDialog, CreateGuideDialog, CreateActivityDialog, EditActivityDialog, ViewActivityDialog } from '@/components/highlights-dialogs';
+import { DestinationImageManager } from '@/components/ui/cloudinary-destination-upload';
+import CloudinaryUpload from '@/components/ui/cloudinary-upload';
+import CloudinaryGallery from '@/components/ui/cloudinary-gallery';
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -126,9 +129,6 @@ export default function Admin() {
     enabled: isAuthenticated && currentUser?.canEditContent,
     retry: 1,
     staleTime: 0,
-    onError: (error) => {
-      toast({ title: "Fout", description: "Kon zoekconfiguratties niet laden", variant: "destructive" });
-    }
   });
 
   // Multi-platform deployment queries (admin only)
@@ -159,6 +159,8 @@ export default function Admin() {
   const [showEditUser, setShowEditUser] = useState(false);
   const [showResetPassword, setShowResetPassword] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [users, setUsers] = useState<any[]>([]);
+  const [galleryKey, setGalleryKey] = useState(0);
 
 
   
