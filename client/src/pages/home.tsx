@@ -92,7 +92,7 @@ export default function Home() {
   });
 
   // Fetch site settings
-  const { data: siteSettings = {}, isLoading: settingsLoading } = useQuery({
+  const { data: siteSettings, isLoading: settingsLoading } = useQuery({
     queryKey: ["/api/site-settings"],
   });
 
@@ -104,17 +104,17 @@ export default function Home() {
   const showLoading = isPageLoading;
 
   // Fetch search configuration for homepage context
-  const { data: searchConfig = {} } = useQuery({
+  const { data: searchConfig } = useQuery({
     queryKey: ["/api/search-config/homepage"],
   });
 
   // Fetch motivation data for CTA section
-  const { data: motivationData = {} } = useQuery({
+  const { data: motivationData } = useQuery({
     queryKey: ["/api/motivation"],
   });
 
   // Fetch motivation image location name
-  const { data: motivationImageLocation = {} } = useQuery({
+  const { data: motivationImageLocation } = useQuery({
     queryKey: ["/api/motivation/image-location", motivationData?.image],
     queryFn: async () => {
       if (!motivationData?.image) return null;
@@ -128,7 +128,7 @@ export default function Home() {
   // Update document title and meta tags when site settings change
   useEffect(() => {
     if (siteSettings) {
-      document.title = (siteSettings as any).siteName || "Ontdek Polen";
+      document.title = siteSettings.siteName || "Ontdek Polen";
       
       // Update meta description
       let metaDescription = document.querySelector('meta[name="description"]');
@@ -137,7 +137,7 @@ export default function Home() {
         metaDescription.setAttribute('name', 'description');
         document.head.appendChild(metaDescription);
       }
-      metaDescription.setAttribute('content', (siteSettings as any).siteDescription || "Ontdek de mooiste plekken van Polen");
+      metaDescription.setAttribute('content', siteSettings.siteDescription || "Ontdek de mooiste plekken van Polen");
       
       // Update meta keywords
       let metaKeywords = document.querySelector('meta[name="keywords"]');
@@ -287,30 +287,34 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#f8f6f1" }}>
-      {/* Hero Section */}
+    <div className="min-h-screen bg-luxury-gradient">
+      {/* Modern Hero Section */}
       <header 
-        className="relative bg-cover bg-center text-white py-24 px-5 text-center"
+        className="relative bg-cover bg-center text-white py-32 px-5 text-center min-h-[80vh] flex items-center justify-center"
         style={{
-          backgroundImage: (siteSettings as any)?.backgroundImage 
-            ? `url('${(siteSettings as any).backgroundImage}')` 
-            : "url('/images/header.jpg')",
+          backgroundImage: siteSettings?.backgroundImage 
+            ? (siteSettings.backgroundImage.includes('res.cloudinary.com') 
+                ? `url('${generateCloudinaryUrl(siteSettings.backgroundImage, getSmartTransform("homepage-header", "hero"))}')`
+                : `url('${siteSettings.backgroundImage}')`)
+            : "url('https://res.cloudinary.com/df3i1avwb/image/upload/v1753803193/ontdek-polen/backgrounds/background-1753803193193.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center"
         }}
       >
-        {(siteSettings as any)?.headerOverlayEnabled && (
+        {/* CMS Controlled Overlay System */}
+        {siteSettings?.headerOverlayEnabled && (
           <div 
             className="absolute inset-0 bg-black" 
-            style={{ opacity: ((siteSettings as any)?.headerOverlayOpacity || 30) / 100 }}
+            style={{ opacity: (siteSettings?.headerOverlayOpacity || 30) / 100 }}
           ></div>
         )}
-        <div className="relative z-10 max-w-4xl mx-auto">
-          <h1 className="text-5xl font-bold mb-3 font-inter">
-            {(siteSettings as any)?.siteName || "Ontdek Polen"}
+        
+        <div className="relative z-10 max-w-6xl mx-auto">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-luxury-serif font-bold mb-8 text-white tracking-wide leading-tight">
+            {siteSettings?.siteName || "Ontdek Polen"}
           </h1>
-          <p className="text-xl mb-8 font-inter">
-            {(siteSettings as any)?.siteDescription || "Mooie plekken in Polen ontdekken"}
+          <p className="text-xl md:text-2xl lg:text-3xl mb-16 font-elegant-serif font-light leading-relaxed max-w-4xl mx-auto text-white/90">
+            {siteSettings?.siteDescription || "Mooie plekken in Polen ontdekken"}
           </p>
           
           <form 
@@ -323,7 +327,7 @@ export default function Home() {
             <div className="relative inline-block">
               <Input
                 type="text"
-                placeholder={(searchConfig as any)?.placeholderText || "Zoek bestemming"}
+                placeholder={searchConfig?.placeholderText || "Zoek bestemming"}
                 value={searchQuery}
                 onChange={(e) => {
                   console.log('Search input changed:', e.target.value);
@@ -335,10 +339,10 @@ export default function Home() {
                     console.log('Enter key detected, form should submit');
                   }
                 }}
-                className="py-3 px-5 w-80 max-w-full border-none rounded-lg text-base text-gray-900 font-inter"
+                className="py-5 px-8 w-[28rem] max-w-full border-2 border-white/30 rounded-full text-lg text-navy-dark font-inter shadow-2xl backdrop-blur-md bg-white/95 hover:bg-white hover:border-gold transition-all duration-500 focus:border-gold focus:ring-2 focus:ring-gold/50"
               />
               <Search 
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4 cursor-pointer" 
+                className="absolute right-5 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5 cursor-pointer" 
                 onClick={() => {
                   console.log('Search icon clicked');
                   if (searchQuery.trim()) {
@@ -437,7 +441,7 @@ export default function Home() {
       )}
 
       {/* Destinations Section - Travel Slider Implementation */}
-      {(siteSettings as any)?.showDestinations && (
+      {siteSettings?.showDestinations && (
         <section className="py-8 px-5 max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
             Bestemmingen
@@ -494,27 +498,27 @@ export default function Home() {
 
 
       {/* CTA Section - Dynamic from Database */}
-      {(siteSettings as any)?.showMotivation && motivationData && (motivationData as any).is_published && (
+      {siteSettings?.showMotivation && motivationData && motivationData.is_published && (
         <section className="py-16 px-5 max-w-6xl mx-auto">
           <div className="flex flex-wrap gap-8 items-center justify-between">
             <div className="flex-1 min-w-80">
               <h2 className="text-3xl font-bold mb-4 font-inter text-gray-900">
-                {(motivationData as any).title || "Laat je verrassen door het onbekende Polen"}
+                {motivationData.title || "Laat je verrassen door het onbekende Polen"}
               </h2>
               <p className="text-lg mb-6 font-inter text-gray-700">
-                {(motivationData as any).description || "Bezoek historische steden, ontdek natuurparken en verborgen parels. Onze reisgidsen helpen je op weg!"}
+                {motivationData.description || "Bezoek historische steden, ontdek natuurparken en verborgen parels. Onze reisgidsen helpen je op weg!"}
               </p>
               <Button
                 onClick={handleReadGuides}
                 className="py-3 px-6 text-base font-inter hover:opacity-90 transition-all duration-200"
                 style={{ backgroundColor: "#2f3e46" }}
               >
-                {(motivationData as any).button_text || "Lees onze reizen"}
+                {motivationData.button_text || "Lees onze reizen"}
               </Button>
             </div>
             <div className="flex-1 min-w-80 relative">
               <img
-                src={(motivationData as any).image || "/images/motivatie/tatra-valley.jpg"}
+                src={motivationData.image || "/images/motivatie/tatra-valley.jpg"}
                 alt="Motivatie afbeelding"
                 className="w-full rounded-xl shadow-lg"
                 onError={(e) => {
@@ -522,9 +526,9 @@ export default function Home() {
                 }}
               />
               {/* Location name overlay */}
-              {(motivationImageLocation as any)?.locationName && (
+              {motivationImageLocation?.locationName && (
                 <div className="absolute bottom-2 right-2 bg-black bg-opacity-80 text-white px-2 py-1 rounded text-sm font-medium shadow-lg z-10">
-                  📍 {(motivationImageLocation as any).locationName}
+                  📍 {motivationImageLocation.locationName}
                 </div>
               )}
             </div>
@@ -640,7 +644,7 @@ export default function Home() {
       )}
 
       {/* Published Pages */}
-      {(siteSettings as any)?.showOntdekMeer && publishedPages.length > 0 && (
+      {siteSettings?.showOntdekMeer && publishedPages.length > 0 && (
         <section className="py-16 px-5 max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl font-bold font-inter text-gray-900">
@@ -690,7 +694,7 @@ export default function Home() {
       )}
 
       {/* Travel Guides - Travel Slider Implementation */}
-      {(siteSettings as any)?.showGuides && (
+      {siteSettings?.showGuides && (
         <section className="py-16 px-5 max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
             Reizen en Tips
