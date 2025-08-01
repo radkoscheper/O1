@@ -146,12 +146,12 @@ export default function Home() {
         metaKeywords.setAttribute('name', 'keywords');
         document.head.appendChild(metaKeywords);
       }
-      metaKeywords.setAttribute('content', (siteSettings as any).metaKeywords || "Polen, reizen, vakantie, bestemmingen");
+      metaKeywords.setAttribute('content', siteSettings.metaKeywords || "Polen, reizen, vakantie, bestemmingen");
       
       // Update favicon - handle enabled/disabled state
       const existingFavicon = document.querySelector('link[rel="icon"]');
       
-      if ((siteSettings as any).faviconEnabled === true && (siteSettings as any).favicon) {
+      if (siteSettings.faviconEnabled === true && siteSettings.favicon) {
         // Favicon enabled and has path - use server route which checks database
         if (existingFavicon) {
           existingFavicon.setAttribute('href', '/favicon.ico?' + Date.now()); // Cache bust
@@ -227,14 +227,15 @@ export default function Home() {
   // Filter only published pages
   const publishedPages = (pages as any[]).filter((page: any) => page.published);
   
-  // Show loading screen instead of simple spinner
-  if (showLoading) {
+  // Show loading state
+  if (destinationsLoading || guidesLoading || pagesLoading || featuredLoading || settingsLoading) {
     return (
-      <LoadingScreen
-        isLoading={true}
-        title={loadingContent.title}
-        subtitle={loadingContent.subtitle}
-      />
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#f8f6f1" }}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-lg">Laden...</p>
+        </div>
+      </div>
     );
   }
 
@@ -253,7 +254,7 @@ export default function Home() {
     setShowSearchResults(true);
     
     try {
-      const searchScope = (searchConfig as any)?.searchScope || 'destinations';
+      const searchScope = searchConfig?.searchScope || 'destinations';
       const url = `/api/search?q=${encodeURIComponent(searchQuery)}&scope=${searchScope}`;
       console.log('Fetching URL:', url);
       
@@ -364,13 +365,24 @@ export default function Home() {
           
 
           
-          <Button
-            onClick={handlePlanTrip}
-            className="mt-4 py-3 px-6 text-base font-inter hover:opacity-90 transition-all duration-200"
-            style={{ backgroundColor: "#2f3e46" }}
-          >
-            Plan je reis
-          </Button>
+          {/* Luxury CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-6 justify-center mt-12">
+            <Button
+              onClick={handlePlanTrip}
+              className="py-5 px-10 text-lg font-luxury-serif font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-2xl hover:shadow-blue-500/25 transition-all duration-500 border-2 border-blue-600 hover:border-blue-700 hover:scale-105"
+            >
+              <MapPin className="w-5 h-5 mr-3" />
+              Plan je reis
+            </Button>
+            <Button
+              onClick={handleReadGuides}
+              className="py-5 px-10 text-lg font-luxury-serif font-medium bg-white/10 backdrop-blur-md hover:bg-white/20 border-2 border-white/40 text-white rounded-full shadow-2xl hover:shadow-white/25 transition-all duration-500 hover:scale-105"
+              variant="outline"
+            >
+              <Calendar className="w-5 h-5 mr-3" />
+              Lees onze gidsen
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -440,12 +452,17 @@ export default function Home() {
         </div>
       )}
 
-      {/* Destinations Section - Travel Slider Implementation */}
+      {/* Destinations Section - Luxury Layout */}
       {siteSettings?.showDestinations && (
-        <section className="py-8 px-5 max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
-            Bestemmingen
-          </h2>
+        <section className="py-4 px-5 max-w-7xl mx-auto">
+          <div className="text-center mb-6">
+            <h2 className="text-4xl md:text-6xl font-luxury-serif font-bold mb-4 text-navy-dark tracking-wide">
+              Ontdek Polen
+            </h2>
+            <p className="text-xl md:text-2xl text-navy-medium font-elegant-serif max-w-3xl mx-auto leading-relaxed">
+              Van historische steden tot adembenemende natuurparken
+            </p>
+          </div>
           <TravelSlider
             visibleItems={{ mobile: 1, tablet: 2, desktop: 4 }}
             showNavigation={true}
