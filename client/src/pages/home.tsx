@@ -469,17 +469,28 @@ export default function Home() {
             className="mx-auto"
           >
             {publishedDestinations.map((destination: any) => {
+              // Apply AI-smart transformations to destination images
+              const optimizedImageUrl = destination.image && destination.image.includes('res.cloudinary.com') 
+                ? generateCloudinaryUrl(destination.image, getSmartTransform(destination.name, 'card'))
+                : destination.image;
+
               const CardContent = (
                 <Card 
-                  className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer"
+                  className="bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-700 border border-gray-100 cursor-pointer group"
                 >
                   <img
-                    src={destination.image}
+                    src={optimizedImageUrl || '/images/destinations/placeholder.svg'}
                     alt={destination.alt}
-                    className="w-full h-40 object-cover"
+                    className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                    onError={(e) => {
+                      e.currentTarget.src = '/images/destinations/placeholder.svg';
+                    }}
                   />
-                  <div className="p-4 font-bold font-inter text-gray-900">
-                    {destination.name}
+                  <div className="p-8">
+                    <h3 className="font-luxury-serif font-bold text-navy-dark text-xl mb-2">
+                      {destination.name}
+                    </h3>
+                    <div className="w-12 h-0.5 bg-gold"></div>
                   </div>
                 </Card>
               );
@@ -514,73 +525,85 @@ export default function Home() {
 
 
 
-      {/* CTA Section - Dynamic from Database */}
+      {/* CTA Section - Luxury Design */}
       {siteSettings?.showMotivation && motivationData && motivationData.is_published && (
-        <section className="py-16 px-5 max-w-6xl mx-auto">
-          <div className="flex flex-wrap gap-8 items-center justify-between">
-            <div className="flex-1 min-w-80">
-              <h2 className="text-3xl font-bold mb-4 font-inter text-gray-900">
-                {motivationData.title || "Laat je verrassen door het onbekende Polen"}
-              </h2>
-              <p className="text-lg mb-6 font-inter text-gray-700">
-                {motivationData.description || "Bezoek historische steden, ontdek natuurparken en verborgen parels. Onze reisgidsen helpen je op weg!"}
-              </p>
-              <Button
-                onClick={handleReadGuides}
-                className="py-3 px-6 text-base font-inter hover:opacity-90 transition-all duration-200"
-                style={{ backgroundColor: "#2f3e46" }}
-              >
-                {motivationData.button_text || "Lees onze reizen"}
-              </Button>
-            </div>
-            <div className="flex-1 min-w-80 relative">
-              <img
-                src={motivationData.image || "/images/motivatie/tatra-valley.jpg"}
-                alt="Motivatie afbeelding"
-                className="w-full rounded-xl shadow-lg"
-                onError={(e) => {
-                  e.currentTarget.src = "/images/motivatie/tatra-valley.jpg";
-                }}
-              />
-              {/* Location name overlay */}
-              {motivationImageLocation?.locationName && (
-                <div className="absolute bottom-2 right-2 bg-black bg-opacity-80 text-white px-2 py-1 rounded text-sm font-medium shadow-lg z-10">
-                  📍 {motivationImageLocation.locationName}
-                </div>
-              )}
+        <section className="py-6 px-5 max-w-7xl mx-auto">
+          <div className="bg-cream rounded-3xl p-12 lg:p-16 shadow-2xl border border-gold/20">
+            <div className="flex flex-wrap gap-12 items-center justify-between">
+              <div className="flex-1 min-w-80">
+                <h2 className="text-4xl md:text-5xl lg:text-6xl font-luxury-serif font-bold mb-6 text-navy-dark tracking-wide leading-tight">
+                  {motivationData.title || "Laat je verrassen door het onbekende Polen"}
+                </h2>
+                <p className="text-xl md:text-2xl mb-8 font-elegant-serif text-navy-medium leading-relaxed">
+                  {motivationData.description || "Bezoek historische steden, ontdek natuurparken en verborgen parels. Onze reisgidsen helpen je op weg!"}
+                </p>
+                <Button
+                  onClick={handleReadGuides}
+                  className="py-5 px-10 text-lg font-luxury-serif font-medium bg-navy-dark hover:bg-navy-medium text-white hover:scale-105 transition-all duration-500 rounded-full shadow-2xl"
+                >
+                  {motivationData.button_text || "Lees onze reizen"}
+                </Button>
+              </div>
+              <div className="flex-1 min-w-80 relative">
+                <img
+                  src={motivationData.image && motivationData.image.includes('res.cloudinary.com') 
+                    ? generateCloudinaryUrl(motivationData.image, getSmartTransform('tatra-valley', 'hero'))
+                    : motivationData.image || "/images/motivatie/tatra-valley.jpg"
+                  }
+                  alt="Motivatie afbeelding"
+                  className="w-full rounded-3xl shadow-2xl"
+                  onError={(e) => {
+                    e.currentTarget.src = "/images/motivatie/tatra-valley.jpg";
+                  }}
+                />
+                {/* Location name overlay */}
+                {motivationImageLocation?.locationName && (
+                  <div className="absolute bottom-4 right-4 bg-navy-dark/90 text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg z-10 backdrop-blur-sm">
+                    📍 {motivationImageLocation.locationName}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </section>
       )}
 
-      {/* Featured Activities Section - From Database */}
+      {/* Luxury Featured Activities Section */}
       {siteSettings?.showHighlights && featuredActivities.length > 0 && (
-        <section className="py-16 px-5 max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
-            Hoogtepunten van Polen
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <section className="py-6 px-5 max-w-7xl mx-auto">
+          <div className="text-center mb-6">
+            <h2 className="text-4xl md:text-6xl font-luxury-serif font-bold mb-6 text-navy-dark tracking-wide">
+              Hoogtepunten van Polen
+            </h2>
+            <p className="text-xl md:text-2xl text-navy-medium font-elegant-serif leading-relaxed">
+              De beste bezienswaardigheden en ervaringen
+            </p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {featuredActivities
               .sort((a, b) => (a.ranking || 0) - (b.ranking || 0)) // Sort by ranking
               .map((activity) => {
                 const CardContent = (
-                  <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer text-center">
+                  <div className="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-700 border border-gray-100 cursor-pointer text-center group">
                     <img
-                      src={activity.image || '/images/activities/placeholder.svg'}
+                      src={activity.image && activity.image.includes('res.cloudinary.com') 
+                        ? generateCloudinaryUrl(activity.image, getSmartTransform(activity.name, 'thumbnail'))
+                        : activity.image || '/images/activities/placeholder.svg'
+                      }
                       alt={activity.alt || activity.name}
-                      className="w-16 h-16 mx-auto mb-3 object-cover rounded-lg"
+                      className="w-24 h-24 mx-auto mb-6 object-cover rounded-full shadow-lg group-hover:scale-110 transition-transform duration-500"
                       onError={(e) => {
                         e.currentTarget.src = '/images/activities/placeholder.svg';
                       }}
                     />
-                    <h3 className="font-bold font-inter text-gray-900 text-sm">
+                    <h3 className="font-luxury-serif font-bold text-navy-dark text-lg mb-3">
                       {activity.name}
                     </h3>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-sm text-navy-medium mb-2 font-inter">
                       📍 {activity.location}
                     </p>
                     {activity.category && (
-                      <p className="text-xs text-blue-600 mt-1 capitalize">
+                      <p className="text-sm text-gold font-medium capitalize font-inter">
                         {activity.category}
                       </p>
                     )}
@@ -660,26 +683,31 @@ export default function Home() {
         </section>
       )}
 
-      {/* Published Pages */}
+      {/* Modern Published Pages Section */}
       {siteSettings?.showOntdekMeer && publishedPages.length > 0 && (
-        <section className="py-16 px-5 max-w-6xl mx-auto">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-bold font-inter text-gray-900">
-              Ontdek Meer
-            </h2>
+        <section className="py-6 px-5 max-w-7xl mx-auto">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h2 className="text-4xl md:text-5xl font-bold mb-4 font-inter text-gray-900">
+                Ontdek Meer
+              </h2>
+              <p className="text-xl text-gray-600">
+                Verdiep je in onze complete collectie reisgidsen
+              </p>
+            </div>
             <Link href="/ontdek-meer">
               <Button
                 variant="outline"
-                className="text-gray-900 border-gray-300 hover:bg-gray-100"
+                className="text-gray-900 border-gray-300 hover:bg-gray-100 rounded-2xl px-6 py-3 shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 Bekijk Alles
               </Button>
             </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {publishedPages.map((page) => (
               <Link href={`/${page.slug}`} key={page.id}>
-                <Card className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer">
+                <Card className="bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-500 border-none cursor-pointer group">
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-3">
                       <h3 className="text-xl font-bold font-inter text-gray-900">
@@ -710,12 +738,17 @@ export default function Home() {
         </section>
       )}
 
-      {/* Travel Guides - Travel Slider Implementation */}
+      {/* Luxury Travel Guides Section */}
       {siteSettings?.showGuides && (
-        <section className="py-16 px-5 max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
-            Reizen en Tips
-          </h2>
+        <section className="py-6 px-5 max-w-7xl mx-auto">
+          <div className="text-center mb-6">
+            <h2 className="text-4xl md:text-6xl font-luxury-serif font-bold mb-6 text-navy-dark tracking-wide">
+              Reizen en Tips
+            </h2>
+            <p className="text-xl md:text-2xl text-navy-medium font-elegant-serif leading-relaxed">
+              Ontdek onze expertgidsen voor de perfecte reis
+            </p>
+          </div>
           <TravelSlider
             visibleItems={{ mobile: 1, tablet: 2, desktop: 4 }}
             showNavigation={true}
@@ -724,20 +757,21 @@ export default function Home() {
             {publishedGuides.map((guide: any) => {
               const CardContent = (
                 <Card 
-                  className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer"
+                  className="bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-700 border border-gray-100 cursor-pointer group"
                 >
                   <img
                     src={guide.image}
                     alt={guide.alt}
-                    className="w-full h-40 object-cover"
+                    className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                   />
-                  <div className="p-4">
-                    <h3 className="font-bold font-inter text-gray-900 mb-2">
+                  <div className="p-8">
+                    <h3 className="font-luxury-serif font-bold text-navy-dark mb-3 text-xl">
                       {guide.title}
                     </h3>
-                    <p className="text-sm text-gray-600 font-inter">
+                    <p className="text-sm text-navy-medium font-inter leading-relaxed">
                       {guide.description}
                     </p>
+                    <div className="w-12 h-0.5 bg-gold mt-4"></div>
                   </div>
                 </Card>
               );
@@ -773,26 +807,32 @@ export default function Home() {
         </section>
       )}
 
-      {/* Footer */}
-      <footer 
-        className="text-center py-10 px-5 text-white relative"
-        style={{ backgroundColor: "#2f3e46" }}
-      >
+      {/* Luxury Footer */}
+      <footer className="bg-navy-dark text-center py-6 px-5 text-white relative">
         {/* Admin Link */}
         <Link href="/admin">
           <Button 
             variant="outline" 
             size="sm"
-            className="absolute top-4 right-4 text-white border-white hover:bg-white hover:text-gray-900"
+            className="absolute top-6 right-6 text-white border-white/50 hover:bg-white hover:text-navy-dark font-luxury-serif"
           >
             <Settings className="h-4 w-4 mr-2" />
             Admin
           </Button>
         </Link>
         
-        <p className="font-inter">
-          &copy; 2025 {siteSettings?.siteName || "Ontdek Polen"}. Alle rechten voorbehouden.
-        </p>
+        <div className="max-w-7xl mx-auto">
+          <h3 className="text-3xl md:text-4xl font-luxury-serif font-bold mb-6 tracking-wide">
+            {siteSettings?.siteName || "Ontdek Polen"}
+          </h3>
+          <p className="text-xl text-white/80 font-elegant-serif mb-8">
+            Jouw gids naar het prachtige Polen
+          </p>
+          <div className="w-20 h-0.5 bg-gold mx-auto mb-6"></div>
+          <p className="font-inter text-white/60">
+            &copy; 2025 {siteSettings?.siteName || "Ontdek Polen"}. Alle rechten voorbehouden.
+          </p>
+        </div>
       </footer>
     </div>
   );
