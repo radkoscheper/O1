@@ -3327,8 +3327,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         connectionTimeout, 
         idleTimeout, 
         region, 
-        projectId, 
-        status 
+        projectId 
       } = req.body;
 
       // Validate required fields
@@ -3349,9 +3348,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         connectionTimeout: parseInt(connectionTimeout),
         idleTimeout: parseInt(idleTimeout),
         region,
-        projectId,
-        status,
-        updatedAt: new Date()
+        projectId
       });
 
       res.json({
