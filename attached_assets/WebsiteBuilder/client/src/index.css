@@ -1,0 +1,148 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Visit Croatia Inspired Luxury Palette */
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(210, 18%, 15%);
+  --muted: hsl(210, 8%, 96%);
+  --muted-foreground: hsl(210, 12%, 45%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(210, 18%, 15%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(210, 18%, 15%);
+  --border: hsl(210, 12%, 88%);
+  --input: hsl(210, 12%, 88%);
+  --primary: hsl(210, 25%, 20%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(210, 8%, 96%);
+  --secondary-foreground: hsl(210, 18%, 15%);
+  --accent: hsl(45, 85%, 65%);
+  --accent-foreground: hsl(210, 18%, 15%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(60, 9.1%, 97.8%);
+  --ring: hsl(210, 18%, 15%);
+  --radius: 0.75rem;
+  
+  /* Visit Croatia Luxury Theme Colors */
+  --navy-dark: hsl(210, 25%, 20%);
+  --navy-medium: hsl(210, 20%, 35%);
+  --navy-light: hsl(210, 15%, 50%);
+  --gold-accent: hsl(45, 85%, 65%);
+  --gold-light: hsl(45, 70%, 85%);
+  --cream-white: hsl(45, 20%, 98%);
+  --warm-gray: hsl(210, 8%, 85%);
+  --text-dark: hsl(210, 18%, 15%);
+  --text-medium: hsl(210, 12%, 45%);
+  --text-light: hsl(210, 8%, 65%);
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(197, 37%, 24%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-inter antialiased;
+    background-color: #f8f6f1;
+    color: #1f1f1f;
+  }
+}
+
+@layer utilities {
+  .font-inter {
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+/* Custom slider styles for header overlay settings */
+input[type="range"].slider {
+  -webkit-appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="range"].slider::-webkit-slider-track {
+  background: #e5e7eb;
+  height: 8px;
+  border-radius: 4px;
+}
+
+input[type="range"].slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  background: #2563eb;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* Visit Croatia Luxury Typography Classes */
+.font-luxury-serif {
+  font-family: 'Playfair Display', serif;
+}
+
+.font-elegant-serif {
+  font-family: 'Cormorant Garamond', serif;
+}
+
+/* Visit Croatia Inspired Utility Classes */
+.text-navy-dark { color: hsl(210, 25%, 20%); }
+.text-navy-medium { color: hsl(210, 20%, 35%); }
+.text-navy-light { color: hsl(210, 15%, 50%); }
+.text-gold { color: hsl(45, 85%, 65%); }
+.bg-navy-dark { background-color: hsl(210, 25%, 20%); }
+.bg-navy-medium { background-color: hsl(210, 20%, 35%); }
+.bg-gold { background-color: hsl(45, 85%, 65%); }
+.bg-cream { background-color: hsl(45, 20%, 98%); }
+
+/* Luxury Gradient Backgrounds */
+.bg-luxury-gradient {
+  background: linear-gradient(135deg, hsl(45, 20%, 98%) 0%, hsl(210, 8%, 85%) 50%, hsl(45, 70%, 85%) 100%);
+}
+
+.bg-navy-gradient {
+  background: linear-gradient(135deg, hsl(210, 25%, 20%) 0%, hsl(210, 20%, 35%) 100%);
+}
+
+input[type="range"].slider::-moz-range-track {
+  background: #e5e7eb;
+  height: 8px;
+  border-radius: 4px;
+  border: none;
+}
+
+input[type="range"].slider::-moz-range-thumb {
+  background: #2563eb;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+}

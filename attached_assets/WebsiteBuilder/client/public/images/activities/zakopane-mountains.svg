@@ -1,0 +1,54 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#87CEEB;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E0F6FF;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="mountainGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
+      <stop offset="70%" style="stop-color:#696969;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2F4F4F;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Sky -->
+  <rect width="400" height="200" fill="url(#skyGrad)"/>
+  
+  <!-- Mountains -->
+  <polygon points="0,150 100,50 200,80 300,40 400,90 400,200 0,200" fill="url(#mountainGrad)"/>
+  
+  <!-- Snow caps -->
+  <polygon points="80,60 100,50 120,60 100,70" fill="#FFFFFF"/>
+  <polygon points="180,90 200,80 220,90 200,100" fill="#FFFFFF"/>
+  <polygon points="280,50 300,40 320,50 300,60" fill="#FFFFFF"/>
+  
+  <!-- Valley/Forest -->
+  <rect x="0" y="180" width="400" height="20" fill="#228B22"/>
+  
+  <!-- Village houses -->
+  <rect x="150" y="160" width="25" height="20" fill="#8B4513"/>
+  <polygon points="150,160 162.5,145 175,160" fill="#8B0000"/>
+  
+  <rect x="200" y="165" width="20" height="15" fill="#CD853F"/>
+  <polygon points="200,165 210,150 220,165" fill="#8B0000"/>
+  
+  <rect x="100" y="170" width="20" height="10" fill="#DEB887"/>
+  <polygon points="100,170 110,160 120,170" fill="#8B0000"/>
+  
+  <!-- Cable car -->
+  <line x1="50" y1="120" x2="350" y2="80" stroke="#2F4F4F" stroke-width="2"/>
+  <rect x="200" y="95" width="12" height="8" fill="#FF6347"/>
+  <line x1="206" y1="95" x2="206" y2="88" stroke="#2F4F4F" stroke-width="1"/>
+  
+  <!-- Trees -->
+  <polygon points="120,180 125,170 130,180" fill="#228B22"/>
+  <polygon points="250,180 255,170 260,180" fill="#228B22"/>
+  <polygon points="300,185 305,175 310,185" fill="#228B22"/>
+  
+  <!-- Clouds -->
+  <ellipse cx="80" cy="70" rx="15" ry="8" fill="#FFFFFF" opacity="0.8"/>
+  <ellipse cx="320" cy="60" rx="20" ry="10" fill="#FFFFFF" opacity="0.8"/>
+  
+  <!-- Text -->
+  <text x="200" y="250" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#2F4F4F">Zakopane & Tatra Mountains</text>
+</svg>

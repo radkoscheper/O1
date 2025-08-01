@@ -2,12 +2,15 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Search, Settings } from "lucide-react";
+import { Search, Settings, MapPin, Calendar } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
 import TravelSlider from "@/components/ui/travel-slider";
+import { LoadingScreen, useLoadingContent } from "@/components/ui/loading-screen";
+import { generateCloudinaryUrl, getSmartTransform } from "@/lib/cloudinaryUtils";
 
 export default function Home() {
+  const [location] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
@@ -92,6 +95,13 @@ export default function Home() {
   const { data: siteSettings = {}, isLoading: settingsLoading } = useQuery({
     queryKey: ["/api/site-settings"],
   });
+
+  const isPageLoading = destinationsLoading || guidesLoading || pagesLoading;
+  
+  // Loading content for this page
+  const loadingContent = useLoadingContent(location, siteSettings);
+  
+  const showLoading = isPageLoading;
 
   // Fetch search configuration for homepage context
   const { data: searchConfig = {} } = useQuery({
@@ -217,15 +227,14 @@ export default function Home() {
   // Filter only published pages
   const publishedPages = (pages as any[]).filter((page: any) => page.published);
   
-  // Show loading state
-  if (destinationsLoading || guidesLoading || pagesLoading || featuredLoading || settingsLoading) {
+  // Show loading screen instead of simple spinner
+  if (showLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#f8f6f1" }}>
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-lg">Laden...</p>
-        </div>
-      </div>
+      <LoadingScreen
+        isLoading={true}
+        title={loadingContent.title}
+        subtitle={loadingContent.subtitle}
+      />
     );
   }
 
