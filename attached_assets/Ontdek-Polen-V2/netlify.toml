@@ -1,0 +1,23 @@
+[build]
+  base = "."
+  publish = "dist/public"
+  command = "node cms/cli.js generate && vite build"
+
+[build.environment]
+  NODE_VERSION = "20"
+  NEON_DATABASE_URL = "postgresql://neondb_owner:npg_pAbda9fC0QTJ@ep-nameless-sound-a2dglih1-pooler.eu-central-1.aws.neon.tech/ontdekpolen?sslmode=require&channel_binding=require"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[dev]
+  command = "npm run dev"
+  port = 5000
+  publish = "dist/public"

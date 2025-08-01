@@ -1,0 +1,234 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 480">
+  <defs>
+    <linearGradient id="seaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#4682B4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1E90FF;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="pierGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#DEB887;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8B7355;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Baltic Sea -->
+  <rect width="1200" height="280" fill="url(#seaGrad)"/>
+  
+  <!-- Waves -->
+  <path d="M0 220 Q50 210 100 220 Q150 230 200 220 Q250 210 300 220 Q350 230 400 220 Q450 210 500 220 Q550 230 600 220 Q650 210 700 220 Q750 230 800 220 Q850 210 900 220 Q950 230 1000 220 Q1050 210 1100 220 Q1150 230 1200 220 L1200 280 L0 280 Z" fill="#FFFFFF" opacity="0.5"/>
+  
+  <path d="M0 250 Q30 245 60 250 Q90 255 120 250 Q150 245 180 250 Q210 255 240 250 Q270 245 300 250 Q330 255 360 250 Q390 245 420 250 Q450 255 480 250 Q510 245 540 250 Q570 255 600 250 Q630 245 660 250 Q690 255 720 250 Q750 245 780 250 Q810 255 840 250 Q870 245 900 250 Q930 255 960 250 Q990 245 1020 250 Q1050 255 1080 250 Q1110 245 1140 250 Q1170 255 1200 250 L1200 280 L0 280 Z" fill="#FFFFFF" opacity="0.3"/>
+  
+  <!-- Sandy beach -->
+  <rect x="0" y="280" width="1200" height="200" fill="#F5DEB3"/>
+  
+  <!-- Famous Ustka lighthouse -->
+  <rect x="800" y="120" width="25" height="160" fill="#FFFFFF"/>
+  <rect x="796" y="110" width="33" height="12" fill="#DC143C"/>
+  <rect x="792" y="100" width="41" height="12" fill="#FFFFFF"/>
+  <rect x="796" y="90" width="33" height="12" fill="#DC143C"/>
+  <rect x="792" y="80" width="41" height="12" fill="#FFFFFF"/>
+  
+  <!-- Lighthouse lantern room -->
+  <circle cx="812.5" cy="105" r="10" fill="#FFD700"/>
+  <path d="M 802 105 L 775 95 L 775 115 Z" fill="#FFFF99" opacity="0.6"/>
+  <path d="M 823 105 L 850 95 L 850 115 Z" fill="#FFFF99" opacity="0.6"/>
+  
+  <!-- Pier extending into sea -->
+  <rect x="700" y="200" width="300" height="15" fill="url(#pierGrad)"/>
+  
+  <!-- Pier support pillars -->
+  <rect x="730" y="200" width="6" height="40" fill="#654321"/>
+  <rect x="770" y="200" width="6" height="35" fill="#654321"/>
+  <rect x="810" y="200" width="6" height="40" fill="#654321"/>
+  <rect x="850" y="200" width="6" height="35" fill="#654321"/>
+  <rect x="890" y="200" width="6" height="40" fill="#654321"/>
+  <rect x="930" y="200" width="6" height="35" fill="#654321"/>
+  <rect x="970" y="200" width="6" height="40" fill="#654321"/>
+  
+  <!-- Fishing harbor -->
+  <rect x="450" y="220" width="200" height="60" fill="#4682B4" opacity="0.8"/>
+  
+  <!-- Harbor mole -->
+  <rect x="440" y="210" width="20" height="80" fill="#8B7355"/>
+  <rect x="650" y="210" width="20" height="80" fill="#8B7355"/>
+  
+  <!-- Fishing boats -->
+  <g id="fishingBoat1" transform="translate(480,240)">
+    <ellipse cx="0" cy="0" rx="30" ry="10" fill="#8B4513"/>
+    <rect x="-25" y="-8" width="50" height="5" fill="#654321"/>
+    <rect x="-5" y="-15" width="10" height="15" fill="#654321"/>
+    <polygon points="-5,-15 5,-20 5,-15" fill="#FFFFFF"/>
+    <!-- Fishing nets -->
+    <circle cx="-15" cy="-3" r="3" fill="#228B22" opacity="0.7"/>
+    <circle cx="15" cy="-3" r="3" fill="#228B22" opacity="0.7"/>
+  </g>
+  
+  <g id="fishingBoat2" transform="translate(550,250)">
+    <ellipse cx="0" cy="0" rx="25" ry="8" fill="#8B4513"/>
+    <rect x="-20" y="-6" width="40" height="4" fill="#654321"/>
+    <rect x="-3" y="-12" width="6" height="12" fill="#654321"/>
+    <polygon points="-3,-12 3,-16 3,-12" fill="#FFFFFF"/>
+    <circle cx="-10" cy="-2" r="2" fill="#228B22" opacity="0.7"/>
+    <circle cx="10" cy="-2" r="2" fill="#228B22" opacity="0.7"/>
+  </g>
+  
+  <g id="fishingBoat3" transform="translate(600,245)">
+    <ellipse cx="0" cy="0" rx="28" ry="9" fill="#8B4513"/>
+    <rect x="-23" y="-7" width="46" height="4" fill="#654321"/>
+    <rect x="-4" y="-14" width="8" height="14" fill="#654321"/>
+    <polygon points="-4,-14 4,-18 4,-14" fill="#FFFFFF"/>
+    <circle cx="-12" cy="-3" r="2.5" fill="#228B22" opacity="0.7"/>
+    <circle cx="12" cy="-3" r="2.5" fill="#228B22" opacity="0.7"/>
+  </g>
+  
+  <!-- Beach resort hotels -->
+  <rect x="100" y="220" width="100" height="80" fill="#F0F8FF"/>
+  <polygon points="100,220 150,200 200,220" fill="#4169E1"/>
+  <rect x="120" y="245" width="15" height="20" fill="#4A90E2"/>
+  <rect x="145" y="245" width="15" height="20" fill="#4A90E2"/>
+  <rect x="170" y="245" width="15" height="20" fill="#4A90E2"/>
+  <rect x="120" y="270" width="15" height="20" fill="#4A90E2"/>
+  <rect x="145" y="270" width="15" height="20" fill="#4A90E2"/>
+  <rect x="170" y="270" width="15" height="20" fill="#4A90E2"/>
+  <rect x="140" y="285" width="20" height="15" fill="#654321"/>
+  
+  <rect x="250" y="210" width="120" height="90" fill="#F5F5DC"/>
+  <polygon points="250,210 310,190 370,210" fill="#DAA520"/>
+  <rect x="270" y="235" width="18" height="25" fill="#4A90E2"/>
+  <rect x="298" y="235" width="18" height="25" fill="#4A90E2"/>
+  <rect x="326" y="235" width="18" height="25" fill="#4A90E2"/>
+  <rect x="270" y="270" width="18" height="25" fill="#4A90E2"/>
+  <rect x="298" y="270" width="18" height="25" fill="#4A90E2"/>
+  <rect x="326" y="270" width="18" height="25" fill="#4A90E2"/>
+  <rect x="295" y="290" width="25" height="10" fill="#654321"/>
+  
+  <!-- Spa resort symbols -->
+  <circle cx="150" cy="210" r="6" fill="#00CED1"/>
+  <text x="150" y="214" text-anchor="middle" font-family="serif" font-size="7" fill="#FFFFFF">SPA</text>
+  
+  <circle cx="310" cy="200" r="6" fill="#00CED1"/>
+  <text x="310" y="204" text-anchor="middle" font-family="serif" font-size="7" fill="#FFFFFF">SPA</text>
+  
+  <!-- Promenade -->
+  <rect x="0" y="300" width="1200" height="25" fill="#D3D3D3"/>
+  <line x1="0" y1="312" x2="1200" y2="312" stroke="#FFFFFF" stroke-width="2" stroke-dasharray="15,10"/>
+  
+  <!-- Beach cafes and restaurants -->
+  <rect x="1000" y="250" width="80" height="50" fill="#FFE4B5"/>
+  <polygon points="1000,250 1040,235 1080,250" fill="#DEB887"/>
+  <rect x="1015" y="270" width="12" height="15" fill="#4A4A4A"/>
+  <rect x="1035" y="270" width="12" height="15" fill="#4A4A4A"/>
+  <rect x="1055" y="270" width="12" height="15" fill="#4A4A4A"/>
+  <rect x="1030" y="285" width="20" height="15" fill="#654321"/>
+  
+  <!-- Beach umbrellas and chairs -->
+  <g id="umbrella1" transform="translate(200,350)">
+    <rect x="0" y="0" width="3" height="30" fill="#8B4513"/>
+    <path d="M -12 0 Q 0 -8 12 0 Q 8 -4 0 -4 Q -8 -4 -12 0" fill="#FF6347"/>
+  </g>
+  
+  <g id="umbrella2" transform="translate(300,355)">
+    <rect x="0" y="0" width="3" height="25" fill="#8B4513"/>
+    <path d="M -12 0 Q 0 -8 12 0 Q 8 -4 0 -4 Q -8 -4 -12 0" fill="#4169E1"/>
+  </g>
+  
+  <g id="umbrella3" transform="translate(500,350)">
+    <rect x="0" y="0" width="3" height="30" fill="#8B4513"/>
+    <path d="M -12 0 Q 0 -8 12 0 Q 8 -4 0 -4 Q -8 -4 -12 0" fill="#32CD32"/>
+  </g>
+  
+  <g id="umbrella4" transform="translate(600,355)">
+    <rect x="0" y="0" width="3" height="25" fill="#8B4513"/>
+    <path d="M -12 0 Q 0 -8 12 0 Q 8 -4 0 -4 Q -8 -4 -12 0" fill="#FFD700"/>
+  </g>
+  
+  <!-- Beach chairs -->
+  <rect x="190" y="370" width="20" height="8" fill="#FF6347"/>
+  <rect x="186" y="365" width="28" height="3" fill="#8B4513"/>
+  
+  <rect x="290" y="375" width="20" height="8" fill="#4169E1"/>
+  <rect x="286" y="370" width="28" height="3" fill="#8B4513"/>
+  
+  <rect x="490" y="370" width="20" height="8" fill="#32CD32"/>
+  <rect x="486" y="365" width="28" height="3" fill="#8B4513"/>
+  
+  <rect x="590" y="375" width="20" height="8" fill="#FFD700"/>
+  <rect x="586" y="370" width="28" height="3" fill="#8B4513"/>
+  
+  <!-- Tourists on beach -->
+  <circle cx="180" cy="390" r="3" fill="#FFE4C4"/>
+  <rect x="177" y="393" width="6" height="10" fill="#FF69B4"/>
+  <rect x="179" y="403" width="2" height="6" fill="#8B4513"/>
+  
+  <circle cx="280" cy="395" r="3" fill="#FFE4C4"/>
+  <rect x="277" y="398" width="6" height="10" fill="#32CD32"/>
+  <rect x="279" y="408" width="2" height="6" fill="#8B4513"/>
+  
+  <circle cx="480" cy="390" r="3" fill="#FFE4C4"/>
+  <rect x="477" y="393" width="6" height="10" fill="#4169E1"/>
+  <rect x="479" y="403" width="2" height="6" fill="#8B4513"/>
+  
+  <circle cx="580" cy="395" r="3" fill="#FFE4C4"/>
+  <rect x="577" y="398" width="6" height="10" fill="#FFD700"/>
+  <rect x="579" y="408" width="2" height="6" fill="#8B4513"/>
+  
+  <circle cx="750" cy="390" r="3" fill="#FFE4C4"/>
+  <rect x="747" y="393" width="6" height="10" fill="#9370DB"/>
+  <rect x="749" y="403" width="2" height="6" fill="#8B4513"/>
+  
+  <!-- Children playing -->
+  <circle cx="400" cy="405" r="2" fill="#FFE4C4"/>
+  <rect x="398" y="407" width="4" height="8" fill="#FF6347"/>
+  <rect x="399" y="415" width="2" height="5" fill="#8B4513"/>
+  
+  <circle cx="420" cy="400" r="2" fill="#FFE4C4"/>
+  <rect x="418" y="402" width="4" height="8" fill="#4169E1"/>
+  <rect x="419" y="410" width="2" height="5" fill="#8B4513"/>
+  
+  <!-- Sand castles -->
+  <g id="sandcastle1" transform="translate(350,410)">
+    <rect x="0" y="0" width="15" height="10" fill="#DEB887"/>
+    <rect x="3" y="-5" width="9" height="5" fill="#DEB887"/>
+    <rect x="5" y="-8" width="5" height="3" fill="#DEB887"/>
+    <circle cx="7.5" cy="-10" r="1" fill="#FFD700"/>
+  </g>
+  
+  <g id="sandcastle2" transform="translate(650,415)">
+    <rect x="0" y="0" width="12" height="8" fill="#DEB887"/>
+    <rect x="2" y="-4" width="8" height="4" fill="#DEB887"/>
+    <rect x="4" y="-6" width="4" height="2" fill="#DEB887"/>
+    <circle cx="6" cy="-8" r="0.8" fill="#FFD700"/>
+  </g>
+  
+  <!-- Fishermen on pier -->
+  <circle cx="900" cy="205" r="3" fill="#FFE4C4"/>
+  <rect x="897" y="208" width="6" height="12" fill="#8B4513"/>
+  <rect x="899" y="220" width="2" height="8" fill="#654321"/>
+  <!-- Fishing rod -->
+  <line x1="903" y1="210" x2="910" y2="200" stroke="#8B4513" stroke-width="2"/>
+  <line x1="910" y1="200" x2="915" y2="190" stroke="#654321" stroke-width="1"/>
+  
+  <!-- Seagulls -->
+  <path d="M150 100 Q155 95 160 100 Q165 95 170 100" stroke="#FFFFFF" stroke-width="2" fill="none"/>
+  <path d="M400 80 Q405 75 410 80 Q415 75 420 80" stroke="#FFFFFF" stroke-width="2" fill="none"/>
+  <path d="M700 60 Q705 55 710 60 Q715 55 720 60" stroke="#FFFFFF" stroke-width="2" fill="none"/>
+  <path d="M950 90 Q955 85 960 90 Q965 85 970 90" stroke="#FFFFFF" stroke-width="2" fill="none"/>
+  
+  <!-- Trees behind promenade -->
+  <ellipse cx="50" cy="320" rx="20" ry="25" fill="#228B22"/>
+  <rect x="48" y="335" width="4" height="20" fill="#8B4513"/>
+  
+  <ellipse cx="1150" cy="330" rx="25" ry="30" fill="#228B22"/>
+  <rect x="1148" y="350" width="4" height="25" fill="#8B4513"/>
+  
+  <!-- Sun in sky -->
+  <circle cx="1000" cy="60" r="20" fill="#FFD700"/>
+  <line x1="980" y1="60" x2="970" y2="60" stroke="#FFD700" stroke-width="2"/>
+  <line x1="1020" y1="60" x2="1030" y2="60" stroke="#FFD700" stroke-width="2"/>
+  <line x1="1000" y1="40" x2="1000" y2="30" stroke="#FFD700" stroke-width="2"/>
+  <line x1="1000" y1="80" x2="1000" y2="90" stroke="#FFD700" stroke-width="2"/>
+  
+  <!-- Title -->
+  <text x="600" y="40" text-anchor="middle" font-family="serif" font-size="36" font-weight="bold" fill="#4169E1">USTKA</text>
+  <text x="600" y="70" text-anchor="middle" font-family="serif" font-size="18" fill="#1E90FF">Baltische Rivièra</text>
+</svg>

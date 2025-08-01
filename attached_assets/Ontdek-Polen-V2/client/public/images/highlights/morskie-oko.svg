@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="waterGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#87CEEB;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4682B4;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="mountainGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#D3D3D3;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#696969;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Sky -->
+  <rect x="0" y="0" width="64" height="30" fill="#87CEEB"/>
+  <!-- Mountains background -->
+  <polygon points="0,30 15,5 25,15 35,8 45,12 55,3 64,10 64,30" fill="url(#mountainGrad)"/>
+  <!-- Mountain peaks with snow -->
+  <polygon points="10,15 20,2 30,15" fill="#F0F8FF"/>
+  <polygon points="25,18 35,6 45,18" fill="#F0F8FF"/>
+  <polygon points="40,20 50,8 60,20" fill="#F0F8FF"/>
+  <!-- Lake (Morskie Oko) -->
+  <ellipse cx="32" cy="45" rx="25" ry="12" fill="url(#waterGrad)"/>
+  <!-- Lake reflections -->
+  <ellipse cx="28" cy="43" rx="3" ry="1" fill="#B0E0E6" opacity="0.7"/>
+  <ellipse cx="38" cy="46" rx="4" ry="1.5" fill="#B0E0E6" opacity="0.7"/>
+  <!-- Forest around lake -->
+  <polygon points="5,40 8,35 11,40 14,35 17,40 20,35 23,40" fill="#228B22"/>
+  <polygon points="41,40 44,35 47,40 50,35 53,40 56,35 59,40" fill="#228B22"/>
+  <!-- Trees -->
+  <rect x="7" y="40" width="1" height="8" fill="#8B4513"/>
+  <polygon points="6,40 7.5,32 9,40" fill="#228B22"/>
+  <rect x="45" y="40" width="1" height="8" fill="#8B4513"/>
+  <polygon points="44,40 45.5,32 47,40" fill="#228B22"/>
+  <rect x="55" y="42" width="1" height="6" fill="#8B4513"/>
+  <polygon points="54,42 55.5,36 57,42" fill="#228B22"/>
+  <!-- Rocky shore -->
+  <ellipse cx="15" cy="50" rx="3" ry="2" fill="#696969"/>
+  <ellipse cx="48" cy="51" rx="4" ry="2" fill="#696969"/>
+  <ellipse cx="32" cy="55" rx="2" ry="1" fill="#696969"/>
+  <!-- Water ripples -->
+  <ellipse cx="25" cy="45" rx="6" ry="0.5" fill="none" stroke="#B0E0E6" stroke-width="0.5" opacity="0.5"/>
+  <ellipse cx="40" cy="47" rx="4" ry="0.5" fill="none" stroke="#B0E0E6" stroke-width="0.5" opacity="0.5"/>
+</svg>

@@ -1,0 +1,62 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#87CEEB;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E0F6FF;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="castleGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#CD853F;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8B4513;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Sky -->
+  <rect width="400" height="200" fill="url(#skyGrad)"/>
+  
+  <!-- Ground -->
+  <rect x="0" y="200" width="400" height="100" fill="#228B22"/>
+  
+  <!-- Castle walls -->
+  <rect x="50" y="100" width="300" height="100" fill="url(#castleGrad)"/>
+  
+  <!-- Main keep -->
+  <rect x="150" y="50" width="100" height="150" fill="url(#castleGrad)"/>
+  
+  <!-- Towers -->
+  <rect x="60" y="80" width="40" height="120" fill="url(#castleGrad)"/>
+  <rect x="300" y="80" width="40" height="120" fill="url(#castleGrad)"/>
+  <rect x="120" y="60" width="30" height="140" fill="url(#castleGrad)"/>
+  <rect x="250" y="60" width="30" height="140" fill="url(#castleGrad)"/>
+  
+  <!-- Tower tops -->
+  <polygon points="60,80 80,60 100,80" fill="#8B0000"/>
+  <polygon points="300,80 320,60 340,80" fill="#8B0000"/>
+  <polygon points="120,60 135,40 150,60" fill="#8B0000"/>
+  <polygon points="250,60 265,40 280,60" fill="#8B0000"/>
+  <polygon points="150,50 200,20 250,50" fill="#8B0000"/>
+  
+  <!-- Gates and windows -->
+  <rect x="190" y="150" width="20" height="30" fill="#2F4F4F"/>
+  <arch cx="200" cy="150" rx="10" ry="15" fill="#2F4F4F"/>
+  
+  <!-- Windows -->
+  <rect x="70" y="120" width="8" height="12" fill="#2F4F4F"/>
+  <rect x="85" y="120" width="8" height="12" fill="#2F4F4F"/>
+  <rect x="310" y="120" width="8" height="12" fill="#2F4F4F"/>
+  <rect x="325" y="120" width="8" height="12" fill="#2F4F4F"/>
+  <rect x="170" y="100" width="8" height="12" fill="#2F4F4F"/>
+  <rect x="220" y="100" width="8" height="12" fill="#2F4F4F"/>
+  
+  <!-- Flags -->
+  <line x1="205" y1="20" x2="205" y2="50" stroke="#2F4F4F" stroke-width="2"/>
+  <polygon points="205,20 225,25 205,30" fill="#FF0000"/>
+  
+  <!-- Water/moat -->
+  <rect x="0" y="180" width="400" height="20" fill="#4682B4" opacity="0.7"/>
+  
+  <!-- Reflection -->
+  <rect x="150" y="200" width="100" height="40" fill="url(#castleGrad)" opacity="0.3"/>
+  
+  <!-- Text -->
+  <text x="200" y="280" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#2F4F4F">Malbork Castle</text>
+</svg>

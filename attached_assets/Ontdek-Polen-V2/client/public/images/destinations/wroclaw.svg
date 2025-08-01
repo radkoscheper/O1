@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 480">
+  <defs>
+    <linearGradient id="skyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#87CEEB;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E0F6FF;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="buildingGrad1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6B6B;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#D63031;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="buildingGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD93D;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F39C12;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="buildingGrad3" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#74B9FF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0984E3;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Sky background -->
+  <rect width="1200" height="480" fill="url(#skyGradient)"/>
+  
+  <!-- River Oder -->
+  <path d="M0 350 Q300 340 600 345 Q900 350 1200 355 L1200 480 L0 480 Z" fill="#4A90E2" opacity="0.8"/>
+  
+  <!-- Colorful Renaissance buildings (Wrocław's famous market square) -->
+  <rect x="100" y="200" width="80" height="180" fill="url(#buildingGrad1)"/>
+  <polygon points="100,200 140,160 180,200" fill="#8B0000"/>
+  <rect x="110" y="240" width="15" height="25" fill="#4A4A4A"/>
+  <rect x="140" y="240" width="15" height="25" fill="#4A4A4A"/>
+  <rect x="125" y="220" width="10" height="15" fill="#FFE4B5"/>
+  
+  <rect x="200" y="180" width="90" height="200" fill="url(#buildingGrad2)"/>
+  <polygon points="200,180 245,140 290,180" fill="#B8860B"/>
+  <rect x="215" y="220" width="15" height="25" fill="#4A4A4A"/>
+  <rect x="245" y="220" width="15" height="25" fill="#4A4A4A"/>
+  <rect x="230" y="200" width="12" height="18" fill="#FFE4B5"/>
+  
+  <rect x="310" y="160" width="85" height="220" fill="url(#buildingGrad3)"/>
+  <polygon points="310,160 352.5,120 395,160" fill="#2C3E50"/>
+  <rect x="325" y="200" width="15" height="25" fill="#4A4A4A"/>
+  <rect x="355" y="200" width="15" height="25" fill="#4A4A4A"/>
+  <rect x="340" y="180" width="10" height="15" fill="#FFE4B5"/>
+  
+  <rect x="420" y="190" width="80" height="190" fill="#FF9FF3"/>
+  <polygon points="420,190 460,150 500,190" fill="#8E44AD"/>
+  <rect x="435" y="230" width="15" height="25" fill="#4A4A4A"/>
+  <rect x="465" y="230" width="15" height="25" fill="#4A4A4A"/>
+  
+  <rect x="520" y="170" width="85" height="210" fill="#98FB98"/>
+  <polygon points="520,170 562.5,130 605,170" fill="#228B22"/>
+  <rect x="535" y="210" width="15" height="25" fill="#4A4A4A"/>
+  <rect x="565" y="210" width="15" height="25" fill="#4A4A4A"/>
+  
+  <!-- Gothic Town Hall tower (Wrocław's landmark) -->
+  <rect x="700" y="80" width="40" height="300" fill="#8B7355"/>
+  <polygon points="700,80 720,40 740,80" fill="#654321"/>
+  <rect x="710" y="120" width="8" height="12" fill="#4A4A4A"/>
+  <rect x="722" y="120" width="8" height="12" fill="#4A4A4A"/>
+  <rect x="710" y="150" width="8" height="12" fill="#4A4A4A"/>
+  <rect x="722" y="150" width="8" height="12" fill="#4A4A4A"/>
+  
+  <!-- Clock face on town hall -->
+  <circle cx="720" cy="180" r="12" fill="#F4F4F4" stroke="#333" stroke-width="2"/>
+  <line x1="720" y1="180" x2="720" y2="173" stroke="#333" stroke-width="2"/>
+  <line x1="720" y1="180" x2="725" y2="180" stroke="#333" stroke-width="1"/>
+  
+  <!-- Bridges (Wrocław has 112 bridges) -->
+  <rect x="0" y="320" width="1200" height="8" fill="#8B7355"/>
+  <rect x="200" y="315" width="8" height="18" fill="#654321"/>
+  <rect x="400" y="315" width="8" height="18" fill="#654321"/>
+  <rect x="600" y="315" width="8" height="18" fill="#654321"/>
+  <rect x="800" y="315" width="8" height="18" fill="#654321"/>
+  <rect x="1000" y="315" width="8" height="18" fill="#654321"/>
+  
+  <!-- Dwarfs (Wrocław's famous bronze dwarfs) -->
+  <g id="dwarf1" transform="translate(150,360)">
+    <ellipse cx="0" cy="10" rx="8" ry="4" fill="#8B4513"/>
+    <circle cx="0" cy="0" r="6" fill="#FFE4C4"/>
+    <polygon points="-3,-8 0,-15 3,-8" fill="#DC143C"/>
+    <circle cx="-2" cy="-2" r="1" fill="#000"/>
+    <circle cx="2" cy="-2" r="1" fill="#000"/>
+  </g>
+  
+  <g id="dwarf2" transform="translate(350,365)">
+    <ellipse cx="0" cy="10" rx="8" ry="4" fill="#8B4513"/>
+    <circle cx="0" cy="0" r="6" fill="#FFE4C4"/>
+    <polygon points="-3,-8 0,-15 3,-8" fill="#DC143C"/>
+    <circle cx="-2" cy="-2" r="1" fill="#000"/>
+    <circle cx="2" cy="-2" r="1" fill="#000"/>
+  </g>
+  
+  <g id="dwarf3" transform="translate(850,370)">
+    <ellipse cx="0" cy="10" rx="8" ry="4" fill="#8B4513"/>
+    <circle cx="0" cy="0" r="6" fill="#FFE4C4"/>
+    <polygon points="-3,-8 0,-15 3,-8" fill="#DC143C"/>
+    <circle cx="-2" cy="-2" r="1" fill="#000"/>
+    <circle cx="2" cy="-2" r="1" fill="#000"/>
+  </g>
+  
+  <!-- Cathedral Island spires in background -->
+  <rect x="900" y="120" width="25" height="180" fill="#696969"/>
+  <polygon points="900,120 912.5,80 925,120" fill="#2F4F4F"/>
+  <rect x="950" y="140" width="25" height="160" fill="#696969"/>
+  <polygon points="950,140 962.5,100 975,140" fill="#2F4F4F"/>
+  
+  <!-- Centennial Hall dome in distance -->
+  <ellipse cx="1100" cy="200" rx="50" ry="30" fill="#A0A0A0"/>
+  <ellipse cx="1100" cy="190" rx="45" ry="25" fill="#C0C0C0"/>
+  
+  <!-- Title -->
+  <text x="600" y="50" text-anchor="middle" font-family="serif" font-size="36" font-weight="bold" fill="#2C3E50">WROCŁAW</text>
+  <text x="600" y="80" text-anchor="middle" font-family="serif" font-size="18" fill="#34495E">De Sprookjesstad</text>
+</svg>

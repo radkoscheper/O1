@@ -70,45 +70,53 @@ export class CloudinaryService {
       };
     } catch (error) {
       console.error('Cloudinary upload error:', error);
-      throw new Error('Failed to upload image to Cloudinary');
+      throw new Error(`Failed to upload image to Cloudinary: ${error}`);
     }
   }
 
   /**
    * Delete image from Cloudinary
    */
-  static async deleteImage(publicId: string): Promise<boolean> {
+  static async deleteImage(publicId: string): Promise<void> {
     try {
-      const result = await cloudinary.uploader.destroy(publicId);
-      return result.result === 'ok';
+      await cloudinary.uploader.destroy(publicId);
     } catch (error) {
       console.error('Cloudinary delete error:', error);
-      return false;
+      throw new Error(`Failed to delete image from Cloudinary: ${error}`);
     }
   }
 
   /**
-   * Generate optimized URL with transformations
+   * Generate optimized URL for existing image
    */
-  static getOptimizedUrl(
+  static generateUrl(
     publicId: string,
     options: {
       width?: number;
       height?: number;
-      crop?: 'fill' | 'fit' | 'scale' | 'crop';
+      crop?: string;
       quality?: string | number;
-      format?: 'auto' | 'webp' | 'jpg' | 'png';
+      format?: string;
     } = {}
   ): string {
     return cloudinary.url(publicId, {
-      transformation: {
-        quality: options.quality || 'auto:good',
-        fetch_format: options.format || 'auto',
-        width: options.width,
-        height: options.height,
-        crop: options.crop || 'fill',
-      },
+      quality: 'auto:good',
+      fetch_format: 'auto',
+      ...options,
     });
+  }
+
+  /**
+   * Get image details
+   */
+  static async getImageDetails(publicId: string): Promise<any> {
+    try {
+      const result = await cloudinary.api.resource(publicId);
+      return result;
+    } catch (error) {
+      console.error('Cloudinary get details error:', error);
+      throw new Error(`Failed to get image details from Cloudinary: ${error}`);
+    }
   }
 
   /**
@@ -116,16 +124,15 @@ export class CloudinaryService {
    */
   static async listImages(folder: string = 'ontdek-polen'): Promise<any[]> {
     try {
-      const result = await cloudinary.search
-        .expression(`folder:${folder}/*`)
-        .sort_by('created_at', 'desc')
-        .max_results(100)
-        .execute();
-      
+      const result = await cloudinary.api.resources({
+        type: 'upload',
+        prefix: folder,
+        max_results: 100,
+      });
       return result.resources;
     } catch (error) {
-      console.error('Cloudinary list error:', error);
-      return [];
+      console.error('Cloudinary list images error:', error);
+      throw new Error(`Failed to list images from Cloudinary: ${error}`);
     }
   }
 }

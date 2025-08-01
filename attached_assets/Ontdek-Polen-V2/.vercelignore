@@ -1,0 +1,28 @@
+# Dependencies
+node_modules
+npm-debug.log*
+
+# Development files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE files
+.vscode
+.idea
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Replit specific
+replit.nix
+.replit
+.cache
+
+# Build artifacts (exclude to force rebuild)
+# dist/
+
+# Source maps (optional, uncomment if you want to exclude them)
+# *.map
