@@ -79,20 +79,11 @@ export default function Home() {
 
   // Fetch featured activities from database (replaces old highlights)
   const { data: featuredActivities = [], isLoading: featuredLoading } = useQuery({
-    queryKey: ["/api/admin/activities"],
-    queryFn: async () => {
-      const response = await fetch('/api/admin/activities');
-      if (!response.ok) {
-        throw new Error('Failed to fetch activities');
-      }
-      const activities = await response.json();
-      // Filter for featured and published activities only
-      return activities.filter(activity => activity.featured === true && activity.published === true);
-    },
+    queryKey: ["/api/highlights"],
   });
 
   // Fetch site settings
-  const { data: siteSettings, isLoading: settingsLoading } = useQuery({
+  const { data: siteSettings = {}, isLoading: settingsLoading } = useQuery({
     queryKey: ["/api/site-settings"],
   });
 
@@ -104,12 +95,12 @@ export default function Home() {
   const showLoading = isPageLoading;
 
   // Fetch search configuration for homepage context
-  const { data: searchConfig } = useQuery({
+  const { data: searchConfig = {} } = useQuery({
     queryKey: ["/api/search-config/homepage"],
   });
 
   // Fetch motivation data for CTA section
-  const { data: motivationData } = useQuery({
+  const { data: motivationData = {} } = useQuery({
     queryKey: ["/api/motivation"],
   });
 
@@ -122,13 +113,13 @@ export default function Home() {
       if (!response.ok) throw new Error('Failed to fetch location');
       return response.json();
     },
-    enabled: !!motivationData?.image,
+    enabled: !!(motivationData && motivationData.image),
   });
 
   // Update document title and meta tags when site settings change
   useEffect(() => {
-    if (siteSettings) {
-      document.title = siteSettings.siteName || "Ontdek Polen";
+    if (siteSettings && typeof siteSettings === 'object') {
+      document.title = (siteSettings as any).siteName || "Ontdek Polen";
       
       // Update meta description
       let metaDescription = document.querySelector('meta[name="description"]');
@@ -137,7 +128,7 @@ export default function Home() {
         metaDescription.setAttribute('name', 'description');
         document.head.appendChild(metaDescription);
       }
-      metaDescription.setAttribute('content', siteSettings.siteDescription || "Ontdek de mooiste plekken van Polen");
+      metaDescription.setAttribute('content', (siteSettings as any).siteDescription || "Ontdek de mooiste plekken van Polen");
       
       // Update meta keywords
       let metaKeywords = document.querySelector('meta[name="keywords"]');

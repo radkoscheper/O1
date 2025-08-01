@@ -388,14 +388,14 @@ export default function Admin() {
   const getFilteredDestinations = () => {
     if (!destinationsQuery.data || !Array.isArray(destinationsQuery.data)) return [];
     if (locationFilter === 'all') return destinationsQuery.data;
-    return (destinationsQuery.data as any[]).filter((dest: any) => dest.location === locationFilter);
+    return (destinationsQuery.data || []).filter((dest: any) => dest.location === locationFilter);
   };
 
   // Filter guides by category
   const getFilteredGuides = () => {
     if (!guidesQuery.data || !Array.isArray(guidesQuery.data)) return [];
     if (guideFilter === 'all') return guidesQuery.data;
-    return (guidesQuery.data as any[]).filter((guide: any) => {
+    return (guidesQuery.data || []).filter((guide: any) => {
       const firstWord = guide.title.split(' ')[0] || 'Overig';
       return firstWord === guideFilter;
     });
@@ -480,7 +480,7 @@ export default function Admin() {
   useEffect(() => {
     if (siteSettingsQuery.data) {
       console.log('Loading site settings from query:', siteSettingsQuery.data);
-      const data = siteSettingsQuery.data as any;
+      const data = siteSettingsQuery.data || {};
       const newSettings = {
         siteName: data.siteName || '',
         siteDescription: data.siteDescription || '',
@@ -511,7 +511,7 @@ export default function Admin() {
   // Load motivation data when query updates
   useEffect(() => {
     if (motivationQuery.data) {
-      const data = motivationQuery.data as any;
+      const data = motivationQuery.data || {};
       setMotivationData({
         title: data.title || '',
         description: data.description || '',
