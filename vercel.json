@@ -1,5 +1,20 @@
 {
   "version": 2,
-  "buildCommand": "npm run build && mkdir -p dist/public/api && cp dist/index.js dist/public/api/index.js",
-  "outputDirectory": "dist/public"
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/public",
+  "functions": {
+    "api/index.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
 }
