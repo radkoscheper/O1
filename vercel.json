@@ -2,7 +2,6 @@
   "version": 2,
   "buildCommand": "node build-vercel.js",
   "outputDirectory": "dist/public",
-
   "routes": [
     {
       "src": "/api/(.*)",
@@ -12,8 +11,5 @@
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  ]
 }
