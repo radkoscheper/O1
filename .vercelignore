@@ -1,35 +1,28 @@
-# Replit specific files
-.replit
-replit.nix
+# Dependencies
+node_modules
+npm-debug.log*
 
 # Development files
-*.backup
-*.corrupt
-*.tmp
-
-# Logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Node modules
-node_modules/
-
-# Build artifacts
-dist/
-.next/
-
-# Local env files
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
 # IDE files
-.vscode/
-.idea/
+.vscode
+.idea
 
-# OS files
+# OS generated files
 .DS_Store
 Thumbs.db
+
+# Replit specific
+replit.nix
+.replit
+.cache
+
+# Build artifacts (exclude to force rebuild)
+# dist/
+
+# Source maps (optional, uncomment if you want to exclude them)
+# *.map

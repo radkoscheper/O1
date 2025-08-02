@@ -1,0 +1,233 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 480">
+  <defs>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#87CEEB;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F0F8FF;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Sky background -->
+  <rect width="1200" height="480" fill="url(#skyGrad)"/>
+  
+  <!-- Rolling hills background -->
+  <path d="M0 200 Q300 180 600 190 Q900 200 1200 185 L1200 480 L0 480 Z" fill="#9ACD32"/>
+  
+  <!-- Painted cottage 1 -->
+  <g id="cottage1" transform="translate(150,250)">
+    <!-- House base -->
+    <rect x="0" y="0" width="120" height="80" fill="#FFFFFF"/>
+    <!-- Roof -->
+    <polygon points="-10,-20 60,-40 130,-20 120,0 0,0" fill="#8B4513"/>
+    
+    <!-- Painted flower patterns on walls -->
+    <!-- Large rose -->
+    <circle cx="30" cy="25" r="12" fill="#FF69B4"/>
+    <circle cx="30" cy="25" r="8" fill="#FFB6C1"/>
+    <circle cx="30" cy="25" r="4" fill="#FF1493"/>
+    
+    <!-- Leaves around rose -->
+    <ellipse cx="20" cy="20" rx="6" ry="3" fill="#32CD32" transform="rotate(-30 20 20)"/>
+    <ellipse cx="40" cy="20" rx="6" ry="3" fill="#32CD32" transform="rotate(30 40 20)"/>
+    <ellipse cx="25" cy="35" rx="6" ry="3" fill="#32CD32" transform="rotate(-60 25 35)"/>
+    <ellipse cx="35" cy="35" rx="6" ry="3" fill="#32CD32" transform="rotate(60 35 35)"/>
+    
+    <!-- Smaller flowers -->
+    <circle cx="70" cy="30" r="6" fill="#4169E1"/>
+    <circle cx="70" cy="30" r="3" fill="#87CEEB"/>
+    
+    <circle cx="90" cy="20" r="5" fill="#FFD700"/>
+    <circle cx="90" cy="20" r="2" fill="#FFA500"/>
+    
+    <!-- Decorative border pattern -->
+    <rect x="0" y="15" width="120" height="4" fill="#FF6347"/>
+    <circle cx="15" cy="17" r="2" fill="#FFFFFF"/>
+    <circle cx="30" cy="17" r="2" fill="#FFFFFF"/>
+    <circle cx="45" cy="17" r="2" fill="#FFFFFF"/>
+    <circle cx="60" cy="17" r="2" fill="#FFFFFF"/>
+    <circle cx="75" cy="17" r="2" fill="#FFFFFF"/>
+    <circle cx="90" cy="17" r="2" fill="#FFFFFF"/>
+    <circle cx="105" cy="17" r="2" fill="#FFFFFF"/>
+    
+    <!-- Windows -->
+    <rect x="20" y="45" width="18" height="22" fill="#4A4A4A"/>
+    <rect x="82" y="45" width="18" height="22" fill="#4A4A4A"/>
+    <!-- Door -->
+    <rect x="48" y="50" width="24" height="30" fill="#8B4513"/>
+    
+    <!-- Painted flowers on door -->
+    <circle cx="60" cy="60" r="4" fill="#FF1493"/>
+    <circle cx="60" cy="70" r="3" fill="#4169E1"/>
+  </g>
+  
+  <!-- Painted cottage 2 -->
+  <g id="cottage2" transform="translate(400,260)">
+    <rect x="0" y="0" width="100" height="70" fill="#FFFACD"/>
+    <polygon points="-8,-18 50,-35 108,-18 100,0 0,0" fill="#654321"/>
+    
+    <!-- Elaborate floral design -->
+    <!-- Central dahlia -->
+    <g id="dahlia" transform="translate(50,35)">
+      <circle cx="0" cy="0" r="10" fill="#DC143C"/>
+      <circle cx="0" cy="0" r="7" fill="#FF6347"/>
+      <circle cx="0" cy="0" r="4" fill="#FFB6C1"/>
+      <!-- Petals -->
+      <ellipse cx="-8" cy="0" rx="3" ry="6" fill="#DC143C"/>
+      <ellipse cx="8" cy="0" rx="3" ry="6" fill="#DC143C"/>
+      <ellipse cx="0" cy="-8" rx="6" ry="3" fill="#DC143C"/>
+      <ellipse cx="0" cy="8" rx="6" ry="3" fill="#DC143C"/>
+    </g>
+    
+    <!-- Corner flowers -->
+    <circle cx="15" cy="15" r="4" fill="#9370DB"/>
+    <circle cx="85" cy="15" r="4" fill="#9370DB"/>
+    <circle cx="15" cy="55" r="4" fill="#FFD700"/>
+    <circle cx="85" cy="55" r="4" fill="#FFD700"/>
+    
+    <!-- Vine pattern -->
+    <path d="M10 25 Q30 20 50 25 Q70 30 90 25" stroke="#228B22" stroke-width="2" fill="none"/>
+    <circle cx="20" cy="23" r="2" fill="#32CD32"/>
+    <circle cx="40" cy="27" r="2" fill="#32CD32"/>
+    <circle cx="60" cy="27" r="2" fill="#32CD32"/>
+    <circle cx="80" cy="23" r="2" fill="#32CD32"/>
+    
+    <!-- Windows and door -->
+    <rect x="15" y="40" width="15" height="18" fill="#4A4A4A"/>
+    <rect x="70" y="40" width="15" height="18" fill="#4A4A4A"/>
+    <rect x="40" y="45" width="20" height="25" fill="#8B4513"/>
+    
+    <!-- Flowers on window frames -->
+    <circle cx="22" cy="35" r="2" fill="#FF69B4"/>
+    <circle cx="77" cy="35" r="2" fill="#FF69B4"/>
+  </g>
+  
+  <!-- Painted cottage 3 -->
+  <g id="cottage3" transform="translate(700,240)">
+    <rect x="0" y="0" width="130" height="90" fill="#F0F8FF"/>
+    <polygon points="-12,-22 65,-42 142,-22 130,0 0,0" fill="#8B4513"/>
+    
+    <!-- Most elaborate painting - full wall coverage -->
+    <!-- Large central motif -->
+    <g id="centerMotif" transform="translate(65,45)">
+      <!-- Large rose -->
+      <circle cx="0" cy="0" r="15" fill="#FF1493"/>
+      <circle cx="0" cy="0" r="12" fill="#FFB6C1"/>
+      <circle cx="0" cy="0" r="8" fill="#FF69B4"/>
+      <circle cx="0" cy="0" r="4" fill="#DC143C"/>
+      
+      <!-- Surrounding petals -->
+      <ellipse cx="-12" cy="-5" rx="4" ry="8" fill="#FF1493" transform="rotate(-30 -12 -5)"/>
+      <ellipse cx="12" cy="-5" rx="4" ry="8" fill="#FF1493" transform="rotate(30 12 -5)"/>
+      <ellipse cx="-12" cy="5" rx="4" ry="8" fill="#FF1493" transform="rotate(-150 -12 5)"/>
+      <ellipse cx="12" cy="5" rx="4" ry="8" fill="#FF1493" transform="rotate(150 12 5)"/>
+      <ellipse cx="0" cy="-12" rx="8" ry="4" fill="#FF1493"/>
+      <ellipse cx="0" cy="12" rx="8" ry="4" fill="#FF1493"/>
+    </g>
+    
+    <!-- Corner decorations -->
+    <circle cx="20" cy="20" r="6" fill="#4169E1"/>
+    <circle cx="110" cy="20" r="6" fill="#4169E1"/>
+    <circle cx="20" cy="70" r="6" fill="#FFD700"/>
+    <circle cx="110" cy="70" r="6" fill="#FFD700"/>
+    
+    <!-- Floral border all around -->
+    <rect x="5" y="5" width="120" height="6" fill="#32CD32"/>
+    <rect x="5" y="79" width="120" height="6" fill="#32CD32"/>
+    <rect x="5" y="5" width="6" height="80" fill="#32CD32"/>
+    <rect x="119" y="5" width="6" height="80" fill="#32CD32"/>
+    
+    <!-- Small flowers on borders -->
+    <circle cx="25" cy="8" r="2" fill="#FF6347"/>
+    <circle cx="45" cy="8" r="2" fill="#FF6347"/>
+    <circle cx="65" cy="8" r="2" fill="#FF6347"/>
+    <circle cx="85" cy="8" r="2" fill="#FF6347"/>
+    <circle cx="105" cy="8" r="2" fill="#FF6347"/>
+    
+    <!-- Windows and door -->
+    <rect x="25" y="50" width="18" height="22" fill="#4A4A4A"/>
+    <rect x="87" y="50" width="18" height="22" fill="#4A4A4A"/>
+    <rect x="52" y="55" width="26" height="35" fill="#8B4513"/>
+    
+    <!-- Even the door is painted -->
+    <circle cx="65" cy="65" r="5" fill="#9370DB"/>
+    <circle cx="65" cy="75" r="4" fill="#FFD700"/>
+  </g>
+  
+  <!-- Painted chapel -->
+  <g id="chapel" transform="translate(950,220)">
+    <rect x="0" y="0" width="80" height="80" fill="#FFFEF0"/>
+    <polygon points="-5,-15 40,-30 85,-15 80,0 0,0" fill="#8B4513"/>
+    
+    <!-- Bell tower -->
+    <rect x="35" y="-30" width="10" height="40" fill="#FFFEF0"/>
+    <polygon points="35,-30 40,-40 45,-30" fill="#8B4513"/>
+    
+    <!-- Cross -->
+    <line x1="40" y1="-35" x2="40" y2="-25" stroke="#8B4513" stroke-width="2"/>
+    <line x1="37" y1="-30" x2="43" y2="-30" stroke="#8B4513" stroke-width="2"/>
+    
+    <!-- Painted religious motifs -->
+    <circle cx="40" cy="30" r="12" fill="#4169E1"/>
+    <circle cx="40" cy="30" r="8" fill="#87CEEB"/>
+    <polygon points="40,25 43,30 40,35 37,30" fill="#FFD700"/>
+    
+    <!-- Floral decorations around religious symbol -->
+    <circle cx="25" cy="25" r="4" fill="#FF69B4"/>
+    <circle cx="55" cy="25" r="4" fill="#FF69B4"/>
+    <circle cx="25" cy="45" r="4" fill="#32CD32"/>
+    <circle cx="55" cy="45" r="4" fill="#32CD32"/>
+    
+    <!-- Door -->
+    <rect x="32" y="50" width="16" height="30" fill="#8B4513"/>
+    <circle cx="40" cy="60" r="3" fill="#DC143C"/>
+  </g>
+  
+  <!-- Artist working on painting -->
+  <g id="artist" transform="translate(300,350)">
+    <circle cx="0" cy="0" r="6" fill="#FFE4C4"/>
+    <rect x="-5" y="6" width="10" height="18" fill="#4169E1"/>
+    <rect x="-3" y="24" width="6" height="15" fill="#8B4513"/>
+    <!-- Brush in hand -->
+    <line x1="8" y1="10" x2="15" y2="8" stroke="#8B4513" stroke-width="2"/>
+    <circle cx="16" cy="7" r="2" fill="#FF1493"/>
+    <!-- Paint palette -->
+    <ellipse cx="-8" cy="12" rx="4" ry="6" fill="#F5F5DC"/>
+    <circle cx="-10" cy="10" r="1" fill="#FF1493"/>
+    <circle cx="-6" cy="10" r="1" fill="#4169E1"/>
+    <circle cx="-8" cy="14" r="1" fill="#FFD700"/>
+  </g>
+  
+  <!-- Flowers in garden -->
+  <circle cx="100" cy="400" r="4" fill="#FF69B4"/>
+  <circle cx="120" cy="395" r="4" fill="#9370DB"/>
+  <circle cx="140" cy="405" r="4" fill="#FFD700"/>
+  <circle cx="500" cy="410" r="4" fill="#FF1493"/>
+  <circle cx="520" cy="405" r="4" fill="#4169E1"/>
+  <circle cx="880" cy="400" r="4" fill="#32CD32"/>
+  <circle cx="900" cy="395" r="4" fill="#FF6347"/>
+  <circle cx="1050" cy="405" r="4" fill="#9370DB"/>
+  
+  <!-- Traditional wooden fence -->
+  <rect x="50" y="380" width="1100" height="8" fill="#8B4513"/>
+  <rect x="100" y="375" width="4" height="18" fill="#654321"/>
+  <rect x="200" y="375" width="4" height="18" fill="#654321"/>
+  <rect x="300" y="375" width="4" height="18" fill="#654321"/>
+  <rect x="400" y="375" width="4" height="18" fill="#654321"/>
+  <rect x="500" y="375" width="4" height="18" fill="#654321"/>
+  <rect x="600" y="375" width="4" height="18" fill="#654321"/>
+  <rect x="700" y="375" width="4" height="18" fill="#654321"/>
+  <rect x="800" y="375" width="4" height="18" fill="#654321"/>
+  <rect x="900" y="375" width="4" height="18" fill="#654321"/>
+  <rect x="1000" y="375" width="4" height="18" fill="#654321"/>
+  <rect x="1100" y="375" width="4" height="18" fill="#654321"/>
+  
+  <!-- Trees -->
+  <ellipse cx="80" cy="320" rx="20" ry="30" fill="#228B22"/>
+  <rect x="78" y="340" width="4" height="25" fill="#8B4513"/>
+  
+  <ellipse cx="1120" cy="310" rx="25" ry="35" fill="#228B22"/>
+  <rect x="1118" y="335" width="4" height="30" fill="#8B4513"/>
+  
+  <!-- Title -->
+  <text x="600" y="40" text-anchor="middle" font-family="serif" font-size="36" font-weight="bold" fill="#8B4513">ZALIPIE</text>
+  <text x="600" y="70" text-anchor="middle" font-family="serif" font-size="18" fill="#A0522D">Geschilderd Dorp</text>
+</svg>

@@ -1,0 +1,231 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 480">
+  <defs>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#87CEEB;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F0F8FF;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="undergroundGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#2F4F4F;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#000000;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="saltGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F5F5F5;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Sky background -->
+  <rect width="1200" height="200" fill="url(#skyGrad)"/>
+  
+  <!-- Ground level -->
+  <rect x="0" y="200" width="1200" height="80" fill="#8FBC8F"/>
+  
+  <!-- Mine entrance buildings -->
+  <rect x="100" y="150" width="80" height="80" fill="#8B7355"/>
+  <polygon points="100,150 140,130 180,150" fill="#654321"/>
+  <rect x="120" y="170" width="15" height="20" fill="#4A4A4A"/>
+  <rect x="145" y="170" width="15" height="20" fill="#4A4A4A"/>
+  <rect x="130" y="200" width="20" height="30" fill="#654321"/>
+  
+  <!-- Mine shaft tower -->
+  <rect x="200" y="80" width="30" height="150" fill="#8B7355"/>
+  <polygon points="200,80 215,60 230,80" fill="#654321"/>
+  
+  <!-- Pulley system -->
+  <circle cx="215" cy="100" r="8" fill="#696969"/>
+  <line x1="215" y1="100" x2="215" y2="200" stroke="#8B4513" stroke-width="3"/>
+  
+  <!-- Tourist center -->
+  <rect x="300" y="160" width="120" height="70" fill="#F5F5DC"/>
+  <polygon points="300,160 360,140 420,160" fill="#8B4513"/>
+  <rect x="320" y="180" width="15" height="20" fill="#4A4A4A"/>
+  <rect x="345" y="180" width="15" height="20" fill="#4A4A4A"/>
+  <rect x="370" y="180" width="15" height="20" fill="#4A4A4A"/>
+  <rect x="395" y="180" width="15" height="20" fill="#4A4A4A"/>
+  <rect x="350" y="205" width="30" height="25" fill="#654321"/>
+  
+  <!-- UNESCO World Heritage plaque -->
+  <rect x="330" y="170" width="40" height="8" fill="#DAA520"/>
+  <text x="350" y="176" text-anchor="middle" font-family="serif" font-size="6" fill="#8B4513">UNESCO</text>
+  
+  <!-- Underground cross-section -->
+  <rect x="0" y="280" width="1200" height="200" fill="url(#undergroundGrad)"/>
+  
+  <!-- Salt layers -->
+  <rect x="0" y="290" width="1200" height="20" fill="#D3D3D3"/>
+  <rect x="0" y="320" width="1200" height="15" fill="#E0E0E0"/>
+  <rect x="0" y="350" width="1200" height="25" fill="#F5F5F5"/>
+  <rect x="0" y="390" width="1200" height="20" fill="#DCDCDC"/>
+  <rect x="0" y="430" width="1200" height="30" fill="#C0C0C0"/>
+  
+  <!-- St. Kinga Chapel (carved entirely from salt) -->
+  <g id="chapel" transform="translate(400,350)">
+    <!-- Chapel hall -->
+    <rect x="0" y="0" width="200" height="80" fill="url(#saltGrad)"/>
+    
+    <!-- Altar -->
+    <rect x="80" y="20" width="40" height="30" fill="#FFFFFF"/>
+    <rect x="90" y="15" width="20" height="35" fill="#F8F8FF"/>
+    
+    <!-- Salt crucifix -->
+    <line x1="100" y1="20" x2="100" y2="35" stroke="#E6E6FA" stroke-width="3"/>
+    <line x1="95" y1="25" x2="105" y2="25" stroke="#E6E6FA" stroke-width="3"/>
+    
+    <!-- Salt chandeliers -->
+    <g id="chandelier1" transform="translate(50,10)">
+      <circle cx="0" cy="0" r="6" fill="#F0F8FF"/>
+      <circle cx="-4" cy="4" r="2" fill="#FFFFFF"/>
+      <circle cx="4" cy="4" r="2" fill="#FFFFFF"/>
+      <circle cx="0" cy="8" r="2" fill="#FFFFFF"/>
+    </g>
+    
+    <g id="chandelier2" transform="translate(150,10)">
+      <circle cx="0" cy="0" r="6" fill="#F0F8FF"/>
+      <circle cx="-4" cy="4" r="2" fill="#FFFFFF"/>
+      <circle cx="4" cy="4" r="2" fill="#FFFFFF"/>
+      <circle cx="0" cy="8" r="2" fill="#FFFFFF"/>
+    </g>
+    
+    <!-- Salt sculptures -->
+    <rect x="20" y="50" width="8" height="15" fill="#F5F5F5"/>
+    <circle cx="24" cy="47" r="3" fill="#F5F5F5"/>
+    
+    <rect x="170" y="50" width="8" height="15" fill="#F5F5F5"/>
+    <circle cx="174" cy="47" r="3" fill="#F5F5F5"/>
+    
+    <!-- Salt floor patterns -->
+    <rect x="10" y="70" width="180" height="3" fill="#E0E0E0"/>
+    <rect x="10" y="76" width="180" height="3" fill="#E0E0E0"/>
+  </g>
+  
+  <!-- Underground tunnels and chambers -->
+  <rect x="150" y="400" width="100" height="30" fill="#2F2F2F"/>
+  <rect x="300" y="420" width="150" height="40" fill="#2F2F2F"/>
+  <rect x="500" y="380" width="120" height="50" fill="#2F2F2F"/>
+  <rect x="700" y="410" width="100" height="35" fill="#2F2F2F"/>
+  <rect x="900" y="390" width="80" height="40" fill="#2F2F2F"/>
+  
+  <!-- Underground lakes -->
+  <ellipse cx="650" cy="450" rx="80" ry="15" fill="#4682B4"/>
+  <ellipse cx="950" cy="460" rx="60" ry="12" fill="#4682B4"/>
+  
+  <!-- Mine carts on tracks -->
+  <rect x="200" y="440" width="20" height="12" fill="#8B4513"/>
+  <circle cx="205" cy="455" r="3" fill="#2F4F4F"/>
+  <circle cx="215" cy="455" r="3" fill="#2F4F4F"/>
+  <rect x="208" y="442" width="4" height="10" fill="#D3D3D3"/>
+  
+  <rect x="750" y="435" width="20" height="12" fill="#8B4513"/>
+  <circle cx="755" cy="450" r="3" fill="#2F4F4F"/>
+  <circle cx="765" cy="450" r="3" fill="#2F4F4F"/>
+  <rect x="758" y="437" width="4" height="10" fill="#D3D3D3"/>
+  
+  <!-- Mine tracks -->
+  <line x1="0" y1="455" x2="300" y2="455" stroke="#696969" stroke-width="2"/>
+  <line x1="0" y1="457" x2="300" y2="457" stroke="#696969" stroke-width="2"/>
+  
+  <line x1="650" y1="450" x2="900" y2="450" stroke="#696969" stroke-width="2"/>
+  <line x1="650" y1="452" x2="900" y2="452" stroke="#696969" stroke-width="2"/>
+  
+  <!-- Miners (historical) -->
+  <g id="miner1" transform="translate(180,430)">
+    <circle cx="0" cy="0" r="4" fill="#FFE4C4"/>
+    <rect x="-4" y="4" width="8" height="12" fill="#654321"/>
+    <rect x="-2" y="16" width="4" height="10" fill="#8B4513"/>
+    <!-- Miner's lamp -->
+    <circle cx="0" cy="-2" r="2" fill="#FFD700"/>
+    <!-- Pickaxe -->
+    <line x1="6" y1="8" x2="12" y2="6" stroke="#8B4513" stroke-width="2"/>
+    <rect x="12" y="5" width="4" height="2" fill="#696969"/>
+  </g>
+  
+  <g id="miner2" transform="translate(800,425)">
+    <circle cx="0" cy="0" r="4" fill="#FFE4C4"/>
+    <rect x="-4" y="4" width="8" height="12" fill="#654321"/>
+    <rect x="-2" y="16" width="4" height="10" fill="#8B4513"/>
+    <circle cx="0" cy="-2" r="2" fill="#FFD700"/>
+    <line x1="-6" y1="8" x2="-12" y2="6" stroke="#8B4513" stroke-width="2"/>
+    <rect x="-16" y="5" width="4" height="2" fill="#696969"/>
+  </g>
+  
+  <!-- Salt formations and stalactites -->
+  <polygon points="100,280 105,320 95,320" fill="#F5F5F5"/>
+  <polygon points="250,280 255,310 245,310" fill="#F5F5F5"/>
+  <polygon points="600,280 605,315 595,315" fill="#F5F5F5"/>
+  <polygon points="850,280 855,325 845,325" fill="#F5F5F5"/>
+  <polygon points="1100,280 1105,300 1095,300" fill="#F5F5F5"/>
+  
+  <!-- Salt crystals -->
+  <polygon points="320,400 325,395 330,400 325,405" fill="#FFFFFF"/>
+  <polygon points="480,420 485,415 490,420 485,425" fill="#FFFFFF"/>
+  <polygon points="720,380 725,375 730,380 725,385" fill="#FFFFFF"/>
+  
+  <!-- Tourists on underground tour -->
+  <g id="tourist1" transform="translate(450,420)">
+    <circle cx="0" cy="0" r="3" fill="#FFE4C4"/>
+    <rect x="-3" y="3" width="6" height="10" fill="#4169E1"/>
+    <rect x="-1" y="13" width="2" height="6" fill="#8B4513"/>
+    <!-- Hard hat -->
+    <ellipse cx="0" cy="-2" rx="4" ry="3" fill="#FFD700"/>
+  </g>
+  
+  <g id="tourist2" transform="translate(470,420)">
+    <circle cx="0" cy="0" r="3" fill="#FFE4C4"/>
+    <rect x="-3" y="3" width="6" height="10" fill="#DC143C"/>
+    <rect x="-1" y="13" width="2" height="6" fill="#8B4513"/>
+    <ellipse cx="0" cy="-2" rx="4" ry="3" fill="#FFD700"/>
+  </g>
+  
+  <g id="tourist3" transform="translate(490,420)">
+    <circle cx="0" cy="0" r="3" fill="#FFE4C4"/>
+    <rect x="-3" y="3" width="6" height="10" fill="#228B22"/>
+    <rect x="-1" y="13" width="2" height="6" fill="#8B4513"/>
+    <ellipse cx="0" cy="-2" rx="4" ry="3" fill="#FFD700"/>
+  </g>
+  
+  <!-- Tour guide -->
+  <g id="guide" transform="translate(520,415)">
+    <circle cx="0" cy="0" r="4" fill="#FFE4C4"/>
+    <rect x="-4" y="4" width="8" height="12" fill="#8B008B"/>
+    <rect x="-2" y="16" width="4" height="8" fill="#8B4513"/>
+    <ellipse cx="0" cy="-2" rx="5" ry="3" fill="#FFD700"/>
+    <!-- Pointing gesture -->
+    <line x1="6" y1="8" x2="12" y2="5" stroke="#FFE4C4" stroke-width="2"/>
+  </g>
+  
+  <!-- Wooden support beams -->
+  <rect x="350" y="320" width="8" height="60" fill="#8B4513"/>
+  <rect x="340" y="325" width="28" height="6" fill="#8B4513"/>
+  
+  <rect x="550" y="330" width="8" height="50" fill="#8B4513"/>
+  <rect x="540" y="335" width="28" height="6" fill="#8B4513"/>
+  
+  <!-- Elevator shaft -->
+  <rect x="215" y="230" width="6" height="150" fill="#2F2F2F"/>
+  <rect x="213" y="360" width="10" height="15" fill="#8B4513"/>
+  
+  <!-- Depth markers -->
+  <text x="50" y="300" font-family="serif" font-size="12" fill="#FFFFFF">64m</text>
+  <text x="50" y="340" font-family="serif" font-size="12" fill="#FFFFFF">101m</text>
+  <text x="50" y="380" font-family="serif" font-size="12" fill="#FFFFFF">135m</text>
+  <text x="50" y="420" font-family="serif" font-size="12" fill="#FFFFFF">210m</text>
+  <text x="50" y="460" font-family="serif" font-size="12" fill="#FFFFFF">327m</text>
+  
+  <!-- Salt mining tools -->
+  <line x1="150" y1="450" x2="165" y2="445" stroke="#8B4513" stroke-width="3"/>
+  <rect x="165" y="443" width="8" height="4" fill="#696969"/>
+  
+  <line x1="900" y1="440" x2="915" y2="435" stroke="#8B4513" stroke-width="3"/>
+  <rect x="915" y="433" width="8" height="4" fill="#696969"/>
+  
+  <!-- Trees on surface -->
+  <ellipse cx="80" cy="170" rx="20" ry="25" fill="#228B22"/>
+  <rect x="78" y="185" width="4" height="20" fill="#8B4513"/>
+  
+  <ellipse cx="1120" cy="180" rx="25" ry="30" fill="#228B22"/>
+  <rect x="1118" y="195" width="4" height="25" fill="#8B4513"/>
+  
+  <!-- Title -->
+  <text x="600" y="40" text-anchor="middle" font-family="serif" font-size="36" font-weight="bold" fill="#2F4F4F">WIELICZKA</text>
+  <text x="600" y="70" text-anchor="middle" font-family="serif" font-size="18" fill="#696969">Ondergronds Zoutwonder</text>
+</svg>

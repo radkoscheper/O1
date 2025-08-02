@@ -1,0 +1,42 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="waterGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#87CEEB;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#4682B4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#191970;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Water -->
+  <rect width="400" height="300" fill="url(#waterGrad)"/>
+  
+  <!-- City skyline -->
+  <rect x="0" y="80" width="400" height="40" fill="#2F4F4F" opacity="0.7"/>
+  <rect x="50" y="60" width="30" height="60" fill="#2F4F4F" opacity="0.7"/>
+  <rect x="120" y="50" width="40" height="70" fill="#2F4F4F" opacity="0.7"/>
+  <rect x="200" y="40" width="50" height="80" fill="#2F4F4F" opacity="0.7"/>
+  <rect x="280" y="55" width="35" height="65" fill="#2F4F4F" opacity="0.7"/>
+  <rect x="340" y="65" width="25" height="55" fill="#2F4F4F" opacity="0.7"/>
+  
+  <!-- Boat -->
+  <ellipse cx="200" cy="220" rx="60" ry="15" fill="#8B4513"/>
+  <rect x="180" y="200" width="40" height="20" fill="#CD853F"/>
+  <rect x="195" y="180" width="10" height="20" fill="#8B4513"/>
+  
+  <!-- Boat details -->
+  <circle cx="170" cy="215" r="3" fill="#FFD700"/>
+  <circle cx="230" cy="215" r="3" fill="#FFD700"/>
+  
+  <!-- Water ripples -->
+  <ellipse cx="200" cy="235" rx="80" ry="5" fill="#ADD8E6" opacity="0.5"/>
+  <ellipse cx="200" cy="245" rx="100" ry="3" fill="#ADD8E6" opacity="0.3"/>
+  <ellipse cx="200" cy="255" rx="120" ry="2" fill="#ADD8E6" opacity="0.2"/>
+  
+  <!-- Cathedral Island -->
+  <rect x="320" y="100" width="60" height="60" fill="#2F4F4F"/>
+  <polygon points="320,100 350,70 380,100" fill="#8B0000"/>
+  <rect x="345" y="80" width="10" height="20" fill="#2F4F4F"/>
+  
+  <!-- Text -->
+  <text x="200" y="285" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF">Boottocht Kathedraal Eiland</text>
+</svg>

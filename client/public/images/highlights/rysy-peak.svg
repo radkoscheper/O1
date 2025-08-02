@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="peakGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#F0F8FF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#C0C0C0;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Sky -->
+  <rect x="0" y="0" width="64" height="30" fill="#87CEEB"/>
+  <!-- Main Rysy peak (highest in Poland) -->
+  <polygon points="32,5 20,25 44,25" fill="url(#peakGrad)" stroke="#A9A9A9" stroke-width="1"/>
+  <!-- Secondary peaks -->
+  <polygon points="15,15 8,25 22,25" fill="#D3D3D3"/>
+  <polygon points="45,12 38,25 52,25" fill="#D3D3D3"/>
+  <polygon points="55,18 50,25 60,25" fill="#D3D3D3"/>
+  <!-- Snow and ice on peak -->
+  <polygon points="32,5 28,12 36,12" fill="#F0F8FF"/>
+  <polygon points="27,15 32,8 37,15" fill="#FFFFFF" opacity="0.8"/>
+  <!-- Rock face details -->
+  <path d="M25,20 L30,15 L35,18 L40,22" fill="none" stroke="#696969" stroke-width="1"/>
+  <path d="M22,22 L28,18 L33,20" fill="none" stroke="#696969" stroke-width="1"/>
+  <!-- Mountain ridge line -->
+  <path d="M8,25 L15,15 L32,5 L45,12 L60,25" fill="none" stroke="#A9A9A9" stroke-width="1"/>
+  <!-- Clouds around peak -->
+  <ellipse cx="20" cy="12" rx="3" ry="1.5" fill="#FFFFFF" opacity="0.7"/>
+  <ellipse cx="45" cy="10" rx="4" ry="2" fill="#FFFFFF" opacity="0.7"/>
+  <!-- Mountain scree -->
+  <polygon points="20,25 25,22 30,25" fill="#999999"/>
+  <polygon points="34,25 38,23 42,25" fill="#999999"/>
+  <!-- Alpine environment -->
+  <rect x="0" y="25" width="64" height="39" fill="#8FBC8F"/>
+  <!-- Pine trees at treeline -->
+  <polygon points="12,35 13,30 14,35" fill="#228B22"/>
+  <polygon points="16,36 17,31 18,36" fill="#228B22"/>
+  <polygon points="46,37 47,32 48,37" fill="#228B22"/>
+  <polygon points="50,35 51,30 52,35" fill="#228B22"/>
+  <!-- Rocky outcrops -->
+  <ellipse cx="10" cy="40" rx="3" ry="2" fill="#696969"/>
+  <ellipse cx="54" cy="42" rx="4" ry="2" fill="#696969"/>
+  <!-- Hiking trail marker -->
+  <rect x="25" y="45" width="1" height="5" fill="#8B4513"/>
+  <polygon points="24,45 26,43 28,45" fill="#DC143C"/>
+  <!-- Alpine meadow -->
+  <circle cx="35" cy="50" r="1" fill="#FFB6C1"/>
+  <circle cx="40" cy="48" r="1" fill="#FF69B4"/>
+  <circle cx="30" cy="52" r="1" fill="#FFB6C1"/>
+</svg>

@@ -1,0 +1,276 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 480">
+  <defs>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFE4E1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFF8DC;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="buildingGrad1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#F0E68C;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#BDB76B;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="buildingGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#DDA0DD;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8B008B;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Sky background -->
+  <rect width="1200" height="480" fill="url(#skyGrad)"/>
+  
+  <!-- Perfect Renaissance town square (rectangular) -->
+  <rect x="200" y="300" width="800" height="180" fill="#DEB887"/>
+  
+  <!-- Renaissance Market Square - perfect rectangular Italian design -->
+  
+  <!-- North side arcaded houses -->
+  <rect x="250" y="200" width="100" height="100" fill="url(#buildingGrad1)"/>
+  <polygon points="250,200 300,180 350,200" fill="#DAA520"/>
+  <!-- Arcade -->
+  <rect x="260" y="270" width="80" height="30" fill="#4A4A4A" opacity="0.3"/>
+  <rect x="270" y="275" width="10" height="25" fill="#FFFACD"/>
+  <rect x="285" y="275" width="10" height="25" fill="#FFFACD"/>
+  <rect x="300" y="275" width="10" height="25" fill="#FFFACD"/>
+  <rect x="315" y="275" width="10" height="25" fill="#FFFACD"/>
+  <rect x="330" y="275" width="10" height="25" fill="#FFFACD"/>
+  
+  <rect x="370" y="200" width="100" height="100" fill="url(#buildingGrad2)"/>
+  <polygon points="370,200 420,180 470,200" fill="#9370DB"/>
+  <rect x="380" y="270" width="80" height="30" fill="#4A4A4A" opacity="0.3"/>
+  <rect x="390" y="275" width="10" height="25" fill="#FFFACD"/>
+  <rect x="405" y="275" width="10" height="25" fill="#FFFACD"/>
+  <rect x="420" y="275" width="10" height="25" fill="#FFFACD"/>
+  <rect x="435" y="275" width="10" height="25" fill="#FFFACD"/>
+  <rect x="450" y="275" width="10" height="25" fill="#FFFACD"/>
+  
+  <rect x="490" y="200" width="100" height="100" fill="#98FB98"/>
+  <polygon points="490,200 540,180 590,200" fill="#228B22"/>
+  <rect x="500" y="270" width="80" height="30" fill="#4A4A4A" opacity="0.3"/>
+  <rect x="510" y="275" width="10" height="25" fill="#FFFACD"/>
+  <rect x="525" y="275" width="10" height="25" fill="#FFFACD"/>
+  <rect x="540" y="275" width="10" height="25" fill="#FFFACD"/>
+  <rect x="555" y="275" width="10" height="25" fill="#FFFACD"/>
+  <rect x="570" y="275" width="10" height="25" fill="#FFFACD"/>
+  
+  <rect x="610" y="200" width="100" height="100" fill="#FFB6C1"/>
+  <polygon points="610,200 660,180 710,200" fill="#FF69B4"/>
+  <rect x="620" y="270" width="80" height="30" fill="#4A4A4A" opacity="0.3"/>
+  <rect x="630" y="275" width="10" height="25" fill="#FFFACD"/>
+  <rect x="645" y="275" width="10" height="25" fill="#FFFACD"/>
+  <rect x="660" y="275" width="10" height="25" fill="#FFFACD"/>
+  <rect x="675" y="275" width="10" height="25" fill="#FFFACD"/>
+  <rect x="690" y="275" width="10" height="25" fill="#FFFACD"/>
+  
+  <rect x="730" y="200" width="100" height="100" fill="#F0E68C"/>
+  <polygon points="730,200 780,180 830,200" fill="#BDB76B"/>
+  <rect x="740" y="270" width="80" height="30" fill="#4A4A4A" opacity="0.3"/>
+  <rect x="750" y="275" width="10" height="25" fill="#FFFACD"/>
+  <rect x="765" y="275" width="10" height="25" fill="#FFFACD"/>
+  <rect x="780" y="275" width="10" height="25" fill="#FFFACD"/>
+  <rect x="795" y="275" width="10" height="25" fill="#FFFACD"/>
+  <rect x="810" y="275" width="10" height="25" fill="#FFFACD"/>
+  
+  <rect x="850" y="200" width="100" height="100" fill="#DDA0DD"/>
+  <polygon points="850,200 900,180 950,200" fill="#8B008B"/>
+  <rect x="860" y="270" width="80" height="30" fill="#4A4A4A" opacity="0.3"/>
+  <rect x="870" y="275" width="10" height="25" fill="#FFFACD"/>
+  <rect x="885" y="275" width="10" height="25" fill="#FFFACD"/>
+  <rect x="900" y="275" width="10" height="25" fill="#FFFACD"/>
+  <rect x="915" y="275" width="10" height="25" fill="#FFFACD"/>
+  <rect x="930" y="275" width="10" height="25" fill="#FFFACD"/>
+  
+  <!-- South side arcaded houses -->
+  <rect x="250" y="380" width="100" height="100" fill="#FFE4B5"/>
+  <polygon points="250,480 300,460 350,480" fill="#DEB887"/>
+  <rect x="260" y="380" width="80" height="30" fill="#4A4A4A" opacity="0.3"/>
+  <rect x="270" y="385" width="10" height="25" fill="#FFFACD"/>
+  <rect x="285" y="385" width="10" height="25" fill="#FFFACD"/>
+  <rect x="300" y="385" width="10" height="25" fill="#FFFACD"/>
+  <rect x="315" y="385" width="10" height="25" fill="#FFFACD"/>
+  <rect x="330" y="385" width="10" height="25" fill="#FFFACD"/>
+  
+  <rect x="370" y="380" width="100" height="100" fill="#98FB98"/>
+  <polygon points="370,480 420,460 470,480" fill="#228B22"/>
+  <rect x="380" y="380" width="80" height="30" fill="#4A4A4A" opacity="0.3"/>
+  <rect x="390" y="385" width="10" height="25" fill="#FFFACD"/>
+  <rect x="405" y="385" width="10" height="25" fill="#FFFACD"/>
+  <rect x="420" y="385" width="10" height="25" fill="#FFFACD"/>
+  <rect x="435" y="385" width="10" height="25" fill="#FFFACD"/>
+  <rect x="450" y="385" width="10" height="25" fill="#FFFACD"/>
+  
+  <rect x="490" y="380" width="100" height="100" fill="#FFB6C1"/>
+  <polygon points="490,480 540,460 590,480" fill="#FF69B4"/>
+  <rect x="500" y="380" width="80" height="30" fill="#4A4A4A" opacity="0.3"/>
+  <rect x="510" y="385" width="10" height="25" fill="#FFFACD"/>
+  <rect x="525" y="385" width="10" height="25" fill="#FFFACD"/>
+  <rect x="540" y="385" width="10" height="25" fill="#FFFACD"/>
+  <rect x="555" y="385" width="10" height="25" fill="#FFFACD"/>
+  <rect x="570" y="385" width="10" height="25" fill="#FFFACD"/>
+  
+  <rect x="610" y="380" width="100" height="100" fill="#F0E68C"/>
+  <polygon points="610,480 660,460 710,480" fill="#BDB76B"/>
+  <rect x="620" y="380" width="80" height="30" fill="#4A4A4A" opacity="0.3"/>
+  <rect x="630" y="385" width="10" height="25" fill="#FFFACD"/>
+  <rect x="645" y="385" width="10" height="25" fill="#FFFACD"/>
+  <rect x="660" y="385" width="10" height="25" fill="#FFFACD"/>
+  <rect x="675" y="385" width="10" height="25" fill="#FFFACD"/>
+  <rect x="690" y="385" width="10" height="25" fill="#FFFACD"/>
+  
+  <rect x="730" y="380" width="100" height="100" fill="#DDA0DD"/>
+  <polygon points="730,480 780,460 830,480" fill="#8B008B"/>
+  <rect x="740" y="380" width="80" height="30" fill="#4A4A4A" opacity="0.3"/>
+  <rect x="750" y="385" width="10" height="25" fill="#FFFACD"/>
+  <rect x="765" y="385" width="10" height="25" fill="#FFFACD"/>
+  <rect x="780" y="385" width="10" height="25" fill="#FFFACD"/>
+  <rect x="795" y="385" width="10" height="25" fill="#FFFACD"/>
+  <rect x="810" y="385" width="10" height="25" fill="#FFFACD"/>
+  
+  <rect x="850" y="380" width="100" height="100" fill="#FFE4B5"/>
+  <polygon points="850,480 900,460 950,480" fill="#DEB887"/>
+  <rect x="860" y="380" width="80" height="30" fill="#4A4A4A" opacity="0.3"/>
+  <rect x="870" y="385" width="10" height="25" fill="#FFFACD"/>
+  <rect x="885" y="385" width="10" height="25" fill="#FFFACD"/>
+  <rect x="900" y="385" width="10" height="25" fill="#FFFACD"/>
+  <rect x="915" y="385" width="10" height="25" fill="#FFFACD"/>
+  <rect x="930" y="385" width="10" height="25" fill="#FFFACD"/>
+  
+  <!-- West side houses -->
+  <rect x="150" y="320" width="80" height="80" fill="#FFE4B5"/>
+  <polygon points="150,320 190,300 230,320" fill="#DEB887"/>
+  <rect x="160" y="350" width="60" height="30" fill="#4A4A4A" opacity="0.3"/>
+  <rect x="165" y="355" width="8" height="25" fill="#FFFACD"/>
+  <rect x="180" y="355" width="8" height="25" fill="#FFFACD"/>
+  <rect x="195" y="355" width="8" height="25" fill="#FFFACD"/>
+  <rect x="210" y="355" width="8" height="25" fill="#FFFACD"/>
+  
+  <rect x="150" y="400" width="80" height="80" fill="#98FB98"/>
+  <polygon points="150,480 190,460 230,480" fill="#228B22"/>
+  <rect x="160" y="400" width="60" height="30" fill="#4A4A4A" opacity="0.3"/>
+  <rect x="165" y="405" width="8" height="25" fill="#FFFACD"/>
+  <rect x="180" y="405" width="8" height="25" fill="#FFFACD"/>
+  <rect x="195" y="405" width="8" height="25" fill="#FFFACD"/>
+  <rect x="210" y="405" width="8" height="25" fill="#FFFACD"/>
+  
+  <!-- East side houses -->
+  <rect x="970" y="320" width="80" height="80" fill="#DDA0DD"/>
+  <polygon points="970,320 1010,300 1050,320" fill="#8B008B"/>
+  <rect x="980" y="350" width="60" height="30" fill="#4A4A4A" opacity="0.3"/>
+  <rect x="985" y="355" width="8" height="25" fill="#FFFACD"/>
+  <rect x="1000" y="355" width="8" height="25" fill="#FFFACD"/>
+  <rect x="1015" y="355" width="8" height="25" fill="#FFFACD"/>
+  <rect x="1030" y="355" width="8" height="25" fill="#FFFACD"/>
+  
+  <rect x="970" y="400" width="80" height="80" fill="#F0E68C"/>
+  <polygon points="970,480 1010,460 1050,480" fill="#BDB76B"/>
+  <rect x="980" y="400" width="60" height="30" fill="#4A4A4A" opacity="0.3"/>
+  <rect x="985" y="405" width="8" height="25" fill="#FFFACD"/>
+  <rect x="1000" y="405" width="8" height="25" fill="#FFFACD"/>
+  <rect x="1015" y="405" width="8" height="25" fill="#FFFACD"/>
+  <rect x="1030" y="405" width="8" height="25" fill="#FFFACD"/>
+  
+  <!-- Town Hall (center of Renaissance square) -->
+  <rect x="530" y="320" width="140" height="80" fill="#F5F5DC"/>
+  <polygon points="530,320 600,290 670,320" fill="#DAA520"/>
+  
+  <!-- Town Hall tower -->
+  <rect x="580" y="250" width="40" height="150" fill="#DEB887"/>
+  <polygon points="580,250 600,220 620,250" fill="#B8860B"/>
+  
+  <!-- Renaissance clock -->
+  <circle cx="600" cy="280" r="12" fill="#F5F5DC" stroke="#8B4513" stroke-width="2"/>
+  <line x1="600" y1="280" x2="600" y2="272" stroke="#8B4513" stroke-width="2"/>
+  <line x1="600" y1="280" x2="606" y2="280" stroke="#8B4513" stroke-width="1"/>
+  
+  <!-- Town Hall windows -->
+  <rect x="550" y="340" width="15" height="20" fill="#4A4A4A"/>
+  <rect x="575" y="340" width="15" height="20" fill="#4A4A4A"/>
+  <rect x="610" y="340" width="15" height="20" fill="#4A4A4A"/>
+  <rect x="635" y="340" width="15" height="20" fill="#4A4A4A"/>
+  
+  <!-- Renaissance entrance -->
+  <rect x="585" y="370" width="30" height="30" fill="#8B4513"/>
+  <polygon points="585,370 600,360 615,370" fill="#DAA520"/>
+  
+  <!-- Cathedral -->
+  <rect x="1080" y="180" width="100" height="120" fill="#F5F5DC"/>
+  <polygon points="1080,180 1130,150 1180,180" fill="#8B4513"/>
+  
+  <!-- Cathedral towers -->
+  <rect x="1100" y="120" width="25" height="180" fill="#DEB887"/>
+  <polygon points="1100,120 1112.5,90 1125,120" fill="#B8860B"/>
+  
+  <rect x="1155" y="120" width="25" height="180" fill="#DEB887"/>
+  <polygon points="1155,120 1167.5,90 1180,120" fill="#B8860B"/>
+  
+  <!-- Cathedral rose window -->
+  <circle cx="1130" cy="200" r="10" fill="#4169E1"/>
+  <circle cx="1130" cy="200" r="6" fill="#DC143C"/>
+  
+  <!-- Fortification walls -->
+  <rect x="100" y="250" width="20" height="150" fill="#8B7355"/>
+  <rect x="1080" y="250" width="20" height="150" fill="#8B7355"/>
+  <rect x="200" y="150" width="800" height="20" fill="#8B7355"/>
+  <rect x="200" y="480" width="800" height="20" fill="#8B7355"/>
+  
+  <!-- Bastion towers -->
+  <rect x="80" y="200" width="40" height="80" fill="#A0522D"/>
+  <polygon points="80,200 100,180 120,200" fill="#8B4513"/>
+  
+  <rect x="1080" y="200" width="40" height="80" fill="#A0522D"/>
+  <polygon points="1080,200 1100,180 1120,200" fill="#8B4513"/>
+  
+  <!-- Market stalls in perfect order -->
+  <rect x="350" y="350" width="30" height="15" fill="#8B4513"/>
+  <rect x="350" y="345" width="30" height="5" fill="#FFFFFF"/>
+  
+  <rect x="420" y="350" width="30" height="15" fill="#8B4513"/>
+  <rect x="420" y="345" width="30" height="5" fill="#FFFFFF"/>
+  
+  <rect x="750" y="350" width="30" height="15" fill="#8B4513"/>
+  <rect x="750" y="345" width="30" height="5" fill="#FFFFFF"/>
+  
+  <rect x="820" y="350" width="30" height="15" fill="#8B4513"/>
+  <rect x="820" y="345" width="30" height="5" fill="#FFFFFF"/>
+  
+  <!-- Multicultural inhabitants (Polish, Jewish, Armenian, Greek) -->
+  <circle cx="400" cy="340" r="3" fill="#FFE4C4"/>
+  <rect x="397" y="343" width="6" height="10" fill="#4169E1"/>
+  <rect x="399" y="353" width="2" height="6" fill="#8B4513"/>
+  
+  <circle cx="600" cy="345" r="3" fill="#FFE4C4"/>
+  <rect x="597" y="348" width="6" height="10" fill="#8B008B"/>
+  <rect x="599" y="358" width="2" height="6" fill="#8B4513"/>
+  
+  <circle cx="700" cy="340" r="3" fill="#FFE4C4"/>
+  <rect x="697" y="343" width="6" height="10" fill="#228B22"/>
+  <rect x="699" y="353" width="2" height="6" fill="#8B4513"/>
+  
+  <circle cx="800" cy="345" r="3" fill="#FFE4C4"/>
+  <rect x="797" y="348" width="6" height="10" fill="#DC143C"/>
+  <rect x="799" y="358" width="2" height="6" fill="#8B4513"/>
+  
+  <!-- Renaissance garden -->
+  <ellipse cx="50" cy="350" rx="30" ry="40" fill="#228B22"/>
+  <circle cx="40" cy="330" r="3" fill="#FF69B4"/>
+  <circle cx="60" cy="340" r="3" fill="#9370DB"/>
+  <circle cx="45" cy="360" r="3" fill="#FFD700"/>
+  <circle cx="55" cy="370" r="3" fill="#FF1493"/>
+  
+  <!-- UNESCO World Heritage plaque -->
+  <rect x="540" y="305" width="120" height="10" fill="#DAA520"/>
+  <text x="600" y="312" text-anchor="middle" font-family="serif" font-size="8" fill="#8B4513">UNESCO 1992</text>
+  
+  <!-- Italian influence symbols -->
+  <circle cx="600" cy="250" r="5" fill="#FFD700"/>
+  <text x="600" y="254" text-anchor="middle" font-family="serif" font-size="6" fill="#8B4513">★</text>
+  
+  <!-- Trees in geometric Renaissance pattern -->
+  <ellipse cx="300" cy="280" rx="15" ry="20" fill="#228B22"/>
+  <rect x="298" y="290" width="4" height="15" fill="#8B4513"/>
+  
+  <ellipse cx="900" cy="280" rx="15" ry="20" fill="#228B22"/>
+  <rect x="898" y="290" width="4" height="15" fill="#8B4513"/>
+  
+  <!-- Title -->
+  <text x="600" y="40" text-anchor="middle" font-family="serif" font-size="36" font-weight="bold" fill="#8B4513">ZAMOŚĆ</text>
+  <text x="600" y="70" text-anchor="middle" font-family="serif" font-size="18" fill="#A0522D">Renaissance Parel</text>
+</svg>

@@ -7,7 +7,6 @@ import { Card } from "@/components/ui/card";
 import { Search, Settings, ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
 import TravelSlider from "@/components/ui/travel-slider";
-import { LoadingScreen, useLoadingContent } from "@/components/ui/loading-screen";
 
 // Activities section component
 function ActivitiesSection({ pageTitle, setSelectedActivityId }: { pageTitle?: string, setSelectedActivityId: (id: string | null) => void }) {
@@ -29,15 +28,10 @@ function ActivitiesSection({ pageTitle, setSelectedActivityId }: { pageTitle?: s
   }
 
   return (
-    <section className="py-16 px-5 max-w-7xl mx-auto">
-      <div className="text-center mb-14">
-        <h2 className="text-4xl md:text-6xl font-luxury-serif font-bold mb-4 text-navy-dark tracking-wide">
-          Activiteiten in {pageTitle}
-        </h2>
-        <p className="text-xl md:text-2xl text-navy-medium font-elegant-serif leading-relaxed">
-          Ontdek de beste ervaringen en bezienswaardigheden
-        </p>
-      </div>
+    <section className="py-16 px-5 max-w-6xl mx-auto">
+      <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
+        Activiteiten in {pageTitle}
+      </h2>
       <TravelSlider
         visibleItems={{ mobile: 1, tablet: 2, desktop: 4 }}
         showNavigation={true}
@@ -63,31 +57,30 @@ function ActivitiesSection({ pageTitle, setSelectedActivityId }: { pageTitle?: s
           return (
             <Card 
               key={activity.id}
-              className="bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-700 border border-gray-100 cursor-pointer group"
+              className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer"
               onClick={handleActivityClick}
             >
               {activity.image && (
                 <img
                   src={activity.image}
                   alt={activity.alt || activity.name}
-                  className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                  className="w-full h-40 object-cover"
                   onError={(e) => {
                     e.currentTarget.src = '/images/activities/placeholder.svg';
                   }}
                 />
               )}
-              <div className="p-8">
-                <h3 className="font-luxury-serif font-bold text-navy-dark mb-3 text-xl">
+              <div className="p-4">
+                <h3 className="font-bold font-inter text-gray-900 mb-2">
                   {activity.name}
                 </h3>
                 {activity.description && (
-                  <p className="text-sm text-navy-medium font-inter leading-relaxed line-clamp-2">
+                  <p className="text-sm text-gray-600 font-inter line-clamp-2">
                     {activity.description}
                   </p>
                 )}
-                <div className="w-12 h-0.5 bg-gold mt-4"></div>
                 {activity.category && (
-                  <p className="text-xs text-navy-medium/70 mt-3 capitalize font-inter">
+                  <p className="text-xs text-gray-500 mt-2 capitalize">
                     {activity.category}
                   </p>
                 )}
@@ -235,11 +228,6 @@ export default function Page() {
     },
     enabled: !!selectedActivityId && !!page?.title,
   });
-
-  // Loading content for this page
-  const loadingContent = useLoadingContent(`/${slug}`, siteSettings, page);
-  
-  const showLoading = isLoading;
 
   // Separate effect to handle scrolling when selectedActivity data is loaded
   useEffect(() => {
@@ -407,10 +395,10 @@ export default function Page() {
   };
 
   return (
-    <div className="min-h-screen bg-luxury-gradient">
-      {/* Luxury Hero Section - with dynamic header image */}
+    <div className="min-h-screen" style={{ backgroundColor: "#f8f6f1" }}>
+      {/* Hero Section - with dynamic header image */}
       <header 
-        className="relative bg-cover bg-center text-white py-32 px-5 text-center min-h-[80vh] flex items-center justify-center"
+        className="relative bg-cover bg-center text-white py-24 px-5 text-center"
         style={{
           backgroundImage: `url('${getBackgroundImage()}')`,
           backgroundSize: "cover",
@@ -419,19 +407,17 @@ export default function Page() {
         role="banner"
         aria-label={page?.headerImageAlt || `${page?.title} header afbeelding`}
       >
-        {/* CMS Controlled Overlay System */}
         {siteSettings?.headerOverlayEnabled && (
           <div 
             className="absolute inset-0 bg-black" 
             style={{ opacity: (siteSettings?.headerOverlayOpacity || 30) / 100 }}
           ></div>
         )}
-        
-        <div className="relative z-10 max-w-6xl mx-auto">
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-luxury-serif font-bold mb-8 text-white tracking-wide leading-tight">
+        <div className="relative z-10 max-w-4xl mx-auto">
+          <h1 className="text-5xl font-bold mb-3 font-inter">
             Ontdek Polen
           </h1>
-          <p className="text-xl md:text-2xl lg:text-3xl mb-16 font-elegant-serif font-light leading-relaxed max-w-4xl mx-auto text-white/90">
+          <p className="text-xl mb-8 font-inter">
             Mooie plekken in {page.title} ontdekken
           </p>
           
@@ -457,10 +443,10 @@ export default function Page() {
                     console.log('Enter key detected, form should submit');
                   }
                 }}
-                className="py-5 px-8 w-[28rem] max-w-full border-2 border-white/30 rounded-full text-lg text-navy-dark font-inter shadow-2xl backdrop-blur-md bg-white/95 hover:bg-white hover:border-gold transition-all duration-500 focus:border-gold focus:ring-2 focus:ring-gold/50"
+                className="py-3 px-5 w-80 max-w-full border-none rounded-lg text-base text-gray-900 font-inter"
               />
               <Search 
-                className="absolute right-5 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5 cursor-pointer" 
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4 cursor-pointer" 
                 onClick={() => {
                   console.log('Destination page search icon clicked');
                   if (searchQuery.trim()) {
@@ -484,10 +470,11 @@ export default function Page() {
           
           <Button
             asChild
-            className="mt-8 py-5 px-10 text-lg font-luxury-serif font-medium bg-navy-dark hover:bg-navy-dark/90 text-white transition-all duration-500 shadow-2xl hover:shadow-navy-dark/25 hover:scale-105 rounded-full border-2 border-navy-dark"
+            className="mt-4 py-3 px-6 text-base font-inter hover:opacity-90 transition-all duration-200"
+            style={{ backgroundColor: "#2f3e46" }}
           >
             <Link href="/">
-              <ArrowLeft className="mr-3 h-5 w-5" />
+              <ArrowLeft className="mr-2 h-4 w-4" />
               Terug naar home
             </Link>
           </Button>
@@ -612,14 +599,14 @@ export default function Page() {
       {/* Activities Section - same style as homepage destinations grid */}
       <ActivitiesSection pageTitle={page?.title} setSelectedActivityId={setSelectedActivityId} />
 
-      {/* Luxury Content Section */}
-      <section id="content-section" className="py-24 px-5 max-w-7xl mx-auto">
-        <Card className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-12 md:p-20">
+      {/* Content Section */}
+      <section id="content-section" className="py-16 px-5 max-w-6xl mx-auto">
+        <Card className="bg-white rounded-xl shadow-lg border-none p-8">
           {selectedActivity ? (
             // Show selected activity content
             <div>
-              <div className="flex items-center justify-between mb-8">
-                <h1 className="text-4xl md:text-6xl font-luxury-serif font-bold text-navy-dark tracking-wide">{selectedActivity.name}</h1>
+              <div className="flex items-center justify-between mb-6">
+                <h1 className="text-3xl font-bold text-gray-900 font-inter">{selectedActivity.name}</h1>
                 <button
                   onClick={() => {
                     setSelectedActivityId(null);
@@ -627,7 +614,7 @@ export default function Page() {
                     const newUrl = window.location.pathname;
                     window.history.pushState({}, '', newUrl);
                   }}
-                  className="px-6 py-3 bg-navy-dark text-white rounded-full hover:bg-navy-dark/90 transition-all duration-500 shadow-2xl hover:shadow-navy-dark/25 font-luxury-serif font-medium"
+                  className="text-blue-600 hover:text-blue-800 font-medium"
                 >
                   ← Terug naar {page?.title}
                 </button>
@@ -637,55 +624,55 @@ export default function Page() {
                 <img
                   src={selectedActivity.image}
                   alt={selectedActivity.alt || selectedActivity.name}
-                  className="w-full h-80 object-cover rounded-2xl mb-8 shadow-xl"
+                  className="w-full h-64 object-cover rounded-lg mb-6"
                   onError={(e) => {
                     e.currentTarget.src = '/images/activities/placeholder.svg';
                   }}
                 />
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div>
-                  <h3 className="font-luxury-serif font-bold text-navy-dark mb-3 text-lg">Locatie</h3>
-                  <p className="text-navy-medium font-elegant-serif text-base">{selectedActivity.location}</p>
+                  <h3 className="font-semibold text-gray-800 mb-2">Locatie</h3>
+                  <p className="text-gray-600">{selectedActivity.location}</p>
                 </div>
                 <div>
-                  <h3 className="font-luxury-serif font-bold text-navy-dark mb-3 text-lg">Categorie</h3>
-                  <p className="text-navy-medium font-elegant-serif text-base">{selectedActivity.category}</p>
+                  <h3 className="font-semibold text-gray-800 mb-2">Categorie</h3>
+                  <p className="text-gray-600">{selectedActivity.category}</p>
                 </div>
                 <div>
-                  <h3 className="font-luxury-serif font-bold text-navy-dark mb-3 text-lg">Type</h3>
-                  <p className="text-navy-medium font-elegant-serif text-base">{selectedActivity.activityType}</p>
+                  <h3 className="font-semibold text-gray-800 mb-2">Type</h3>
+                  <p className="text-gray-600">{selectedActivity.activityType}</p>
                 </div>
               </div>
 
-              <div className="mb-8">
-                <h2 className="text-3xl font-luxury-serif font-bold text-navy-dark mb-6 tracking-wide">Beschrijving</h2>
-                <p className="text-navy-medium text-xl leading-relaxed font-elegant-serif">{selectedActivity.description}</p>
+              <div className="mb-6">
+                <h2 className="text-2xl font-semibold text-gray-800 mb-4 font-inter">Beschrijving</h2>
+                <p className="text-gray-700 text-lg leading-relaxed font-inter">{selectedActivity.description}</p>
               </div>
 
               {selectedActivity.content && (
                 <div>
-                  <h2 className="text-3xl font-luxury-serif font-bold text-navy-dark mb-6 tracking-wide">Meer informatie</h2>
+                  <h2 className="text-2xl font-semibold text-gray-800 mb-4 font-inter">Meer informatie</h2>
                   <div 
-                    className="prose prose-xl max-w-none font-elegant-serif"
+                    className="prose prose-lg max-w-none font-inter"
                     dangerouslySetInnerHTML={{
                       __html: selectedActivity.content
                         .replace(/\n/g, '<br>')
-                        .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-navy-dark">$1</strong>')
-                        .replace(/\*(.*?)\*/g, '<em class="italic text-navy-medium">$1</em>')
+                        .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
+                        .replace(/\*(.*?)\*/g, '<em class="italic text-gray-700">$1</em>')
                     }}
                   />
                 </div>
               )}
 
               {selectedActivity.link && (
-                <div className="mt-8">
+                <div className="mt-6">
                   <a
                     href={selectedActivity.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center px-8 py-4 bg-navy-dark text-white rounded-full hover:bg-navy-dark/90 transition-all duration-500 shadow-2xl hover:shadow-navy-dark/25 font-luxury-serif font-medium text-lg"
+                    className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                   >
                     Bezoek website
                     <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -696,78 +683,54 @@ export default function Page() {
               )}
             </div>
           ) : (
-            // Show original page content with same structure as activity detail view
-            <div>
-              <div className="mb-8">
-                <h1 className="text-4xl md:text-6xl font-luxury-serif font-bold text-navy-dark tracking-wide mb-6">{page.title}</h1>
-                {page.headerImagePath && (
-                  <img
-                    src={page.headerImagePath}
-                    alt={page.headerImageAlt || page.title}
-                    className="w-full h-80 object-cover rounded-2xl mb-8 shadow-xl"
-                    onError={(e) => {
-                      e.currentTarget.src = '/images/destinations/placeholder.svg';
-                    }}
-                  />
-                )}
-              </div>
-
-              <div className="mb-8">
-                <h2 className="text-3xl font-luxury-serif font-bold text-navy-dark mb-6 tracking-wide">Beschrijving</h2>
-                <div 
-                  className="prose prose-xl max-w-none font-elegant-serif"
-                  dangerouslySetInnerHTML={{
-                    __html: page.content
-                      .replace(/\n/g, '<br>')
-                      .replace(/# (.*)/g, '<h3 class="text-2xl font-luxury-serif font-bold mb-4 text-navy-dark tracking-wide">$1</h3>')
-                      .replace(/## (.*)/g, '<h4 class="text-xl font-luxury-serif font-medium mb-3 text-navy-medium">$1</h4>')
-                      .replace(/### (.*)/g, '<h5 class="text-lg font-luxury-serif font-medium mb-2 text-navy-medium">$1</h5>')
-                      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-navy-dark">$1</strong>')
-                      .replace(/\*(.*?)\*/g, '<em class="italic text-navy-medium">$1</em>')
-                      .replace(/- (.*)/g, '<li class="mb-3 text-navy-medium leading-relaxed">$1</li>')
-                      .replace(/(<li.*<\/li>)/g, '<ul class="list-disc list-inside mb-8 space-y-3 ml-6">$1</ul>')
-                      .replace(/---/g, '<hr class="my-12 border-gold/30">')
-                  }}
-                />
-              </div>
-            </div>
+            // Show original page content
+            <div 
+              className="prose prose-lg max-w-none font-inter"
+              dangerouslySetInnerHTML={{
+                __html: page.content
+                  .replace(/\n/g, '<br>')
+                  .replace(/# (.*)/g, '<h1 class="text-3xl font-bold mb-6 text-gray-900 font-inter">$1</h1>')
+                  .replace(/## (.*)/g, '<h2 class="text-2xl font-semibold mb-4 text-gray-800 font-inter">$1</h2>')
+                  .replace(/### (.*)/g, '<h3 class="text-xl font-medium mb-3 text-gray-700 font-inter">$1</h3>')
+                  .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
+                  .replace(/\*(.*?)\*/g, '<em class="italic text-gray-700">$1</em>')
+                  .replace(/- (.*)/g, '<li class="mb-2 text-gray-700">$1</li>')
+                  .replace(/(<li.*<\/li>)/gs, '<ul class="list-disc list-inside mb-6 space-y-2 ml-4">$1</ul>')
+                  .replace(/---/g, '<hr class="my-8 border-gray-200">')
+              }}
+            />
           )}
         </Card>
       </section>
 
-      {/* Luxury Location-specific Featured Activities Section */}
+      {/* Location-specific Featured Activities Section */}
       {locationFeaturedActivities.length > 0 && (
-        <section className="py-24 px-5 max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-6xl font-luxury-serif font-bold mb-6 text-navy-dark tracking-wide">
-              Hoogtepunten van {page.title}
-            </h2>
-            <p className="text-xl md:text-2xl text-navy-medium font-elegant-serif leading-relaxed">
-              De beste bezienswaardigheden en ervaringen
-            </p>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        <section className="py-16 px-5 max-w-6xl mx-auto">
+          <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
+            Hoogtepunten van {page.title}
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {locationFeaturedActivities
               .sort((a: any, b: any) => (a.ranking || 0) - (b.ranking || 0))
               .map((activity: any) => {
                 const CardContent = (
-                  <div className="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-700 border border-gray-100 cursor-pointer text-center group">
+                  <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer text-center">
                     <img
                       src={activity.image || '/images/activities/placeholder.svg'}
                       alt={activity.alt || activity.name}
-                      className="w-24 h-24 mx-auto mb-6 object-cover rounded-full shadow-lg group-hover:scale-110 transition-transform duration-500"
+                      className="w-16 h-16 mx-auto mb-3 object-cover rounded-lg"
                       onError={(e) => {
                         e.currentTarget.src = '/images/activities/placeholder.svg';
                       }}
                     />
-                    <h3 className="font-luxury-serif font-bold text-navy-dark text-lg mb-3">
+                    <h3 className="font-bold font-inter text-gray-900 text-sm">
                       {activity.name}
                     </h3>
-                    <p className="text-sm text-navy-medium mb-2 font-elegant-serif">
+                    <p className="text-xs text-gray-500 mt-1">
                       📍 {activity.location}
                     </p>
                     {activity.category && (
-                      <p className="text-sm text-gold font-medium capitalize font-elegant-serif">
+                      <p className="text-xs text-blue-600 mt-1 capitalize">
                         {activity.category}
                       </p>
                     )}
@@ -810,59 +773,27 @@ export default function Page() {
         </section>
       )}
 
-      {/* Luxury Call-to-Action */}
-      <section className="py-24 px-5 bg-gradient-to-br from-gold/5 via-white to-navy-dark/5">
-        <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-4xl md:text-6xl font-luxury-serif font-bold mb-8 text-navy-dark tracking-wide">
-            Start je Polen avontuur!
-          </h2>
-          <p className="text-xl md:text-2xl text-navy-medium mb-16 font-elegant-serif max-w-4xl mx-auto leading-relaxed">
-            Ontdek meer bestemmingen en plan je perfecte reis naar Polen vol historie, natuur en cultuur
-          </p>
-          <div className="flex flex-col sm:flex-row gap-8 justify-center">
-            <Button
-              asChild
-              className="py-5 px-10 text-lg font-luxury-serif font-medium bg-navy-dark hover:bg-navy-dark/90 text-white transition-all duration-500 shadow-2xl hover:shadow-navy-dark/25 hover:scale-105 rounded-full border-2 border-navy-dark"
-            >
-              <Link href="/">🏔️ Alle bestemmingen</Link>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              className="py-5 px-10 text-lg font-luxury-serif font-medium bg-white/80 border-2 border-navy-dark text-navy-dark hover:bg-navy-dark hover:text-white transition-all duration-500 shadow-2xl hover:shadow-navy-dark/25 hover:scale-105 rounded-full"
-            >
-              <Link href="/ontdek-meer">📖 Lees onze gidsen</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Luxury Footer */}
-      <footer className="text-center py-16 px-5 text-white bg-navy-dark relative">
+      {/* Footer - exact same as homepage */}
+      <footer 
+        className="text-center py-10 px-5 text-white relative"
+        style={{ backgroundColor: "#2f3e46" }}
+      >
         {/* Admin Link */}
         <Link href="/admin">
           <Button 
             variant="outline" 
             size="sm"
-            className="absolute top-6 right-6 text-white border-white/40 hover:bg-white hover:text-navy-dark transition-all duration-300"
+            className="absolute top-4 right-4 text-white border-white hover:bg-white hover:text-gray-900"
           >
             <Settings className="h-4 w-4 mr-2" />
             Admin
           </Button>
         </Link>
         
-        <p className="font-elegant-serif text-xl font-light">
+        <p className="font-inter">
           &copy; 2025 {siteSettings?.siteName || "Ontdek Polen"}. Alle rechten voorbehouden.
         </p>
       </footer>
-
-      {/* Loading Screen */}
-      <LoadingScreen 
-        isLoading={showLoading}
-        title={loadingContent.title}
-        subtitle={loadingContent.subtitle}
-
-      />
     </div>
   );
 }
