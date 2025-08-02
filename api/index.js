@@ -1,4 +1,4 @@
-// Vercel serverless function wrapper
-import app from '../dist/index.js';
+// Vercel serverless function wrapper for Express app
+import { handler } from '../dist/index.js';
 
-export default app;
+export default handler;

@@ -78,10 +78,10 @@ if (process.env.NODE_ENV === "development") {
       log(`serving on port ${port}`);
     });
   })();
-} else {
-  // For Vercel - initialize in production mode
-  initializeApp().catch(console.error);
 }
 
-// Export for Vercel
-export default app;
+// Export for Vercel serverless functions
+export const handler = async (req: any, res: any) => {
+  await initializeApp();
+  return app(req, res);
+};
