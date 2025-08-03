@@ -29,7 +29,7 @@ function ActivitiesSection({ pageTitle, setSelectedActivityId }: { pageTitle?: s
 
   return (
     <section className="py-16 px-5 max-w-6xl mx-auto">
-      <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
+      <h2 className="text-3xl font-bold mb-8 font-luxury-serif text-gray-900">
         Activiteiten in {pageTitle}
       </h2>
       <TravelSlider
@@ -71,11 +71,11 @@ function ActivitiesSection({ pageTitle, setSelectedActivityId }: { pageTitle?: s
                 />
               )}
               <div className="p-4">
-                <h3 className="font-bold font-inter text-gray-900 mb-2">
+                <h3 className="font-bold font-luxury-serif text-gray-900 mb-2">
                   {activity.name}
                 </h3>
                 {activity.description && (
-                  <p className="text-sm text-gray-600 font-inter line-clamp-2">
+                  <p className="text-sm text-gray-600 font-croatia-body line-clamp-2">
                     {activity.description}
                   </p>
                 )}
@@ -124,7 +124,7 @@ export default function Page() {
       case 'destination':
         return 'bg-green-100 text-green-700';
       case 'activity':
-        return 'bg-orange-100 text-orange-700';
+        return 'bg-green-100 text-green-700';
       case 'highlight':
         return 'bg-yellow-100 text-yellow-700';
       case 'guide':
@@ -414,10 +414,10 @@ export default function Page() {
           ></div>
         )}
         <div className="relative z-10 max-w-4xl mx-auto">
-          <h1 className="text-5xl font-bold mb-3 font-inter">
+          <h1 className="text-5xl font-bold mb-3 font-luxury-serif">
             Ontdek Polen
           </h1>
-          <p className="text-xl mb-8 font-inter">
+          <p className="text-xl mb-8 font-croatia-body">
             Mooie plekken in {page.title} ontdekken
           </p>
           
@@ -443,7 +443,7 @@ export default function Page() {
                     console.log('Enter key detected, form should submit');
                   }
                 }}
-                className="py-3 px-5 w-80 max-w-full border-none rounded-lg text-base text-gray-900 font-inter"
+                className="py-3 px-5 w-80 max-w-full border-none rounded-lg text-base text-gray-900 font-croatia-body"
               />
               <Search 
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4 cursor-pointer" 
@@ -470,7 +470,7 @@ export default function Page() {
           
           <Button
             asChild
-            className="mt-4 py-3 px-6 text-base font-inter hover:opacity-90 transition-all duration-200"
+            className="mt-4 py-3 px-6 text-base font-croatia-body hover:opacity-90 transition-all duration-200"
             style={{ backgroundColor: "#2f3e46" }}
           >
             <Link href="/">
@@ -606,7 +606,7 @@ export default function Page() {
             // Show selected activity content
             <div>
               <div className="flex items-center justify-between mb-6">
-                <h1 className="text-3xl font-bold text-gray-900 font-inter">{selectedActivity.name}</h1>
+                <h1 className="text-3xl font-bold text-gray-900 font-luxury-serif">{selectedActivity.name}</h1>
                 <button
                   onClick={() => {
                     setSelectedActivityId(null);
@@ -647,15 +647,15 @@ export default function Page() {
               </div>
 
               <div className="mb-6">
-                <h2 className="text-2xl font-semibold text-gray-800 mb-4 font-inter">Beschrijving</h2>
-                <p className="text-gray-700 text-lg leading-relaxed font-inter">{selectedActivity.description}</p>
+                <h2 className="text-2xl font-semibold text-gray-800 mb-4 font-luxury-serif">Beschrijving</h2>
+                <p className="text-gray-700 text-lg leading-relaxed font-croatia-body">{selectedActivity.description}</p>
               </div>
 
               {selectedActivity.content && (
                 <div>
-                  <h2 className="text-2xl font-semibold text-gray-800 mb-4 font-inter">Meer informatie</h2>
+                  <h2 className="text-2xl font-semibold text-gray-800 mb-4 font-croatia-body">Meer informatie</h2>
                   <div 
-                    className="prose prose-lg max-w-none font-inter"
+                    className="prose prose-lg max-w-none font-croatia-body"
                     dangerouslySetInnerHTML={{
                       __html: selectedActivity.content
                         .replace(/\n/g, '<br>')
@@ -685,13 +685,13 @@ export default function Page() {
           ) : (
             // Show original page content
             <div 
-              className="prose prose-lg max-w-none font-inter"
+              className="prose prose-lg max-w-none font-croatia-body"
               dangerouslySetInnerHTML={{
                 __html: page.content
                   .replace(/\n/g, '<br>')
-                  .replace(/# (.*)/g, '<h1 class="text-3xl font-bold mb-6 text-gray-900 font-inter">$1</h1>')
-                  .replace(/## (.*)/g, '<h2 class="text-2xl font-semibold mb-4 text-gray-800 font-inter">$1</h2>')
-                  .replace(/### (.*)/g, '<h3 class="text-xl font-medium mb-3 text-gray-700 font-inter">$1</h3>')
+                  .replace(/# (.*)/g, '<h1 class="text-3xl font-bold mb-6 text-gray-900 font-croatia-body">$1</h1>')
+                  .replace(/## (.*)/g, '<h2 class="text-2xl font-semibold mb-4 text-gray-800 font-croatia-body">$1</h2>')
+                  .replace(/### (.*)/g, '<h3 class="text-xl font-medium mb-3 text-gray-700 font-croatia-body">$1</h3>')
                   .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
                   .replace(/\*(.*?)\*/g, '<em class="italic text-gray-700">$1</em>')
                   .replace(/- (.*)/g, '<li class="mb-2 text-gray-700">$1</li>')
@@ -706,7 +706,7 @@ export default function Page() {
       {/* Location-specific Featured Activities Section */}
       {locationFeaturedActivities.length > 0 && (
         <section className="py-16 px-5 max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
+          <h2 className="text-3xl font-bold mb-8 font-croatia-body text-gray-900">
             Hoogtepunten van {page.title}
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
@@ -723,7 +723,7 @@ export default function Page() {
                         e.currentTarget.src = '/images/activities/placeholder.svg';
                       }}
                     />
-                    <h3 className="font-bold font-inter text-gray-900 text-sm">
+                    <h3 className="font-bold font-croatia-body text-gray-900 text-sm">
                       {activity.name}
                     </h3>
                     <p className="text-xs text-gray-500 mt-1">
@@ -790,7 +790,7 @@ export default function Page() {
           </Button>
         </Link>
         
-        <p className="font-inter">
+        <p className="font-croatia-body">
           &copy; 2025 {siteSettings?.siteName || "Ontdek Polen"}. Alle rechten voorbehouden.
         </p>
       </footer>

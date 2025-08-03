@@ -184,10 +184,10 @@ export default function OntdekMeer() {
           ></div>
         )}
         <div className="relative z-10 max-w-4xl mx-auto">
-          <h1 className="text-5xl font-bold mb-3 font-inter">
+          <h1 className="text-5xl font-bold mb-3 font-luxury-serif">
             Ontdek Meer
           </h1>
-          <p className="text-xl mb-8 font-inter">
+          <p className="text-xl mb-8 font-croatia-body">
             Alle bestemmingen, reisgidsen en tips voor je reis naar Polen
           </p>
           
@@ -198,7 +198,7 @@ export default function OntdekMeer() {
                 placeholder="Zoek bestemming"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="py-3 px-5 w-80 max-w-full border-none rounded-lg text-base text-gray-900 font-inter"
+                className="py-3 px-5 w-80 max-w-full border-none rounded-lg text-base text-gray-900 font-croatia-body"
               />
               <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
             </div>
@@ -206,7 +206,7 @@ export default function OntdekMeer() {
           
           <Link href="/">
             <Button
-              className="mt-2 py-3 px-6 text-base font-inter hover:opacity-90 transition-all duration-200"
+              className="mt-2 py-3 px-6 text-base font-croatia-body hover:opacity-90 transition-all duration-200"
               style={{ backgroundColor: "#2f3e46" }}
             >
               Terug naar Home
@@ -217,7 +217,7 @@ export default function OntdekMeer() {
 
       {/* Destination Grid - Travel Slider Implementation */}
       <section className="py-16 px-5 max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
+        <h2 className="text-3xl font-bold mb-8 font-luxury-serif text-gray-900">
           Alle Bestemmingen
         </h2>
         <TravelSlider
@@ -235,7 +235,7 @@ export default function OntdekMeer() {
                   alt={destination.alt}
                   className="w-full h-40 object-cover"
                 />
-                <div className="p-4 font-bold font-inter text-gray-900">
+                <div className="p-4 font-bold font-luxury-serif text-gray-900">
                   {destination.name}
                 </div>
               </Card>
@@ -274,7 +274,7 @@ export default function OntdekMeer() {
       {/* Highlights Section - From Database - EXACT SAME AS HOMEPAGE */}
       {highlights.length > 0 && (
         <section className="py-16 px-5 max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
+          <h2 className="text-3xl font-bold mb-8 font-luxury-serif text-gray-900">
             Hoogtepunten van Polen
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
@@ -288,7 +288,7 @@ export default function OntdekMeer() {
                     e.currentTarget.src = '/images/highlights/placeholder.svg';
                   }}
                 />
-                <h3 className="font-bold font-inter text-gray-900 text-sm">
+                <h3 className="font-bold font-luxury-serif text-gray-900 text-sm">
                   {highlight.name}
                 </h3>
                 {highlight.category !== 'general' && (
@@ -306,16 +306,16 @@ export default function OntdekMeer() {
       <section className="py-16 px-5 max-w-6xl mx-auto">
         <div className="flex flex-wrap gap-8 items-center justify-between">
           <div className="flex-1 min-w-80">
-            <h2 className="text-3xl font-bold mb-4 font-inter text-gray-900">
+            <h2 className="text-3xl font-bold mb-4 font-luxury-serif text-gray-900">
               Laat je verrassen door het onbekende Polen
             </h2>
-            <p className="text-lg mb-6 font-inter text-gray-700">
+            <p className="text-lg mb-6 font-croatia-body text-gray-700">
               Bezoek historische steden, ontdek natuurparken en verborgen parels. 
               Onze reizen helpen je op weg!
             </p>
             <Button
               onClick={handleReadGuides}
-              className="py-3 px-6 text-base font-inter hover:opacity-90 transition-all duration-200"
+              className="py-3 px-6 text-base font-croatia-body hover:opacity-90 transition-all duration-200"
               style={{ backgroundColor: "#2f3e46" }}
             >
               Lees onze reizen
@@ -335,7 +335,7 @@ export default function OntdekMeer() {
       {publishedPages.length > 0 && (
         <section className="py-16 px-5 max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-bold font-inter text-gray-900">
+            <h2 className="text-3xl font-bold font-luxury-serif text-gray-900">
               Ontdek Meer
             </h2>
             <Link href="/ontdek-meer">
@@ -353,7 +353,7 @@ export default function OntdekMeer() {
                 <Card className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer">
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-3">
-                      <h3 className="text-xl font-bold font-inter text-gray-900">
+                      <h3 className="text-xl font-bold font-luxury-serif text-gray-900">
                         {page.title}
                       </h3>
                       {page.featured && (
@@ -362,7 +362,7 @@ export default function OntdekMeer() {
                         </span>
                       )}
                     </div>
-                    <p className="text-gray-600 text-sm mb-4 font-inter">
+                    <p className="text-gray-600 text-sm mb-4 font-croatia-body">
                       {page.metaDescription}
                     </p>
                     <div className="flex items-center text-xs text-gray-500">
@@ -383,7 +383,7 @@ export default function OntdekMeer() {
 
       {/* Travel Guides - EXACT SAME AS HOMEPAGE */}
       <section className="py-16 px-5 max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
+        <h2 className="text-3xl font-bold mb-8 font-luxury-serif text-gray-900">
           Reizen en Tips
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -397,7 +397,7 @@ export default function OntdekMeer() {
                   alt={guide.alt}
                   className="w-full h-40 object-cover"
                 />
-                <div className="p-4 font-bold font-inter text-gray-900">
+                <div className="p-4 font-bold font-luxury-serif text-gray-900">
                   {guide.title}
                 </div>
               </Card>
@@ -450,7 +450,7 @@ export default function OntdekMeer() {
           </Button>
         </Link>
         
-        <p className="font-inter">
+        <p className="font-croatia-body">
           &copy; 2025 {siteSettings?.siteName || "Ontdek Polen"}. Alle rechten voorbehouden.
         </p>
       </footer>

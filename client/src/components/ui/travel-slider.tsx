@@ -74,21 +74,21 @@ export function TravelSlider({
           <Button
             variant="outline"
             size="sm"
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-10 bg-white/90 hover:bg-white shadow-lg"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-10 glass-card hover:bg-white shadow-xl border-green-500/30"
             onClick={scrollPrev}
             aria-label="Vorige items"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-4 w-4 text-navy-dark" />
           </Button>
           
           <Button
             variant="outline"
             size="sm"
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-10 bg-white/90 hover:bg-white shadow-lg"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-10 glass-card hover:bg-white shadow-xl border-green-500/30"
             onClick={scrollNext}
             aria-label="Volgende items"
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-4 w-4 text-navy-dark" />
           </Button>
         </>
       )}
@@ -99,7 +99,7 @@ export function TravelSlider({
           {Array.from({ length: Math.ceil(children.length / visibleItems.desktop) }).map((_, index) => (
             <div
               key={index}
-              className="w-2 h-2 rounded-full bg-gray-300 opacity-50"
+              className="w-2 h-2 rounded-full bg-green-500 opacity-60 hover:opacity-100 transition-opacity"
               aria-hidden="true"
             />
           ))}

@@ -11,6 +11,8 @@ import OntdekMeer from "@/pages/ontdek-meer";
 import Page from "@/pages/page";
 import NotFound from "@/pages/not-found";
 import { CloudinaryDemo } from "@/pages/cloudinary-demo";
+import { HighlightsDemo } from "@/pages/highlights-demo";
+import { SidebarDemo } from "@/pages/sidebar-demo";
 
 function Router() {
   const [location] = useLocation();
@@ -37,10 +39,10 @@ function Router() {
       setLoadingSubtitle("Laden van pagina...");
     }
 
-    // Simulate loading time (can be replaced with actual data loading)
+    // Simulate loading time
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 1200);
+    }, 1500);
 
     return () => clearTimeout(timer);
   }, [location]);
@@ -58,6 +60,8 @@ function Router() {
           <Route path="/" component={Home} />
           <Route path="/admin" component={Admin} />
           <Route path="/cloudinary-demo" component={CloudinaryDemo} />
+          <Route path="/highlights-demo" component={HighlightsDemo} />
+          <Route path="/sidebar-demo" component={SidebarDemo} />
           <Route path="/ontdek-meer" component={OntdekMeer} />
           <Route path="/:slug" component={Page} />
           <Route path="/destination/:slug" component={Page} />

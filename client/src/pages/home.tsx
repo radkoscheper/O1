@@ -30,7 +30,7 @@ export default function Home() {
       case 'destination':
         return 'bg-green-100 text-green-700';
       case 'activity':
-        return 'bg-orange-100 text-orange-700';
+        return 'bg-green-100 text-green-700';
       case 'highlight':
         return 'bg-yellow-100 text-yellow-700';
       case 'guide':
@@ -102,7 +102,7 @@ export default function Home() {
   });
 
   // Fetch motivation data for CTA section
-  const { data: motivationData } = useQuery({
+  const { data: motivationData } = useQuery<SelectMotivation>({
     queryKey: ["/api/motivation"],
   });
 
@@ -220,17 +220,7 @@ export default function Home() {
   // Filter only published pages
   const publishedPages = (pages as any[]).filter((page: any) => page.published);
   
-  // Show loading state
-  if (destinationsLoading || guidesLoading || pagesLoading || featuredLoading || settingsLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#f8f6f1" }}>
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-lg">Laden...</p>
-        </div>
-      </div>
-    );
-  }
+  // Loading states are handled by global LoadingScreen in App.tsx
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -281,7 +271,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#f8f6f1" }}>
+    <div className="min-h-screen bg-luxury-gradient">
       {/* Hero Section */}
       <header 
         className="relative bg-cover bg-center text-white py-24 px-5 text-center"
@@ -300,11 +290,11 @@ export default function Home() {
           ></div>
         )}
         <div className="relative z-10 max-w-4xl mx-auto">
-          <h1 className="text-5xl font-bold mb-3 font-inter">
+          <h1 className="text-5xl md:text-6xl font-luxury-serif font-bold mb-6 text-white drop-shadow-lg">
             {siteSettings?.siteName || "Ontdek Polen"}
           </h1>
-          <p className="text-xl mb-8 font-inter">
-            {siteSettings?.siteDescription || "Mooie plekken in Polen ontdekken"}
+          <p className="text-xl md:text-2xl mb-12 text-white/90 font-croatia-body drop-shadow-md">
+            {siteSettings?.siteDescription || "Van historische steden tot adembenemende natuurparken"}
           </p>
           
           <form 
@@ -312,12 +302,12 @@ export default function Home() {
               console.log('Form submit event triggered');
               handleSearch(e);
             }} 
-            className="mt-5 mb-5 relative"
+            className="mt-8 mb-8 relative max-w-2xl mx-auto"
           >
-            <div className="relative inline-block">
+            <div className="relative">
               <Input
                 type="text"
-                placeholder={searchConfig?.placeholderText || "Zoek bestemming"}
+                placeholder={searchConfig?.placeholderText || "Zoek je perfecte bestemming in Polen..."}
                 value={searchQuery}
                 onChange={(e) => {
                   console.log('Search input changed:', e.target.value);
@@ -329,10 +319,10 @@ export default function Home() {
                     console.log('Enter key detected, form should submit');
                   }
                 }}
-                className="py-3 px-5 w-80 max-w-full border-none rounded-lg text-base text-gray-900 font-inter"
+                className="glass-search py-4 px-6 pr-14 w-full text-lg text-navy-dark placeholder:text-navy-light font-croatia-body rounded-xl shadow-2xl focus:ring-2 focus:ring-gold/50 transition-all duration-300"
               />
               <Search 
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4 cursor-pointer" 
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gold h-6 w-6 cursor-pointer hover:text-gold/80 transition-colors" 
                 onClick={() => {
                   console.log('Search icon clicked');
                   if (searchQuery.trim()) {
@@ -344,21 +334,13 @@ export default function Home() {
                 }}
               />
             </div>
-            {/* Debug state indicator */}
-            {showSearchResults && (
-              <div className="absolute top-16 left-0 bg-red-500 text-white px-2 py-1 text-xs rounded">
-                Search Active: {isSearching ? 'Searching...' : `${searchResults.length} results`}
-              </div>
-            )}
           </form>
-          
-
           
           <Button
             onClick={handlePlanTrip}
-            className="mt-4 py-3 px-6 text-base font-inter hover:opacity-90 transition-all duration-200"
-            style={{ backgroundColor: "#2f3e46" }}
+            className="bg-navy-gradient hover:opacity-90 text-white py-4 px-8 text-lg font-croatia-body rounded-xl shadow-xl transition-all duration-300 transform hover:scale-105"
           >
+            <MapPin className="mr-2 h-5 w-5" />
             Plan je reis
           </Button>
         </div>
@@ -432,10 +414,16 @@ export default function Home() {
 
       {/* Destinations Section - Travel Slider Implementation */}
       {siteSettings?.showDestinations && (
-        <section className="py-16 px-5 max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
-            Bestemmingen
-          </h2>
+        <section className="py-20 px-5 max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-luxury-serif font-bold mb-4 text-navy-dark">
+              Populaire Bestemmingen
+            </h2>
+            <div className="w-24 h-1 bg-gold mx-auto mb-6"></div>
+            <p className="text-lg text-navy-medium font-croatia-body max-w-2xl mx-auto">
+              Ontdek de meest geliefde bestemmingen van Polen
+            </p>
+          </div>
           <TravelSlider
             visibleItems={{ mobile: 1, tablet: 2, desktop: 4 }}
             showNavigation={true}
@@ -444,15 +432,23 @@ export default function Home() {
             {publishedDestinations.map((destination: any) => {
               const CardContent = (
                 <Card 
-                  className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer"
+                  className="glass-card rounded-xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 border-gold/20 cursor-pointer transform hover:scale-105 group"
                 >
-                  <DestinationImage
-                    src={destination.image || '/images/placeholder.jpg'}
-                    alt={destination.alt || destination.name || 'Bestemming'}
-                    className="w-full h-40 object-cover"
-                  />
-                  <div className="p-4 font-bold font-inter text-gray-900">
-                    {destination.name}
+                  <div className="relative overflow-hidden">
+                    <DestinationImage
+                      src={destination.image || '/images/placeholder.jpg'}
+                      alt={destination.alt || destination.name || 'Bestemming'}
+                      className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/80 via-transparent to-transparent opacity-60"></div>
+                  </div>
+                  <div className="p-6 bg-white/90 backdrop-blur-sm">
+                    <h3 className="font-luxury-serif font-bold text-xl text-navy-dark mb-2 group-hover:text-gold transition-colors">
+                      {destination.name}
+                    </h3>
+                    <p className="text-navy-medium text-sm font-croatia-body">
+                      {destination.subtitle || "Ontdek deze prachtige bestemming"}
+                    </p>
                   </div>
                 </Card>
               );
@@ -489,36 +485,39 @@ export default function Home() {
 
       {/* CTA Section - Dynamic from Database */}
       {siteSettings?.showMotivation && motivationData && motivationData?.is_published && (
-        <section className="py-16 px-5 max-w-6xl mx-auto">
-          <div className="flex flex-wrap gap-8 items-center justify-between">
-            <div className="flex-1 min-w-80">
-              <h2 className="text-3xl font-bold mb-4 font-inter text-gray-900">
-                {motivationData?.title || "Laat je verrassen door het onbekende Polen"}
-              </h2>
-              <p className="text-lg mb-6 font-inter text-gray-700">
-                {motivationData?.description || "Bezoek historische steden, ontdek natuurparken en verborgen parels. Onze reisgidsen helpen je op weg!"}
-              </p>
-              <Button
-                onClick={handleReadGuides}
-                className="py-3 px-6 text-base font-inter hover:opacity-90 transition-all duration-200"
-                style={{ backgroundColor: "#2f3e46" }}
-              >
-                {motivationData?.button_text || "Lees onze reizen"}
-              </Button>
-            </div>
-            <div className="flex-1 min-w-80 relative">
-              <HeroImage
-                src={motivationData?.image || "/images/motivatie/tatra-valley.jpg"}
-                alt="Motivatie afbeelding"
-                className="w-full rounded-xl shadow-lg"
-                fallback="/images/motivatie/tatra-valley.jpg"
-              />
-              {/* Location name overlay */}
-              {motivationImageLocation?.locationName && (
-                <div className="absolute bottom-2 right-2 bg-black bg-opacity-80 text-white px-2 py-1 rounded text-sm font-medium shadow-lg z-10">
-                  📍 {motivationImageLocation.locationName}
-                </div>
-              )}
+        <section className="py-20 px-5 max-w-7xl mx-auto">
+          <div className="glass-card rounded-2xl p-8 md:p-12 shadow-2xl border-gold/20">
+            <div className="flex flex-wrap gap-12 items-center justify-between">
+              <div className="flex-1 min-w-80">
+                <h2 className="text-4xl md:text-5xl font-luxury-serif font-bold mb-6 text-navy-dark">
+                  {motivationData?.title || "Laat je verrassen door het onbekende Polen"}
+                </h2>
+                <p className="text-lg md:text-xl mb-8 font-croatia-body text-navy-medium leading-relaxed">
+                  {motivationData?.description || "Bezoek historische steden, ontdek natuurparken en verborgen parels. Onze reisgidsen helpen je op weg!"}
+                </p>
+                <Button
+                  onClick={handleReadGuides}
+                  className="bg-navy-gradient hover:opacity-90 text-white py-4 px-8 text-lg font-croatia-body rounded-xl shadow-xl transition-all duration-300 transform hover:scale-105"
+                >
+                  <Calendar className="mr-2 h-5 w-5" />
+                  {motivationData?.button_text || "Lees onze reizen"}
+                </Button>
+              </div>
+              <div className="flex-1 min-w-80 relative">
+                <HeroImage
+                  src={motivationData?.image || "/images/motivatie/tatra-valley.jpg"}
+                  alt="Motivatie afbeelding"
+                  className="w-full rounded-xl shadow-2xl"
+                  fallback="/images/motivatie/tatra-valley.jpg"
+                />
+                {/* Location name overlay */}
+                {motivationImageLocation?.locationName && (
+                  <div className="absolute bottom-4 right-4 glass-card text-navy-dark px-3 py-2 rounded-lg text-sm font-medium shadow-xl border-gold/30">
+                    <MapPin className="inline mr-1 h-4 w-4 text-gold" />
+                    {motivationImageLocation.locationName}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </section>
@@ -526,30 +525,36 @@ export default function Home() {
 
       {/* Featured Activities Section - From Database */}
       {siteSettings?.showHighlights && featuredActivities.length > 0 && (
-        <section className="py-16 px-5 max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
-            Hoogtepunten van Polen
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <section className="py-20 px-5 max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-luxury-serif font-bold mb-4 text-navy-dark">
+              Hoogtepunten van Polen
+            </h2>
+            <div className="w-24 h-1 bg-gold mx-auto mb-6"></div>
+            <p className="text-lg text-navy-medium font-croatia-body max-w-2xl mx-auto">
+              De mooiste activiteiten en bezienswaardigheden
+            </p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {featuredActivities
               .sort((a: any, b: any) => (a.ranking || 0) - (b.ranking || 0)) // Sort by ranking
               .map((activity: any) => {
                 const CardContent = (
-                  <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer text-center">
+                  <div className="glass-card rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all duration-500 border-gold/20 cursor-pointer text-center transform hover:scale-105 group">
                     <ThumbnailImage
                       src={activity.image || '/images/activities/placeholder.svg'}
                       alt={activity.alt || activity.name || 'Activiteit'}
-                      className="w-16 h-16 mx-auto mb-3 object-cover rounded-lg"
+                      className="w-16 h-16 mx-auto mb-4 object-cover rounded-lg shadow-md group-hover:scale-110 transition-transform duration-300"
                       fallback="/images/activities/placeholder.svg"
                     />
-                    <h3 className="font-bold font-inter text-gray-900 text-sm">
+                    <h3 className="font-luxury-serif font-bold text-navy-dark text-sm mb-2 group-hover:text-gold transition-colors">
                       {activity.name}
                     </h3>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-navy-light mb-1 font-croatia-body">
                       📍 {activity.location}
                     </p>
                     {activity.category && (
-                      <p className="text-xs text-blue-600 mt-1 capitalize">
+                      <p className="text-xs text-gold font-medium capitalize">
                         {activity.category}
                       </p>
                     )}
@@ -633,7 +638,7 @@ export default function Home() {
       {siteSettings?.showOntdekMeer && publishedPages.length > 0 && (
         <section className="py-16 px-5 max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-bold font-inter text-gray-900">
+            <h2 className="text-3xl font-bold font-luxury-serif text-gray-900">
               Ontdek Meer
             </h2>
             <Link href="/ontdek-meer">
@@ -651,7 +656,7 @@ export default function Home() {
                 <Card className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer">
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-3">
-                      <h3 className="text-xl font-bold font-inter text-gray-900">
+                      <h3 className="text-xl font-bold font-luxury-serif text-gray-900">
                         {page.title}
                       </h3>
                       {page.featured && (
@@ -660,7 +665,7 @@ export default function Home() {
                         </span>
                       )}
                     </div>
-                    <p className="text-gray-600 text-sm mb-4 font-inter">
+                    <p className="text-gray-600 text-sm mb-4 font-croatia-body">
                       {page.metaDescription}
                     </p>
                     <div className="flex items-center text-xs text-gray-500">
@@ -682,7 +687,7 @@ export default function Home() {
       {/* Travel Guides - Travel Slider Implementation */}
       {siteSettings?.showGuides && (
         <section className="py-16 px-5 max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold mb-8 font-inter text-gray-900">
+          <h2 className="text-3xl font-bold mb-8 font-luxury-serif text-gray-900">
             Reizen en Tips
           </h2>
           <TravelSlider
@@ -701,10 +706,10 @@ export default function Home() {
                     className="w-full h-40 object-cover"
                   />
                   <div className="p-4">
-                    <h3 className="font-bold font-inter text-gray-900 mb-2">
+                    <h3 className="font-bold font-luxury-serif text-gray-900 mb-2">
                       {guide.title}
                     </h3>
-                    <p className="text-sm text-gray-600 font-inter">
+                    <p className="text-sm text-gray-600 font-croatia-body">
                       {guide.description}
                     </p>
                   </div>
@@ -759,7 +764,7 @@ export default function Home() {
           </Button>
         </Link>
         
-        <p className="font-inter">
+        <p className="font-croatia-body">
           &copy; 2025 {siteSettings?.siteName || "Ontdek Polen"}. Alle rechten voorbehouden.
         </p>
       </footer>

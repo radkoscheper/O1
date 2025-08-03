@@ -1,33 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --background: hsl(41, 37%, 96%);
-  --foreground: hsl(15, 20%, 12%);
-  --muted: hsl(41, 37%, 96%);
-  --muted-foreground: hsl(25, 5.3%, 44.7%);
+  /* Luxury Polish Travel Palette */
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(210, 18%, 15%);
+  --muted: hsl(210, 8%, 96%);
+  --muted-foreground: hsl(210, 12%, 45%);
   --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(15, 20%, 12%);
+  --popover-foreground: hsl(210, 18%, 15%);
   --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(15, 20%, 12%);
-  --border: hsl(20, 5.9%, 90%);
-  --input: hsl(20, 5.9%, 90%);
-  --primary: hsl(197, 37%, 24%);
+  --card-foreground: hsl(210, 18%, 15%);
+  --border: hsl(210, 12%, 88%);
+  --input: hsl(210, 12%, 88%);
+  --primary: hsl(210, 25%, 20%);
   --primary-foreground: hsl(0, 0%, 100%);
-  --secondary: hsl(41, 37%, 96%);
-  --secondary-foreground: hsl(15, 20%, 12%);
-  --accent: hsl(41, 37%, 96%);
-  --accent-foreground: hsl(15, 20%, 12%);
+  --secondary: hsl(210, 8%, 96%);
+  --secondary-foreground: hsl(210, 18%, 15%);
+  --accent: hsl(142, 76%, 36%);
+  --accent-foreground: hsl(210, 18%, 15%);
   --destructive: hsl(0, 84.2%, 60.2%);
   --destructive-foreground: hsl(60, 9.1%, 97.8%);
-  --ring: hsl(15, 20%, 12%);
-  --radius: 0.5rem;
+  --ring: hsl(210, 18%, 15%);
+  --radius: 0.75rem;
   
-  /* Custom colors for the Polish travel site */
-  --cream: hsl(41, 37%, 96%);
-  --dark-green: hsl(197, 37%, 24%);
-  --dark-text: hsl(15, 20%, 12%);
+  /* Luxury Polish Travel Theme Colors */
+  --navy-dark: hsl(210, 25%, 20%);
+  --navy-medium: hsl(210, 20%, 35%);
+  --navy-light: hsl(210, 15%, 50%);
+  --gold-accent: hsl(142, 76%, 36%);
+  --gold-light: hsl(142, 50%, 70%);
+  --cream-white: hsl(45, 20%, 98%);
+  --warm-gray: hsl(210, 8%, 85%);
+  --text-dark: hsl(210, 18%, 15%);
+  --text-medium: hsl(210, 12%, 45%);
+  --text-light: hsl(210, 8%, 65%);
+
+  /* Sidebar variables */
+  --sidebar-background: 0 0% 98%;
+  --sidebar-foreground: 240 5.3% 26.1%;
+  --sidebar-primary: 240 5.9% 10%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-accent: 240 4.8% 95.9%;
+  --sidebar-accent-foreground: 240 5.9% 10%;
+  --sidebar-border: 220 13% 91%;
+  --sidebar-ring: 217.2 10.6% 64.9%;
 }
 
 .dark {
@@ -51,6 +71,16 @@
   --destructive-foreground: hsl(0, 0%, 98%);
   --ring: hsl(240, 4.9%, 83.9%);
   --radius: 0.5rem;
+
+  /* Dark mode sidebar variables */
+  --sidebar-background: 240 5.9% 10%;
+  --sidebar-foreground: 240 4.8% 95.9%;
+  --sidebar-primary: 224.3 76.3% 94.1%;
+  --sidebar-primary-foreground: 240 5.9% 10%;
+  --sidebar-accent: 240 3.7% 15.9%;
+  --sidebar-accent-foreground: 240 4.8% 95.9%;
+  --sidebar-border: 240 3.7% 15.9%;
+  --sidebar-ring: 217.2 10.6% 64.9%;
 }
 
 @layer base {
@@ -59,15 +89,71 @@
   }
 
   body {
-    @apply font-inter antialiased;
-    background-color: #f8f6f1;
-    color: #1f1f1f;
+    @apply antialiased;
+    font-family: 'Inter', 'Origo', Arial, sans-serif;
+    background: linear-gradient(135deg, hsl(45, 20%, 98%) 0%, hsl(210, 8%, 96%) 50%, hsl(45, 70%, 95%) 100%);
+    min-height: 100vh;
+    color: hsl(210, 18%, 15%);
   }
 }
 
 @layer utilities {
   .font-inter {
     font-family: 'Inter', sans-serif;
+  }
+  
+  /* Visit Croatia Authentic Typography Classes - Inspired by croatia.hr */
+  .font-luxury-serif {
+    font-family: 'Crimson Pro', 'Livory', serif;
+  }
+
+  .font-elegant-serif {
+    font-family: 'Crimson Pro', 'Livory', serif;
+  }
+
+  .font-croatia-body {
+    font-family: 'Inter', 'Origo', Arial, sans-serif;
+  }
+
+  /* Luxury Color Utilities */
+  .text-navy-dark { color: hsl(210, 25%, 20%); }
+  .text-navy-medium { color: hsl(210, 20%, 35%); }
+  .text-navy-light { color: hsl(210, 15%, 50%); }
+  .text-gold { color: hsl(142, 76%, 36%); }
+  .bg-navy-dark { background-color: hsl(210, 25%, 20%); }
+  .bg-navy-medium { background-color: hsl(210, 20%, 35%); }
+  .bg-gold { background-color: hsl(142, 76%, 36%); }
+  .bg-cream { background-color: hsl(45, 20%, 98%); }
+
+  /* Luxury Gradient Backgrounds */
+  .bg-luxury-gradient {
+    background: linear-gradient(135deg, hsl(45, 20%, 98%) 0%, hsl(210, 8%, 85%) 50%, hsl(45, 70%, 85%) 100%);
+  }
+
+  .bg-navy-gradient {
+    background: linear-gradient(135deg, hsl(210, 25%, 20%) 0%, hsl(210, 20%, 35%) 100%);
+  }
+  
+  /* Glassmorphism Effects */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+  
+  .glass-nav {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(210, 175, 55, 0.2);
+  }
+  
+  .glass-search {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 2px solid rgba(210, 175, 55, 0.3);
   }
 }
 

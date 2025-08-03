@@ -42,7 +42,7 @@ export function LoadingScreen({ isLoading, title, subtitle, onComplete }: Loadin
           <div className="relative">
             {/* Main logo circle */}
             <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-600 rounded-full flex items-center justify-center shadow-2xl border-4 border-white/20">
-              <span className="text-4xl font-bold text-white font-serif tracking-wide">P</span>
+              <span className="text-4xl font-bold text-white font-croatia-body tracking-wide">P</span>
             </div>
             
             {/* Animated rings */}
@@ -57,10 +57,10 @@ export function LoadingScreen({ isLoading, title, subtitle, onComplete }: Loadin
 
         {/* Loading content */}
         <div className="space-y-6">
-          <h1 className="text-3xl md:text-4xl font-serif font-bold text-white tracking-wide">
+          <h1 className="text-3xl md:text-4xl font-luxury-serif font-bold text-white tracking-wide">
             {title}
           </h1>
-          <p className="text-lg md:text-xl text-amber-100 font-light leading-relaxed">
+          <p className="text-lg md:text-xl text-amber-100 font-croatia-body font-light leading-relaxed">
             {subtitle}
           </p>
         </div>
