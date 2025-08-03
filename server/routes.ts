@@ -11,6 +11,7 @@ import { insertUserSchema, updateUserSchema, changePasswordSchema, resetPassword
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import { cloudinaryService } from "./cloudinary";
 
 declare module "express-session" {
   interface SessionData {
@@ -3359,6 +3360,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         message: "Database connectie test mislukt",
         error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Cloudinary Gallery API routes
+  app.get("/api/admin/cloudinary/images", requireAuth, async (req, res) => {
+    try {
+      const folder = req.query.folder as string || 'ontdek-polen';
+      const maxResults = parseInt(req.query.max_results as string) || 20;
+      
+      const result = await cloudinaryService.listImages(folder, maxResults);
+      res.json(result);
+    } catch (error) {
+      console.error('Cloudinary list error:', error);
+      res.status(500).json({ 
+        error: 'Failed to fetch images', 
+        message: error instanceof Error ? error.message : 'Unknown error' 
+      });
+    }
+  });
+
+  app.post("/api/admin/cloudinary/delete", requireAuth, async (req, res) => {
+    try {
+      const { public_id } = req.body;
+      
+      if (!public_id) {
+        return res.status(400).json({ error: 'Public ID is required' });
+      }
+      
+      const result = await cloudinaryService.deleteImage(public_id);
+      res.json(result);
+    } catch (error) {
+      console.error('Cloudinary delete error:', error);
+      res.status(500).json({ 
+        error: 'Failed to delete image', 
+        message: error instanceof Error ? error.message : 'Unknown error' 
+      });
+    }
+  });
+
+  // Alternative API endpoints for frontend compatibility
+  app.get("/api/upload/cloudinary/list/:folder", requireAuth, async (req, res) => {
+    try {
+      const folder = decodeURIComponent(req.params.folder);
+      const maxResults = parseInt(req.query.max_results as string) || 20;
+      
+      const result = await cloudinaryService.listImages(folder, maxResults);
+      res.json({ data: result.resources });
+    } catch (error) {
+      console.error('Cloudinary list error:', error);
+      res.status(500).json({ 
+        error: 'Failed to fetch images', 
+        message: error instanceof Error ? error.message : 'Unknown error' 
+      });
+    }
+  });
+
+  app.delete("/api/upload/cloudinary/:publicId", requireAuth, async (req, res) => {
+    try {
+      const publicId = decodeURIComponent(req.params.publicId);
+      
+      const result = await cloudinaryService.deleteImage(publicId);
+      res.json(result);
+    } catch (error) {
+      console.error('Cloudinary delete error:', error);
+      res.status(500).json({ 
+        error: 'Failed to delete image', 
+        message: error instanceof Error ? error.message : 'Unknown error' 
       });
     }
   });

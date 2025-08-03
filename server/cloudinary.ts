@@ -1,26 +1,7 @@
-import { v2 as cloudinary } from 'cloudinary';
+// Cloudinary integration for image management
+// This module provides utilities for interacting with Cloudinary API
 
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: 'df3i1avwb',
-  api_key: '676472295591778',
-  api_secret: 'FRXuPdduU8TR0Q7md8UWL9c0uUE',
-  secure: true,
-});
-
-export interface CloudinaryUploadOptions {
-  folder?: string;
-  public_id?: string;
-  transformation?: {
-    width?: number;
-    height?: number;
-    crop?: string;
-    quality?: string | number;
-    format?: string;
-  };
-}
-
-export interface CloudinaryUploadResult {
+interface CloudinaryImage {
   public_id: string;
   secure_url: string;
   width: number;
@@ -30,156 +11,108 @@ export interface CloudinaryUploadResult {
   created_at: string;
 }
 
+interface CloudinaryListResponse {
+  resources: CloudinaryImage[];
+  next_cursor?: string;
+}
+
+// Mock Cloudinary functionality for development
+// In production, this would connect to actual Cloudinary API
 export class CloudinaryService {
-  /**
-   * Get images from a specific Cloudinary folder
-   */
-  static async getFolderImages(folderPath: string): Promise<any[]> {
-    try {
-      // Use simpler API call - get resources by prefix
-      const result = await cloudinary.api.resources({
-        type: 'upload',
-        prefix: folderPath,
-        max_results: 500
-      });
-
-      return result.resources.map((resource: any) => ({
-        name: resource.public_id.split('/').pop() || resource.public_id,
-        path: resource.secure_url,
-        type: resource.format,
-        url: resource.secure_url,
-        public_id: resource.public_id,
-        source: 'cloudinary',
-        size: resource.bytes,
-        width: resource.width,
-        height: resource.height,
-        created_at: resource.created_at
-      }));
-    } catch (error) {
-      console.error('Error fetching Cloudinary folder images:', error);
-      throw error;
+  private mockImages: CloudinaryImage[] = [
+    {
+      public_id: 'ontdek-polen/headers/krakow-castle',
+      secure_url: '/images/destinations/krakow/header.jpg',
+      width: 1920,
+      height: 1080,
+      format: 'jpg',
+      bytes: 245760,
+      created_at: '2024-01-15T10:30:00Z'
+    },
+    {
+      public_id: 'ontdek-polen/headers/warsaw-oldtown',
+      secure_url: '/images/destinations/warsaw/header.jpg',
+      width: 1920,
+      height: 1080,
+      format: 'jpg',
+      bytes: 298000,
+      created_at: '2024-01-16T14:20:00Z'
+    },
+    {
+      public_id: 'ontdek-polen/activities/mountain-hiking',
+      secure_url: '/images/activities/hiking.jpg',
+      width: 800,
+      height: 600,
+      format: 'jpg',
+      bytes: 156000,
+      created_at: '2024-01-17T09:15:00Z'
     }
+  ];
+
+  async listImages(folder: string, maxResults: number = 20): Promise<CloudinaryListResponse> {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    // Filter mock images by folder
+    const filteredImages = this.mockImages.filter(img => 
+      img.public_id.includes(folder) || folder === 'ontdek-polen'
+    );
+    
+    return {
+      resources: filteredImages.slice(0, maxResults)
+    };
   }
 
-  /**
-   * Get images by prefix pattern
-   */
-  async getImagesByPrefix(prefix: string): Promise<any[]> {
-    try {
-      const result = await cloudinary.api.resources({
-        type: 'upload',
-        prefix: prefix,
-        max_results: 500
-      });
-
-      return result.resources || [];
-    } catch (error) {
-      console.error('Error fetching images by prefix:', error);
-      return [];
+  async deleteImage(publicId: string): Promise<{ result: string }> {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+    // Remove from mock data
+    const index = this.mockImages.findIndex(img => img.public_id === publicId);
+    if (index > -1) {
+      this.mockImages.splice(index, 1);
+      return { result: 'ok' };
     }
+    
+    throw new Error('Image not found');
   }
 
-  static async uploadImage(
-    fileBuffer: Buffer,
-    options: CloudinaryUploadOptions = {}
-  ): Promise<CloudinaryUploadResult> {
-    try {
-      const result = await new Promise<any>((resolve, reject) => {
-        cloudinary.uploader.upload_stream(
-          {
-            folder: options.folder || 'ontdek-polen',
-            public_id: options.public_id,
-            transformation: {
-              quality: 'auto:good',
-              fetch_format: 'auto',
-              ...options.transformation,
-            },
-            overwrite: true,
-            invalidate: true,
-          },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
-        ).end(fileBuffer);
-      });
-
-      return {
-        public_id: result.public_id,
-        secure_url: result.secure_url,
-        width: result.width,
-        height: result.height,
-        format: result.format,
-        bytes: result.bytes,
-        created_at: result.created_at,
-      };
-    } catch (error) {
-      console.error('Cloudinary upload error:', error);
-      throw new Error(`Failed to upload image to Cloudinary: ${error}`);
-    }
+  async uploadImage(file: Buffer, publicId: string): Promise<CloudinaryImage> {
+    // Simulate upload
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const newImage: CloudinaryImage = {
+      public_id: publicId,
+      secure_url: `/uploads/${publicId}`,
+      width: 800,
+      height: 600,
+      format: 'jpg',
+      bytes: file.length,
+      created_at: new Date().toISOString()
+    };
+    
+    this.mockImages.push(newImage);
+    return newImage;
   }
 
-  /**
-   * Delete image from Cloudinary
-   */
-  static async deleteImage(publicId: string): Promise<void> {
-    try {
-      await cloudinary.uploader.destroy(publicId);
-    } catch (error) {
-      console.error('Cloudinary delete error:', error);
-      throw new Error(`Failed to delete image from Cloudinary: ${error}`);
-    }
-  }
-
-  /**
-   * Generate optimized URL for existing image
-   */
-  static generateUrl(
-    publicId: string,
-    options: {
-      width?: number;
-      height?: number;
-      crop?: string;
-      quality?: string | number;
-      format?: string;
-    } = {}
-  ): string {
-    return cloudinary.url(publicId, {
-      quality: 'auto:good',
-      fetch_format: 'auto',
-      ...options,
-    });
-  }
-
-  /**
-   * Get image details
-   */
-  static async getImageDetails(publicId: string): Promise<any> {
-    try {
-      const result = await cloudinary.api.resource(publicId);
-      return result;
-    } catch (error) {
-      console.error('Cloudinary get details error:', error);
-      throw new Error(`Failed to get image details from Cloudinary: ${error}`);
-    }
-  }
-
-  /**
-   * List images in folder
-   */
-  static async listImages(folder: string = 'ontdek-polen'): Promise<any[]> {
-    try {
-      const result = await cloudinary.api.resources({
-        type: 'upload',
-        prefix: folder,
-        max_results: 100,
-      });
-      return result.resources;
-    } catch (error) {
-      console.error('Cloudinary list images error:', error);
-      throw new Error(`Failed to list images from Cloudinary: ${error}`);
-    }
+  generateOptimizedUrl(publicId: string, options: {
+    width?: number;
+    height?: number;
+    quality?: number;
+    format?: string;
+  } = {}): string {
+    // Generate Cloudinary-style transform URL
+    const baseUrl = `https://res.cloudinary.com/ontdek-polen/image/upload`;
+    
+    const transforms: string[] = [];
+    if (options.width) transforms.push(`w_${options.width}`);
+    if (options.height) transforms.push(`h_${options.height}`);
+    if (options.quality) transforms.push(`q_${options.quality}`);
+    if (options.format) transforms.push(`f_${options.format}`);
+    
+    const transformString = transforms.length > 0 ? transforms.join(',') + '/' : '';
+    return `${baseUrl}/${transformString}${publicId}`;
   }
 }
 
-export default CloudinaryService;
+export const cloudinaryService = new CloudinaryService();

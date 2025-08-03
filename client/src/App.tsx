@@ -10,6 +10,7 @@ import Admin from "@/pages/admin";
 import OntdekMeer from "@/pages/ontdek-meer";
 import Page from "@/pages/page";
 import NotFound from "@/pages/not-found";
+import { CloudinaryDemo } from "@/pages/cloudinary-demo";
 
 function Router() {
   const [location] = useLocation();
@@ -56,6 +57,7 @@ function Router() {
         <Switch>
           <Route path="/" component={Home} />
           <Route path="/admin" component={Admin} />
+          <Route path="/cloudinary-demo" component={CloudinaryDemo} />
           <Route path="/ontdek-meer" component={OntdekMeer} />
           <Route path="/:slug" component={Page} />
           <Route path="/destination/:slug" component={Page} />
