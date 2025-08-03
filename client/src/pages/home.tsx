@@ -2,12 +2,15 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Search, Settings } from "lucide-react";
+import { Search, Settings, MapPin, Calendar } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
 import TravelSlider from "@/components/ui/travel-slider";
+import { DestinationImage, ThumbnailImage, HeroImage } from "@/components/ui/optimized-image";
+import type { SiteSettings, SearchConfig, SelectMotivation, Activity } from "@shared/schema";
 
 export default function Home() {
+  const [location] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
@@ -84,17 +87,17 @@ export default function Home() {
       }
       const activities = await response.json();
       // Filter for featured and published activities only
-      return activities.filter(activity => activity.featured === true && activity.published === true);
+      return activities.filter((activity: any) => activity.featured === true && activity.published === true);
     },
   });
 
   // Fetch site settings
-  const { data: siteSettings, isLoading: settingsLoading } = useQuery({
+  const { data: siteSettings, isLoading: settingsLoading } = useQuery<SiteSettings>({
     queryKey: ["/api/site-settings"],
   });
 
   // Fetch search configuration for homepage context
-  const { data: searchConfig } = useQuery({
+  const { data: searchConfig } = useQuery<SearchConfig>({
     queryKey: ["/api/search-config/homepage"],
   });
 
@@ -443,9 +446,9 @@ export default function Home() {
                 <Card 
                   className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer"
                 >
-                  <img
-                    src={destination.image}
-                    alt={destination.alt}
+                  <DestinationImage
+                    src={destination.image || '/images/placeholder.jpg'}
+                    alt={destination.alt || destination.name || 'Bestemming'}
                     className="w-full h-40 object-cover"
                   />
                   <div className="p-4 font-bold font-inter text-gray-900">
@@ -485,32 +488,30 @@ export default function Home() {
 
 
       {/* CTA Section - Dynamic from Database */}
-      {siteSettings?.showMotivation && motivationData && motivationData.is_published && (
+      {siteSettings?.showMotivation && motivationData && motivationData?.is_published && (
         <section className="py-16 px-5 max-w-6xl mx-auto">
           <div className="flex flex-wrap gap-8 items-center justify-between">
             <div className="flex-1 min-w-80">
               <h2 className="text-3xl font-bold mb-4 font-inter text-gray-900">
-                {motivationData.title || "Laat je verrassen door het onbekende Polen"}
+                {motivationData?.title || "Laat je verrassen door het onbekende Polen"}
               </h2>
               <p className="text-lg mb-6 font-inter text-gray-700">
-                {motivationData.description || "Bezoek historische steden, ontdek natuurparken en verborgen parels. Onze reisgidsen helpen je op weg!"}
+                {motivationData?.description || "Bezoek historische steden, ontdek natuurparken en verborgen parels. Onze reisgidsen helpen je op weg!"}
               </p>
               <Button
                 onClick={handleReadGuides}
                 className="py-3 px-6 text-base font-inter hover:opacity-90 transition-all duration-200"
                 style={{ backgroundColor: "#2f3e46" }}
               >
-                {motivationData.button_text || "Lees onze reizen"}
+                {motivationData?.button_text || "Lees onze reizen"}
               </Button>
             </div>
             <div className="flex-1 min-w-80 relative">
-              <img
-                src={motivationData.image || "/images/motivatie/tatra-valley.jpg"}
+              <HeroImage
+                src={motivationData?.image || "/images/motivatie/tatra-valley.jpg"}
                 alt="Motivatie afbeelding"
                 className="w-full rounded-xl shadow-lg"
-                onError={(e) => {
-                  e.currentTarget.src = "/images/motivatie/tatra-valley.jpg";
-                }}
+                fallback="/images/motivatie/tatra-valley.jpg"
               />
               {/* Location name overlay */}
               {motivationImageLocation?.locationName && (
@@ -531,17 +532,15 @@ export default function Home() {
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {featuredActivities
-              .sort((a, b) => (a.ranking || 0) - (b.ranking || 0)) // Sort by ranking
-              .map((activity) => {
+              .sort((a: any, b: any) => (a.ranking || 0) - (b.ranking || 0)) // Sort by ranking
+              .map((activity: any) => {
                 const CardContent = (
                   <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer text-center">
-                    <img
+                    <ThumbnailImage
                       src={activity.image || '/images/activities/placeholder.svg'}
-                      alt={activity.alt || activity.name}
+                      alt={activity.alt || activity.name || 'Activiteit'}
                       className="w-16 h-16 mx-auto mb-3 object-cover rounded-lg"
-                      onError={(e) => {
-                        e.currentTarget.src = '/images/activities/placeholder.svg';
-                      }}
+                      fallback="/images/activities/placeholder.svg"
                     />
                     <h3 className="font-bold font-inter text-gray-900 text-sm">
                       {activity.name}
