@@ -1481,30 +1481,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { destination } = req.params;
       
-      // Get header images from Cloudinary instead of local files
-      const cloudinaryService = new CloudinaryService();
-      const headerImages = await cloudinaryService.getImagesByPrefix(`ontdek-polen/headers/`);
-      
-      // Filter images that match the destination or are generic headers
-      const relevantImages = headerImages.filter(img => 
-        img.public_id.toLowerCase().includes(destination.toLowerCase()) ||
-        img.public_id.includes('main-header') ||
-        img.public_id.includes('default') ||
-        img.public_id.includes('generic')
-      );
-
-      // Format images for the frontend
-      const formattedImages = relevantImages.map(img => ({
-        name: img.display_name || img.public_id.split('/').pop(),
-        path: img.secure_url,
-        fullPath: img.secure_url,
-        locationName: destination,
-        cloudinaryId: img.public_id,
-        width: img.width,
-        height: img.height,
-        format: img.format,
-        created_at: img.created_at
-      }));
+      // Temporary fallback: return empty array to prevent Vercel errors
+      // TODO: Fix CloudinaryService for serverless environment
+      const formattedImages: any[] = [];
 
       res.json(formattedImages);
     } catch (error) {
