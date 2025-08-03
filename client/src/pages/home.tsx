@@ -6,7 +6,6 @@ import { Search, Settings } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
 import TravelSlider from "@/components/ui/travel-slider";
-import type { SiteSettings, SearchConfig, SelectMotivation, Activity } from "@shared/schema";
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -85,22 +84,22 @@ export default function Home() {
       }
       const activities = await response.json();
       // Filter for featured and published activities only
-      return activities.filter((activity: any) => activity.featured === true && activity.published === true);
+      return activities.filter(activity => activity.featured === true && activity.published === true);
     },
   });
 
   // Fetch site settings
-  const { data: siteSettings, isLoading: settingsLoading } = useQuery<SiteSettings>({
+  const { data: siteSettings, isLoading: settingsLoading } = useQuery({
     queryKey: ["/api/site-settings"],
   });
 
   // Fetch search configuration for homepage context
-  const { data: searchConfig } = useQuery<SearchConfig>({
+  const { data: searchConfig } = useQuery({
     queryKey: ["/api/search-config/homepage"],
   });
 
   // Fetch motivation data for CTA section
-  const { data: motivationData } = useQuery<SelectMotivation>({
+  const { data: motivationData } = useQuery({
     queryKey: ["/api/motivation"],
   });
 
@@ -192,8 +191,8 @@ export default function Home() {
         if (!gaScript) {
           gaScript = document.createElement('script');
           gaScript.id = 'google-analytics';
-          (gaScript as HTMLScriptElement).async = true;
-          (gaScript as HTMLScriptElement).src = `https://www.googletagmanager.com/gtag/js?id=${siteSettings.googleAnalyticsId}`;
+          gaScript.async = true;
+          gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${siteSettings.googleAnalyticsId}`;
           document.head.appendChild(gaScript);
           
           const gaConfig = document.createElement('script');
@@ -286,7 +285,7 @@ export default function Home() {
         style={{
           backgroundImage: siteSettings?.backgroundImage 
             ? `url('${siteSettings.backgroundImage}')` 
-            : "url('https://res.cloudinary.com/df3i1avwb/image/upload/v1753802000/ontdek-polen/backgrounds/default-header.jpg')",
+            : "url('/images/header.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center"
         }}
@@ -486,7 +485,7 @@ export default function Home() {
 
 
       {/* CTA Section - Dynamic from Database */}
-      {siteSettings?.showMotivation && motivationData && motivationData.isPublished && (
+      {siteSettings?.showMotivation && motivationData && motivationData.is_published && (
         <section className="py-16 px-5 max-w-6xl mx-auto">
           <div className="flex flex-wrap gap-8 items-center justify-between">
             <div className="flex-1 min-w-80">
@@ -501,16 +500,16 @@ export default function Home() {
                 className="py-3 px-6 text-base font-inter hover:opacity-90 transition-all duration-200"
                 style={{ backgroundColor: "#2f3e46" }}
               >
-                {motivationData.buttonText || "Lees onze reizen"}
+                {motivationData.button_text || "Lees onze reizen"}
               </Button>
             </div>
             <div className="flex-1 min-w-80 relative">
               <img
-                src={motivationData.image || "https://res.cloudinary.com/df3i1avwb/image/upload/v1753802146/ontdek-polen/motivatie/tatra-mountains-1753802146554.jpg"}
+                src={motivationData.image || "/images/motivatie/tatra-valley.jpg"}
                 alt="Motivatie afbeelding"
                 className="w-full rounded-xl shadow-lg"
                 onError={(e) => {
-                  e.currentTarget.src = "https://res.cloudinary.com/df3i1avwb/image/upload/v1753802146/ontdek-polen/motivatie/tatra-mountains-1753802146554.jpg";
+                  e.currentTarget.src = "/images/motivatie/tatra-valley.jpg";
                 }}
               />
               {/* Location name overlay */}
@@ -532,16 +531,16 @@ export default function Home() {
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {featuredActivities
-              .sort((a: any, b: any) => (a.ranking || 0) - (b.ranking || 0)) // Sort by ranking
-              .map((activity: any) => {
+              .sort((a, b) => (a.ranking || 0) - (b.ranking || 0)) // Sort by ranking
+              .map((activity) => {
                 const CardContent = (
                   <div className="bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer text-center">
                     <img
-                      src={activity.image || 'https://res.cloudinary.com/df3i1avwb/image/upload/v1753802000/ontdek-polen/activities/placeholder.svg'}
+                      src={activity.image || '/images/activities/placeholder.svg'}
                       alt={activity.alt || activity.name}
                       className="w-16 h-16 mx-auto mb-3 object-cover rounded-lg"
                       onError={(e) => {
-                        e.currentTarget.src = 'https://res.cloudinary.com/df3i1avwb/image/upload/v1753802000/ontdek-polen/activities/placeholder.svg';
+                        e.currentTarget.src = '/images/activities/placeholder.svg';
                       }}
                     />
                     <h3 className="font-bold font-inter text-gray-900 text-sm">
