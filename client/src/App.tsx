@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { LoadingScreen } from "@/components/ui/loading-screen";
 import { useState, useEffect } from "react";
 import Home from "@/pages/home";
+import HomeTest from "@/pages/home-test";
 import Admin from "@/pages/admin";
 import OntdekMeer from "@/pages/ontdek-meer";
 import Page from "@/pages/page";
@@ -58,6 +59,7 @@ function Router() {
       {!isLoading && (
         <Switch>
           <Route path="/" component={Home} />
+          <Route path="/test" component={HomeTest} />
           <Route path="/admin" component={Admin} />
           <Route path="/cloudinary-demo" component={CloudinaryDemo} />
           <Route path="/highlights-demo" component={HighlightsDemo} />

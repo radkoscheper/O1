@@ -15,7 +15,7 @@ interface TravelSliderProps {
   className?: string
 }
 
-export function TravelSlider({ 
+export default function TravelSlider({ 
   children, 
   visibleItems = { mobile: 1, tablet: 2, desktop: 4 },
   showNavigation = true,
@@ -43,7 +43,11 @@ export function TravelSlider({
   }, [emblaApi])
 
   // Don't show navigation if we have 4 or fewer items
-  const showNavigationButtons = showNavigation && children.length > visibleItems.desktop
+  const showNavigationButtons = showNavigation && children && children.length > visibleItems.desktop
+
+  if (!children || children.length === 0) {
+    return null;
+  }
 
   return (
     <div className={cn("relative", className)} data-testid="travel-slider">
@@ -53,13 +57,13 @@ export function TravelSlider({
             <div
               key={index}
               className={cn(
-                "flex-none px-2",
+                "flex-none",
                 // Mobile: full width (1 item)
                 "w-full",
-                // Tablet: half width (2 items)
-                "md:w-1/2",
-                // Desktop: quarter width (4 items)
-                "lg:w-1/4"
+                // Tablet: half width (2 items) 
+                visibleItems.tablet === 2 ? "md:w-1/2" : visibleItems.tablet === 1 ? "md:w-full" : "md:w-1/3",
+                // Desktop: based on visibleItems.desktop
+                visibleItems.desktop === 4 ? "lg:w-1/4" : visibleItems.desktop === 2 ? "lg:w-1/2" : visibleItems.desktop === 3 ? "lg:w-1/3" : "lg:w-full"
               )}
             >
               {child}
@@ -74,7 +78,7 @@ export function TravelSlider({
           <Button
             variant="outline"
             size="sm"
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-10 glass-card hover:bg-white shadow-xl border-green-500/30"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-10 bg-white/95 hover:bg-white shadow-xl border-gold-accent/30 rounded-full"
             onClick={scrollPrev}
             aria-label="Vorige items"
           >
@@ -84,7 +88,7 @@ export function TravelSlider({
           <Button
             variant="outline"
             size="sm"
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-10 glass-card hover:bg-white shadow-xl border-green-500/30"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-10 bg-white/95 hover:bg-white shadow-xl border-gold-accent/30 rounded-full"
             onClick={scrollNext}
             aria-label="Volgende items"
           >
@@ -95,11 +99,11 @@ export function TravelSlider({
 
       {/* Scroll Indicator Dots (only show if more than visible items) */}
       {children.length > visibleItems.desktop && (
-        <div className="flex justify-center mt-4 space-x-2">
+        <div className="flex justify-center mt-6 space-x-2">
           {Array.from({ length: Math.ceil(children.length / visibleItems.desktop) }).map((_, index) => (
             <div
               key={index}
-              className="w-2 h-2 rounded-full bg-green-500 opacity-60 hover:opacity-100 transition-opacity"
+              className="w-3 h-3 rounded-full bg-gold-accent/60 hover:bg-gold-accent transition-all duration-300 cursor-pointer"
               aria-hidden="true"
             />
           ))}
@@ -108,5 +112,3 @@ export function TravelSlider({
     </div>
   )
 }
-
-export default TravelSlider

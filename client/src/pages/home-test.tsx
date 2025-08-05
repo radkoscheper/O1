@@ -9,7 +9,7 @@ import TravelSlider from "@/components/ui/travel-slider";
 import { DestinationImage, ThumbnailImage, HeroImage } from "@/components/ui/optimized-image";
 import type { SiteSettings, SearchConfig, SelectMotivation, Activity } from "@shared/schema";
 
-export default function Home() {
+export default function HomeTest() {
   const [location] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -30,7 +30,7 @@ export default function Home() {
       case 'destination':
         return 'bg-green-100 text-green-700';
       case 'activity':
-        return 'bg-green-100 text-green-700';
+        return 'bg-orange-100 text-orange-700';
       case 'highlight':
         return 'bg-yellow-100 text-yellow-700';
       case 'guide':
@@ -94,17 +94,6 @@ export default function Home() {
   // Fetch site settings
   const { data: siteSettings, isLoading: settingsLoading } = useQuery<SiteSettings>({
     queryKey: ["/api/site-settings"],
-  });
-
-  // Fetch search configuration for homepage context
-  const { data: searchConfig } = useQuery({
-    queryKey: ["/api/search-configs"],
-    queryFn: async () => {
-      const response = await fetch('/api/search-configs');
-      if (!response.ok) throw new Error('Failed to fetch search configs');
-      const configs = await response.json();
-      return configs.find((config: any) => config.context === 'homepage' && config.enabled);
-    },
   });
 
   // Fetch motivation data for CTA section
@@ -196,9 +185,9 @@ export default function Home() {
       
       // Add Google Analytics
       if (siteSettings.googleAnalyticsId) {
-        let gaScript = document.querySelector('#google-analytics') as HTMLScriptElement;
+        let gaScript = document.querySelector('#google-analytics');
         if (!gaScript) {
-          gaScript = document.createElement('script') as HTMLScriptElement;
+          gaScript = document.createElement('script');
           gaScript.id = 'google-analytics';
           gaScript.async = true;
           gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${siteSettings.googleAnalyticsId}`;
@@ -225,8 +214,31 @@ export default function Home() {
   
   // Filter only published pages
   const publishedPages = (pages as any[]).filter((page: any) => page.published);
+
+  const isPageLoading = destinationsLoading || guidesLoading || pagesLoading;
+
+  // Fetch search configuration for homepage context
+  const { data: searchConfig } = useQuery({
+    queryKey: ["/api/search-configs"],
+    queryFn: async () => {
+      const response = await fetch('/api/search-configs');
+      if (!response.ok) throw new Error('Failed to fetch search configs');
+      const configs = await response.json();
+      return configs.find((config: any) => config.context === 'homepage' && config.enabled);
+    },
+  });
   
-  // Loading states are handled by global LoadingScreen in App.tsx
+  // Show loading state
+  if (destinationsLoading || guidesLoading || pagesLoading || featuredLoading || settingsLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#f8f6f1" }}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-lg">Laden...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -234,9 +246,6 @@ export default function Home() {
     
     console.log('=== SEARCH DEBUG ===');
     console.log('Starting search for:', searchQuery);
-    console.log('Current showSearchResults:', showSearchResults);
-    console.log('Current searchResults length:', searchResults.length);
-    console.log('Current isSearching:', isSearching);
     
     // Always perform fresh search - don't cache results
     setIsSearching(true);
@@ -254,7 +263,6 @@ export default function Home() {
       
       const data = await response.json();
       console.log('API Response:', data);
-      console.log('Results count:', data.results?.length || 0);
       
       setSearchResults(data.results || []);
     } catch (error) {
@@ -277,7 +285,12 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#f8f6f1" }}>
+    <div className="min-h-screen bg-luxury-gradient">
+      {/* TEST BANNER */}
+      <div className="bg-accent text-navy-dark text-center py-2 text-sm font-semibold">
+        🧪 TEST PAGINA - WebsiteBuilder Design Preview
+      </div>
+
       {/* Hero Section - WebsiteBuilder Design */}
       <section 
         className="relative bg-cover bg-center text-white py-24 px-5 text-center min-h-screen flex items-center justify-center"
@@ -389,7 +402,7 @@ export default function Home() {
             ) : searchResults.length > 0 ? (
               <div className="space-y-3">
                 {searchResults.map((result: any) => (
-                  <Link key={result.id} href={result.link || `/${result.slug}`}>
+                  <Link key={result.id} to={result.link || `/${result.slug}`}>
                     <div className="p-4 hover:bg-gray-50 rounded-lg cursor-pointer border border-gray-200 transition-all duration-200">
                       <div className="flex items-center space-x-4">
                         {result.image && (
@@ -426,106 +439,78 @@ export default function Home() {
       )}
 
       {/* Destinations Section - Luxury Layout */}
-      {siteSettings?.showDestinations && (
-        <section className="py-4 px-5 max-w-7xl mx-auto">
-          <div className="text-center mb-6">
-            <h2 className="text-4xl md:text-6xl font-playfair font-bold mb-4 text-navy-dark tracking-wide">
-              Ontdek Polen
-            </h2>
-            <p className="text-xl md:text-2xl text-navy-medium font-croatia-body max-w-3xl mx-auto leading-relaxed">
-              Van historische steden tot adembenemende natuurparken
-            </p>
-          </div>
-          <TravelSlider
-            visibleItems={{ mobile: 1, tablet: 2, desktop: 4 }}
-            showNavigation={true}
-            className="mx-auto"
-          >
-            {publishedDestinations.map((destination: any) => {
-              const CardContent = (
-                <Card 
-                  className="group overflow-hidden bg-white shadow-luxury hover:shadow-luxury-xl transition-all duration-500 border-0 rounded-2xl mx-2"
+      <section className="py-4 px-5 max-w-7xl mx-auto">
+        <div className="text-center mb-6">
+          <h2 className="text-4xl md:text-6xl font-playfair font-bold mb-4 text-navy-dark tracking-wide">
+            Ontdek Polen
+          </h2>
+          <p className="text-xl md:text-2xl text-navy-medium font-croatia-body max-w-3xl mx-auto leading-relaxed">
+            Van historische steden tot adembenemende natuurparken
+          </p>
+        </div>
+        <TravelSlider
+          visibleItems={{ mobile: 1, tablet: 2, desktop: 4 }}
+          showNavigation={true}
+          className="mx-auto"
+        >
+          {publishedDestinations.map((destination: any) => (
+            <Card key={destination.id} className="group overflow-hidden bg-white shadow-luxury hover:shadow-luxury-xl transition-all duration-500 border-0 rounded-2xl mx-2">
+              <div className="aspect-[4/3] overflow-hidden">
+                <img 
+                  src={destination.image} 
+                  alt={destination.alt}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                />
+              </div>
+              <div className="p-8">
+                <h3 className="font-playfair font-bold text-2xl text-navy-dark mb-3 leading-tight">
+                  {destination.name}
+                </h3>
+                <p className="font-croatia-body text-navy-medium mb-6 leading-relaxed text-base">
+                  {destination.description}
+                </p>
+                <Link 
+                  to={`/${destination.slug}`}
+                  className="inline-flex items-center justify-center bg-gold-accent hover:bg-gold-light text-navy-dark font-playfair font-bold px-8 py-4 rounded-full transition-all duration-300 hover:scale-105 shadow-luxury hover:shadow-gold text-lg"
                 >
-                  <div className="aspect-[4/3] overflow-hidden">
-                    <DestinationImage
-                      src={destination.image || '/images/placeholder.jpg'}
-                      alt={destination.alt || destination.name || 'Bestemming'}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-                    />
-                  </div>
-                  <div className="p-8">
-                    <h3 className="font-playfair font-bold text-2xl text-navy-dark mb-3 leading-tight">
-                      {destination.name}
-                    </h3>
-                    <p className="font-croatia-body text-navy-medium mb-6 leading-relaxed text-base">
-                      {destination.description || destination.subtitle || "Ontdek deze prachtige bestemming"}
-                    </p>
-                    <div className="inline-flex items-center justify-center bg-gold-accent hover:bg-gold-light text-navy-dark font-playfair font-bold px-8 py-4 rounded-full transition-all duration-300 hover:scale-105 shadow-luxury hover:shadow-gold text-lg cursor-pointer">
-                      Ontdek Meer
-                    </div>
-                  </div>
-                </Card>
-              );
+                  Ontdek Meer
+                </Link>
+              </div>
+            </Card>
+          ))}
+        </TravelSlider>
+      </section>
 
-              // OPTIMIZED: Auto-link all destinations to their optimized routes
-              // External links take precedence, then auto-generated destination links
-              if (destination.link && destination.link.startsWith('http')) {
-                // External link - open in new tab
-                return (
-                  <a
-                    key={destination.id}
-                    href={destination.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {CardContent}
-                  </a>
-                );
-              } else {
-                // Auto-link to destination slug (optimized route)
-                // This uses the new destination-first API that tries destinations before pages
-                return (
-                  <Link key={destination.id} href={`/${destination.slug}`}>
-                    {CardContent}
-                  </Link>
-                );
-              }
-            })}
-          </TravelSlider>
-        </section>
-      )}
-
-      {/* CTA Section - Dynamic from Database */}
-      {siteSettings?.showMotivation && motivationData && motivationData?.isPublished && (
+      {/* CTA/Motivation Section - Dynamic from Database */}
+      {siteSettings?.showMotivation && motivationData && (motivationData as any)?.is_published && (
         <section className="py-20 px-5 max-w-7xl mx-auto">
-          <div className="glass-card rounded-2xl p-8 md:p-12 shadow-2xl border-gold/20">
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 md:p-12 shadow-luxury border border-gold-accent/20">
             <div className="flex flex-wrap gap-12 items-center justify-between">
               <div className="flex-1 min-w-80">
                 <h2 className="text-4xl md:text-5xl font-playfair font-bold mb-6 text-navy-dark">
-                  {motivationData?.title || "Laat je verrassen door het onbekende Polen"}
+                  {(motivationData as any)?.title || "Laat je verrassen door het onbekende Polen"}
                 </h2>
                 <p className="text-lg md:text-xl mb-8 font-croatia-body text-navy-medium leading-relaxed">
-                  {motivationData?.description || "Bezoek historische steden, ontdek natuurparken en verborgen parels. Onze reisgidsen helpen je op weg!"}
+                  {(motivationData as any)?.description || "Bezoek historische steden, ontdek natuurparken en verborgen parels. Onze reizen helpen je op weg!"}
                 </p>
                 <Button
                   onClick={handleReadGuides}
-                  className="bg-navy-gradient hover:opacity-90 text-white py-4 px-8 text-lg font-croatia-body rounded-xl shadow-xl transition-all duration-300 transform hover:scale-105"
+                  className="bg-navy-dark hover:bg-navy-medium text-white py-4 px-8 text-lg font-playfair font-bold rounded-full shadow-luxury transition-all duration-300 transform hover:scale-105"
                 >
                   <Calendar className="mr-2 h-5 w-5" />
-                  {motivationData?.buttonText || "Lees onze reizen"}
+                  {(motivationData as any)?.button_text || "Lees onze reizen"}
                 </Button>
               </div>
               <div className="flex-1 min-w-80 relative">
-                <HeroImage
-                  src={motivationData?.image || "/images/motivatie/tatra-valley.jpg"}
+                <img
+                  src={(motivationData as any)?.image || "/images/motivatie/tatra-valley.jpg"}
                   alt="Motivatie afbeelding"
-                  className="w-full rounded-xl shadow-2xl"
-                  fallback="/images/motivatie/tatra-valley.jpg"
+                  className="w-full rounded-xl shadow-luxury"
                 />
                 {/* Location name overlay */}
                 {motivationImageLocation?.locationName && (
-                  <div className="absolute bottom-4 right-4 glass-card text-navy-dark px-3 py-2 rounded-lg text-sm font-medium shadow-xl border-gold/30">
-                    <MapPin className="inline mr-1 h-4 w-4 text-gold" />
+                  <div className="absolute bottom-4 right-4 bg-white/95 text-navy-dark px-3 py-2 rounded-lg text-sm font-medium shadow-luxury border border-gold-accent/30">
+                    <MapPin className="inline mr-1 h-4 w-4 text-gold-accent" />
                     {motivationImageLocation.locationName}
                   </div>
                 )}
@@ -535,8 +520,8 @@ export default function Home() {
         </section>
       )}
 
-      {/* Featured Activities Section - From Database */}
-      {siteSettings?.showHighlights && featuredActivities.length > 0 && (
+      {/* Featured Activities Section */}
+      {featuredActivities.length > 0 && (
         <section className="py-4 px-5 bg-white">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-6">
@@ -553,250 +538,67 @@ export default function Home() {
               showNavigation={true}
               className="mx-auto"
             >
-              {featuredActivities
-                .sort((a: any, b: any) => (a.ranking || 0) - (b.ranking || 0))
-                .map((activity: any) => {
-                  // Generate fallback image based on activity location and name
-                  const getActivityImage = (activity: any) => {
-                    const locationImages: { [key: string]: string } = {
-                      'Krakow': '/images/activities/krakow-market.jpg',
-                      'Tatra': '/images/activities/tatra-mountains.jpg',
-                      'Gdansk': '/images/activities/gdansk-harbor.jpg',
-                      'Wrocław': '/images/activities/wroclaw-dwarfs.jpg',
-                      'Warschau': '/images/activities/warsaw-palace.jpg',
-                      'Zakopane': '/images/activities/zakopane-skiing.jpg',
-                      'Poznan': '/images/activities/poznan-square.jpg',
-                      'Bialowieza': '/images/activities/bialowieza-forest.jpg'
-                    };
-                    
-                    return activity.image || locationImages[activity.location] || '/images/activities/default-activity.jpg';
-                  };
-
-                  const CardContent = (
-                    <Card className="group overflow-hidden bg-white shadow-luxury hover:shadow-luxury-xl transition-all duration-500 border-0 rounded-2xl mx-2">
-                      <div className="aspect-[4/3] overflow-hidden">
-                        <ThumbnailImage
-                          src={getActivityImage(activity)}
-                          alt={activity.alt || activity.name || 'Activiteit'}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-                          fallback="/images/activities/default-activity.jpg"
-                        />
-                      </div>
-                      <div className="p-8">
-                        <h3 className="font-playfair font-bold text-2xl text-navy-dark mb-3 leading-tight">
-                          {activity.name}
-                        </h3>
-                        <p className="font-croatia-body text-navy-medium mb-4 leading-relaxed text-base">
-                          {activity.description || "Ontdek deze unieke activiteit"}
-                        </p>
-                        <div className="flex items-center justify-between">
-                          <p className="font-croatia-body text-sm text-gold-accent font-bold flex items-center">
-                            <MapPin className="w-4 h-4 mr-1" />
-                            {activity.location}
-                          </p>
-                          <div className="inline-flex items-center justify-center bg-gold-accent hover:bg-gold-light text-navy-dark font-playfair font-bold px-6 py-3 rounded-full transition-all duration-300 hover:scale-105 shadow-luxury hover:shadow-gold text-sm cursor-pointer">
-                            Bekijk
-                          </div>
-                        </div>
-                      </div>
-                    </Card>
-                  );
-
-                // Handle activity click - navigate to destination page with activity parameter
-                const handleActivityClick = () => {
-                  // Create slug mapping for all supported destinations
-                  const locationToSlug: { [key: string]: string } = {
-                    'Krakow': 'krakow',
-                    'Tatra': 'tatra', 
-                    'Gdansk': 'gdansk',
-                    'Warschau': 'warschau',
-                    'Wroclaw': 'wroclaw',
-                    'Zakopane': 'zakopane',
-                    'Poznan': 'poznan',
-                    'Bialowieza': 'bialowieza',
-                    'Wrocław': 'wroclaw', // Alternative spelling
-                    'Poznań': 'poznan', // Alternative spelling  
-                    'Białowieża': 'bialowieza', // Alternative spelling
-                    'Łódź': 'lodz',
-                    'Lublin': 'lublin',
-                    'Rzeszow': 'rzeszow',
-                    'Katowice': 'katowice',
-                    'Bialystok': 'bialystok',
-                    'Jelenia Gora': 'jelenia-gora',
-                    'Karpacz': 'karpacz',
-                    'Szklarska Poreba': 'szklarska-poreba',
-                    'Malbork': 'malbork',
-                    'Torun': 'torun',
-                    'Wieliczka': 'wieliczka',
-                    'Zamosc': 'zamosc',
-                    'Sopot': 'sopot',
-                    'Ustka': 'ustka',
-                    'Swinoujscie': 'swinoujscie',
-                    'Hel': 'hel',
-                    'Zalipie': 'zalipie',
-                    'Kazimierz Dolny': 'kazimierz-dolny',
-                    'Sandomierz': 'sandomierz'
-                  };
-                  
-                  // Navigate to destination page with activity parameter
-                  const destinationSlug = locationToSlug[activity.location] || activity.location.toLowerCase();
-                  const activityUrl = `/${destinationSlug}?activity=${activity.id}`;
-                  
-                  // Use wouter navigation
-                  window.location.href = activityUrl;
-                };
-
-                // Handle external links
-                if (activity.link && activity.link.startsWith('http')) {
-                  return (
-                    <a
-                      key={activity.id}
-                      href={activity.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {CardContent}
-                    </a>
-                  );
-                }
-
-                // Make activity clickable - navigate to destination page
-                return (
-                  <div 
-                    key={activity.id} 
-                    onClick={handleActivityClick}
-                    className="cursor-pointer"
-                  >
-                    {CardContent}
+              {featuredActivities.map((activity: any) => (
+                <Card key={activity.id} className="group text-center p-10 bg-cream-white hover:bg-white transition-all duration-500 border-0 rounded-2xl shadow-luxury hover:shadow-luxury-xl mx-2">
+                  <div className="w-20 h-20 mx-auto mb-8 flex items-center justify-center bg-gold-accent/20 rounded-full group-hover:bg-gold-accent/30 transition-all duration-300 group-hover:scale-110">
+                    <MapPin className="w-10 h-10 text-navy-dark" />
                   </div>
-                );
-              })}
-            </TravelSlider>
-          </div>
-        </section>
-      )}
-
-      {/* Published Pages */}
-      {siteSettings?.showOntdekMeer && publishedPages.length > 0 && (
-        <section className="py-16 px-5 max-w-6xl mx-auto">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-bold font-playfair text-gray-900">
-              Ontdek Meer
-            </h2>
-            <Link href="/ontdek-meer">
-              <Button
-                variant="outline"
-                className="text-gray-900 border-gray-300 hover:bg-gray-100"
-              >
-                Bekijk Alles
-              </Button>
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {publishedPages.map((page) => (
-              <Link href={`/${page.slug}`} key={page.id}>
-                <Card className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border-none cursor-pointer">
-                  <div className="p-6">
-                    <div className="flex items-start justify-between mb-3">
-                      <h3 className="text-xl font-bold font-playfair text-gray-900">
-                        {page.title}
-                      </h3>
-                      {page.featured && (
-                        <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                          Uitgelicht
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-gray-600 text-sm mb-4 font-croatia-body">
-                      {page.metaDescription}
-                    </p>
-                    <div className="flex items-center text-xs text-gray-500">
-                      <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded">
-                        {page.template}
-                      </span>
-                      <span className="ml-2">
-                        {new Date(page.createdAt).toLocaleDateString('nl-NL')}
-                      </span>
-                    </div>
-                  </div>
+                  <h3 className="font-playfair font-bold text-2xl text-navy-dark mb-4 leading-tight">
+                    {activity.name}
+                  </h3>
+                  <p className="font-croatia-body text-navy-medium mb-6 leading-relaxed">
+                    {activity.description}
+                  </p>
+                  <p className="font-croatia-body text-base text-gold-accent font-bold">
+                    📍 {activity.location}
+                  </p>
                 </Card>
-              </Link>
-            ))}
+              ))}
+            </TravelSlider>
           </div>
         </section>
       )}
 
-      {/* Travel Guides - Luxury WebsiteBuilder Design */}
-      {siteSettings?.showGuides && (
-        <section className="py-4 px-5 bg-white">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-6">
-              <h2 className="text-4xl md:text-6xl font-playfair font-bold mb-4 text-navy-dark tracking-wide">
-                Reizen en Tips
-              </h2>
-              <p className="text-xl md:text-2xl text-navy-medium font-croatia-body max-w-3xl mx-auto leading-relaxed">
-                Expertadvies voor jouw Polen avontuur
-              </p>
-            </div>
-            
-            <TravelSlider
-              visibleItems={{ mobile: 1, tablet: 2, desktop: 2 }}
-              showNavigation={true}
-              className="mx-auto"
-            >
-              {publishedGuides.map((guide: any) => {
-                const CardContent = (
-                  <Card className="group overflow-hidden bg-white shadow-luxury hover:shadow-luxury-xl transition-all duration-500 border-0 rounded-2xl mx-2">
-                    <div className="aspect-[5/3] overflow-hidden">
-                      <img
-                        src={guide.image}
-                        alt={guide.alt}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-                      />
-                    </div>
-                    <div className="p-8">
-                      <h3 className="font-playfair font-bold text-2xl text-navy-dark mb-3 leading-tight">
-                        {guide.title}
-                      </h3>
-                      <p className="font-croatia-body text-navy-medium mb-6 leading-relaxed text-base">
-                        {guide.description}
-                      </p>
-                      <div className="inline-flex items-center justify-center bg-gold-accent hover:bg-gold-light text-navy-dark font-playfair font-bold px-6 py-3 rounded-full transition-all duration-300 hover:scale-105 shadow-luxury hover:shadow-gold text-base cursor-pointer">
-                        Lees Meer
-                      </div>
-                    </div>
-                  </Card>
-                );
-
-              // If guide has a link, wrap in Link component or external link
-              if (guide.link) {
-                // Check if it's an external link (starts with http)
-                if (guide.link.startsWith('http')) {
-                  return (
-                    <a
-                      key={guide.id}
-                      href={guide.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {CardContent}
-                    </a>
-                  );
-                } else {
-                  // Internal link
-                  return (
-                    <Link key={guide.id} href={guide.link}>
-                      {CardContent}
-                    </Link>
-                  );
-                }
-              }
-
-                // No link, just return the card
-                return <div key={guide.id}>{CardContent}</div>;
-              })}
-            </TravelSlider>
+      {/* Travel Guides Section */}
+      {publishedGuides.length > 0 && (
+        <section className="py-4 px-5 max-w-7xl mx-auto">
+          <div className="text-center mb-6">
+            <h2 className="text-4xl md:text-6xl font-playfair font-bold mb-4 text-navy-dark tracking-wide">
+              Reisgidsen
+            </h2>
+            <p className="text-xl md:text-2xl text-navy-medium font-croatia-body max-w-3xl mx-auto leading-relaxed">
+              Expertadvies en insider tips voor jouw perfecte reis
+            </p>
           </div>
+          
+          <TravelSlider
+            visibleItems={{ mobile: 1, tablet: 1, desktop: 2 }}
+            showNavigation={true}
+            className="mx-auto"
+          >
+            {publishedGuides.map((guide: any) => (
+              <Card key={guide.id} className="group overflow-hidden bg-white shadow-luxury hover:shadow-luxury-xl transition-all duration-500 border-0 rounded-2xl mx-2">
+                <div className="aspect-[16/9] overflow-hidden">
+                  <img 
+                    src={guide.image} 
+                    alt={guide.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                  />
+                </div>
+                <div className="p-10">
+                  <h3 className="font-playfair font-bold text-3xl text-navy-dark mb-4 leading-tight">
+                    {guide.title}
+                  </h3>
+                  <p className="font-croatia-body text-navy-medium mb-8 leading-relaxed text-lg">
+                    {guide.description}
+                  </p>
+                  <Button className="bg-navy-dark hover:bg-navy-medium text-white font-playfair font-bold px-8 py-4 rounded-full transition-all duration-300 hover:scale-105 shadow-luxury text-lg">
+                    Lees Meer
+                  </Button>
+                </div>
+              </Card>
+            ))}
+          </TravelSlider>
         </section>
       )}
 
@@ -810,36 +612,36 @@ export default function Home() {
                   <span className="text-navy-dark font-playfair font-bold text-lg">P</span>
                 </div>
                 <span className="font-playfair font-semibold text-xl">
-                  {siteSettings?.siteName || 'Ontdek Polen'}
+                  {(siteSettings as any)?.siteName || 'Ontdek Polen'}
                 </span>
               </div>
               <p className="font-croatia-body text-white/80 leading-relaxed">
-                {siteSettings?.siteDescription || 'Jouw gids voor het ontdekken van de mooiste plekken in Polen.'}
+                {(siteSettings as any)?.siteDescription || 'Jouw gids voor het ontdekken van de mooiste plekken in Polen.'}
               </p>
             </div>
             
             <div>
               <h3 className="font-playfair font-semibold text-lg mb-6">Ontdekken</h3>
               <ul className="space-y-3 font-croatia-body">
-                <li><Link href="/ontdek-meer" className="text-white/80 hover:text-gold-accent transition-colors">Alle Bestemmingen</Link></li>
-                <li><Link href="#" className="text-white/80 hover:text-gold-accent transition-colors">Reisgidsen</Link></li>
-                <li><Link href="#" className="text-white/80 hover:text-gold-accent transition-colors">Activiteiten</Link></li>
+                <li><Link to="/ontdek-meer" className="text-white/80 hover:text-gold-accent transition-colors">Alle Bestemmingen</Link></li>
+                <li><Link to="#" className="text-white/80 hover:text-gold-accent transition-colors">Reisgidsen</Link></li>
+                <li><Link to="#" className="text-white/80 hover:text-gold-accent transition-colors">Activiteiten</Link></li>
               </ul>
             </div>
             
             <div>
               <h3 className="font-playfair font-semibold text-lg mb-6">Informatie</h3>
               <ul className="space-y-3 font-croatia-body">
-                <li><Link href="#" className="text-white/80 hover:text-gold-accent transition-colors">Over Ons</Link></li>
-                <li><Link href="#" className="text-white/80 hover:text-gold-accent transition-colors">Contact</Link></li>
-                <li><Link href="/admin" className="text-white/80 hover:text-gold-accent transition-colors">Admin</Link></li>
+                <li><Link to="#" className="text-white/80 hover:text-gold-accent transition-colors">Over Ons</Link></li>
+                <li><Link to="#" className="text-white/80 hover:text-gold-accent transition-colors">Contact</Link></li>
+                <li><Link to="/admin" className="text-white/80 hover:text-gold-accent transition-colors">Admin</Link></li>
               </ul>
             </div>
           </div>
           
           <div className="border-t border-white/20 mt-12 pt-8 text-center">
             <p className="font-croatia-body text-white/60">
-              © 2025 {siteSettings?.siteName || 'Ontdek Polen'}. Alle rechten voorbehouden.
+              © 2024 {(siteSettings as any)?.siteName || 'Ontdek Polen'}. Alle rechten voorbehouden.
             </p>
           </div>
         </div>
